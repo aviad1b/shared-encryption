@@ -1,0 +1,105 @@
+﻿{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "windows-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "linux-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "x64-base",
+            "hidden": true,
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "debug-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "gcc-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+            }
+        },
+        {
+            "name": "windows-x64-gcc-base",
+            "hidden": true,
+            "inherits": [ "windows-base", "x64-base", "gcc-base" ],
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-clang-x64",
+                    "additionalCompilerArguments": "-std=c++20",
+                    "defines": {
+                        "__cplusplus": "202002L"
+                    }
+                }
+            }
+        },
+        {
+            "name": "windows-x64-gcc-debug",
+            "displayName": "gcc x64 Debug",
+            "inherits": [ "windows-x64-gcc-base", "debug-base" ]
+        },
+        {
+            "name": "windows-x64-gcc-release",
+            "displayName": "gcc x64 Release",
+            "inherits": [ "windows-x64-gcc-base", "release-base" ]
+        },
+        {
+            "name": "linux-x64-gcc-base",
+            "hidden": true,
+            "inherits": [ "linux-base", "x64-base", "gcc-base" ],
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "linux-gcc-x64"
+                }
+            }
+        },
+        {
+            "name": "linux-x64-gcc-debug",
+            "displayName": "gcc x64 Debug",
+            "inherits": [ "linux-x64-gcc-base", "debug-base" ]
+        },
+        {
+            "name": "linux-x64-gcc-release",
+            "displayName": "gcc x64 Release",
+            "inherits": [ "linux-x64-gcc-base", "release-base" ]
+        }
+    ]
+}
