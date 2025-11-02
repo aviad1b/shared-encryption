@@ -1,4 +1,5 @@
 ﻿add_library (senc_utils
+	"Exception.hpp"
 	"Exception.cpp"
 )
 
