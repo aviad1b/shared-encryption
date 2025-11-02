@@ -6,4 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Werror -Wall -Wextra -Wvla)
 
-add_subdirectory("senc")
+add_subdirectory("utils")
+add_subdirectory("server")
+add_subdirectory("client")
