@@ -11,6 +11,7 @@
 #include <WinSock2.h> // has to be before <Windows.h>
 #include <Windows.h>
 #include <ws2ipdef.h>
+#include <concepts>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -24,6 +25,16 @@ namespace senc::utils
 	 * @brief Represents a transport port number.
 	 */
 	using Port = int;
+
+	template <typename Self>
+	concept IPType = std::copyable<Self> &&
+		std::equality_comparable<Self> && 
+		requires(const Self self, typename Self::Underlying* out)
+		{
+			{ Self::ANY } -> std::convertible_to<const Self&>;
+			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
+			{ self.init_underlying(out, std::declval<Port>()) };
+		};
 
 	/**
 	 * @class senc::utils::IPv4
@@ -95,6 +106,7 @@ namespace senc::utils
 	private:
 		std::string _addr;
 	};
+	static_assert(IPType<IPv4>);
 
 	class IPv6
 	{
@@ -163,6 +175,7 @@ namespace senc::utils
 	private:
 		std::string _addr;
 	};
+	static_assert(IPType<IPv6>);
 
 	/**
 	 * @class senc::utils::SocketException
@@ -263,20 +276,12 @@ namespace senc::utils
 		bool is_connected() const;
 
 		/**
-		 * @brief Connects socket to a given IPv4 address and port.
-		 * @param addr IPv4 address to connect to.
+		 * @brief Connects socket to a given IP address and port.
+		 * @param addr IP address to connect to.
 		 * @param port Transport-level port to connect to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void connect(const IPv4& addr, Port port);
-
-		/**
-		 * @brief Connects socket to a given IPv6 address and port.
-		 * @param addr IPv6 address to connect to.
-		 * @param port Transport-level port to connect to.
-		 * @throw senc::utils::SocketException On failure.
-		 */
-		void connect(const IPv6& addr, Port port);
+		void connect(const IPType auto& addr, Port port);
 
 		/**
 		 * @brief Binds socket to a given port.
@@ -286,20 +291,12 @@ namespace senc::utils
 		void bind(Port port);
 
 		/**
-		 * @brief Binds socket to a given IPv4 address and port.
-		 * @param addr IPv4 address to bind socket to.
+		 * @brief Binds socket to a given IP address and port.
+		 * @param addr IP address to bind socket to.
 		 * @param port Port to bind socket to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void bind(const IPv4& addr, Port port);
-
-		/**
-		 * @brief Binds socket to a given IPv6 address and port.
-		 * @param addr IPv4 address to bind socket to.
-		 * @param port Port to bind socket to.
-		 * @throw senc::utils::SocketException On failure.
-		 */
-		void bind(const IPv6& addr, Port port);
+		void bind(const IPType auto& addr, Port port);
 
 	protected:
 		bool _isConnected;
@@ -332,20 +329,12 @@ namespace senc::utils
 		TcpSocket();
 
 		/**
-		 * @brief Constructs a TCP socket, and connects it to given IPv4 address and port.
-		 * @param addr IPv4 address to connect socket to.
+		 * @brief Constructs a TCP socket, and connects it to given IP address and port.
+		 * @param addr IP address to connect socket to.
 		 * @param port TCP port to connect socket to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		TcpSocket(const IPv4& addr, Port port);
-		
-		/**
-		 * @brief Constructs a TCP socket, and connects it to given IPv6 address and port.
-		 * @param addr IPv6 address to connect socket to.
-		 * @param port TCP port to connect socket to.
-		 * @throw senc::utils::SocketException On failure.
-		 */
-		TcpSocket(const IPv6& addr, Port port);
+		TcpSocket(const IPType auto& addr, Port port);
 
 		/**
 		 * @brief Begins listening for clients.
@@ -380,45 +369,24 @@ namespace senc::utils
 		void disconnect();
 
 		/**
-		 * @brief Sends data to given IPv4 address and port.
+		 * @brief Sends data to given IP address and port.
 		 * @note Requires socket to be disconnected.
 		 * @param data Binary data to send.
-		 * @param addr IPv4 address to send data to.
+		 * @param addr IP address to send data to.
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const std::vector<std::byte>& data, const IPv4& addr, Port port);
-		
-		/**
-		 * @brief Sends data to given IPv6 address and port.
-		 * @note Requires socket to be disconnected.
-		 * @param data Binary data to send.
-		 * @param addr IPv6 address to send data to.
-		 * @param port UDP port to send data to.
-		 * @throw senc::utils::SocketException On failure.
-		 */
-		void sendto(const std::vector<std::byte>& data, const IPv6& addr, Port port);
+		void sendto(const std::vector<std::byte>& data, const IPType auto& addr, Port port);
 
 		/**
-		 * @brief Recieves data from given IPv4 address and port.
+		 * @brief Recieves data from given IP address and port.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
-		 * @param addr IPv4 address to recieve data from.
+		 * @param addr IP address to recieve data from.
 		 * @param port UDP port to recieve data from.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize, const IPv4& addr, Port port);
-		
-		/**
-		 * @brief Recieves data from given IPv6 address and port.
-		 * @note Requires socket to be disconnected.
-		 * @param maxsize Maximum amount of bytes to recieve.
-		 * @param addr IPv6 address to recieve data from.
-		 * @param port UDP port to recieve data from.
-		 * @return Recieved data.
-		 * @throw senc::utils::SocketException On failure.
-		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize, const IPv6& addr, Port port);
+		std::vector<std::byte> recvfrom(std::size_t maxsize, const IPType auto& addr, Port port);
 	};
 }
