@@ -394,3 +394,5 @@ namespace senc::utils
 		std::vector<std::byte> recvfrom(std::size_t maxsize, const IPType auto& addr, Port port);
 	};
 }
+
+#include "Socket_impl.hpp"
