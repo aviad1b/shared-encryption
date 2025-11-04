@@ -75,7 +75,7 @@ namespace senc::utils
 		 * @param other Other IPv4 address to compare to.
 		 * @param `true` if `*this` is the same address as `other`, otherwise `false`.
 		 */
-		bool operator==(const Self& other) const;
+		bool operator==(const Self& other) const noexcept;
 
 		/**
 		 * @brief Gets string representation of IPv4 address.
@@ -134,7 +134,7 @@ namespace senc::utils
 		 * @param other Other IPv4 address to compare to.
 		 * @param `true` if `*this` is the same address as `other`, otherwise `false`.
 		 */
-		bool operator==(const Self& other) const;
+		bool operator==(const Self& other) const noexcept;
 
 		/**
 		 * @brief Gets string representation of IPv4 address.

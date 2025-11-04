@@ -6,7 +6,7 @@ namespace senc::utils
 
 	IPv4::IPv4(std::string&& addr) : _addr(std::move(addr)) { }
 
-	bool IPv4::operator==(const Self& other) const
+	bool IPv4::operator==(const Self& other) const noexcept
 	{
 		return this->_addr == other._addr;
 	}
@@ -20,7 +20,7 @@ namespace senc::utils
 
 	IPv6::IPv6(std::string&& addr) : _addr(std::move(addr)) { }
 
-	bool IPv6::operator==(const Self& other) const
+	bool IPv6::operator==(const Self& other) const noexcept
 	{
 		return this->_addr == other._addr;
 	}
