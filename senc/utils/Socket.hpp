@@ -45,6 +45,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv4;
+		using Underlying = struct in_addr;
 		using UnderlyingSockAddr = struct sockaddr_in;
 		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET;
 
@@ -118,6 +119,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv6;
+		using Underlying = struct in6_addr;
 		using UnderlyingSockAddr = struct sockaddr_in6;
 		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET6;
 
