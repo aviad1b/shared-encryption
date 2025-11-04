@@ -108,6 +108,10 @@ namespace senc::utils
 	};
 	static_assert(IPType<IPv4>);
 
+	/**
+	 * @class senc::utils::IPv6
+	 * @brief Represents an IPv6 address.
+	 */
 	class IPv6
 	{
 	public:
