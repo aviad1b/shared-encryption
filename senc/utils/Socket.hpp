@@ -10,6 +10,7 @@
 
 #include <WinSock2.h> // has to be before <Windows.h>
 #include <Windows.h>
+#include <ws2ipdef.h>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -32,6 +33,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv4;
+		using Underlying = struct sockaddr_in;
 
 		/**
 		 * @brief Used for binding socket to any address.
@@ -83,6 +85,13 @@ namespace senc::utils
 		 */
 		const std::string& as_str() const noexcept;
 
+		/**
+		 * @brief Initializes underlying library's struct based on IPv4 address and port.
+		 * @param out Address of underlying library's struct to initialize.
+		 * @param port Port to initialize based on.
+		 */
+		void init_underlying(Underlying* out, Port port) const noexcept;
+
 	private:
 		std::string _addr;
 	};
@@ -91,6 +100,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv6;
+		using Underlying = struct sockaddr_in6;
 
 		/**
 		 * @brief Used for binding socket to any address.
@@ -141,6 +151,14 @@ namespace senc::utils
 		 * @return String representation of IPv4 address.
 		 */
 		const std::string& as_str() const noexcept;
+
+		/**
+		 * @brief Initializes underlying library's struct based on IPv4 address and port.
+		 * @param out Address of underlying library's struct to initialize.
+		 * @param port Port to initialize based on.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void init_underlying(Underlying* out, Port port) const;
 
 	private:
 		std::string _addr;
