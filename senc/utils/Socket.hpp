@@ -31,6 +31,7 @@ namespace senc::utils
 		std::equality_comparable<Self> && 
 		requires(const Self self, typename Self::Underlying* out)
 		{
+			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::ANY } -> std::convertible_to<const Self&>;
 			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
 			{ self.init_underlying(out, std::declval<Port>()) };
@@ -45,6 +46,7 @@ namespace senc::utils
 	public:
 		using Self = IPv4;
 		using Underlying = struct sockaddr_in;
+		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET;
 
 		/**
 		 * @brief Used for binding socket to any address.
@@ -117,6 +119,7 @@ namespace senc::utils
 	public:
 		using Self = IPv6;
 		using Underlying = struct sockaddr_in6;
+		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET6;
 
 		/**
 		 * @brief Used for binding socket to any address.
