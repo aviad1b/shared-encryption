@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   Socket_impl.hpp
+ * \brief  Template implementation of socket-related classes.
+ * 
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
+ *********************************************************************/
+
 #include "Socket.hpp"
 
 namespace senc::utils
