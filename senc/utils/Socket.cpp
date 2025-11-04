@@ -12,6 +12,8 @@
 
 namespace senc::utils
 {
+	const IPv4::Self IPv4::ANY("0.0.0.0");
+
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr)) { }
@@ -33,6 +35,8 @@ namespace senc::utils
 		out->sin_addr.s_addr = *this == ANY ? INADDR_ANY
 			: inet_addr(this->as_str().c_str());
 	}
+
+	const IPv6::Self IPv6::ANY("::");
 
 	IPv6::IPv6(const std::string& addr) : Self(std::string(addr)) { }
 

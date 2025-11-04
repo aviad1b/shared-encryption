@@ -107,6 +107,7 @@ namespace senc::utils
 		void init_underlying(UnderlyingSockAddr* out, Port port) const noexcept;
 
 	private:
+		Underlying _addr{};
 		std::string _addrStr;
 	};
 	static_assert(IPType<IPv4>);
