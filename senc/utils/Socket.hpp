@@ -306,9 +306,7 @@ namespace senc::utils
 		 * @brief Constructor of connectable socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		ConnectableSocket(UnderlyingAddressFamily underlyingAddressFamily,
-						  UnderlyingType underlyingType,
-						  UnderlyingProtocol underlyingProtocol);
+		ConnectableSocket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol);
 	};
 
 	/**

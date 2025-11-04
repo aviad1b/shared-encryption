@@ -36,8 +36,8 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline ConnectableSocket<IP>::ConnectableSocket(UnderlyingAddressFamily underlyingAddressFamily,
-												UnderlyingType underlyingType,
-												UnderlyingProtocol underlyingProtocol)
+	inline ConnectableSocket<IP>::ConnectableSocket(int underlyingAddressFamily,
+													int underlyingType,
+													int underlyingProtocol)
 		: Base(underlyingAddressFamily, underlyingType, underlyingProtocol) { }
 }
