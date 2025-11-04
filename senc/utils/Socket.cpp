@@ -11,6 +11,11 @@ namespace senc::utils
 		return this->_addr == other._addr;
 	}
 
+	const std::string& IPv4::as_str() const noexcept
+	{
+		return this->_addr;
+	}
+
 	IPv6::IPv6(const std::string& addr) : _addr(addr) { }
 
 	IPv6::IPv6(std::string&& addr) : _addr(std::move(addr)) { }
@@ -18,6 +23,11 @@ namespace senc::utils
 	bool IPv6::operator==(const Self& other) const
 	{
 		return this->_addr == other._addr;
+	}
+
+	const std::string& IPv6::as_str() const noexcept
+	{
+		return this->_addr;
 	}
 
 	SocketException::SocketException(const std::string& msg) : Base(msg) { }

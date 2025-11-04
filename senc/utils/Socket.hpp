@@ -77,6 +77,12 @@ namespace senc::utils
 		 */
 		bool operator==(const Self& other) const;
 
+		/**
+		 * @brief Gets string representation of IPv4 address.
+		 * @return String representation of IPv4 address.
+		 */
+		const std::string& as_str() const noexcept;
+
 	private:
 		std::string _addr;
 	};
@@ -129,6 +135,12 @@ namespace senc::utils
 		 * @param `true` if `*this` is the same address as `other`, otherwise `false`.
 		 */
 		bool operator==(const Self& other) const;
+
+		/**
+		 * @brief Gets string representation of IPv4 address.
+		 * @return String representation of IPv4 address.
+		 */
+		const std::string& as_str() const noexcept;
 
 	private:
 		std::string _addr;
