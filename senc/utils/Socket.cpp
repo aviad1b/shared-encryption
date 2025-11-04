@@ -12,18 +12,18 @@
 
 namespace senc::utils
 {
-	IPv4::IPv4(const std::string& addr) : _addr(addr) { }
+	IPv4::IPv4(const std::string& addr) : _addrStr(addr) { }
 
-	IPv4::IPv4(std::string&& addr) : _addr(std::move(addr)) { }
+	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr)) { }
 
 	bool IPv4::operator==(const Self& other) const noexcept
 	{
-		return this->_addr == other._addr;
+		return this->_addrStr == other._addrStr;
 	}
 
 	const std::string& IPv4::as_str() const noexcept
 	{
-		return this->_addr;
+		return this->_addrStr;
 	}
 
 	void IPv4::init_underlying(Underlying* out, Port port) const noexcept
@@ -34,18 +34,18 @@ namespace senc::utils
 			: inet_addr(this->as_str().c_str());
 	}
 
-	IPv6::IPv6(const std::string& addr) : _addr(addr) { }
+	IPv6::IPv6(const std::string& addr) : _addrStr(addr) { }
 
-	IPv6::IPv6(std::string&& addr) : _addr(std::move(addr)) { }
+	IPv6::IPv6(std::string&& addr) : _addrStr(std::move(addr)) { }
 
 	bool IPv6::operator==(const Self& other) const noexcept
 	{
-		return this->_addr == other._addr;
+		return this->_addrStr == other._addrStr;
 	}
 
 	const std::string& IPv6::as_str() const noexcept
 	{
-		return this->_addr;
+		return this->_addrStr;
 	}
 
 	void IPv6::init_underlying(Underlying* out, Port port) const

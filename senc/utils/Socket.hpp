@@ -106,7 +106,7 @@ namespace senc::utils
 		void init_underlying(Underlying* out, Port port) const noexcept;
 
 	private:
-		std::string _addr;
+		std::string _addrStr;
 	};
 	static_assert(IPType<IPv4>);
 
@@ -180,7 +180,7 @@ namespace senc::utils
 		void init_underlying(Underlying* out, Port port) const;
 
 	private:
-		std::string _addr;
+		std::string _addrStr;
 	};
 	static_assert(IPType<IPv6>);
 
