@@ -19,4 +19,43 @@ namespace senc::utils
 	{
 		return this->_addr == other._addr;
 	}
+
+	SocketException::SocketException(const std::string& msg) : Base(msg) { }
+
+	SocketException::SocketException(std::string&& msg) : Base(std::move(msg)) { }
+	
+	Socket::~Socket()
+	{
+		this->close();
+	}
+
+	void Socket::send(const std::vector<std::byte>& data)
+	{
+		if (data.size() != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
+			throw SocketException("Failed to send");
+	}
+
+	std::vector<std::byte> Socket::recv(std::size_t maxsize)
+	{
+		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
+		const int count = ::recv(this->_sock, (char*)res.data(), maxsize, 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve");
+		return std::vector<std::byte>(res.begin(), res.begin() + count);
+	}
+
+	Socket::Socket(UnderlyingAddressFamily underlyingAddressFamily,
+				   UnderlyingType underlyingType,
+				   UnderlyingProtocol underlyingProtocol)
+		: _sock(socket(underlyingAddressFamily, underlyingType, underlyingProtocol))
+	{
+		if (UNDERLYING_NO_SOCK == this->_sock)
+			throw SocketException("Failed to create socket");
+	}
+
+	void Socket::close()
+	{
+		try { ::closesocket(this->_sock); }
+		catch (...) { }
+	}
 }
