@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   Socket.cpp
+ * \brief  Implementation of socket-related classes.
+ * 
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
+ *********************************************************************/
+
 #include "Socket.hpp"
 
 #include <ws2tcpip.h>
