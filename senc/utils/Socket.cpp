@@ -59,7 +59,8 @@ namespace senc::utils
 
 	void Socket::send(const std::vector<std::byte>& data)
 	{
-		if (data.size() != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
+		// Note: We assume here that data.size() does not surpass int limit.
+		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
 			throw SocketException("Failed to send");
 	}
 
