@@ -16,7 +16,11 @@ namespace senc::utils
 
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
 
-	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr)) { }
+	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr))
+	{
+		if (1 != inet_pton(AF_INET, this->_addrStr.c_str(), &this->_addr))
+			throw SocketException("Invalid IPv4 address: " + this->_addrStr);
+	}
 
 	bool IPv4::operator==(const Self& other) const noexcept
 	{
@@ -40,7 +44,11 @@ namespace senc::utils
 
 	IPv6::IPv6(const std::string& addr) : Self(std::string(addr)) { }
 
-	IPv6::IPv6(std::string&& addr) : _addrStr(std::move(addr)) { }
+	IPv6::IPv6(std::string&& addr) : _addrStr(std::move(addr))
+	{
+		if (1 != inet_pton(AF_INET6, this->_addrStr.c_str(), &this->_addr))
+			throw SocketException("Invalid IPv6 address: " + this->_addrStr);
+	}
 
 	bool IPv6::operator==(const Self& other) const noexcept
 	{

@@ -57,12 +57,14 @@ namespace senc::utils
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
 		 * @param addr String representation of IPv4 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
 		 */
 		IPv4(const std::string& addr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
 		 * @param addr String representation of IPv4 address (moved).
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
 		 */
 		IPv4(std::string&& addr);
 
@@ -132,12 +134,14 @@ namespace senc::utils
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
 		 * @param addr String representation of IPv4 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv6 address.
 		 */
 		IPv6(const std::string& addr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
 		 * @param addr String representation of IPv4 address (moved).
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv6 address.
 		 */
 		IPv6(std::string&& addr);
 
@@ -183,6 +187,7 @@ namespace senc::utils
 		void init_underlying(UnderlyingSockAddr* out, Port port) const;
 
 	private:
+		Underlying _addr{};
 		std::string _addrStr;
 	};
 	static_assert(IPType<IPv6>);
