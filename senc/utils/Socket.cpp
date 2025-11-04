@@ -19,4 +19,8 @@ namespace senc::utils
 	{
 		return this->_addr == other._addr;
 	}
+
+	SocketException::SocketException(const std::string& msg) : Base(msg) { }
+
+	SocketException::SocketException(std::string&& msg) : Base(std::move(msg)) { }
 }
