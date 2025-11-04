@@ -2,7 +2,14 @@
 
 namespace senc::utils
 {
-	inline void ConnectableSocket::connect(const IPType auto& addr, Port port)
+	template <IPType IP>
+	inline bool ConnectableSocket<IP>::is_connected() const
+	{
+		return this->_isConnected;
+	}
+
+	template <IPType IP>
+	inline void ConnectableSocket<IP>::connect(const IP& addr, Port port)
 	{
 		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
 		Underlying sa;
@@ -12,7 +19,14 @@ namespace senc::utils
 		this->_isConnected = true;
 	}
 
-	inline void ConnectableSocket::bind(const IPType auto& addr, Port port)
+	template <IPType IP>
+	inline void ConnectableSocket<IP>::bind(Port port)
+	{
+		this->bind(IPv4::ANY, port);
+	}
+
+	template <IPType IP>
+	inline void ConnectableSocket<IP>::bind(const IP& addr, Port port)
 	{
 		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
 		Underlying sa;
@@ -20,4 +34,10 @@ namespace senc::utils
 		if (::bind(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
 			throw SocketException("Failed to bind");
 	}
+
+	template <IPType IP>
+	inline ConnectableSocket<IP>::ConnectableSocket(UnderlyingAddressFamily underlyingAddressFamily,
+												UnderlyingType underlyingType,
+												UnderlyingProtocol underlyingProtocol)
+		: Base(underlyingAddressFamily, underlyingType, underlyingProtocol) { }
 }

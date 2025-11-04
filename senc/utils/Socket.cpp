@@ -87,19 +87,4 @@ namespace senc::utils
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
 	}
-
-	bool ConnectableSocket::is_connected() const
-	{
-		return this->_isConnected;
-	}
-
-	void ConnectableSocket::bind(Port port)
-	{
-		this->bind(IPv4::ANY, port);
-	}
-
-	ConnectableSocket::ConnectableSocket(UnderlyingAddressFamily underlyingAddressFamily,
-										 UnderlyingType underlyingType,
-										 UnderlyingProtocol underlyingProtocol)
-		: Base(underlyingAddressFamily, underlyingType, underlyingProtocol) { }
 }

@@ -259,11 +259,13 @@ namespace senc::utils
 	/**
 	 * @class senc::utils::ConnectableSocket
 	 * @brief Base class of all sockets that can be connected to an address.
+	 * @tparam IP Type of IP addresses (e.g. `senc::utils::IPv4`).
 	 */
+	template <IPType IP>
 	class ConnectableSocket : public Socket
 	{
 	public:
-		using Self = ConnectableSocket;
+		using Self = ConnectableSocket<IP>;
 		using Base = Socket;
 
 		virtual ~ConnectableSocket() = default;
@@ -285,7 +287,7 @@ namespace senc::utils
 		 * @param port Transport-level port to connect to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void connect(const IPType auto& addr, Port port);
+		void connect(const IP& addr, Port port);
 
 		/**
 		 * @brief Binds socket to a given port.
@@ -300,7 +302,7 @@ namespace senc::utils
 		 * @param port Port to bind socket to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void bind(const IPType auto& addr, Port port);
+		void bind(const IP& addr, Port port);
 
 	protected:
 		bool _isConnected;
@@ -317,12 +319,14 @@ namespace senc::utils
 	/**
 	 * @class senc::utils::TcpSocket
 	 * @brief Object used for managing a single TCP socket connection.
+	 * @tparam IP Type of IP addresses (e.g. `senc::utils::IPv4`).
 	 */
-	class TcpSocket : public ConnectableSocket
+	template <IPType IP>
+	class TcpSocket : public ConnectableSocket<IP>
 	{
 	public:
-		using Self = TcpSocket;
-		using Base = ConnectableSocket;
+		using Self = TcpSocket<IP>;
+		using Base = ConnectableSocket<IP>;
 
 		virtual ~TcpSocket() = default;
 
@@ -338,7 +342,7 @@ namespace senc::utils
 		 * @param port TCP port to connect socket to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		TcpSocket(const IPType auto& addr, Port port);
+		TcpSocket(const IP& addr, Port port);
 
 		/**
 		 * @brief Begins listening for clients.
@@ -357,12 +361,14 @@ namespace senc::utils
 	/**
 	 * @class senc::utils::UdpSocket
 	 * @brief Object used for managing a single UDP socket connection.
+	 * @tparam IP Type of IP addresses (e.g. `senc::utils::IPv4`).
 	 */
-	class UdpSocket : public ConnectableSocket
+	template <IPType IP>
+	class UdpSocket : public ConnectableSocket<IP>
 	{
 	public:
-		using Self = UdpSocket;
-		using Base = ConnectableSocket;
+		using Self = UdpSocket<IP>;
+		using Base = ConnectableSocket<IP>;
 
 		virtual ~UdpSocket() = default;
 
@@ -380,7 +386,7 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const std::vector<std::byte>& data, const IPType auto& addr, Port port);
+		void sendto(const std::vector<std::byte>& data, const IP& addr, Port port);
 
 		/**
 		 * @brief Recieves data from given IP address and port.
@@ -391,7 +397,7 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize, const IPType auto& addr, Port port);
+		std::vector<std::byte> recvfrom(std::size_t maxsize, const IP& addr, Port port);
 	};
 }
 
