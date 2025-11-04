@@ -73,9 +73,7 @@ namespace senc::utils
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
 	}
 
-	Socket::Socket(UnderlyingAddressFamily underlyingAddressFamily,
-				   UnderlyingType underlyingType,
-				   UnderlyingProtocol underlyingProtocol)
+	Socket::Socket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol)
 		: _sock(socket(underlyingAddressFamily, underlyingType, underlyingProtocol))
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)

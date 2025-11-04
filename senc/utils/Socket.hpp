@@ -235,9 +235,6 @@ namespace senc::utils
 
 	protected:
 		using Underlying = SOCKET;
-		using UnderlyingAddressFamily = int;
-		using UnderlyingType = int;
-		using UnderlyingProtocol = int;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
 
 		Underlying _sock;
@@ -246,9 +243,7 @@ namespace senc::utils
 		 * @brief Constructor of base socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Socket(UnderlyingAddressFamily underlyingAddressFamily,
-			   UnderlyingType underlyingType,
-			   UnderlyingProtocol underlyingProtocol);
+		Socket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol);
 
 		/**
 		 * @brief Closes socket connection.
