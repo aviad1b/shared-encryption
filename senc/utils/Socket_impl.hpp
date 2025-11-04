@@ -38,4 +38,31 @@ namespace senc::utils
 	template <IPType IP>
 	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock)
 		: Base(sock) { }
+
+	template <IPType IP>
+	inline TcpSocket<IP>::TcpSocket() 
+		: Base(socket(IP::UNDERLYING_ADDRESS_FAMILY, SOCK_STREAM, IPPROTO_TCP)) { }
+	
+	template <IPType IP>
+	inline TcpSocket<IP>::TcpSocket(const IP& addr, Port port)
+		: Self()
+	{
+		this->connect(addr, port);
+	}
+
+	template <IPType IP>
+	inline void TcpSocket<IP>::listen()
+	{
+		if (::listen(this->_sock, SOMAXCONN) < 0)
+			throw SocketException("Failed to listen");
+	}
+
+	template <IPType IP>
+	inline TcpSocket<IP>::Self TcpSocket<IP>::accept()
+	{
+		auto sock = ::accept(this->_sock, nullptr, nullptr);
+		if (Socket::UNDERLYING_NO_SOCK == sock)
+			throw SocketException("Failed to accept");
+		return sock;
+	}
 }
