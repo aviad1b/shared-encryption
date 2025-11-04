@@ -12,7 +12,7 @@
 
 namespace senc::utils
 {
-	IPv4::IPv4(const std::string& addr) : _addrStr(addr) { }
+	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr)) { }
 
@@ -34,7 +34,7 @@ namespace senc::utils
 			: inet_addr(this->as_str().c_str());
 	}
 
-	IPv6::IPv6(const std::string& addr) : _addrStr(addr) { }
+	IPv6::IPv6(const std::string& addr) : Self(std::string(addr)) { }
 
 	IPv6::IPv6(std::string&& addr) : _addrStr(std::move(addr)) { }
 
