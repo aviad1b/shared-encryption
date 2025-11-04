@@ -65,4 +65,39 @@ namespace senc::utils
 			throw SocketException("Failed to accept");
 		return sock;
 	}
+
+	template <IPType IP>
+	inline void UdpSocket<IP>::disconnect()
+	{
+		struct sockaddr_in addr = {0};
+		addr.sin_family = AF_UNSPEC;
+		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+			throw SocketException("Failed to disconnect");
+	}
+
+	template <IPType IP>
+	inline void UdpSocket<IP>::sendto(const std::vector<std::byte>& data, const IP& addr, Port port)
+	{
+		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
+		Underlying sa;
+		addr.init_underlying(&sa, port);
+
+		// Note: We assume here that data.size() does not surpass int limit.
+		if (static_cast<int>(data.size()) != ::sendto(this->_sock, data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
+			throw SocketException("Failed to send");
+	}
+
+	template <IPType IP>
+	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize, const IP& addr, Port port)
+	{
+		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
+		Underlying sa;
+		addr.init_underlying(&sa, port);
+
+		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
+		const int count = ::recvfrom(this->_sock, res.data(), maxsize, 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve");
+		return std::vector<std::byte>(res.begin(), res.begin() + count);
+	}
 }
