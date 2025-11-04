@@ -34,7 +34,7 @@ namespace senc::utils
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::ANY } -> std::convertible_to<const Self&>;
 			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
-			{ self.init_underlying(out, std::declval<Port>()) };
+			{ self.init_underlying(out, std::declval<Port>()) } noexcept;
 		};
 
 	/**
@@ -184,7 +184,7 @@ namespace senc::utils
 		 * @param port Port to initialize based on.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void init_underlying(UnderlyingSockAddr* out, Port port) const;
+		void init_underlying(UnderlyingSockAddr* out, Port port) const noexcept;
 
 	private:
 		Underlying _addr{};

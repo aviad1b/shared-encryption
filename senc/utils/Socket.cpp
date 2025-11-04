@@ -9,6 +9,7 @@
 #include "Socket.hpp"
 
 #include <ws2tcpip.h>
+#include <cstring>
 
 namespace senc::utils
 {
@@ -36,8 +37,7 @@ namespace senc::utils
 	{
 		out->sin_port = htons(port);
 		out->sin_family = AF_INET; // IPv4
-		out->sin_addr.s_addr = *this == ANY ? INADDR_ANY
-			: inet_addr(this->as_str().c_str());
+		out->sin_addr = this->_addr;
 	}
 
 	const IPv6::Self IPv6::ANY("::");
@@ -60,12 +60,11 @@ namespace senc::utils
 		return this->_addrStr;
 	}
 
-	void IPv6::init_underlying(UnderlyingSockAddr* out, Port port) const
+	void IPv6::init_underlying(UnderlyingSockAddr* out, Port port) const noexcept
 	{
 		out->sin6_port = htons(port);
 		out->sin6_family = AF_INET6; // IPv6
-		if (1 != inet_pton(AF_INET6, this->as_str().c_str(), &out->sin6_addr))
-			throw SocketException("Failed to parse IPv6 address");
+		out->sin6_addr = this->_addr;
 	}
 
 	SocketException::SocketException(const std::string& msg) : Base(msg) { }
