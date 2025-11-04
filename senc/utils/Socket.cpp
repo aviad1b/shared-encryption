@@ -26,7 +26,7 @@ namespace senc::utils
 		return this->_addrStr;
 	}
 
-	void IPv4::init_underlying(Underlying* out, Port port) const noexcept
+	void IPv4::init_underlying(UnderlyingSockAddr* out, Port port) const noexcept
 	{
 		out->sin_port = htons(port);
 		out->sin_family = AF_INET; // IPv4
@@ -48,7 +48,7 @@ namespace senc::utils
 		return this->_addrStr;
 	}
 
-	void IPv6::init_underlying(Underlying* out, Port port) const
+	void IPv6::init_underlying(UnderlyingSockAddr* out, Port port) const
 	{
 		out->sin6_port = htons(port);
 		out->sin6_family = AF_INET6; // IPv6

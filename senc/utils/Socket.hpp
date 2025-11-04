@@ -29,7 +29,7 @@ namespace senc::utils
 	template <typename Self>
 	concept IPType = std::copyable<Self> &&
 		std::equality_comparable<Self> && 
-		requires(const Self self, typename Self::Underlying* out)
+		requires(const Self self, typename Self::UnderlyingSockAddr* out)
 		{
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::ANY } -> std::convertible_to<const Self&>;
@@ -45,7 +45,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv4;
-		using Underlying = struct sockaddr_in;
+		using UnderlyingSockAddr = struct sockaddr_in;
 		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET;
 
 		/**
@@ -103,7 +103,7 @@ namespace senc::utils
 		 * @param out Address of underlying library's struct to initialize.
 		 * @param port Port to initialize based on.
 		 */
-		void init_underlying(Underlying* out, Port port) const noexcept;
+		void init_underlying(UnderlyingSockAddr* out, Port port) const noexcept;
 
 	private:
 		std::string _addrStr;
@@ -118,7 +118,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = IPv6;
-		using Underlying = struct sockaddr_in6;
+		using UnderlyingSockAddr = struct sockaddr_in6;
 		static constexpr int UNDERLYING_ADDRESS_FAMILY = AF_INET6;
 
 		/**
@@ -177,7 +177,7 @@ namespace senc::utils
 		 * @param port Port to initialize based on.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void init_underlying(Underlying* out, Port port) const;
+		void init_underlying(UnderlyingSockAddr* out, Port port) const;
 
 	private:
 		std::string _addrStr;

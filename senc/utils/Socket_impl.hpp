@@ -19,8 +19,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::connect(const IP& addr, Port port)
 	{
-		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
-		Underlying sa;
+		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::connect(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
 			throw SocketException("Failed to connect");
@@ -36,8 +35,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::bind(const IP& addr, Port port)
 	{
-		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
-		Underlying sa;
+		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::bind(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
 			throw SocketException("Failed to bind");
@@ -86,8 +84,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void UdpSocket<IP>::sendto(const std::vector<std::byte>& data, const IP& addr, Port port)
 	{
-		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
-		Underlying sa;
+		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 
 		// Note: We assume here that data.size() does not surpass int limit.
@@ -98,8 +95,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize, const IP& addr, Port port)
 	{
-		using Underlying = typename std::remove_cvref_t<decltype(addr)>::Underlying;
-		Underlying sa;
+		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 
 		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
