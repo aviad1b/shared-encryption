@@ -243,10 +243,10 @@ namespace senc::utils
 		Underlying _sock;
 
 		/**
-		 * @brief Constructor of base socket from underlying library's parameters.
+		 * @brief Constructor of base socket from underlying library's socket.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Socket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol);
+		Socket(Underlying sock);
 
 		/**
 		 * @brief Closes socket connection.
@@ -309,7 +309,7 @@ namespace senc::utils
 		 * @brief Constructor of connectable socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		ConnectableSocket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol);
+		ConnectableSocket(Underlying sock);
 	};
 
 	/**

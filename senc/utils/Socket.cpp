@@ -73,8 +73,7 @@ namespace senc::utils
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
 	}
 
-	Socket::Socket(int underlyingAddressFamily, int underlyingType, int underlyingProtocol)
-		: _sock(socket(underlyingAddressFamily, underlyingType, underlyingProtocol))
+	Socket::Socket(Underlying sock) : _sock(sock)
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)
 			throw SocketException("Failed to create socket");
