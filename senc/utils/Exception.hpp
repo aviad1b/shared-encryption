@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   Exception.hpp
+ * \brief  Header of base exception class.
+ * 
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
+ *********************************************************************/
+
 #pragma once
 
 #include <exception>

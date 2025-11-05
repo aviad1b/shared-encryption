@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   Exception.cpp
+ * \brief  Implementation of base exception class.
+ * 
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
+ *********************************************************************/
+
 #include "Exception.hpp"
 
 namespace senc::utils
