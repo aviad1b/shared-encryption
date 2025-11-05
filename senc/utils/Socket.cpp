@@ -81,6 +81,19 @@ namespace senc::utils
 
 	SocketException::SocketException(std::string&& msg, const std::string& info)
 		: Base(std::move(msg), info) { }
+
+	SocketInitializer::~SocketInitializer()
+	{
+		try { WSACleanup(); }
+		catch (...) { }
+	}
+
+	SocketInitializer::SocketInitializer()
+	{
+		WSADATA wsa_data{};
+		if (0 != WSAStartup(MAKEWORD(2, 2), &wsa_data))
+			throw SocketException("WSAStartup failed", Socket::get_last_sock_err());
+	}
 	
 	Socket::~Socket()
 	{
@@ -138,4 +151,6 @@ namespace senc::utils
 
 		return msg ? std::string(msg) : "";
 	}
+
+	const SocketInitializer Socket::SOCKET_INITIALIZER;
 }

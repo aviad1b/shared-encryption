@@ -233,12 +233,25 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	class SocketInitializer
+	{
+		friend class Socket;
+
+	public:
+		~SocketInitializer();
+
+	private:
+		SocketInitializer();
+	};
+
 	/**
 	 * @class senc::utils::Socket
 	 * @brief Base class of all socket classes.
 	 */
 	class Socket
 	{
+		friend class SocketInitializer;
+
 	public:
 		using Self = Socket;
 
@@ -280,6 +293,9 @@ namespace senc::utils
 		void close();
 
 		static std::string get_last_sock_err();
+
+	private:
+		static const SocketInitializer SOCKET_INITIALIZER;
 	};
 
 	/**
