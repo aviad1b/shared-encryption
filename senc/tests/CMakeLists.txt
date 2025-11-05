@@ -17,5 +17,6 @@ target_link_libraries(senc_tests PRIVATE
     senc_utils
 )
 
+enable_testing()
 include(GoogleTest)
 gtest_discover_tests(senc_tests)
