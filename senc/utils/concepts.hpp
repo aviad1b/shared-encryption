@@ -10,6 +10,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <ranges>
 
 namespace senc::utils
 {
