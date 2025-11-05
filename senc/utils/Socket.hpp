@@ -279,7 +279,6 @@ namespace senc::utils
 		 */
 		void close();
 
-	private:
 		static std::string get_last_sock_err();
 	};
 
