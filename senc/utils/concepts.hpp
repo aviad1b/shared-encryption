@@ -21,5 +21,5 @@ namespace senc::utils
 	 */
 	template <typename Self, typename T>
 	concept InputIterator = std::input_iterator<Self> &&
-		std::same_as<typename Self::value_type, T>;
+		std::same_as<std::iter_value_t<Self>, T>;
 }
