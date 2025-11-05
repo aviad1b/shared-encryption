@@ -87,6 +87,12 @@ namespace senc::utils
 	}
 
 	template <typename I, PolyCoeff<I> C>
+	inline int Poly<I, C>::degree() const
+	{
+		return this->_coeffs.size() - 1;
+	}
+
+	template <typename I, PolyCoeff<I> C>
 	inline void Poly<I, C>::sample_missing_coeffs(int degree, std::function<C()> coeffSampler)
 	{
 		this->_coeffs.reserve(static_cast<std::size_t>(degree) + 1);
