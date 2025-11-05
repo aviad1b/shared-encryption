@@ -122,6 +122,19 @@ namespace senc::utils
 			throw SocketException("Failed to create socket", get_last_sock_err());
 	}
 
+	Socket::Socket(Self&& other) : _sock(other._sock)
+	{
+		other._sock = UNDERLYING_NO_SOCK;
+	}
+
+	Socket::Self& Socket::operator=(Self&& other)
+	{
+		this->close();
+		this->_sock = other._sock;
+		other._sock = UNDERLYING_NO_SOCK;
+		return *this;
+	}
+
 	void Socket::close()
 	{
 		try { ::closesocket(this->_sock); }

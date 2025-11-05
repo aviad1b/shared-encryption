@@ -255,6 +255,10 @@ namespace senc::utils
 	public:
 		using Self = Socket;
 
+		Socket(const Self&) = delete;
+
+		Self& operator=(const Self&) = delete;
+
 		/**
 		 * @brief Base destructor of sockets, closes socket.
 		 */
@@ -286,6 +290,16 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		Socket(Underlying sock);
+
+		/**
+		 * @brief Socket move constructor.
+		 */
+		Socket(Self&& other);
+
+		/**
+		 * @brief Socket move assignment operator.
+		 */
+		Self& operator=(Self&& other);
 
 		/**
 		 * @brief Closes socket connection.
@@ -354,6 +368,16 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		ConnectableSocket(Underlying sock);
+
+		/**
+		 * @brief Connectable socket move constructor.
+		 */
+		ConnectableSocket(Self&&) = default;
+
+		/**
+		 * @brief Connectable socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
 	};
 
 	/**
@@ -383,6 +407,16 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		TcpSocket(const IP& addr, Port port);
+
+		/**
+		 * @brief TCP socket move constructor.
+		 */
+		TcpSocket(Self&&) = default;
+
+		/**
+		 * @brief TCP socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
 
 		/**
 		 * @brief Begins listening for clients.
@@ -417,6 +451,16 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		UdpSocket();
+
+		/**
+		 * @brief UDP socket move constructor.
+		 */
+		UdpSocket(Self&&) = default;
+
+		/**
+		 * @brief UDP socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
 
 		/**
 		 * @brief Disconnects socket from (previously-connected-to) address and port.
