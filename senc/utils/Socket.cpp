@@ -8,6 +8,7 @@
 
 #include "Socket.hpp"
 
+#include <experimental/scope>
 #include <ws2tcpip.h>
 #include <cstring>
 
@@ -106,5 +107,29 @@ namespace senc::utils
 	{
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
+	}
+
+	std::string Socket::get_last_sock_err()
+	{
+		DWORD err = WSAGetLastError();
+
+		LPSTR msg = nullptr;
+		auto guard = std::experimental::scope_exit{
+			[&msg]{ if (msg) LocalFree(msg); }
+		};
+
+		FormatMessageA(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr,
+			err,
+			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+			(LPSTR)&msg,
+			0,
+			nullptr
+		);
+
+		return msg ? std::string(msg) : "";
 	}
 }

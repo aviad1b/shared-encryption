@@ -274,6 +274,9 @@ namespace senc::utils
 		 * @brief Closes socket connection.
 		 */
 		void close();
+
+	private:
+		static std::string get_last_sock_err();
 	};
 
 	/**
