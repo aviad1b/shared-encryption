@@ -73,6 +73,10 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
+	inline UdpSocket<IP>::UdpSocket()
+		: Base(socket(IP::UNDERLYING_ADDRESS_FAMILY, SOCK_DGRAM, IPPROTO_UDP)) { }
+
+	template <IPType IP>
 	inline void UdpSocket<IP>::disconnect()
 	{
 		struct sockaddr_in addr = {0};

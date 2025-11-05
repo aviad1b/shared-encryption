@@ -377,6 +377,12 @@ namespace senc::utils
 		virtual ~UdpSocket() = default;
 
 		/**
+		 * @brief Constructs a UDP socket.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		UdpSocket();
+
+		/**
 		 * @brief Disconnects socket from (previously-connected-to) address and port.
 		 * @throw senc::utils::SocketException On failure.
 		 */
