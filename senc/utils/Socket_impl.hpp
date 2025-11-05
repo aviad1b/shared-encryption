@@ -73,6 +73,9 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
+	inline TcpSocket<IP>::TcpSocket(Underlying sock) : Base(sock) { }
+
+	template <IPType IP>
 	inline UdpSocket<IP>::UdpSocket()
 		: Base(socket(IP::UNDERLYING_ADDRESS_FAMILY, SOCK_DGRAM, IPPROTO_UDP)) { }
 
@@ -105,4 +108,7 @@ namespace senc::utils
 			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
 	}
+
+	template <IPType IP>
+	inline UdpSocket<IP>::UdpSocket(Underlying sock) : Base(sock) { }
 }

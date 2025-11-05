@@ -361,6 +361,8 @@ namespace senc::utils
 		void bind(const IP& addr, Port port);
 
 	protected:
+		using Underlying = Base::Underlying;
+
 		bool _isConnected;
 
 		/**
@@ -430,6 +432,15 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		Self accept();
+
+	protected:
+		using Underlying = Base::Underlying;
+
+		/**
+		 * @brief Constructor of TCP socket from underlying library's parameters.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		TcpSocket(Underlying sock);
 	};
 
 	/**
@@ -486,6 +497,15 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		std::vector<std::byte> recvfrom(std::size_t maxsize);
+
+	protected:
+		using Underlying = Base::Underlying;
+
+		/**
+		 * @brief Constructor of UDP socket from underlying library's parameters.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		UdpSocket(Underlying sock);
 	};
 }
 
