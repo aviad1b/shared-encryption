@@ -23,9 +23,9 @@ TEST(SocketTests, TestUDP)
 	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
 	UdpSocket<IPv4> sock1, sock2;
 
-	sock1.bind(435);
+	sock1.bind(4350);
 
-	sock2.sendto(sendData, "127.0.0.1", 435);
+	sock2.sendto(sendData, "127.0.0.1", 4350);
 
 	auto recvData = sock1.recvfrom(sendData.size());
 	EXPECT_EQ(sendData, recvData);
