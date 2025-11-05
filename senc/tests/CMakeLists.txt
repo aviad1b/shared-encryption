@@ -8,7 +8,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(senc_tests
-    test_main.cpp
+    "test_main.cpp"
+    "test_socket.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
