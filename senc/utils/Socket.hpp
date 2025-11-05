@@ -440,7 +440,7 @@ namespace senc::utils
 		 * @brief Constructor of TCP socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		TcpSocket(Underlying sock);
+		TcpSocket(Underlying sock, bool isConnected = false);
 	};
 
 	/**
@@ -505,7 +505,7 @@ namespace senc::utils
 		 * @brief Constructor of UDP socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		UdpSocket(Underlying sock);
+		UdpSocket(Underlying sock, bool isConnected = false);
 	};
 }
 

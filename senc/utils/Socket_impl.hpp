@@ -73,7 +73,8 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline TcpSocket<IP>::TcpSocket(Underlying sock) : Base(sock) { }
+	inline TcpSocket<IP>::TcpSocket(Underlying sock, bool isConnected) 
+		: Base(sock, isConnected) { }
 
 	template <IPType IP>
 	inline UdpSocket<IP>::UdpSocket()
@@ -110,5 +111,6 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline UdpSocket<IP>::UdpSocket(Underlying sock) : Base(sock) { }
+	inline UdpSocket<IP>::UdpSocket(Underlying sock, bool isConnected)
+		: Base(sock, isConnected) { }
 }
