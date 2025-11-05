@@ -8,7 +8,10 @@
 
 #pragma once
 
-#include <concepts>
+#include <functional>
+#include <ostream>
+#include <vector>
+#include "concepts.hpp"
 
 namespace senc::utils
 {
@@ -23,6 +26,120 @@ namespace senc::utils
 	{
 		{ std::declval<Self>() + std::declval<Self>() } -> std::same_as<Self>;
 		{ std::declval<Self>() * x } -> std::same_as<Self>;
+	};
+
+	/**
+	 * @class senc::utils::Poly
+	 * @brief Represents a polynomial.
+	 * @tparam I Polynom input type.
+	 * @tparam C Polynom coefficient type (must satisfy `senc::utils::PolyCoeff`).
+	 */
+	template <typename I, PolyCoeff<I> C>
+	class Poly
+	{
+	public:
+		using Self = Poly<I, C>;
+
+		/**
+		 * @brief Constructs a polynomial from a (moved) vector of coefficients.
+		 * @param coeffs Polynom coefficients (moved).
+		 */
+		explicit Poly(std::vector<C>&& coeffs);
+
+		/**
+		 * @brief Constructs a polynomial from an initializer list of coefficients.
+		 * @param coeffs Polynom coefficients.
+		 * @note Requires `C` to be `std::copy_constructible`.
+		 */
+		explicit Poly(std::initializer_list<C> coeffs)
+		requires std::copy_constructible<C>;
+
+		/**
+		 * @brief Constructs a polynomial from an input range of coefficients.
+		 * @param coeffs Polynom coefficients.
+		 * @note Requires `C` to be `std::copy_constructible`.
+		 */
+		explicit Poly(const InputRange<C> auto& coeffs)
+		requires std::copy_constructible<C>;
+
+		/**
+		 * @brief Constructs a polynomial from a (moved) input range of coefficients.
+		 * @param coeffs Polynom coefficients.
+		 * @note Requires `C` to be `std::move_constructible`.
+		 */
+		explicit Poly(InputRange<C> auto&& coeffs)
+		requires std::move_constructible<C>;
+
+		/**
+		 * @brief Constructs a polynomial from coefficients.
+		 * @param coeffs Polynom coefficients.
+		 * @note Requires `C` to be `std::copy_constructible`.
+		 */
+		template <std::same_as<C>... Cs>
+		explicit Poly(const Cs&... coeffs)
+		requires std::copy_constructible<C>;
+
+		/**
+		 * @brief Constructs a polynomial from moved coefficients.
+		 * @param coeffs Polynom coefficients (moved each).
+		 * @note Requires `C` to be `std::move_constructible`.
+		 */
+		template <std::same_as<C>... Cs>
+		explicit Poly(Cs&&... coeffs)
+		requires std::move_constructible<C>;
+
+		/**
+		 * @brief Samples a random polynom using a given coefficient sampler.
+		 * @param degree Target polynomial degree.
+		 * @param coeffSampler Polynom coefficient sampler function.
+		 * @return Sampled polynomial.
+		 */
+		static Self sample(int degree, std::function<C()> coeffSampler);
+
+		/**
+		 * @brief Samples a random polynom using a given coefficient sampler.
+		 * @param degree Target polynomial degree.
+		 * @param coeffSampler Polynom coefficient sampler function.
+		 * @param coeffs Existing coefficients (from least significant to most).
+		 * @return Sampled polynomial.
+		 * @note Requires `C` to be `std::copy_constructible`.
+		 */
+		template <std::same_as<C>... Cs>
+		static Self sample(int degree, std::function<C()> coeffSampler, const Cs&... coeffs)
+		requires std::copy_constructible<C>;
+
+		/**
+		 * @brief Samples a random polynom using a given coefficient sampler.
+		 * @param degree Target polynomial degree.
+		 * @param coeffSampler Polynom coefficient sampler function.
+		 * @param coeffs Existing coefficients (moved each; from least significant to most).
+		 * @return Sampled polynomial.
+		 * @note Requires `C` to be `std::move_constructible`.
+		 */
+		template <std::same_as<C>... Cs>
+		static Self sample(int degree, std::function<C()> coeffSampler, Cs&&... coeffs)
+		requires std::move_constructible<C>;
+
+		/**
+		 * @brief Gets polynomial degree.
+		 * @return Polynomial degree.
+		 */
+		int degree() const;
+
+		/**
+		 * @brief Calls polynomial function on a given integer.
+		 * @param x Integer to call polynomial function on.
+		 * @return Polynomial result.
+		 */
+		C operator()(const I& x) const;
+
+		/**
+		 * @brief Output operator for `Poly<C>`.
+		 */
+		friend std::ostream& operator<<(std::ostream& os, const Self& self);
+
+	private:
+		std::vector<C> _coeffs;
 	};
 }
 
