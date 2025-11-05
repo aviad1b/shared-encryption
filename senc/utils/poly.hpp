@@ -18,7 +18,7 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept PolyCoeff = requires
+	concept PolyCoeff = std::movable<Self> && requires
 	{
 		{ std::declval<Self>() + std::declval<Self>() } -> std::same_as<Self>;
 		{ std::declval<Self>() * std::declval<int>() } -> std::same_as<Self>;
