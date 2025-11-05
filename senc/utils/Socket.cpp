@@ -100,6 +100,11 @@ namespace senc::utils
 		this->close();
 	}
 
+	bool Socket::is_closed() const
+	{
+		return UNDERLYING_NO_SOCK != this->_sock;
+	}
+
 	void Socket::send(const std::vector<std::byte>& data)
 	{
 		// Note: We assume here that data.size() does not surpass int limit.
@@ -139,6 +144,7 @@ namespace senc::utils
 	{
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
+		this->_sock = UNDERLYING_NO_SOCK;
 	}
 
 	std::string Socket::get_last_sock_err()

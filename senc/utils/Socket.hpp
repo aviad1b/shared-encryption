@@ -265,6 +265,11 @@ namespace senc::utils
 		virtual ~Socket();
 
 		/**
+		 * @return `true` if socket closed, otherwise `false`.
+		 */
+		bool is_closed() const;
+
+		/**
 		 * @brief Sends binary data through socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
