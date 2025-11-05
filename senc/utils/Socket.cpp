@@ -15,6 +15,8 @@ namespace senc::utils
 {
 	const IPv4::Self IPv4::ANY("0.0.0.0");
 
+	IPv4::IPv4(const char* addr) : Self(std::string(addr)) { }
+
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(std::string&& addr) : _addrStr(std::move(addr))
@@ -41,6 +43,8 @@ namespace senc::utils
 	}
 
 	const IPv6::Self IPv6::ANY("::");
+
+	IPv6::IPv6(const char* addr) : Self(std::string(addr)) { }
 
 	IPv6::IPv6(const std::string& addr) : Self(std::string(addr)) { }
 

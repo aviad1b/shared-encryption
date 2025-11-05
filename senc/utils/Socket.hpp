@@ -59,6 +59,13 @@ namespace senc::utils
 		 * @param addr String representation of IPv4 address.
 		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
 		 */
+		IPv4(const char* addr);
+
+		/**
+		 * @brief Constructs an IPv4 address from string representation.
+		 * @param addr String representation of IPv4 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
+		 */
 		IPv4(const std::string& addr);
 
 		/**
@@ -130,6 +137,13 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv6 address from string representation.
+		 * @param addr String representation of IPv6 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv6 address.
+		 */
+		IPv6(const char* addr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
