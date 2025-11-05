@@ -22,7 +22,7 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::connect(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to connect");
+			throw SocketException("Failed to connect", Socket::get_last_sock_err());
 		this->_isConnected = true;
 	}
 
@@ -38,12 +38,12 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::bind(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to bind");
+			throw SocketException("Failed to bind", Socket::get_last_sock_err());
 	}
 
 	template <IPType IP>
-	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock)
-		: Base(sock) { }
+	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock, bool isConnected)
+		: Base(sock), _isConnected(isConnected) { }
 
 	template <IPType IP>
 	inline TcpSocket<IP>::TcpSocket() 
@@ -60,7 +60,7 @@ namespace senc::utils
 	inline void TcpSocket<IP>::listen()
 	{
 		if (::listen(this->_sock, SOMAXCONN) < 0)
-			throw SocketException("Failed to listen");
+			throw SocketException("Failed to listen", Socket::get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -68,9 +68,17 @@ namespace senc::utils
 	{
 		auto sock = ::accept(this->_sock, nullptr, nullptr);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
-			throw SocketException("Failed to accept");
-		return sock;
+			throw SocketException("Failed to accept", Socket::get_last_sock_err());
+		return { sock, true }; // isConnected=true
 	}
+
+	template <IPType IP>
+	inline TcpSocket<IP>::TcpSocket(Underlying sock, bool isConnected) 
+		: Base(sock, isConnected) { }
+
+	template <IPType IP>
+	inline UdpSocket<IP>::UdpSocket()
+		: Base(socket(IP::UNDERLYING_ADDRESS_FAMILY, SOCK_DGRAM, IPPROTO_UDP)) { }
 
 	template <IPType IP>
 	inline void UdpSocket<IP>::disconnect()
@@ -78,7 +86,8 @@ namespace senc::utils
 		struct sockaddr_in addr = {0};
 		addr.sin_family = AF_UNSPEC;
 		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-			throw SocketException("Failed to disconnect");
+			throw SocketException("Failed to disconnect", Socket::get_last_sock_err());
+		this->_isConnected = false;
 	}
 
 	template <IPType IP>
@@ -88,20 +97,21 @@ namespace senc::utils
 		addr.init_underlying(&sa, port);
 
 		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::sendto(this->_sock, data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
-			throw SocketException("Failed to send");
+		if (static_cast<int>(data.size()) != ::sendto(this->_sock, (const char*)data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
+			throw SocketException("Failed to send", Socket::get_last_sock_err());
 	}
 
 	template <IPType IP>
-	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize, const IP& addr, Port port)
+	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize)
 	{
-		typename IP::UnderlyingSockAddr sa{};
-		addr.init_underlying(&sa, port);
-
 		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recvfrom(this->_sock, res.data(), maxsize, 0);
+		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0, nullptr, nullptr);
 		if (count < 0)
-			throw SocketException("Failed to recieve");
+			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
 	}
+
+	template <IPType IP>
+	inline UdpSocket<IP>::UdpSocket(Underlying sock, bool isConnected)
+		: Base(sock, isConnected) { }
 }

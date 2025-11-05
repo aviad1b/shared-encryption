@@ -6,4 +6,6 @@
 	"Socket_impl.hpp"
 )
 
+target_link_libraries(senc_utils PRIVATE ws2_32)
+
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)

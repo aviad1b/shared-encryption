@@ -12,6 +12,5 @@ add_subdirectory("client")
 
 option(BUILD_TESTING "Enable unit tests" ON)
 if (BUILD_TESTING)
-    enable_testing()
     add_subdirectory(tests)
 endif()

@@ -14,6 +14,10 @@ namespace senc::utils
 
 		Exception(std::string&& msg);
 
+		Exception(const std::string& msg, const std::string& info);
+
+		Exception(std::string&& msg, const std::string& info);
+
 		Exception(const Self&) = default;
 
 		Self& operator=(const Self&) = default;

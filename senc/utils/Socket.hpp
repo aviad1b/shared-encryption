@@ -59,6 +59,13 @@ namespace senc::utils
 		 * @param addr String representation of IPv4 address.
 		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
 		 */
+		IPv4(const char* addr);
+
+		/**
+		 * @brief Constructs an IPv4 address from string representation.
+		 * @param addr String representation of IPv4 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv4 address.
+		 */
 		IPv4(const std::string& addr);
 
 		/**
@@ -130,6 +137,13 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv6 address from string representation.
+		 * @param addr String representation of IPv6 address.
+		 * @throw senc::utils::SocketException If `addr` is not a valid IPv6 address.
+		 */
+		IPv6(const char* addr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
@@ -206,6 +220,10 @@ namespace senc::utils
 
 		SocketException(std::string&& msg);
 
+		SocketException(const std::string& msg, const std::string& info);
+		
+		SocketException(std::string&& msg, const std::string& info);
+
 		SocketException(const Self&) = default;
 
 		Self& operator=(const Self&) = default;
@@ -215,19 +233,41 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	class SocketInitializer
+	{
+		friend class Socket;
+
+	public:
+		~SocketInitializer();
+
+	private:
+		SocketInitializer();
+	};
+
 	/**
 	 * @class senc::utils::Socket
 	 * @brief Base class of all socket classes.
 	 */
 	class Socket
 	{
+		friend class SocketInitializer;
+
 	public:
 		using Self = Socket;
+
+		Socket(const Self&) = delete;
+
+		Self& operator=(const Self&) = delete;
 
 		/**
 		 * @brief Base destructor of sockets, closes socket.
 		 */
 		virtual ~Socket();
+
+		/**
+		 * @return `true` if socket closed, otherwise `false`.
+		 */
+		bool is_closed() const;
 
 		/**
 		 * @brief Sends binary data through socket.
@@ -257,9 +297,24 @@ namespace senc::utils
 		Socket(Underlying sock);
 
 		/**
+		 * @brief Socket move constructor.
+		 */
+		Socket(Self&& other);
+
+		/**
+		 * @brief Socket move assignment operator.
+		 */
+		Self& operator=(Self&& other);
+
+		/**
 		 * @brief Closes socket connection.
 		 */
 		void close();
+
+		static std::string get_last_sock_err();
+
+	private:
+		static const SocketInitializer SOCKET_INITIALIZER;
 	};
 
 	/**
@@ -311,13 +366,25 @@ namespace senc::utils
 		void bind(const IP& addr, Port port);
 
 	protected:
+		using Underlying = Base::Underlying;
+
 		bool _isConnected;
 
 		/**
 		 * @brief Constructor of connectable socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		ConnectableSocket(Underlying sock);
+		ConnectableSocket(Underlying sock, bool isConnected = false);
+
+		/**
+		 * @brief Connectable socket move constructor.
+		 */
+		ConnectableSocket(Self&&) = default;
+
+		/**
+		 * @brief Connectable socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
 	};
 
 	/**
@@ -349,6 +416,16 @@ namespace senc::utils
 		TcpSocket(const IP& addr, Port port);
 
 		/**
+		 * @brief TCP socket move constructor.
+		 */
+		TcpSocket(Self&&) = default;
+
+		/**
+		 * @brief TCP socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
+
+		/**
 		 * @brief Begins listening for clients.
 		 * @throw senc::utils::SocketException On failure.
 		 */
@@ -360,6 +437,15 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		Self accept();
+
+	protected:
+		using Underlying = Base::Underlying;
+
+		/**
+		 * @brief Constructor of TCP socket from underlying library's parameters.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		TcpSocket(Underlying sock, bool isConnected = false);
 	};
 
 	/**
@@ -375,6 +461,22 @@ namespace senc::utils
 		using Base = ConnectableSocket<IP>;
 
 		virtual ~UdpSocket() = default;
+
+		/**
+		 * @brief Constructs a UDP socket.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		UdpSocket();
+
+		/**
+		 * @brief UDP socket move constructor.
+		 */
+		UdpSocket(Self&&) = default;
+
+		/**
+		 * @brief UDP socket move assignment operator.
+		 */
+		Self& operator=(Self&&) = default;
 
 		/**
 		 * @brief Disconnects socket from (previously-connected-to) address and port.
@@ -396,12 +498,19 @@ namespace senc::utils
 		 * @brief Recieves data from given IP address and port.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
-		 * @param addr IP address to recieve data from.
-		 * @param port UDP port to recieve data from.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize, const IP& addr, Port port);
+		std::vector<std::byte> recvfrom(std::size_t maxsize);
+
+	protected:
+		using Underlying = Base::Underlying;
+
+		/**
+		 * @brief Constructor of UDP socket from underlying library's parameters.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		UdpSocket(Underlying sock, bool isConnected = false);
 	};
 }
 
