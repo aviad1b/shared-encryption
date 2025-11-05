@@ -11,10 +11,32 @@
 #include <functional>
 #include <ostream>
 #include <vector>
+#include <cmath>
 #include "concepts.hpp"
 
 namespace senc::utils
 {
+	template <typename T>
+	requires std::is_fundamental_v<T>
+	inline T pow(T val, int exp)
+	{
+		return static_cast<T>(std::pow(
+			static_cast<double>(val),
+			static_cast<double>(exp)
+		));
+	}
+
+	/**
+	 * @concept senc::utils::PolyInput
+	 * @brief Looks for a typename that can be used as a polynom input type.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept PolyInput = requires(const Self self)
+	{
+		{ ::senc::utils::pow(self, std::declval<int>()) } -> std::same_as<Self>;
+	};
+
 	/**
 	 * @concept senc::utils::PolyCoeff
 	 * @brief Looks for a typename that can be used as a polynom coefficient.
@@ -31,10 +53,10 @@ namespace senc::utils
 	/**
 	 * @class senc::utils::Poly
 	 * @brief Represents a polynomial.
-	 * @tparam I Polynom input type.
+	 * @tparam I Polynom input type (must satisfy `senc::utils::PolyInput`).
 	 * @tparam C Polynom coefficient type (must satisfy `senc::utils::PolyCoeff`).
 	 */
-	template <typename I, PolyCoeff<I> C>
+	template <PolyInput I, PolyCoeff<I> C>
 	class Poly
 	{
 	public:
