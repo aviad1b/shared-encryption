@@ -42,8 +42,8 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock)
-		: Base(sock) { }
+	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock, bool isConnected)
+		: Base(sock), _isConnected(isConnected) { }
 
 	template <IPType IP>
 	inline TcpSocket<IP>::TcpSocket() 

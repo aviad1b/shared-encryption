@@ -369,7 +369,7 @@ namespace senc::utils
 		 * @brief Constructor of connectable socket from underlying library's parameters.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		ConnectableSocket(Underlying sock);
+		ConnectableSocket(Underlying sock, bool isConnected = false);
 
 		/**
 		 * @brief Connectable socket move constructor.
