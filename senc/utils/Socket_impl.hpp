@@ -22,7 +22,7 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::connect(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to connect");
+			throw SocketException("Failed to connect", get_last_sock_err());
 		this->_isConnected = true;
 	}
 
@@ -38,7 +38,7 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::bind(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to bind");
+			throw SocketException("Failed to bind", get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -60,7 +60,7 @@ namespace senc::utils
 	inline void TcpSocket<IP>::listen()
 	{
 		if (::listen(this->_sock, SOMAXCONN) < 0)
-			throw SocketException("Failed to listen");
+			throw SocketException("Failed to listen", get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -68,7 +68,7 @@ namespace senc::utils
 	{
 		auto sock = ::accept(this->_sock, nullptr, nullptr);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
-			throw SocketException("Failed to accept");
+			throw SocketException("Failed to accept", get_last_sock_err());
 		return sock;
 	}
 
@@ -82,7 +82,7 @@ namespace senc::utils
 		struct sockaddr_in addr = {0};
 		addr.sin_family = AF_UNSPEC;
 		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-			throw SocketException("Failed to disconnect");
+			throw SocketException("Failed to disconnect", get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -93,7 +93,7 @@ namespace senc::utils
 
 		// Note: We assume here that data.size() does not surpass int limit.
 		if (static_cast<int>(data.size()) != ::sendto(this->_sock, (const char*)data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
-			throw SocketException("Failed to send");
+			throw SocketException("Failed to send", get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -102,7 +102,7 @@ namespace senc::utils
 		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
 		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0, nullptr, nullptr);
 		if (count < 0)
-			throw SocketException("Failed to recieve");
+			throw SocketException("Failed to recieve", get_last_sock_err());
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
 	}
 }
