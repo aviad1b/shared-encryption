@@ -57,4 +57,40 @@ namespace senc::utils
 		this->_coeffs.reserve(sizeof...(coeffs));
 		(this->_coeffs.emplace_back(std::forward<Cs>(args)), ...);
 	}
+
+	template <typename I, PolyCoeff<I> C>
+	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler)
+	{
+		Self res;
+		res.sample_missing_coeffs();
+		return res;
+	}
+
+	template <typename I, PolyCoeff<I> C>
+	template <std::same_as<C> ...Cs>
+	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler, const Cs&... coeffs)
+	requires std::copy_constructible<C>
+	{
+		Self res(coeffs...);
+		res.sample_missing_coeffs();
+		return res;
+	}
+
+	template <typename I, PolyCoeff<I> C>
+	template <std::same_as<C> ...Cs>
+	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler, Cs && ...coeffs)
+	requires std::move_constructible<C>
+	{
+		Self res(std::move(coeffs)...);
+		res.sample_missing_coeffs();
+		return res;
+	}
+
+	template <typename I, PolyCoeff<I> C>
+	inline void Poly<I, C>::sample_missing_coeffs(int degree, std::function<C()> coeffSampler)
+	{
+		this->_coeffs.reserve(static_cast<std::size_t>(degree) + 1);
+		while (this->_coeffs.size() <= degree)
+			this->_coeffs.push_back(coeffSampler());
+	}
 }

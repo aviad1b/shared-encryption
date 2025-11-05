@@ -140,6 +140,8 @@ namespace senc::utils
 
 	private:
 		std::vector<C> _coeffs;
+
+		void sample_missing_coeffs(int degree, std::function<C()> coeffSampler);
 	};
 }
 
