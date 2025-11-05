@@ -220,6 +220,10 @@ namespace senc::utils
 
 		SocketException(std::string&& msg);
 
+		SocketException(const std::string& msg, const std::string& info);
+		
+		SocketException(std::string&& msg, const std::string& info);
+
 		SocketException(const Self&) = default;
 
 		Self& operator=(const Self&) = default;
