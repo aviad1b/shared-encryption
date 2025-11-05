@@ -97,13 +97,10 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize, const IP& addr, Port port)
+	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize)
 	{
-		typename IP::UnderlyingSockAddr sa{};
-		addr.init_underlying(&sa, port);
-
 		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0);
+		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0, nullptr, nullptr);
 		if (count < 0)
 			throw SocketException("Failed to recieve");
 		return std::vector<std::byte>(res.begin(), res.begin() + count);

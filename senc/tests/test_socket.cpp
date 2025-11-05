@@ -24,10 +24,9 @@ TEST(SocketTests, TestUDP)
 	UdpSocket<IPv4> sock1, sock2;
 
 	sock1.bind(435);
-	sock2.bind(436);
 
 	sock2.sendto(sendData, "127.0.0.1", 435);
 
-	auto recvData = sock1.recvfrom(sendData.size(), "127.0.0.1", 436);
+	auto recvData = sock1.recvfrom(sendData.size());
 	EXPECT_EQ(sendData, recvData);
 }

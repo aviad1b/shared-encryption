@@ -416,12 +416,10 @@ namespace senc::utils
 		 * @brief Recieves data from given IP address and port.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
-		 * @param addr IP address to recieve data from.
-		 * @param port UDP port to recieve data from.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize, const IP& addr, Port port);
+		std::vector<std::byte> recvfrom(std::size_t maxsize);
 	};
 }
 
