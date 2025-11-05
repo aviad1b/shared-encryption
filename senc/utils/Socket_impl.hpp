@@ -87,6 +87,7 @@ namespace senc::utils
 		addr.sin_family = AF_UNSPEC;
 		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 			throw SocketException("Failed to disconnect", Socket::get_last_sock_err());
+		this->_isConnected = false;
 	}
 
 	template <IPType IP>
