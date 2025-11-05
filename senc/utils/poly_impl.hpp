@@ -7,6 +7,7 @@
  *********************************************************************/
 
 #include "poly.hpp"
+#include <numeric>
 
 namespace senc::utils
 {
@@ -90,6 +91,15 @@ namespace senc::utils
 	inline int Poly<I, C>::degree() const
 	{
 		return this->_coeffs.size() - 1;
+	}
+
+	template <PolyInput I, PolyCoeff<I> C>
+	inline C Poly<I, C>::operator()(const I& x) const
+	{
+		C res = this->_coeffs[0];
+		for (size_t i = 1; i < this->_coeffs.size(); ++i)
+			res += ::senc::utils::pow(x, i);
+		return res;
 	}
 
 	template <PolyInput I, PolyCoeff<I> C>
