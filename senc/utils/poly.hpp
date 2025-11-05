@@ -156,11 +156,6 @@ namespace senc::utils
 		 */
 		C operator()(const I& x) const;
 
-		/**
-		 * @brief Output operator for `Poly<C>`.
-		 */
-		friend std::ostream& operator<<(std::ostream& os, const Self& self);
-
 	private:
 		std::vector<C> _coeffs;
 
