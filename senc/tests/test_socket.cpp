@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   test_socket.cpp
+ * \brief  File containing tests of the sockets utils (`Sockets.hpp`).
+ * 
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
+ *********************************************************************/
+
 #include <gtest/gtest.h>
 #include <thread>
 #include <future>
@@ -8,18 +16,27 @@ using senc::utils::TcpSocket;
 using senc::utils::IPv4;
 using senc::utils::IPv6;
 
+/**
+ * @brief Tests basic IPv4 construction.
+ */
 TEST(SocketTests, TestIPv4)
 {
 	IPv4 ip("1.2.3.4");
 	EXPECT_EQ(ip.as_str(), "1.2.3.4");
 }
 
+/**
+ * @brief Tests basic IPv6 construction.
+ */
 TEST(SocketTests, TestIPv6)
 {
 	IPv6 ip("fd30:cb0a:c87a:0157:a1b2:c3d4:e5f6:7890");
 	EXPECT_EQ(ip.as_str(), "fd30:cb0a:c87a:0157:a1b2:c3d4:e5f6:7890");
 }
 
+/**
+ * @brief Tests basic UDP send and recieve.
+ */
 TEST(SocketTests, TestUDP)
 {
 	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
@@ -33,6 +50,9 @@ TEST(SocketTests, TestUDP)
 	EXPECT_EQ(sendData, recvData);
 }
 
+/**
+ * @brief Tests basic TCP send and recieve.
+ */
 TEST(SocketTests, TestTCP)
 {
 	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
