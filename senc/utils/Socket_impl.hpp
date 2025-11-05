@@ -92,7 +92,7 @@ namespace senc::utils
 		addr.init_underlying(&sa, port);
 
 		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::sendto(this->_sock, data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
+		if (static_cast<int>(data.size()) != ::sendto(this->_sock, (const char*)data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
 			throw SocketException("Failed to send");
 	}
 
@@ -103,7 +103,7 @@ namespace senc::utils
 		addr.init_underlying(&sa, port);
 
 		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recvfrom(this->_sock, res.data(), maxsize, 0);
+		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve");
 		return std::vector<std::byte>(res.begin(), res.begin() + count);
