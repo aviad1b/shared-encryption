@@ -31,30 +31,41 @@ namespace senc::utils
 	concept PolyInput = PowerRaisable<Self>;
 
 	/**
+	 * @concept senc::utils::PolyOutput
+	 * @brief Looks for a typename that can be used as a polynom output type.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept PolyOutput = requires(Self self)
+	{
+		{ self += std::declval<Self>() } -> std::same_as<Self&>;
+	};
+
+	/**
 	 * @concept senc::utils::PolyCoeff
 	 * @brief Looks for a typename that can be used as a polynom coefficient.
 	 * @tparam Self Examined typename.
 	 * @tparam I Polynomial input type.
+	 * @tparam O Polynomial output type.
 	 */
-	template <typename Self, typename I>
+	template <typename Self, typename I, typename O>
 	concept PolyCoeff = requires(const Self self, const I& x)
 	{
-		{ std::declval<Self>() + std::declval<Self>() } -> std::same_as<Self>;
-		{ self += std::declval<Self>() } -> std::same_as<Self&>;
-		{ std::declval<Self>() * x } -> std::same_as<Self>;
+		{ std::declval<Self>() * x } -> std::same_as<O>;
 	};
 
 	/**
 	 * @class senc::utils::Poly
 	 * @brief Represents a polynomial.
 	 * @tparam I Polynom input type (must satisfy `senc::utils::PolyInput`).
+	 * @tparam O Polynom output type (must satisfy `senc::utils::PolyOutput`).
 	 * @tparam C Polynom coefficient type (must satisfy `senc::utils::PolyCoeff`).
 	 */
-	template <PolyInput I, PolyCoeff<I> C>
+	template <PolyInput I, PolyOutput O, PolyCoeff<I, O> C>
 	class Poly
 	{
 	public:
-		using Self = Poly<I, C>;
+		using Self = Poly<I, O, C>;
 
 		/**
 		 * @brief Constructs a polynomial from a (moved) vector of coefficients.
@@ -147,7 +158,7 @@ namespace senc::utils
 		 * @param x Input to call polynomial function on.
 		 * @return Polynomial result.
 		 */
-		C operator()(const I& x) const;
+		O operator()(const I& x) const;
 
 	private:
 		std::vector<C> _coeffs;
