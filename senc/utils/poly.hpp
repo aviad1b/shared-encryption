@@ -140,8 +140,8 @@ namespace senc::utils
 		int degree() const;
 
 		/**
-		 * @brief Calls polynomial function on a given integer.
-		 * @param x Integer to call polynomial function on.
+		 * @brief Calls polynomial function on a given input.
+		 * @param x Input to call polynomial function on.
 		 * @return Polynomial result.
 		 */
 		C operator()(const I& x) const;
