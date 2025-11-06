@@ -28,10 +28,7 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept PolyInput = requires(const Self self)
-	{
-		{ ::senc::utils::pow(self, std::declval<Exponent>()) } -> std::same_as<Self>;
-	};
+	concept PolyInput = PowerRaisable<Self>;
 
 	/**
 	 * @concept senc::utils::PolyCoeff
