@@ -39,13 +39,36 @@ namespace senc::utils
 		{ self.pow(std::declval<Exponent>()) } -> std::same_as<Self>;
 	};
 
-	template <typename T>
-	requires std::is_fundamental_v<T>
-	inline T pow(T val, Exponent exp)
+	/**
+	 * @concept senc::utils::PowerRaisable
+	 * @brief Looks for a typename of which instances can be raised to a power.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept PowerRaisable = std::is_fundamental_v<Self> ||
+		HasPowMethod<Self> || 
+		(SelfMultiplicable<Self> && std::copy_constructible<Self>);
+
+	template <PowerRaisable T>
+	inline T pow(const T& val, Exponent exp)
 	{
-		return static_cast<T>(std::pow(
-			static_cast<double>(val),
-			static_cast<double>(exp)
-		));
+		if constexpr (std::is_fundamental_v<T>)
+		{
+			return static_cast<T>(std::pow(
+				static_cast<double>(val),
+				static_cast<double>(exp)
+			));
+		}
+		else if constexpr (HasPowMethod<T>)
+		{
+			return val.pow(exp);
+		}
+		else
+		{
+			T res = val;
+			for (Exponent i = 1; i < exp; i++)
+				res *= val;
+			return res;
+		}
 	}
 }
