@@ -30,6 +30,13 @@ namespace senc::utils
 	template <typename Self>
 	concept PolyInput = PowerRaisable<Self>;
 
+	template <typename Self>
+	concept AnyPolyCoeff = requires(const Self self)
+	{
+		{ std::declval<Self>() + std::declval<Self>() } -> std::same_as<Self>;
+		{ self += std::declval<Self>() } -> std::same_as<Self&>;
+	};
+
 	/**
 	 * @concept senc::utils::PolyCoeff
 	 * @brief Looks for a typename that can be used as a polynom coefficient.
