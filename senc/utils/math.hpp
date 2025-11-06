@@ -49,6 +49,16 @@ namespace senc::utils
 		HasPowMethod<Self> || 
 		(SelfMultiplicable<Self> && std::copy_constructible<Self>);
 
+	/**
+	 * @brief Raises given value to a given power.
+	 * @tparam T Value type (must satisfy `PowerRaisable`).
+	 * @param val Value to raise to a given power.
+	 * @param exp Exponent to use for power raise.
+	 * @return Result of raising `val` to the power of `exp`.
+	 * If `T` is fundamental, uses `std::pow`.
+	 * Otherwise, if `T` satisfies `HasPowMethod`, returns result of `val.pow(exp)`.
+	 * Otherwise, computes multiplication in a loop.
+	 */
 	template <PowerRaisable T>
 	inline T pow(const T& val, Exponent exp)
 	{
