@@ -37,7 +37,7 @@ TEST_P(IntPolyTest, Output)
 		EXPECT_EQ(expectedOutput, poly(input));
 }
 
-INSTANTIATE_TEST_CASE_P(Default, IntPolyTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(Default, IntPolyTest, (testing::Values(
 	IntPolyTestParams
 	{
 		{ 0, 1 }, // x
@@ -67,4 +67,4 @@ INSTANTIATE_TEST_CASE_P(Default, IntPolyTest, testing::Values(
 			{ 0, 3 }
 		}
 	}
-));
+)));
