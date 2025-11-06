@@ -63,7 +63,7 @@ namespace senc::utils
 	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler)
 	{
 		Self res;
-		res.sample_missing_coeffs();
+		res.sample_missing_coeffs(degree, coeffSampler);
 		return res;
 	}
 
@@ -73,7 +73,7 @@ namespace senc::utils
 	requires std::copy_constructible<C>
 	{
 		Self res(coeffs...);
-		res.sample_missing_coeffs();
+		res.sample_missing_coeffs(degree, coeffSampler);
 		return res;
 	}
 
@@ -83,7 +83,7 @@ namespace senc::utils
 	requires std::move_constructible<C>
 	{
 		Self res(std::move(coeffs)...);
-		res.sample_missing_coeffs();
+		res.sample_missing_coeffs(degree, coeffSampler);
 		return res;
 	}
 
