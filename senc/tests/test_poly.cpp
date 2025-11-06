@@ -60,7 +60,7 @@ INSTANTIATE_TEST_CASE_P(Default, IntPolyTest, testing::Values(
 	},
 	IntPolyTestParams
 	{
-		{ 1, -7, 3 }, // x^2-7x+3
+		{ 3, -7, 1 }, // x^2-7x+3
 		{
 			{ 5, -7 },
 			{ -9, 247 },
