@@ -12,6 +12,12 @@
 namespace senc::utils
 {
 	/**
+	 * @typedef senc::utils::Exponent
+	 * @brief Type used as exponent in `pow` function.
+	 */
+	using Exponent = int;
+
+	/**
 	 * @concept senc::utils::SelfMultiplicable
 	 * @brief Looks for a typename that can be multiplied by itself.
 	 * @tparam Self Examined typename.
@@ -24,7 +30,7 @@ namespace senc::utils
 
 	template <typename T>
 	requires std::is_fundamental_v<T>
-	inline T pow(T val, int exp)
+	inline T pow(T val, Exponent exp)
 	{
 		return static_cast<T>(std::pow(
 			static_cast<double>(val),

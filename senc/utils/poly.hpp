@@ -24,7 +24,7 @@ namespace senc::utils
 	template <typename Self>
 	concept PolyInput = requires(const Self self)
 	{
-		{ ::senc::utils::pow(self, std::declval<int>()) } -> std::same_as<Self>;
+		{ ::senc::utils::pow(self, std::declval<Exponent>()) } -> std::same_as<Self>;
 	};
 
 	/**
