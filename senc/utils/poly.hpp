@@ -17,6 +17,12 @@
 namespace senc::utils
 {
 	/**
+	 * @typedef senc::utils::PolyDegree
+	 * @brief Type used to represent polynomial degree.
+	 */
+	using PolyDegree = int;
+
+	/**
 	 * @concept senc::utils::PolyInput
 	 * @brief Looks for a typename that can be used as a polynom input type.
 	 * @tparam Self Examined typename.
@@ -107,7 +113,7 @@ namespace senc::utils
 		 * @param coeffSampler Polynom coefficient sampler function.
 		 * @return Sampled polynomial.
 		 */
-		static Self sample(int degree, std::function<C()> coeffSampler);
+		static Self sample(PolyDegree degree, std::function<C()> coeffSampler);
 
 		/**
 		 * @brief Samples a random polynom using a given coefficient sampler.
@@ -118,7 +124,7 @@ namespace senc::utils
 		 * @note Requires `C` to be `std::copy_constructible`.
 		 */
 		template <std::same_as<C>... Cs>
-		static Self sample(int degree, std::function<C()> coeffSampler, const Cs&... coeffs)
+		static Self sample(PolyDegree degree, std::function<C()> coeffSampler, const Cs&... coeffs)
 		requires std::copy_constructible<C>;
 
 		/**
@@ -130,14 +136,14 @@ namespace senc::utils
 		 * @note Requires `C` to be `std::move_constructible`.
 		 */
 		template <std::same_as<C>... Cs>
-		static Self sample(int degree, std::function<C()> coeffSampler, Cs&&... coeffs)
+		static Self sample(PolyDegree degree, std::function<C()> coeffSampler, Cs&&... coeffs)
 		requires std::move_constructible<C>;
 
 		/**
 		 * @brief Gets polynomial degree.
 		 * @return Polynomial degree.
 		 */
-		int degree() const;
+		PolyDegree degree() const;
 
 		/**
 		 * @brief Calls polynomial function on a given input.
@@ -149,7 +155,7 @@ namespace senc::utils
 	private:
 		std::vector<C> _coeffs;
 
-		void sample_missing_coeffs(int degree, std::function<C()> coeffSampler);
+		void sample_missing_coeffs(PolyDegree degree, std::function<C()> coeffSampler);
 	};
 }
 

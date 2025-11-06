@@ -60,7 +60,7 @@ namespace senc::utils
 	}
 
 	template <PolyInput I, PolyCoeff<I> C>
-	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler)
+	inline Poly<I, C>::Self Poly<I, C>::sample(PolyDegree degree, std::function<C()> coeffSampler)
 	{
 		Self res;
 		res.sample_missing_coeffs(degree, coeffSampler);
@@ -69,7 +69,7 @@ namespace senc::utils
 
 	template <PolyInput I, PolyCoeff<I> C>
 	template <std::same_as<C> ...Cs>
-	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler, const Cs&... coeffs)
+	inline Poly<I, C>::Self Poly<I, C>::sample(PolyDegree degree, std::function<C()> coeffSampler, const Cs&... coeffs)
 	requires std::copy_constructible<C>
 	{
 		Self res(coeffs...);
@@ -79,7 +79,7 @@ namespace senc::utils
 
 	template <PolyInput I, PolyCoeff<I> C>
 	template <std::same_as<C> ...Cs>
-	inline Poly<I, C>::Self Poly<I, C>::sample(int degree, std::function<C()> coeffSampler, Cs && ...coeffs)
+	inline Poly<I, C>::Self Poly<I, C>::sample(PolyDegree degree, std::function<C()> coeffSampler, Cs && ...coeffs)
 	requires std::move_constructible<C>
 	{
 		Self res(std::move(coeffs)...);
@@ -88,7 +88,7 @@ namespace senc::utils
 	}
 
 	template <PolyInput I, PolyCoeff<I> C>
-	inline int Poly<I, C>::degree() const
+	inline PolyDegree Poly<I, C>::degree() const
 	{
 		return this->_coeffs.size() - 1;
 	}
@@ -103,7 +103,7 @@ namespace senc::utils
 	}
 
 	template <PolyInput I, PolyCoeff<I> C>
-	inline void Poly<I, C>::sample_missing_coeffs(int degree, std::function<C()> coeffSampler)
+	inline void Poly<I, C>::sample_missing_coeffs(PolyDegree degree, std::function<C()> coeffSampler)
 	{
 		this->_coeffs.reserve(static_cast<std::size_t>(degree) + 1);
 		while (this->_coeffs.size() <= degree)
