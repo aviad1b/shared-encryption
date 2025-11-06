@@ -56,7 +56,7 @@ namespace senc::utils
 	requires std::move_constructible<C>
 	{
 		this->_coeffs.reserve(sizeof...(coeffs));
-		(this->_coeffs.emplace_back(std::forward<Cs>(args)), ...);
+		(this->_coeffs.emplace_back(std::forward<Cs>(coeffs)), ...);
 	}
 
 	template <PolyInput I, PolyCoeff<I> C>
