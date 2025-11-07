@@ -8,6 +8,8 @@
 	"Socket_impl.hpp"
 	"poly.hpp"
 	"poly_impl.hpp"
+	"Random.hpp"
+	"Random_impl.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
