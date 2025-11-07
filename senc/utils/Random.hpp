@@ -9,25 +9,10 @@
 #pragma once
 
 #include <concepts>
+#include <random>
+#include <chrono>
 
 namespace senc::utils
 {
-	/**
-	 * @concept senc::utils::HasSampleMethod
-	 * @brief Looks for a typename of which an instance can be sampled using a `sample` method.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HasSampleMethod = requires(const Self self)
-	{
-		{ self.sample() } -> std::same_as<Self>;
-	};
-
-	/**
-	 * @concept senc::utils::RandomSamplable
-	 * @brief Looks for a typename of which an instance can be sampled.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept RandomSamplable = std::integral<Self> || HasSampleMethod<Self>;
+	
 }
