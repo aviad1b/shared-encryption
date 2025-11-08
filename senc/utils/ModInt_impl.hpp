@@ -175,7 +175,7 @@ namespace senc::utils
 	template <std::integral Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-(Int value) const noexcept
 	{
-		Self((modulus + *this->_value - value) % modulus);
+		Self((modulus + this->_value - value) % modulus);
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
