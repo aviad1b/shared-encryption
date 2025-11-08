@@ -295,7 +295,7 @@ namespace senc::utils
 
 		/**
 		 * @brief Raises modular integer to given power.
-		 * @param exp Exponent to raise `*this` to.
+		 * @param exp Non-negative exponent to raise `*this` to.
 		 * @return Raised modular inetger.
 		 */
 		Self pow(std::integral auto exp) noexcept;
