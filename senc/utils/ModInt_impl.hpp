@@ -49,7 +49,7 @@ namespace senc::utils
 	template <std::integral Int, Int modulus>
 	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::inverse() const
 	{
-		return Self(modular_inverse(this->_value, modulus));
+		return Self(); // TODO: Implement
 	}
 
 	template <std::integral Int, Int modulus>
