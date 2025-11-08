@@ -31,4 +31,16 @@ namespace senc::utils
 	{
 		return get_range_dist(0, upperBound - 1);
 	}
+
+	template <std::integral T>
+	inline T Random<T>::sample_from_range(T min, T max) noexcept
+	{
+		return get_range_dist(min, max)();
+	}
+	
+	template <std::integral T>
+	inline T Random<T>::sample_below(T upperBound) noexcept
+	{
+		return get_dist_below(upperBound)();
+	}
 }

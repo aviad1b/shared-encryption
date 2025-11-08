@@ -56,6 +56,16 @@ namespace senc::utils
 		 */
 		static Distribution<T> get_dist_below(T upperBound) noexcept;
 
+		/**
+		 * @brief Samples a number within a given range [min, max].
+		 */
+		static T sample_from_range(T min, T max) noexcept;
+
+		/**
+		 * @brief Samples a non-genative number below a given upper bound.
+		 */
+		static T sample_below(T upperBound) noexcept;
+
 	private:
 		static thread_local std::mt19937& engine() noexcept
 		{
