@@ -45,7 +45,7 @@ namespace senc::utils
 	/**
 	 * @brief Raises given value to a given power under a given modulus.
 	 * @param base Value to raise to power.
-	 * @param exp Exponent to raise `base` by.
+	 * @param exp None-negative exponent to raise `base` by.
 	 * @param modulus Modulus to compute power under.
 	 * @return `base` raised to the power of `exp` under modulus `modulus`.
 	 */
