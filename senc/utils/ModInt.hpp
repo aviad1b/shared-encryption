@@ -10,10 +10,34 @@
 
 #include <concepts>
 #include <ostream>
+#include "Exception.hpp"
 #include "Random.hpp"
 
 namespace senc::utils
 {
+	class ModException : public Exception
+	{
+	public:
+		using Self = ModException;
+		using Base = Exception;
+
+		ModException(const std::string& msg);
+
+		ModException(std::string&& msg);
+
+		ModException(const std::string& msg, const std::string& info);
+
+		ModException(std::string&& msg, const std::string& info);
+
+		ModException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		ModException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+	};
+
 	/**
 	 * @brief Finds modular inverse of a given value under given modulus.
 	 * @param value Value to find modular inverse of.
