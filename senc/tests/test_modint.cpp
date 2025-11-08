@@ -9,11 +9,13 @@
 #include <gtest/gtest.h>
 #include <typeinfo> // needed for intellisense of exception detection
 #include "../utils/ModInt.hpp"
+#include "../utils/math.hpp"
 
 using senc::utils::ModException;
 using senc::utils::ModInt;
 
 using senc::utils::mod_pow;
+using senc::utils::pow;
 
 using MI7 = ModInt<int, 7, true>; // prime modulus 7
 using MI6 = ModInt<int, 6, false>; // composite modulus 6
@@ -104,6 +106,7 @@ TEST(ModIntTests, Power)
 {
     MI7 x(3);
     EXPECT_EQ(static_cast<int>(x.pow(3)), mod_pow(3, 3, 7));
+    EXPECT_EQ(static_cast<int>(pow(x, 3)), mod_pow(3, 3, 7));
 }
 
 TEST(ModIntTests, IntPlusModInt)
