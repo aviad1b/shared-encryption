@@ -15,6 +15,10 @@
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::ModException
+	 * @brief Type of exceptions thrown on modular computation errors.
+	 */
 	class ModException : public Exception
 	{
 	public:
