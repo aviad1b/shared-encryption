@@ -98,6 +98,9 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
+	const Distribution<Int> ModInt<Int, modulus, isPrime>::DIST = Random<Int>::get_dist_below(modulus);
+
+	template <std::integral Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-() const noexcept
 	{
 		return Self(modulus - this->_value);

@@ -301,7 +301,7 @@ namespace senc::utils
 		Self pow(std::integral auto exp) noexcept;
 
 	private:
-		static const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus);
+		static const Distribution<Int> DIST;
 
 		Int _value;
 	};
