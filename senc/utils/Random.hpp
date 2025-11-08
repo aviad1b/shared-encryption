@@ -67,6 +67,14 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::RandomSamplable.
+	 * @brief Looks for a typename that can be sampled through the `Random` class in any way.
+	 * @tparam Self Examiend typename.
+	 */
+	template <typename Self>
+	concept RandomSamplable = std::integral<Self> || HasSampleMethod<Self>;
+
+	/**
 	 * @class senc::utils::Random
 	 * @brief Class containing static functions for random sampling.
 	 * @tparam T Type being sampled.
