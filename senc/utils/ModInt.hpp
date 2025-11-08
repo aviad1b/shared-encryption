@@ -43,6 +43,7 @@ namespace senc::utils
 	 * @param value Value to find modular inverse of.
 	 * @param moduls Modulus to find inverse of `value` under.
 	 * @return Modular inverse of `value` under `modulus`.
+	 * @throw ModException If failed to find inverse.
 	 */
 	template <std::integral T>
 	T modular_inverse(T value, T modulus);
@@ -124,6 +125,7 @@ namespace senc::utils
 		/**
 		 * @brief Gets inverse of modular integer.
 		 * @return Modular inverse.
+		 * @throw ModException If failed to find inverse.
 		 */
 		Self inverse() const;
 
@@ -239,6 +241,7 @@ namespace senc::utils
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this with.
 		 * @return Division result.
+		 * @throw ModException If failed to divide.
 		 */
 		Self operator/(Int value) const;
 
@@ -246,6 +249,7 @@ namespace senc::utils
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
+		 * @throw ModException If failed to divide.
 		 */
 		Self& operator/=(Int value);
 
@@ -253,6 +257,7 @@ namespace senc::utils
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one with.
 		 * @return Division result.
+		 * @throw ModException If failed to divide.
 		 */
 		Self operator/(Self other) const;
 
@@ -260,6 +265,7 @@ namespace senc::utils
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one by.
 		 * @return `*this`, after division.
+		 * @throw ModException If failed to divide.
 		 */
 		Self operator/=(Self other);
 
@@ -310,6 +316,7 @@ namespace senc::utils
 	 * @param a Integer value.
 	 * @param b Modular integer.
 	 * @return Division result.
+	 * @throw ModException If failed to divide.
 	 */
 	template <std::integral Int, Int modulus>
 	ModInt<Int, modulus> operator/(Int a, ModInt<Int, modulus> b);
