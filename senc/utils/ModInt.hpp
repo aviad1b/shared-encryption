@@ -15,6 +15,15 @@
 namespace senc::utils
 {
 	/**
+	 * @brief Finds modular inverse of a given value under given modulus.
+	 * @param value Value to find modular inverse of.
+	 * @param moduls Modulus to find inverse of `value` under.
+	 * @return Modular inverse of `value` under `modulus`.
+	 */
+	template <std::integral T>
+	T modular_inverse(T value, T modulus);
+
+	/**
 	 * @class senc::utils::ModInt
 	 * @brief Modular integer type.
 	 * @tparam Int Integer type to base modular integer on.

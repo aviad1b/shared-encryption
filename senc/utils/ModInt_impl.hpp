@@ -47,6 +47,12 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::inverse() const
+	{
+		return Self(modular_inverse(this->_value, modulus));
+	}
+
+	template <std::integral Int, Int modulus>
 	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator++() noexcept
 	{
 		this->_value++;
