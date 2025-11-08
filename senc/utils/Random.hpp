@@ -27,7 +27,7 @@ namespace senc::utils
 
 		Self& operator=(const Self&) = default;
 
-		T operator()() const;
+		T operator()() const noexcept;
 
 	private:
 		std::uniform_int_distribution<T> _dist;
@@ -49,15 +49,15 @@ namespace senc::utils
 		/**
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 */
-		static Distribution<T> get_range_dist(T min, T max);
+		static Distribution<T> get_range_dist(T min, T max) noexcept;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
 		 */
-		static Distribution<T> get_dist_below(T upperBound);
+		static Distribution<T> get_dist_below(T upperBound) noexcept;
 
 	private:
-		static thread_local std::mt19937& engine()
+		static thread_local std::mt19937& engine() noexcept
 		{
 			static thread_local std::mt19937 eng(
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
