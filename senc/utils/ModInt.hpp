@@ -298,7 +298,7 @@ namespace senc::utils
 		 * @param exp Exponent to raise `*this` to.
 		 * @return Raised modular inetger.
 		 */
-		Self pow(std::integral auto exp);
+		Self pow(std::integral auto exp) noexcept;
 
 	private:
 		static const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus);

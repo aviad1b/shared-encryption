@@ -247,7 +247,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::pow(std::integral auto exp)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::pow(std::integral auto exp) noexcept
 	{
 		return Self(mod_pow(this->_value, exp, modulus));
 	}
