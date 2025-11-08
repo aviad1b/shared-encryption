@@ -38,7 +38,8 @@ namespace senc::utils
 
 	/**
 	 * @class senc::utils::Random
-	 * @tparam T Integer type to sample.
+	 * @brief Class containing static functions for random sampling.
+	 * @tparam T Type being sampled.
 	 */
 	template <std::integral T>
 	class Random
