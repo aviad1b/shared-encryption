@@ -10,6 +10,7 @@
 
 #include <concepts>
 #include <ostream>
+#include "Random.hpp"
 
 namespace senc::utils
 {
@@ -82,6 +83,44 @@ namespace senc::utils
 		bool operator==(Int value) const;
 
 		/**
+		 * @brief Negates modular integer (under modulus).
+		 * @return Negative of `*this` under modulus.
+		 */
+		Self operator-() const;
+
+		/**
+		 * @brief Gets inverse of modular integer.
+		 * @return Modular inverse.
+		 */
+		Self inverse() const;
+
+		/**
+		 * @brief Increases modular integer.
+		 * @return `*this` after being increased.
+		 */
+		Self& operator++();
+
+		/**
+		 * @brief Increases modular integer.
+		 * @return `*this` before being increased.
+		 */
+		Self operator++(int);
+
+		/**
+		 * @brief Adds integer value with this modular integer.
+		 * @param value Integer value to add with this.
+		 * @return Addition result.
+		 */
+		Self operator+(Int value) const;
+
+		/**
+		 * @brief Adds integer value to this modular integer.
+		 * @param value Integer value to add to this.
+		 * @return `*this`, after addition.
+		 */
+		Self& operator+=(Int value);
+
+		/**
 		 * @brief Adds another modular integer with this one.
 		 * @param other Other modular integer to add with this one.
 		 * @return Addition result.
@@ -94,6 +133,60 @@ namespace senc::utils
 		 * @return `*this`, after addition.
 		 */
 		Self& operator+=(Self other);
+
+		/**
+		 * @brief Decreases modular integer.
+		 * @return `*this` after being decreased.
+		 */
+		Self& operator--();
+
+		/**
+		 * @brief Decreases modular integer.
+		 * @return `*this` before being decreased.
+		 */
+		Self operator--(int);
+
+		/**
+		 * @brief Subtracts the modular integer by an integer value.
+		 * @param value Integer value to subtract this with.
+		 * @return Subtraction result.
+		 */
+		Self operator-(Int value) const;
+
+		/**
+		 * @brief Subtracts the modular integer by an integer value.
+		 * @param value Integer value to subtract this by.
+		 * @return `*this`, after subtraction.
+		 */
+		Self operator-=(Int value);
+
+		/**
+		 * @brief Subtract the modular integer by another.
+		 * @param other Other modular integer to subtract this one with.
+		 * @return Subtraction result.
+		 */
+		Self operator-(Self other) const;
+
+		/**
+		 * @brief Subtracts the modular integer by another.
+		 * @param other Other modular integer to subtract this one by.
+		 * @return `*this`, after subtraction.
+		 */
+		Self operator-=(Self other);
+
+		/**
+		 * @brief Multiplies integer value with this modular integer.
+		 * @param value Integer value to multiply with this.
+		 * @return Multiplication result.
+		 */
+		Self operator*(Int value) const;
+
+		/**
+		 * @brief Multiplies the modular integer with a given integer value.
+		 * @param value Integer value to multiply this by.
+		 * @return `*this`, after multiplication.
+		 */
+		Self& operator*=(Int value);
 
 		/**
 		 * @brief Multiplies another modular integer with this one.
@@ -110,6 +203,20 @@ namespace senc::utils
 		Self& operator*=(Self other);
 
 		/**
+		 * @brief Divides the modular integer by an integer value.
+		 * @param value Integer value to divide this with.
+		 * @return Division result.
+		 */
+		Self operator/(Int value) const;
+
+		/**
+		 * @brief Divides the modular integer by an integer value.
+		 * @param value Integer value to divide this by.
+		 * @return `*this`, after division.
+		 */
+		Self operator/=(Int value);
+
+		/**
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one with.
 		 * @return Division result.
@@ -124,6 +231,8 @@ namespace senc::utils
 		Self operator/=(Self other);
 
 	private:
+		static const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus);
+
 		Int _value;
 	};
 
@@ -135,6 +244,42 @@ namespace senc::utils
 	 */
 	template <std::integral Int, Int modulus>
 	bool operator==(Int value, ModInt<Int, modulus> modint);
+
+	/**
+	 * @brief Adds an integer value with a modular integer.
+	 * @param a Integer value.
+	 * @param b Modular integer.
+	 * @return Addition result.
+	 */
+	template <std::integral Int, Int modulus>
+	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b);
+
+	/**
+	 * @brief Subtracts an integer value from a modular integer.
+	 * @param a Integer value.
+	 * @param b Modular integer.
+	 * @return Subtraction result.
+	 */
+	template <std::integral Int, Int modulus>
+	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b);
+
+	/**
+	 * @brief Multiplies an integer value with a modular integer.
+	 * @param a Integer value.
+	 * @param b Modular integer.
+	 * @return Multiplication result.
+	 */
+	template <std::integral Int, Int modulus>
+	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b);
+
+	/**
+	 * @brief Divides an integer value by a modular integer.
+	 * @param a Integer value.
+	 * @param b Modular integer.
+	 * @return Division result.
+	 */
+	template <std::integral Int, Int modulus>
+	ModInt<Int, modulus> operator/(Int a, ModInt<Int, modulus> b);
 
 	template <std::integral Int, Int modulus>
 	std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus> modint);
