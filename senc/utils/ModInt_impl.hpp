@@ -8,6 +8,8 @@
 
 #include "ModInt.hpp"
 
+#include <sstream>
+
 namespace senc::utils
 {
 	template <std::integral T, std::integral E>
@@ -31,6 +33,38 @@ namespace senc::utils
 	{
 		// using Fermat's formula for prime modulus
 		return mod_pow(value, modulus - 2, modulus);
+	}
+
+	template <std::integral T>
+	T modular_inverse(T value, T modulus)
+	{
+		// using the extended euclidean algorithm
+
+		T a = value, b = modulus;
+		T x0 = 1, x1 = 0;
+
+		while (b)
+		{
+			T q = a / b;
+			T temp = a % b;
+			a = b;
+			b = temp;
+
+			temp = x0 - q * x1;
+			x0 = x1;
+			x1 = temp;
+		}
+
+		// now a = gcd(value, modulus). if gcd != 1, inverse doesn't exist
+		if (1 != a)
+		{
+			std::stringstream s;
+			s << "No inverse for " << value << " under modulus " << modulus;
+			throw ModException(s.str());
+		}
+
+		// x0 may be negative, fix it
+		return (x0 % modulus + modulus) % modulus;
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
