@@ -277,7 +277,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b)
+	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) noexcept(isPrime)
 	{
 		return ModInt<Int, modulus, isPrime>(a % modulus) / b;
 	}
