@@ -110,7 +110,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-=(Int value)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Int value)
 	{
 		this->_value += modulus;
 		this->_value -= value;
@@ -125,7 +125,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-=(Self other)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Self other)
 	{
 		return *this -= other._value;
 	}
@@ -178,6 +178,12 @@ namespace senc::utils
 	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b)
 	{
 		return b * a;
+	}
+
+	template <std::integral Int, Int modulus>
+	ModInt<Int, modulus> operator/(Int a, ModInt<Int, modulus> b)
+	{
+		return ModInt<Int, modulus>(a % modulus) / b;
 	}
 
 	template <std::integral Int, Int modulus>

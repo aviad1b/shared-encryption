@@ -158,7 +158,7 @@ namespace senc::utils
 		 * @param value Integer value to subtract this by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self operator-=(Int value);
+		Self& operator-=(Int value);
 
 		/**
 		 * @brief Subtract the modular integer by another.
@@ -172,7 +172,7 @@ namespace senc::utils
 		 * @param other Other modular integer to subtract this one by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self operator-=(Self other);
+		Self& operator-=(Self other);
 
 		/**
 		 * @brief Multiplies integer value with this modular integer.
@@ -214,7 +214,7 @@ namespace senc::utils
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
 		 */
-		Self operator/=(Int value);
+		Self& operator/=(Int value);
 
 		/**
 		 * @brief Divides the modular integer by another.
