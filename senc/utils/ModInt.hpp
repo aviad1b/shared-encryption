@@ -83,7 +83,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = ModInt<Int, modulus, isPrime>;
-		constexpr Int MODULUS = modulus;
+		static constexpr Int MODULUS = modulus;
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
