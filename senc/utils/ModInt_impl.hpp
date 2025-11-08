@@ -49,7 +49,10 @@ namespace senc::utils
 	template <std::integral Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::inverse() const
 	{
-		return Self(); // TODO: Implement
+		if constexpr (isPrime)
+			return prime_modular_inverse(this->_value, modulus);
+		else
+			return modular_inverse(this->_value, modulus);
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
