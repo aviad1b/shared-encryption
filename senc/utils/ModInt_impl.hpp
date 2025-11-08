@@ -11,43 +11,43 @@
 namespace senc::utils
 {
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::ModInt() : Self(0) { }
+	inline ModInt<Int, modulus>::ModInt() noexcept : Self(0) { }
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::ModInt(Int value) : _value(value % modulus) { }
+	inline ModInt<Int, modulus>::ModInt(Int value) noexcept : _value(value % modulus) { }
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::sample()
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::sample() noexcept
 	{
 		return Self(DIST());
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::operator Int() const
+	inline ModInt<Int, modulus>::operator Int() const noexcept
 	{
 		return this->_value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline bool ModInt<Int, modulus>::operator==(Self other) const
+	inline bool ModInt<Int, modulus>::operator==(Self other) const noexcept
 	{
 		return (this->_value == other._value);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline bool ModInt<Int, modulus>::operator==(Int value) const
+	inline bool ModInt<Int, modulus>::operator==(Int value) const noexcept
 	{
 		return (this->_value == value);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-() const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-() const noexcept
 	{
 		return Self(modulus - this->_value);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator++()
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator++() noexcept
 	{
 		this->_value++;
 		this->_value %= modulus;
@@ -55,7 +55,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator++(int)
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator++(int) noexcept
 	{
 		Self res = *this;
 		++(*this);
@@ -63,13 +63,13 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator+(Int value) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator+(Int value) const noexcept
 	{
 		return Self((this->_value + value) % modulus);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator+=(Int value)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator+=(Int value) noexcept
 	{
 		this->_value += value;
 		this->_value %= modulus;
@@ -77,26 +77,26 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator+(Self other) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator+(Self other) const noexcept
 	{
 		return *this + other._value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator+=(Self other)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator+=(Self other) noexcept
 	{
 		return *this += other._value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator--()
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator--() noexcept
 	{
 		// not safe to use `--` here directly since we may go below zero
 		return *this -= 1;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator++(int)
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator++(int) noexcept
 	{
 		Self res = *this;
 		--(*this);
@@ -104,13 +104,13 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-(Int value) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-(Int value) const noexcept
 	{
 		Self((modulus + *this->_value - value) % modulus);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Int value)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Int value) noexcept
 	{
 		this->_value += modulus;
 		this->_value -= value;
@@ -119,25 +119,25 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-(Self other) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator-(Self other) const noexcept
 	{
 		return *this - other._value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Self other)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator-=(Self other) noexcept
 	{
 		return *this -= other._value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator*(Int value) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator*(Int value) const noexcept
 	{
 		return Self((this->_value * value) % modulus);
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator*=(Int value)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator*=(Int value) noexcept
 	{
 		this->_value *= value;
 		this->_value %= modulus;
@@ -145,13 +145,13 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator*(Self other) const
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator*(Self other) const noexcept
 	{
 		return *this + other._value;
 	}
 
 	template <std::integral Int, Int modulus>
-	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator*=(Self other)
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator*=(Self other) noexcept
 	{
 		return *this += other._value;
 	}
@@ -181,25 +181,25 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
-	bool operator==(Int value, ModInt<Int, modulus> modint)
+	bool operator==(Int value, ModInt<Int, modulus> modint) noexcept
 	{
 		return (modint == value);
 	}
 
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b)
+	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b) noexcept
 	{
 		return b + a;
 	}
 
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b)
+	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b) noexcept
 	{
 		return ModInt<Int, modulus>(a % modulus) - b;
 	}
 
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b)
+	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b) noexcept
 	{
 		return b * a;
 	}

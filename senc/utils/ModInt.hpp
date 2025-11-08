@@ -30,63 +30,63 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a modular integer with zero value.
 		 */
-		ModInt();
+		ModInt() noexcept;
 
 		/**
 		 * @brief Constructs a modular integer with a given value.
 		 */
-		ModInt(Int value);
+		ModInt(Int value) noexcept;
 
 		/**
 		 * @brief Samples a random modular integer.
 		 * @return Sampled modular integer.
 		 */
-		static Self sample();
+		static Self sample() noexcept;
 
 		/**
 		 * @brief Copy constructor of modular integer.
 		 */
-		ModInt(const Self&) = default;
+		ModInt(const Self&) noexcept = default;
 
 		/**
 		 * @brief Copy assignment operator of modular integer.
 		 */
-		Self& operator=(const Self&) = default;
+		Self& operator=(const Self&) noexcept = default;
 
 		/**
 		 * @brief Move constructor of modular integer.
 		 */
-		ModInt(Self&&) = default;
+		ModInt(Self&&) noexcept = default;
 
 		/**
 		 * @brief Move assignment operator of modular integer.
 		 */
-		Self& operator=(Self&&) = default;
+		Self& operator=(Self&&) noexcept = default;
 
 		/**
 		 * @brief Casting of modular integer into its underlying fundamental.
 		 */
-		operator Int() const;
+		operator Int() const noexcept;
 
 		/**
 		 * @brief Checks if the modular integer is equal to another.
 		 * @param other Other modular integer to compare to.
 		 * @return `true` if `*this` has same value as `other`, otherwise `false`.
 		 */
-		bool operator==(Self other) const;
+		bool operator==(Self other) const noexcept;
 
 		/**
 		 * @brief Checks if the modular integer has a given value.
 		 * @param value Value to check if the modular integer has.
 		 * @return `true` if `*this` has value `value`, othewise `false`.
 		 */
-		bool operator==(Int value) const;
+		bool operator==(Int value) const noexcept;
 
 		/**
 		 * @brief Negates modular integer (under modulus).
 		 * @return Negative of `*this` under modulus.
 		 */
-		Self operator-() const;
+		Self operator-() const noexcept;
 
 		/**
 		 * @brief Gets inverse of modular integer.
@@ -98,109 +98,109 @@ namespace senc::utils
 		 * @brief Increases modular integer.
 		 * @return `*this` after being increased.
 		 */
-		Self& operator++();
+		Self& operator++() noexcept;
 
 		/**
 		 * @brief Increases modular integer.
 		 * @return `*this` before being increased.
 		 */
-		Self operator++(int);
+		Self operator++(int) noexcept;
 
 		/**
 		 * @brief Adds integer value with this modular integer.
 		 * @param value Integer value to add with this.
 		 * @return Addition result.
 		 */
-		Self operator+(Int value) const;
+		Self operator+(Int value) const noexcept;
 
 		/**
 		 * @brief Adds integer value to this modular integer.
 		 * @param value Integer value to add to this.
 		 * @return `*this`, after addition.
 		 */
-		Self& operator+=(Int value);
+		Self& operator+=(Int value) noexcept;
 
 		/**
 		 * @brief Adds another modular integer with this one.
 		 * @param other Other modular integer to add with this one.
 		 * @return Addition result.
 		 */
-		Self operator+(Self other) const;
+		Self operator+(Self other) const noexcept;
 
 		/**
 		 * @brief Adds another modular integer to this one.
 		 * @param other Other modular integer to add to this one.
 		 * @return `*this`, after addition.
 		 */
-		Self& operator+=(Self other);
+		Self& operator+=(Self other) noexcept;
 
 		/**
 		 * @brief Decreases modular integer.
 		 * @return `*this` after being decreased.
 		 */
-		Self& operator--();
+		Self& operator--() noexcept;
 
 		/**
 		 * @brief Decreases modular integer.
 		 * @return `*this` before being decreased.
 		 */
-		Self operator--(int);
+		Self operator--(int) noexcept;
 
 		/**
 		 * @brief Subtracts the modular integer by an integer value.
 		 * @param value Integer value to subtract this with.
 		 * @return Subtraction result.
 		 */
-		Self operator-(Int value) const;
+		Self operator-(Int value) const noexcept;
 
 		/**
 		 * @brief Subtracts the modular integer by an integer value.
 		 * @param value Integer value to subtract this by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self& operator-=(Int value);
+		Self& operator-=(Int value) noexcept;
 
 		/**
 		 * @brief Subtract the modular integer by another.
 		 * @param other Other modular integer to subtract this one with.
 		 * @return Subtraction result.
 		 */
-		Self operator-(Self other) const;
+		Self operator-(Self other) const noexcept;
 
 		/**
 		 * @brief Subtracts the modular integer by another.
 		 * @param other Other modular integer to subtract this one by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self& operator-=(Self other);
+		Self& operator-=(Self other) noexcept;
 
 		/**
 		 * @brief Multiplies integer value with this modular integer.
 		 * @param value Integer value to multiply with this.
 		 * @return Multiplication result.
 		 */
-		Self operator*(Int value) const;
+		Self operator*(Int value) const noexcept;
 
 		/**
 		 * @brief Multiplies the modular integer with a given integer value.
 		 * @param value Integer value to multiply this by.
 		 * @return `*this`, after multiplication.
 		 */
-		Self& operator*=(Int value);
+		Self& operator*=(Int value) noexcept;
 
 		/**
 		 * @brief Multiplies another modular integer with this one.
 		 * @param other Other modular integer to multiply with this one.
 		 * @return Multiplication result.
 		 */
-		Self operator*(Self other) const;
+		Self operator*(Self other) const noexcept;
 
 		/**
 		 * @brief Multiplies the modular integer with another.
 		 * @param other Other modular integer to multiply this one by.
 		 * @return `*this`, after multiplication.
 		 */
-		Self& operator*=(Self other);
+		Self& operator*=(Self other) noexcept;
 
 		/**
 		 * @brief Divides the modular integer by an integer value.
@@ -243,7 +243,7 @@ namespace senc::utils
 	 * @return `true` if `modint` has value `value`, othewise `false`.
 	 */
 	template <std::integral Int, Int modulus>
-	bool operator==(Int value, ModInt<Int, modulus> modint);
+	bool operator==(Int value, ModInt<Int, modulus> modint) noexcept;
 
 	/**
 	 * @brief Adds an integer value with a modular integer.
@@ -252,7 +252,7 @@ namespace senc::utils
 	 * @return Addition result.
 	 */
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b);
+	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b) noexcept;
 
 	/**
 	 * @brief Subtracts an integer value from a modular integer.
@@ -261,7 +261,7 @@ namespace senc::utils
 	 * @return Subtraction result.
 	 */
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b);
+	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b) noexcept;
 
 	/**
 	 * @brief Multiplies an integer value with a modular integer.
@@ -270,7 +270,7 @@ namespace senc::utils
 	 * @return Multiplication result.
 	 */
 	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b);
+	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b) noexcept;
 
 	/**
 	 * @brief Divides an integer value by a modular integer.
