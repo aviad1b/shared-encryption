@@ -57,6 +57,16 @@ namespace senc::utils
 	};
 
 	/**
+	 * @brief Looks for a typename of which an instance can be sampled using a `sample` method.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HasSampleMethod = requires
+	{
+		{ Self::sample() } -> std::same_as<Self>;
+	};
+
+	/**
 	 * @class senc::utils::Random
 	 * @brief Class containing static functions for random sampling.
 	 * @tparam T Type being sampled.
