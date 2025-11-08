@@ -104,7 +104,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::inverse() const
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::inverse() const noexcept(isPrime)
 	{
 		if constexpr (isPrime)
 			return prime_modular_inverse(this->_value, modulus);
@@ -223,25 +223,25 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Int value) const
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Int value) const noexcept(isPrime)
 	{
 		return *this / Self(value % modulus);
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator/=(Int value)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator/=(Int value) noexcept(isPrime)
 	{
 		return *this = *this / value;
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Self other) const
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Self other) const noexcept(isPrime)
 	{
 		return *this * other.inverse();
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/=(Self other)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/=(Self other) noexcept(isPrime)
 	{
 		return *this = *this / other;
 	}
