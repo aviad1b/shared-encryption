@@ -41,7 +41,7 @@ namespace senc::utils
 	 * @brief Class containing static functions for random sampling.
 	 * @tparam T Type being sampled.
 	 */
-	template <std::integral T>
+	template <typename T>
 	class Random
 	{
 	public:
@@ -50,22 +50,26 @@ namespace senc::utils
 		/**
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 */
-		static Distribution<T> get_range_dist(T min, T max) noexcept;
+		static Distribution<T> get_range_dist(T min, T max) noexcept
+		requires std::integral<T>;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
 		 */
-		static Distribution<T> get_dist_below(T upperBound) noexcept;
+		static Distribution<T> get_dist_below(T upperBound) noexcept
+		requires std::integral<T>;
 
 		/**
 		 * @brief Samples a number within a given range [min, max].
 		 */
-		static T sample_from_range(T min, T max) noexcept;
+		static T sample_from_range(T min, T max) noexcept
+		requires std::integral<T>;
 
 		/**
 		 * @brief Samples a non-genative number below a given upper bound.
 		 */
-		static T sample_below(T upperBound) noexcept;
+		static T sample_below(T upperBound) noexcept
+		requires std::integral<T>;
 
 	private:
 		static thread_local std::mt19937& engine() noexcept
