@@ -157,6 +157,30 @@ namespace senc::utils
 	}
 
 	template <std::integral Int, Int modulus>
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator/(Int value) const
+	{
+		return *this / Self(value % modulus);
+	}
+
+	template <std::integral Int, Int modulus>
+	inline ModInt<Int, modulus>::Self& ModInt<Int, modulus>::operator/=(Int value)
+	{
+		return *this = *this / value;
+	}
+
+	template <std::integral Int, Int modulus>
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator/(Self other) const
+	{
+		return *this * other.inverse();
+	}
+
+	template <std::integral Int, Int modulus>
+	inline ModInt<Int, modulus>::Self ModInt<Int, modulus>::operator/=(Self other)
+	{
+		return *this = *this / other;
+	}
+
+	template <std::integral Int, Int modulus>
 	bool operator==(Int value, ModInt<Int, modulus> modint)
 	{
 		return (modint == value);
