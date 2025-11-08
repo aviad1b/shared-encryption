@@ -47,12 +47,13 @@ namespace senc::utils
 	 * @brief Modular integer type.
 	 * @tparam Int Integer type to base modular integer on.
 	 * @tparam modulus Modulus for integer computations.
+	 * @tparam isPrime `true` if `modulus` is known to be prime (for more efficient computations).
 	 */
-	template <std::integral Int, Int modulus>
+	template <std::integral Int, Int modulus, bool isPrime = false>
 	class ModInt
 	{
 	public:
-		using Self = ModInt<Int, modulus>;
+		using Self = ModInt<Int, modulus, isPrime>;
 		constexpr Int MODULUS = modulus;
 
 		/**
@@ -119,9 +120,9 @@ namespace senc::utils
 		/**
 		 * @brief Gets inverse of modular integer.
 		 * @return Modular inverse.
-		 * @throw ModException If failed to find inverse.
+		 * @throw ModException If failed to find inverse (only if `isPrime` is not `true`).
 		 */
-		Self inverse() const;
+		Self inverse() const noexcept(isPrime);
 
 		/**
 		 * @brief Increases modular integer.
@@ -235,33 +236,33 @@ namespace senc::utils
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this with.
 		 * @return Division result.
-		 * @throw ModException If failed to divide.
+		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
-		Self operator/(Int value) const;
+		Self operator/(Int value) const noexcept(isPrime);
 
 		/**
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
-		 * @throw ModException If failed to divide.
+		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
-		Self& operator/=(Int value);
+		Self& operator/=(Int value) noexcept(isPrime);
 
 		/**
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one with.
 		 * @return Division result.
-		 * @throw ModException If failed to divide.
+		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
-		Self operator/(Self other) const;
+		Self operator/(Self other) const noexcept(isPrime);
 
 		/**
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one by.
 		 * @return `*this`, after division.
-		 * @throw ModException If failed to divide.
+		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
-		Self operator/=(Self other);
+		Self operator/=(Self other) noexcept(isPrime);
 
 	private:
 		static const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus);
@@ -275,8 +276,8 @@ namespace senc::utils
 	 * @param modint Modular integer to check if has value `value`.
 	 * @return `true` if `modint` has value `value`, othewise `false`.
 	 */
-	template <std::integral Int, Int modulus>
-	bool operator==(Int value, ModInt<Int, modulus> modint) noexcept;
+	template <std::integral Int, Int modulus, bool isPrime>
+	bool operator==(Int value, ModInt<Int, modulus, isPrime> modint) noexcept;
 
 	/**
 	 * @brief Adds an integer value with a modular integer.
@@ -284,8 +285,8 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Addition result.
 	 */
-	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator+(Int a, ModInt<Int, modulus> b) noexcept;
+	template <std::integral Int, Int modulus, bool isPrime>
+	ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) noexcept;
 
 	/**
 	 * @brief Subtracts an integer value from a modular integer.
@@ -293,8 +294,8 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Subtraction result.
 	 */
-	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator-(Int a, ModInt<Int, modulus> b) noexcept;
+	template <std::integral Int, Int modulus, bool isPrime>
+	ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) noexcept;
 
 	/**
 	 * @brief Multiplies an integer value with a modular integer.
@@ -302,21 +303,21 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Multiplication result.
 	 */
-	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator*(Int a, ModInt<Int, modulus> b) noexcept;
+	template <std::integral Int, Int modulus, bool isPrime>
+	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) noexcept;
 
 	/**
 	 * @brief Divides an integer value by a modular integer.
 	 * @param a Integer value.
 	 * @param b Modular integer.
 	 * @return Division result.
-	 * @throw ModException If failed to divide.
+	 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 	 */
-	template <std::integral Int, Int modulus>
-	ModInt<Int, modulus> operator/(Int a, ModInt<Int, modulus> b);
+	template <std::integral Int, Int modulus, bool isPrime>
+	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) noexcept(isPrime);
 
-	template <std::integral Int, Int modulus>
-	std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus> modint);
+	template <std::integral Int, Int modulus, bool isPrime>
+	std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus, isPrime> modint);
 }
 
 #include "ModInt_impl.hpp"
