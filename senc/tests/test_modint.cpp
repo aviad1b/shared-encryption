@@ -18,14 +18,14 @@ using senc::utils::mod_pow;
 using MI7 = ModInt<int, 7, true>; // prime modulus 7
 using MI6 = ModInt<int, 6, false>; // composite modulus 6
 
-TEST(ModPowTests, BasicCorrectness)
+TEST(ModIntTests, BasicCorrectness)
 {
     EXPECT_EQ(mod_pow(2, 3, 7), 8 % 7);      // 2^3 = 8 mod 7 -> 1
     EXPECT_EQ(mod_pow(5, 0, 7), 1);          // x^0 = 1 always
     EXPECT_EQ(mod_pow(3, 4, 7), 81 % 7);     // 81 mod 7 = 4
 }
 
-TEST(ModPowTests, LargeExponent)
+TEST(ModIntTests, LargeExponent)
 {
     // Fermat: 2^(6 mod 7) mod 7 = 1
     EXPECT_EQ(mod_pow(2, 1000000, 7), mod_pow(2, 1000000 % 6, 7));
@@ -106,25 +106,25 @@ TEST(ModIntTests, Power)
     EXPECT_EQ(static_cast<int>(x.pow(3)), mod_pow(3, 3, 7));
 }
 
-TEST(ModIntFreeOpsTests, IntPlusModInt)
+TEST(ModIntTests, IntPlusModInt)
 {
     MI7 x(5);
     EXPECT_EQ(static_cast<int>(2 + x), (2 + 5) % 7);
 }
 
-TEST(ModIntFreeOpsTests, IntMinusModInt)
+TEST(ModIntTests, IntMinusModInt)
 {
     MI7 x(5);
     EXPECT_EQ(static_cast<int>(2 - x), (2 - 5 + 7) % 7);
 }
 
-TEST(ModIntFreeOpsTests, IntTimesModInt)
+TEST(ModIntTests, IntTimesModInt)
 {
     MI7 x(4);
     EXPECT_EQ(static_cast<int>(3 * x), (3 * 4) % 7);
 }
 
-TEST(ModIntFreeOpsTests, IntDivModIntPrime)
+TEST(ModIntTests, IntDivModIntPrime)
 {
     MI7 x(3); // inverse is 5
     EXPECT_EQ(static_cast<int>(2 / x), (2 * 5) % 7);
