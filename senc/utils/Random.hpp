@@ -23,10 +23,16 @@ namespace senc::utils
 	template <std::integral T>
 	class Distribution
 	{
-		friend class Random<T>;
-
 	public:
 		using Self = Distribution<T>;
+
+		/**
+		 * @brief Constructs a uniform integer distribution (range [min, max]).
+		 * @param min Minimum value in range.
+		 * @param max Maximum value in range.
+		 * @param engine Engine used for random generations (by ref).
+		 */
+		Distribution(T min, T max, std::mt19937& engine);
 
 		/**
 		 * @brief Copy constructor of distribution.
@@ -46,14 +52,6 @@ namespace senc::utils
 	private:
 		std::uniform_int_distribution<T> _dist;
 		std::mt19937& _engine;
-
-		/**
-		 * @brief Constructs a uniform integer distribution (range [min, max]).
-		 * @param min Minimum value in range.
-		 * @param max Maximum value in range.
-		 * @param engine Engine used for random generations (by ref).
-		 */
-		Distribution(T min, T max, std::mt19937& engine);
 	};
 
 	/**
