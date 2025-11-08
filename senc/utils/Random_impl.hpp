@@ -20,28 +20,28 @@ namespace senc::utils
 	inline Distribution<T>::Distribution(T min, T max, std::mt19937& engine)
 		: _dist(min, max), _engine(engine) { }
 
-	template <typename T>
+	template <RandomSamplable T>
 	inline Distribution<T> Random<T>::get_range_dist(T min, T max) noexcept
 	requires std::integral<T>
 	{
 		return Distribution<T>(min, max, engine());
 	}
 
-	template <typename T>
+	template <RandomSamplable T>
 	inline Distribution<T> Random<T>::get_dist_below(T upperBound) noexcept
 	requires std::integral<T>
 	{
 		return get_range_dist(0, upperBound - 1);
 	}
 
-	template <typename T>
+	template <RandomSamplable T>
 	inline T Random<T>::sample_from_range(T min, T max) noexcept
 	requires std::integral<T>
 	{
 		return get_range_dist(min, max)();
 	}
 	
-	template <typename T>
+	template <RandomSamplable T>
 	inline T Random<T>::sample_below(T upperBound) noexcept
 	requires std::integral<T>
 	{

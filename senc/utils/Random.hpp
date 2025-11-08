@@ -80,7 +80,7 @@ namespace senc::utils
 	 * @brief Class containing static functions for random sampling.
 	 * @tparam T Type being sampled.
 	 */
-	template <typename T>
+	template <RandomSamplable T>
 	class Random
 	{
 	public:
