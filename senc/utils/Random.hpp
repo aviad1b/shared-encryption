@@ -57,6 +57,7 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::HasSampleMethod
 	 * @brief Looks for a typename of which an instance can be sampled using a `sample` method.
 	 * @tparam Self Examined typename.
 	 */
