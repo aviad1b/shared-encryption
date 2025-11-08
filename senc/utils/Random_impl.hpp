@@ -11,14 +11,14 @@
 namespace senc::utils
 {
 	template <std::integral T>
+	inline Distribution<T>::Distribution(T min, T max, std::mt19937& engine)
+		: _dist(min, max), _engine(engine) { }
+
+	template <std::integral T>
 	inline T Distribution<T>::operator()() const noexcept
 	{
 		return this->_dist(this->_engine);
 	}
-
-	template <std::integral T>
-	inline Distribution<T>::Distribution(T min, T max, std::mt19937& engine)
-		: _dist(min, max), _engine(engine) { }
 
 	template <RandomSamplable T>
 	inline Distribution<T> Random<T>::get_range_dist(T min, T max) noexcept
