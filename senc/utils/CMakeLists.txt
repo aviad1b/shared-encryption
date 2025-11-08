@@ -10,6 +10,9 @@
 	"poly_impl.hpp"
 	"Random.hpp"
 	"Random_impl.hpp"
+	"ModInt.hpp"
+	"ModInt_impl.hpp"
+	"ModInt.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
