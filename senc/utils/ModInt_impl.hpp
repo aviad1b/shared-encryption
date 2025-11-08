@@ -26,6 +26,13 @@ namespace senc::utils
 		return res;
 	}
 
+	template <std::integral T>
+	T prime_modular_inverse(T value, T modulus)
+	{
+		// using Fermat's formula for prime modulus
+		return mod_pow(value, modulus - 2, modulus);
+	}
+
 	template <std::integral Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime>::ModInt() noexcept : Self(0) { }
 
