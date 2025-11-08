@@ -15,6 +15,11 @@
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::Distribution
+	 * @brief Represents a uniform distribution of integers.
+	 * @tparam T Integer type.
+	 */
 	template <std::integral T>
 	class Distribution
 	{
@@ -23,16 +28,31 @@ namespace senc::utils
 	public:
 		using Self = Distribution<T>;
 
+		/**
+		 * @brief Copy constructor of distribution.
+		 */
 		Distribution(const Self&) = default;
 
+		/**
+		 * @brief Copy assignment operator distribution.
+		 */
 		Self& operator=(const Self&) = default;
 
+		/**
+		 * @brief Samples a random integer from distribution.
+		 */
 		T operator()() const noexcept;
 
 	private:
 		std::uniform_int_distribution<T> _dist;
 		std::mt19937& _engine;
 
+		/**
+		 * @brief Constructs a uniform integer distribution (range [min, max]).
+		 * @param min Minimum value in range.
+		 * @param max Maximum value in range.
+		 * @param engine Engine used for random generations (by ref).
+		 */
 		Distribution(T min, T max, std::mt19937& engine);
 	};
 
