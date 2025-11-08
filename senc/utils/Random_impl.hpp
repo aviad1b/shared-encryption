@@ -11,19 +11,23 @@
 namespace senc::utils
 {
 	template <std::integral T>
-	inline std::function<T()> Random<T>::get_range_dist(T min, T max)
+	inline T Distribution<T>::operator()() const
 	{
-		return [dist = std::uniform_int_distribution<T>(min, max)]() mutable
-		{
-            static thread_local std::mt19937 engine(
-                std::chrono::high_resolution_clock::now().time_since_epoch().count()
-            );
-            return dist(engine);
-        };
+		return this->_dist(this->_engine);
 	}
-	
+
 	template <std::integral T>
-	inline std::function<T()> Random<T>::get_dist_below(T upperBound)
+	inline Distribution<T>::Distribution(T min, T max, std::mt19937& engine)
+		: _dist(min, max), _engine(engine) { }
+
+	template <std::integral T>
+	inline Distribution<T> Random<T>::get_range_dist(T min, T max)
+	{
+		return Distribution<T>(min, max, engine());
+	}
+
+	template <std::integral T>
+	inline Distribution<T> Random<T>::get_dist_below(T upperBound)
 	{
 		return get_range_dist(0, upperBound - 1);
 	}

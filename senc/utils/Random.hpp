@@ -15,6 +15,27 @@
 
 namespace senc::utils
 {
+	template <std::integral T>
+	class Distribution
+	{
+		friend class Random<T>;
+
+	public:
+		using Self = Distribution<T>;
+
+		Distribution(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		T operator()() const;
+
+	private:
+		std::uniform_int_distribution<T> _dist;
+		std::mt19937& _engine;
+
+		Distribution(T min, T max, std::mt19937& engine);
+	};
+
 	/**
 	 * @class senc::utils::Random
 	 * @tparam T Integer type to sample.
@@ -28,11 +49,20 @@ namespace senc::utils
 		/**
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 */
-		static std::function<T()> get_range_dist(T min, T max);
+		static Distribution<T> get_range_dist(T min, T max);
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
 		 */
-		static std::function<T()> get_dist_below(T upperBound);
+		static Distribution<T> get_dist_below(T upperBound);
+
+	private:
+		static thread_local std::mt19937& engine()
+		{
+			static thread_local std::mt19937 eng(
+				std::chrono::high_resolution_clock::now().time_since_epoch().count()
+			);
+			return eng;
+		}
 	};
 }
