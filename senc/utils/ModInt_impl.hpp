@@ -10,6 +10,22 @@
 
 namespace senc::utils
 {
+	template <std::integral T, std::integral E>
+	T mod_pow(T base, E exp, T modulus) noexcept
+	{
+		// fast exponent algorithm under prime modulus
+		T res = 1;
+		base %= modulus;
+		while (exp > 0)
+		{
+			if (exp & 1)
+				res = (res * base) % modulus;
+			base = (base * base) % modulus;
+			exp >>= 1;
+		}
+		return res;
+	}
+
 	template <std::integral Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime>::ModInt() noexcept : Self(0) { }
 
@@ -187,6 +203,12 @@ namespace senc::utils
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/=(Self other)
 	{
 		return *this = *this / other;
+	}
+
+	template <std::integral Int, Int modulus, bool isPrime>
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::pow(std::integral auto exp)
+	{
+		return Self(mod_pow(this->_value, exp, modulus));
 	}
 
 	template <std::integral Int, Int modulus, bool isPrime>

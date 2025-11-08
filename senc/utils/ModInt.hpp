@@ -43,6 +43,16 @@ namespace senc::utils
 	};
 
 	/**
+	 * @brief Raises given value to a given power under a given modulus.
+	 * @param base Value to raise to power.
+	 * @param exp Exponent to raise `base` by.
+	 * @param modulus Modulus to compute power under.
+	 * @return `base` raised to the power of `exp` under modulus `modulus`.
+	 */
+	template <std::integral T, std::integral E>
+	T mod_pow(T base, E exp, T modulus) noexcept;
+
+	/**
 	 * @brief Finds modular inverse of a given value under given prime modulus.
 	 * @param value Value to find modular inverse of.
 	 * @param moduls Modulus to find inverse of `value` under.
@@ -282,6 +292,13 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/=(Self other) noexcept(isPrime);
+
+		/**
+		 * @brief Raises modular integer to given power.
+		 * @param exp Exponent to raise `*this` to.
+		 * @return Raised modular inetger.
+		 */
+		Self pow(std::integral auto exp);
 
 	private:
 		static const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus);
