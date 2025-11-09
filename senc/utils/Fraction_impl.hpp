@@ -6,7 +6,9 @@
  * \date   November 2025, Heshvan 5781
  *********************************************************************/
 
+#include "Fraction.hpp"
+
 namespace senc::utils
 {
-
+	
 }

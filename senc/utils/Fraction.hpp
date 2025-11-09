@@ -6,6 +6,8 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#pragma once
+
 #include <concepts>
 #include <compare>
 #include <ostream>
@@ -66,3 +68,5 @@ namespace senc::utils
 	template <std::integral Int>
 	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac);
 }
+
+#include "Fraction_impl.hpp"
