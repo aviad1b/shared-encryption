@@ -16,12 +16,13 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept Group = std::copyable<Self> && requires(Self self)
+	concept Group = std::copyable<Self> && requires(Self self, const Self cself)
 	{
 		{ std::declval<Self>() * std::declval<Self>() } -> std::same_as<Self>;
 		{ self *= std::declval<Self>() } -> std::same_as<Self&>;
 		{ std::declval<Self>() / std::declval<Self>() } -> std::same_as<Self>;
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
+		{ cself.inverse() } -> std::same_as<Self>;
 		{ Self::GENERATOR } -> std::convertible_to<Self>;
 		{ Self::ORDER } -> std::convertible_to<std::size_t>;
 	};
