@@ -11,6 +11,12 @@
 namespace senc::utils
 {
 	/**
+	 * @typedef senc::utils::GroupOrder
+	 * @brief Represents an algebric group's order.
+	 */
+	using GroupOrder = std::size_t;
+
+	/**
 	 * @concept senc::utils::Group
 	 * @brief Looks for a typename that can be used as an algebric group.
 	 * @tparam Self Examined typename.
@@ -24,6 +30,6 @@ namespace senc::utils
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
 		{ cself.inverse() } -> std::same_as<Self>;
 		{ Self::GENERATOR } -> std::convertible_to<Self>;
-		{ Self::ORDER } -> std::convertible_to<std::size_t>;
+		{ Self::ORDER } -> std::convertible_to<GroupOrder>;
 	};
 }
