@@ -13,6 +13,7 @@
 
 using senc::utils::FractionException;
 using senc::utils::Fraction;
+using senc::utils::pow;
 
 TEST(FractionTests, DefaultCtor)
 {

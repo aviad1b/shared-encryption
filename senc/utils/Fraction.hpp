@@ -218,7 +218,7 @@ namespace senc::utils
 		 * @param exp Exponent to raise fraction to.
 		 * @return Power result.
 		 */
-		Self pow(Exponent exp);
+		Self pow(Exponent exp) const;
 
 	private:
 		Int _num, _den;
