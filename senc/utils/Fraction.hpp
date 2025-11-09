@@ -12,6 +12,7 @@
 #include <compare>
 #include <ostream>
 #include "Exception.hpp"
+#include "math.hpp"
 
 namespace senc::utils
 {
@@ -211,6 +212,13 @@ namespace senc::utils
 		 * @throw FractionException If attemps to divide by zero.
 		 */
 		Self& operator/=(const Self& other);
+
+		/**
+		 * @brief Raises fraction to a given power.
+		 * @param exp Exponent to raise fraction to.
+		 * @return Power result.
+		 */
+		Self pow(Exponent exp);
 
 	private:
 		Int _num, _den;

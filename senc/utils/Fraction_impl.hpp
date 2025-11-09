@@ -144,6 +144,15 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
+	inline Fraction<Int>::Self Fraction<Int>::pow(Exponent exp)
+	{
+		return Self(
+			::senc::utils::pow(this->_num, exp),
+			::senc::utils::pow(this->_den, exp)
+		);
+	}
+
+	template <std::integral Int>
 	inline void Fraction<Int>::normalize() noexcept
 	{
 		// move sign to numerator
