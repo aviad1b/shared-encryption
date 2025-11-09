@@ -68,6 +68,20 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
+	inline Fraction<Int>::Self& Fraction<Int>::operator++() noexcept
+	{
+		return *this += 1;
+	}
+
+	template <std::integral Int>
+	inline Fraction<Int>::Self Fraction<Int>::operator++(int) noexcept
+	{
+		Self res = *this;
+		++(*this);
+		return res;
+	}
+
+	template <std::integral Int>
 	inline Fraction<Int>::Self Fraction<Int>::operator+(const Self& other) const noexcept
 	{
 		return Self(this->_num * other._den + other._num * this->_den, this->_den * other._den);
@@ -77,6 +91,20 @@ namespace senc::utils
 	inline Fraction<Int>::Self& Fraction<Int>::operator+=(const Self& other) noexcept
 	{
 		return *this = *this + other;
+	}
+
+	template <std::integral Int>
+	inline Fraction<Int>::Self& Fraction<Int>::operator--() noexcept
+	{
+		return *this -= 1;
+	}
+
+	template <std::integral Int>
+	inline Fraction<Int>::Self Fraction<Int>::operator--(int) noexcept
+	{
+		Self res = *this;
+		--(*this);
+		return res;
 	}
 
 	template <std::integral Int>

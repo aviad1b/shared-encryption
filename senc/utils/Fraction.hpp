@@ -131,6 +131,18 @@ namespace senc::utils
 		Self inverse() const;
 
 		/**
+		 * @brief Increases fraction by one.
+		 * @return `*this`, after incrementation.
+		 */
+		Self& operator++() noexcept;
+
+		/**
+		 * @brief Increases fraction by one.
+		 * @return `*this`, before incrementation.
+		 */
+		Self operator++(int) noexcept;
+
+		/**
 		 * @brief Adds another fraction with this.
 		 * @param other Other fraction to add with this.
 		 * @return Addition result.
@@ -143,6 +155,18 @@ namespace senc::utils
 		 * @return `*this`, after addition.
 		 */
 		Self& operator+=(const Self& other) noexcept;
+
+		/**
+		 * @brief Decreases fraction by one.
+		 * @return `*this`, after decrementation.
+		 */
+		Self& operator--() noexcept;
+
+		/**
+		 * @brief Decreases fraction by one.
+		 * @return `*this`, before decrementation.
+		 */
+		Self operator--(int) noexcept;
 
 		/**
 		 * @brief Subtracts another fraction with this.
