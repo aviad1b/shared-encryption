@@ -85,7 +85,7 @@ namespace senc::utils
 		/**
 		 * @brief Move assignment operator of fraction.
 		 */
-		Self& operator(Self&&) noexcept = default;
+		Self& operator=(Self&&) noexcept = default;
 
 		/**
 		 * @brief Gets (normalized) fraction numenator.
