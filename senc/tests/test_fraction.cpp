@@ -160,6 +160,9 @@ TEST(FractionTests, Power)
     auto r = f.pow(3); // (2/3)^3 = 8/27
     EXPECT_EQ(r.numerator(), 8);
     EXPECT_EQ(r.denominator(), 27);
+
+    auto r2 = pow(f, 3);
+    EXPECT_EQ(r, r2);
 }
 
 TEST(FractionTests, PowerZeroGivesOne)
@@ -168,4 +171,7 @@ TEST(FractionTests, PowerZeroGivesOne)
     auto r = f.pow(0);
     EXPECT_EQ(r.numerator(), 1);
     EXPECT_EQ(r.denominator(), 1);
+
+    auto r2 = pow(f, 0);
+    EXPECT_EQ(r, r2);
 }
