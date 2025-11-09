@@ -129,4 +129,10 @@ namespace senc::utils
 		this->_num /= g;
 		this->_den /= g;
 	}
+
+	template <std::integral Int>
+	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac)
+	{
+		return os << frac.numerator() << "/" << frac.denominator();
+	}
 }

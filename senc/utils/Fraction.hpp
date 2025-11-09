@@ -103,12 +103,6 @@ namespace senc::utils
 
 	template <std::integral Int>
 	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac);
-
-	template <std::integral Int>
-	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac)
-	{
-		return os << frac.numerator() << "/" << frac.denominator();
-	}
 }
 
 #include "Fraction_impl.hpp"
