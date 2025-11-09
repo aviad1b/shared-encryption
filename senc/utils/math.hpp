@@ -6,6 +6,8 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#pragma once
+
 #include <concepts>
 #include <cmath>
 
