@@ -65,9 +65,9 @@ namespace senc::utils
 
 		Self& operator(Self&&) noexcept = default;
 
-		Int numerator() noexcept const;
+		Int numerator() const noexcept;
 
-		Int denominator() noexcept const;
+		Int denominator() const noexcept;
 
 		std::strong_ordering operator<=>(const Self& other) const noexcept;
 
