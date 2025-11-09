@@ -15,6 +15,7 @@
 	"ModInt.cpp"
 	"Fraction.hpp"
 	"Fraction_impl.hpp"
+	"Fraction.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)

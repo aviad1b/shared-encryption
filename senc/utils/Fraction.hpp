@@ -11,9 +11,37 @@
 #include <concepts>
 #include <compare>
 #include <ostream>
+#include "Exception.hpp"
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::FractionException
+	 * @brief Type of exceptions thrown on fraction computation errors.
+	 */
+	class FractionException : public Exception
+	{
+	public:
+		using Self = FractionException;
+		using Base = Exception;
+
+		FractionException(const std::string& msg);
+
+		FractionException(std::string&& msg);
+
+		FractionException(const std::string& msg, const std::string& info);
+
+		FractionException(std::string&& msg, const std::string& info);
+
+		FractionException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		FractionException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+	};
+
 	/**
 	 * @class senc::utils::Fraction
 	 * @brief Represents a fraction.
