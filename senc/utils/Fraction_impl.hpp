@@ -8,6 +8,8 @@
 
 #include "Fraction.hpp"
 
+#include <numeric>
+
 namespace senc::utils
 {
 	template <std::integral Int>
