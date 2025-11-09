@@ -11,7 +11,7 @@
 namespace senc::utils
 {
 	template <std::integral Int>
-	inline Fraction<Int>::Fraction() : Self(0) { }
+	inline Fraction<Int>::Fraction() noexcept : Self(0) { }
 	
 	template <std::integral Int>
 	inline Fraction<Int>::Fraction(Int numerator, Int denominator)
@@ -23,19 +23,19 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
-	inline Int Fraction<Int>::numerator() const
+	inline Int Fraction<Int>::numerator() const noexcept
 	{
 		return this->_num;
 	}
 
 	template <std::integral Int>
-	inline Int Fraction<Int>::denominator() const
+	inline Int Fraction<Int>::denominator() const noexcept
 	{
 		return this->_den;
 	}
 
 	template <std::integral Int>
-	inline std::strong_ordering Fraction<Int>::operator<=>(const Self& other) const
+	inline std::strong_ordering Fraction<Int>::operator<=>(const Self& other) const noexcept
 	{
 		const Int left = this->_num * other._den;
 		const Int right = other._num * this->_den;
@@ -44,19 +44,19 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
-	inline bool Fraction<Int>::operator==(const Self& other) const
+	inline bool Fraction<Int>::operator==(const Self& other) const noexcept
 	{
 		return this->_num == other._num && this->_den == other._den;
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::operator double() const
+	inline Fraction<Int>::operator double() const noexcept
 	{
 		return static_cast<double>(this->_num) / static_cast<double>(this->_den);
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self Fraction<Int>::operator-() const
+	inline Fraction<Int>::Self Fraction<Int>::operator-() const noexcept
 	{
 		return Self(-this->_num, this->_den);
 	}
@@ -68,37 +68,37 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self Fraction<Int>::operator+(const Self& other) const
+	inline Fraction<Int>::Self Fraction<Int>::operator+(const Self& other) const noexcept
 	{
 		return Self(this->_num * other._den + other._num * this->_den, this->_den * other._den);
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self& Fraction<Int>::operator+=(const Self& other)
+	inline Fraction<Int>::Self& Fraction<Int>::operator+=(const Self& other) noexcept
 	{
 		return *this = *this + other;
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self Fraction<Int>::operator-(const Self& other) const
+	inline Fraction<Int>::Self Fraction<Int>::operator-(const Self& other) const noexcept
 	{
 		return *this + (-other);
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self& Fraction<Int>::operator-=(const Self& other)
+	inline Fraction<Int>::Self& Fraction<Int>::operator-=(const Self& other) noexcept
 	{
 		return *this = *this - other;
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self Fraction<Int>::operator*(const Self& other) const
+	inline Fraction<Int>::Self Fraction<Int>::operator*(const Self& other) const noexcept
 	{
 		return Self(this->_num * other._num, this->_den * other._den);
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self& Fraction<Int>::operator*=(const Self& other)
+	inline Fraction<Int>::Self& Fraction<Int>::operator*=(const Self& other) noexcept
 	{
 		return *this = *this * other;
 	}
@@ -116,7 +116,7 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
-	inline void Fraction<Int>::normalize()
+	inline void Fraction<Int>::normalize() noexcept
 	{
 		// move sign to numerator
 		if (this->_den < 0)

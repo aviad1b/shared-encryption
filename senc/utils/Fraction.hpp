@@ -53,43 +53,43 @@ namespace senc::utils
 	public:
 		using Self = Fraction<Int>;
 
-		Fraction();
+		Fraction() noexcept;
 
 		Fraction(Int numerator, Int denominator = 1);
 
-		Fraction(const Self&) = default;
+		Fraction(const Self&) noexcept = default;
 
-		Self& operator=(const Self&) = default;
+		Self& operator=(const Self&) noexcept = default;
 
-		Fraction(Self&&) = default;
+		Fraction(Self&&) noexcept = default;
 
-		Self& operator(Self&&) = default;
+		Self& operator(Self&&) noexcept = default;
 
-		Int numerator() const;
+		Int numerator() noexcept const;
 
-		Int denominator() const;
+		Int denominator() noexcept const;
 
-		std::strong_ordering operator<=>(const Self& other) const;
+		std::strong_ordering operator<=>(const Self& other) const noexcept;
 
-		bool operator==(const Self& other) const;
+		bool operator==(const Self& other) const noexcept;
 
-		explicit operator double() const;
+		explicit operator double() const noexcept;
 
-		Self operator-() const;
+		Self operator-() const noexcept;
 
 		Self inverse() const;
 
-		Self operator+(const Self& other) const;
+		Self operator+(const Self& other) const noexcept;
 
-		Self& operator+=(const Self& other);
+		Self& operator+=(const Self& other) noexcept;
 
-		Self operator-(const Self& other) const;
+		Self operator-(const Self& other) const noexcept;
 
-		Self& operator-=(const Self& other);
+		Self& operator-=(const Self& other) noexcept;
 
-		Self operator*(const Self& other) const;
+		Self operator*(const Self& other) const noexcept;
 
-		Self& operator*=(const Self& other);
+		Self& operator*=(const Self& other) noexcept;
 
 		Self operator/(const Self& other) const;
 
@@ -98,7 +98,7 @@ namespace senc::utils
 	private:
 		Int _num, _den;
 
-		void normalize();
+		void normalize() noexcept;
 	};
 
 	template <std::integral Int>
