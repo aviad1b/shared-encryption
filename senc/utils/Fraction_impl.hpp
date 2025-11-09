@@ -17,7 +17,8 @@ namespace senc::utils
 	inline Fraction<Int>::Fraction(Int numerator, Int denominator)
 		: _num(numerator), _den(denominator)
 	{
-		// TODO: Check for zero den
+		if (!this->_den)
+			throw FractionException("Denominator can't be zero");
 		normalize();
 	}
 
