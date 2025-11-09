@@ -69,6 +69,8 @@ namespace senc::utils
 
 	private:
 		Int _num, _den;
+
+		void normalize();
 	};
 
 	template <std::integral Int>
