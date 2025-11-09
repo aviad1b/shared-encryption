@@ -41,9 +41,15 @@ namespace senc::utils
 
 		Int denominator() const;
 
-		std::strong_ordering operator<=>(const Self& other);
+		std::strong_ordering operator<=>(const Self& other) const;
+
+		bool operator==(const Self& other) const;
 
 		explicit operator double() const;
+
+		Self operator-() const;
+
+		Self inverse() const;
 
 		Self operator+(const Self& other) const;
 
@@ -67,6 +73,12 @@ namespace senc::utils
 
 	template <std::integral Int>
 	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac);
+
+	template <std::integral Int>
+	std::ostream& operator<<(std::ostream& os, const Fraction<Int>& frac)
+	{
+		return os << frac.numerator() << "/" << frac.denominator();
+	}
 }
 
 #include "Fraction_impl.hpp"
