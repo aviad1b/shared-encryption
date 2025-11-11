@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <cryptopp/integer.h>
 #include <functional>
 #include <concepts>
 #include <random>
@@ -15,6 +16,14 @@
 
 namespace senc::utils
 {
+	/**
+	 * @concept senc::utils::DistBoundType
+	 * @brief Looks for a typename that can be used for `Distribution` bounds.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept DistBoundType = std::integral<Self> || std::same_as<Self, CryptoPP::Integer>;
+
 	/**
 	 * @class senc::utils::Distribution
 	 * @brief Represents a uniform distribution of integers.
