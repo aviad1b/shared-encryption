@@ -18,19 +18,19 @@
 namespace senc::utils
 {
 	/**
-	 * @concept senc::utils::DistBoundType
-	 * @brief Looks for a typename that can be used for `Distribution` bounds.
+	 * @concept senc::utils::DistVal
+	 * @brief Looks for a typename that can be sampled from `Distribution`.
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept DistBoundType = std::integral<Self> || std::same_as<Self, CryptoPP::Integer>;
+	concept DistVal = std::integral<Self> || std::same_as<Self, CryptoPP::Integer>;
 
 	/**
 	 * @class senc::utils::Distribution
-	 * @brief Represents a uniform distribution of integers.
-	 * @tparam T Integer type.
+	 * @brief Represents a uniform distribution of values.
+	 * @tparam T Value type.
 	 */
-	template <DistBoundType T>
+	template <DistVal T>
 	class Distribution { };
 
 	template <std::integral T>
@@ -118,7 +118,7 @@ namespace senc::utils
 	 * @tparam Self Examiend typename.
 	 */
 	template <typename Self>
-	concept RandomSamplable = DistBoundType<Self> || HasSampleMethod<Self>;
+	concept RandomSamplable = DistVal<Self> || HasSampleMethod<Self>;
 
 	/**
 	 * @class senc::utils::Random
@@ -143,21 +143,21 @@ namespace senc::utils
 		 * @note Requires `T` to be an integer type.
 		 */
 		static Distribution<T> get_dist_below(T upperBound) noexcept
-		requires DistBoundType<T>;
+		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a number within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
 		static T sample_from_range(T min, T max) noexcept
-		requires DistBoundType<T>;
+		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a non-genative number below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
 		static T sample_below(T upperBound) noexcept
-		requires DistBoundType<T>;
+		requires DistVal<T>;
 
 	private:
 		static thread_local std::mt19937& engine() noexcept

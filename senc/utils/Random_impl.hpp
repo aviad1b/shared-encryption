@@ -32,7 +32,7 @@ namespace senc::utils
 
 	template <RandomSamplable T>
 	inline Distribution<T> Random<T>::get_dist_below(T upperBound) noexcept
-	requires DistBoundType<T>
+	requires DistVal<T>
 	{
 		return get_range_dist(0, upperBound - 1);
 	}
@@ -51,14 +51,14 @@ namespace senc::utils
 
 	template <RandomSamplable T>
 	inline T Random<T>::sample_from_range(T min, T max) noexcept
-	requires DistBoundType<T>
+	requires DistVal<T>
 	{
 		return get_range_dist(min, max)();
 	}
 	
 	template <RandomSamplable T>
 	inline T Random<T>::sample_below(T upperBound) noexcept
-	requires DistBoundType<T>
+	requires DistVal<T>
 	{
 		return get_dist_below(upperBound)();
 	}
