@@ -17,6 +17,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # download crypto++
+set(CRYPTOPP_BUILD_TESTING OFF CACHE BOOL "Disable Crypto++ tests" FORCE)
 FetchContent_Declare(
     cryptopp-cmake
     GIT_REPOSITORY https://github.com/abdes/cryptopp-cmake.git
