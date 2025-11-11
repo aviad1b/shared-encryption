@@ -17,6 +17,8 @@
 	"Fraction_impl.hpp"
 	"Fraction.cpp"
 	"Group.hpp"
+	"ECGroup.hpp"
+	"ECGroup.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32 cryptopp::cryptopp)
