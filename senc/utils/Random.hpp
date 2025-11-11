@@ -170,7 +170,7 @@ namespace senc::utils
 
 		static thread_local CryptoPP::RandomNumberGenerator& engine_crypto()
 		{
-			static thread_local CryptoPP::AutoSeededX917RNG rng;
+			static thread_local CryptoPP::AutoSeededRandomPool rng;
 			return rng;
 		}
 	};
