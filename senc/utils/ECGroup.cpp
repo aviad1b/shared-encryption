@@ -10,6 +10,19 @@
 
 namespace senc::utils
 {
+	const CryptoPP::DL_GroupParameters_EC<ECGroup::ECP> ECGroup::EC_PARAMS = 
+		CryptoPP::DL_GroupParameters_EC<ECP>(CryptoPP::ASN1::secp256r1());
+
+	const ECGroup::ECP ECGroup::EC_CURVE = EC_PARAMS.GetCurve();
+
+	const ECGroup::Point ECGroup::EC_BASE_POINT = EC_PARAMS.GetSubgroupGenerator();
+
+	const GroupOrder ECGroup::ORDER = EC_PARAMS.GetSubgroupOrder();
+
+	const ECGroup::Self ECGroup::GENERATOR = Self(EC_BASE_POINT);
+
+	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
+
 	ECGroup::ECGroup(const CryptoPP::Integer& x, const CryptoPP::Integer& y)
 		: _point(x, y), _isIdentity(false) { }
 
@@ -78,4 +91,8 @@ namespace senc::utils
 			return os << "ECGroup(IDENTITY)";
 		return os << "ECGroup(" << elem._point.x << ", " << elem._point.y << ")";
 	}
+
+	ECGroup::ECGroup(bool isIdentity) : _isIdentity(isIdentity) { }
+
+	ECGroup::ECGroup(const Point& point) : _isIdentity(false), _point(point) { }
 }
