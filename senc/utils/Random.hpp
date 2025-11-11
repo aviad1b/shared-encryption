@@ -143,21 +143,21 @@ namespace senc::utils
 		 * @note Requires `T` to be an integer type.
 		 */
 		static Distribution<T> get_dist_below(T upperBound) noexcept
-		requires std::integral<T>;
+		requires DistBoundType<T>;
 
 		/**
 		 * @brief Samples a number within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
 		static T sample_from_range(T min, T max) noexcept
-		requires std::integral<T>;
+		requires DistBoundType<T>;
 
 		/**
 		 * @brief Samples a non-genative number below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
 		static T sample_below(T upperBound) noexcept
-		requires std::integral<T>;
+		requires DistBoundType;
 
 	private:
 		static thread_local std::mt19937& engine() noexcept
@@ -166,6 +166,12 @@ namespace senc::utils
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
 			);
 			return eng;
+		}
+
+		static thread_local CryptoPP::RandomNumberGenerator& engine_crypto()
+		{
+			static thread_local CryptoPP::AutoSeededX917RNG rng;
+			return rng;
 		}
 	};
 }
