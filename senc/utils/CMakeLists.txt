@@ -19,6 +19,6 @@
 	"Group.hpp"
 )
 
-target_link_libraries(senc_utils PRIVATE ws2_32)
+target_link_libraries(senc_utils PRIVATE ws2_32 cryptopp::cryptopp)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)

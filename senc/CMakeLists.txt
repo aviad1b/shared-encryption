@@ -13,6 +13,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+# download crypto++
+FetchContent_Declare(
+    cryptopp-cmake
+    GIT_REPOSITORY https://github.com/abdes/cryptopp-cmake.git
+    GIT_TAG CRYPTOPP_8_9_0
+)
+FetchContent_MakeAvailable(cryptopp-cmake)
+
 add_compile_options(-Werror -Wall -Wextra -Wvla)
 
 add_subdirectory("utils")
