@@ -1,12 +1,3 @@
-include(FetchContent)
-
-# download GoogleTest
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/heads/v1.17.x.zip
-)
-FetchContent_MakeAvailable(googletest)
-
 add_executable(senc_tests
     "test_main.cpp"
     "test_socket.cpp"

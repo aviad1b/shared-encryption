@@ -4,6 +4,15 @@ project("senc")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(FetchContent)
+
+# download GoogleTest
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/heads/v1.17.x.zip
+)
+FetchContent_MakeAvailable(googletest)
+
 add_compile_options(-Werror -Wall -Wextra -Wvla)
 
 add_subdirectory("utils")
