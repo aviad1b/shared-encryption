@@ -29,8 +29,11 @@ namespace senc::utils
 	 * @brief Represents a uniform distribution of integers.
 	 * @tparam T Integer type.
 	 */
+	template <DistBoundType T>
+	class Distribution { };
+
 	template <std::integral T>
-	class Distribution
+	class Distribution<T>
 	{
 	public:
 		using Self = Distribution<T>;
