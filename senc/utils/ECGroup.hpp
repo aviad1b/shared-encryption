@@ -129,7 +129,7 @@ namespace senc::utils
 		static const Point EC_BASE_POINT;                            // base point of curve
 
 		// instance fields
-		Point _p;
+		Point _point;
 		bool _isIdentity;
 
 		// private methods
@@ -142,8 +142,8 @@ namespace senc::utils
 
 		/**
 		 * @brief Constructs a non-identity element form a given point.
-		 * @param p Point.
+		 * @param point
 		 */
-		explicit ECGroup(const Point& p);
+		explicit ECGroup(const Point& point);
 	};
 }
