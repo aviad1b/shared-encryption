@@ -34,6 +34,18 @@ namespace senc::utils
 		return get_range_dist(0, upperBound - 1);
 	}
 
+	template <std::same_as<CryptoPP::Integer> T>
+	inline Distribution<T>::Distribution(T min, T max, CryptoPP::RandomNumberGenerator& engine)
+		: _min(min), _max(max), _engine(engine) { }
+
+	template <std::same_as<CryptoPP::Integer> T>
+	inline T Distribution<T>::operator()() const
+	{
+		return CryptoPP::Integer::RandomNumber(
+			this->_engine, this->_min, this->_max
+		);
+	}
+
 	template <RandomSamplable T>
 	inline T Random<T>::sample_from_range(T min, T max) noexcept
 	requires std::integral<T>

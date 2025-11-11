@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cryptopp/integer.h>
+#include <cryptopp/osrng.h>
 #include <functional>
 #include <concepts>
 #include <random>
@@ -64,6 +65,40 @@ namespace senc::utils
 	private:
 		std::uniform_int_distribution<T> _dist;
 		std::mt19937& _engine;
+	};
+
+	template <std::same_as<CryptoPP::Integer> T>
+	class Distribution<T>
+	{
+	public:
+		using Self = Distribution<T>;
+
+		/**
+		 * @brief Constructs a uniform integer distribution (range [min, max]).
+		 * @param min Minimum value in range.
+		 * @param max Maximum value in range.
+		 * @param engine Engine used for random generations (by ref).
+		 */
+		Distribution(T min, T max, CryptoPP::RandomNumberGenerator& engine);
+
+		/**
+		 * @brief Copy constructor of distribution.
+		 */
+		Distribution(const Self&) = default;
+
+		/**
+		 * @brief Copy assignment operator distribution.
+		 */
+		Self& operator=(const Self&) = default;
+
+		/**
+		 * @brief Samples a random integer from distribution.
+		 */
+		T operator()() const;
+
+	private:
+		T _min, _max;
+		CryptoPP::RandomNumberGenerator& _engine;
 	};
 
 	/**
