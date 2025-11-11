@@ -1,4 +1,4 @@
-﻿add_library (senc_utils
+﻿add_library(senc_utils
 	"concepts.hpp"
 	"math.hpp"
 	"Exception.hpp"
