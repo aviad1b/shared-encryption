@@ -146,4 +146,6 @@ namespace senc::utils
 		 */
 		explicit ECGroup(const Point& point);
 	};
+
+	static_assert(Group<ECGroup>, "senc::utils::ECGroup should satisfy senc::utils::Group");
 }
