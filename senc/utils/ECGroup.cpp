@@ -10,5 +10,72 @@
 
 namespace senc::utils
 {
+	ECGroup::ECGroup(const CryptoPP::Integer& x, const CryptoPP::Integer& y)
+		: _point(x, y), _isIdentity(false) { }
 
+	ECGroup::Self ECGroup::from_scalar(const CryptoPP::Integer& scalar)
+	{
+		if (scalar.IsZero())
+			return IDENTITY;
+		return Self(EC_CURVE.Multiply(scalar, EC_BASE_POINT));
+	}
+
+	bool ECGroup::is_identity() const
+	{
+		return this->_isIdentity;
+	}
+
+	bool ECGroup::operator==(const Self& other) const
+	{
+		if (this->is_identity() && other.is_identity())
+			return true;
+		if (this->is_identity() || other.is_identity())
+			return false;
+		return (this->_point.x == other._point.x && this->_point.y == other._point.y);
+	}
+
+	ECGroup::Self ECGroup::inverse() const
+	{
+		if (this->is_identity())
+			return IDENTITY;
+		CryptoPP::Integer p = EC_CURVE.GetField().GetModulus();
+		CryptoPP::Integer negY = (p - this->_point.y) % p;
+		return Self(this->_point.x, negY);
+	}
+
+	ECGroup::Self ECGroup::operator*(const Self& other) const
+	{
+		if (this->is_identity())
+			return other;
+		if (other.is_identity())
+			return *this;
+		return Self(EC_CURVE.Add(this->_point, other._point));
+	}
+
+	ECGroup::Self& ECGroup::operator*=(const Self& other)
+	{
+		if (other.is_identity())
+			return *this;
+		if (this->is_identity())
+			return *this = other;
+		this->_point = EC_CURVE.Add(this->_point, other._point);
+		return *this;
+	}
+
+	ECGroup::Self ECGroup::operator/(const Self& other) const
+	{
+		return *this * other.inverse();
+	}
+
+	ECGroup::Self& ECGroup::operator/=(const Self& other)
+	{
+		return *this *= other.inverse();
+	}
+
+	std::ostream& operator<<(std::ostream& os, const ECGroup& elem)
+	{
+		if (elem.is_identity())
+			return os << "ECGroup(IDENTITY)";
+		return os << "ECGroup(" << elem._point.x << ", " << elem._point.y << ")";
+	}
 }
