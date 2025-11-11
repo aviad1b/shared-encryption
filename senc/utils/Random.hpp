@@ -157,7 +157,7 @@ namespace senc::utils
 		 * @note Requires `T` to be an integer type.
 		 */
 		static T sample_below(T upperBound) noexcept
-		requires DistBoundType;
+		requires DistBoundType<T>;
 
 	private:
 		static thread_local std::mt19937& engine() noexcept

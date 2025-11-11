@@ -58,7 +58,7 @@ namespace senc::utils
 	
 	template <RandomSamplable T>
 	inline T Random<T>::sample_below(T upperBound) noexcept
-	requires DistBoundType
+	requires DistBoundType<T>
 	{
 		return get_dist_below(upperBound)();
 	}
