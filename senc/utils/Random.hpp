@@ -118,7 +118,7 @@ namespace senc::utils
 	 * @tparam Self Examiend typename.
 	 */
 	template <typename Self>
-	concept RandomSamplable = std::integral<Self> || HasSampleMethod<Self>;
+	concept RandomSamplable = DistBoundType<Self> || HasSampleMethod<Self>;
 
 	/**
 	 * @class senc::utils::Random
