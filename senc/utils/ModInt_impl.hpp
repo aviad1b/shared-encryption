@@ -103,14 +103,14 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::ModInt(Int value)
-		noexcept(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>)
+		noexcept(ModulableNoExcept<Int>)
 		: _value(value % modulus) { }
 
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::sample()
 		noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int> &&
-			IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>)
+			ModulableNoExcept<Int>)
 	requires DistVal<Int>
 	{
 		return Self(DIST());
@@ -148,7 +148,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-() const SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(Subtractable, Int)
 	)
 	{
@@ -185,7 +185,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator++(int) SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(RightIncrementable, Int)
 	)
 	{
@@ -195,7 +195,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Int value) const SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(Addable, Int)
 	)
 	{
@@ -217,7 +217,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Self other) const SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(Addable, Int)
 	)
 	{
@@ -445,7 +445,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(Negatable, Int)
 	)
 	{

@@ -118,7 +118,7 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a modular integer with a given value.
 		 */
-		ModInt(Int value) noexcept(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>);
+		ModInt(Int value) noexcept(ModulableNoExcept<Int>);
 
 		/**
 		 * @brief Samples a random modular integer.
@@ -126,7 +126,7 @@ namespace senc::utils
 		 */
 		static Self sample()
 			noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int> &&
-				IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>)
+				ModulableNoExcept<Int>)
 		requires DistVal<Int>;
 
 		/**
@@ -177,7 +177,7 @@ namespace senc::utils
 		 * @return Negative of `*this` under modulus.
 		 */
 		Self operator-() const SENC_REQ_NOEXCEPT_COND(
-			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+			ModulableNoExcept<Int>,
 			(Subtractable, Int)
 		);
 
@@ -207,7 +207,7 @@ namespace senc::utils
 		 * @return `*this` before being increased.
 		 */
 		Self operator++(int) SENC_REQ_NOEXCEPT_COND(
-			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+			ModulableNoExcept<Int>,
 			(RightIncrementable, Int)
 		);
 
@@ -217,7 +217,7 @@ namespace senc::utils
 		 * @return Addition result.
 		 */
 		Self operator+(Int value) const SENC_REQ_NOEXCEPT_COND(
-			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+			ModulableNoExcept<Int>,
 			(Addable, Int)
 		);
 
@@ -237,7 +237,7 @@ namespace senc::utils
 		 * @return Addition result.
 		 */
 		Self operator+(Self other) const SENC_REQ_NOEXCEPT_COND(
-			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+			ModulableNoExcept<Int>,
 			(Addable, Int)
 		);
 
@@ -467,7 +467,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		ModulableNoExcept<Int>,
 		(Negatable, Int)
 	);
 
