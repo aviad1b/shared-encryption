@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <concepts>
 #include <ostream>
 #include "Exception.hpp"
+#include "concepts.hpp"
 #include "Random.hpp"
 
 namespace senc::utils
