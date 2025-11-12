@@ -10,6 +10,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <ostream>
 #include <ranges>
 
 namespace senc::utils
@@ -34,4 +35,322 @@ namespace senc::utils
 	concept InputRange =
 		std::ranges::input_range<Self> &&
 		InputIterator<std::ranges::iterator_t<Self>, T>;
+
+	template <typename Self>
+	concept Outputable = requires(std::ostream& os, const Self self)
+	{
+		{ os << self } -> std::convertible_to<std::ostream&>;
+	};
+
+	template <typename Self, typename To>
+	concept ConvertibleTo = requires(Self&& self)
+	{
+		{ static_cast<To>(std::forward<Self>(self)) };
+	};
+
+	template <typename Self, typename To>
+	concept ConvertibleToNoExcept = requires(Self && self)
+	{
+		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
+	};
+
+	template <typename Self>
+	concept BoolConvertible = ConvertibleTo<Self, bool>;
+
+	template <typename Self>
+	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
+
+	template <typename Self>
+	concept IntConstructible = std::constructible_from<Self, int>;
+
+	template <typename Self>
+	concept IntConstructibleNoExcept = std::is_nothrow_constructible_v<Self, int>;
+
+	template <typename Self, typename Other = Self>
+	concept EqualityComparable = requires(const Self a, const Other b)
+	{
+		{ a == b } -> BoolConvertible;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept EqualityComparableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a == b } -> BoolConvertibleNoExcept;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept LowerComparable = requires(const Self a, const Other b)
+	{
+		{ a < b } -> BoolConvertible;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept LowerComparableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a < b } noexcept -> BoolConvertibleNoExcept;
+	};
+
+	template <typename Self>
+	concept LeftIncrementable = requires(Self a)
+	{
+		{ ++a } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self>
+	concept LeftIncrementableNoExcept = requires(Self a)
+	{
+		{ ++a } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self>
+	concept RightIncrementable = requires(Self a)
+	{
+		{ a++ } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self>
+	concept RightIncrementableNoExcept = requires(Self a)
+	{
+		{ a++ } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self>
+	concept LeftDecrementable = requires(Self a)
+	{
+		{ --a } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self>
+	concept LeftDecrementableNoExcept = requires(Self a)
+	{
+		{ --a } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self>
+	concept RightDecrementable = requires(Self a)
+	{
+		{ a-- } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self>
+	concept RightDecrementableNoExcept = requires(Self a)
+	{
+		{ a-- } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Addable = requires(const Self a, const Other b)
+	{
+		{ a + b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept AddableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a + b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfAddable = requires(Self a, const Other b)
+	{
+		{ a += b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfAddableNoExcept = requires(Self a, const Other b)
+	{
+		{ a += b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Subtractable = requires(const Self a, const Other b)
+	{
+		{ a - b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SubtractableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a - b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfSubtractable = requires(Self a, const Other b)
+	{
+		{ a -= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfSubtractableNoExcept = requires(Self a, const Other b)
+	{
+		{ a -= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Multiplicable = requires(const Self a, const Other b)
+	{
+		{ a * b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept MultiplicableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a * b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfMultiplicable = requires(Self a, const Other b)
+	{
+		{ a *= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfMultiplicableNoExcept = requires(Self a, const Other b)
+	{
+		{ a *= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Devisible = requires(const Self a, const Other b)
+	{
+		{ a / b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept DevisibleNoExcept = requires(const Self a, const Other b)
+	{
+		{ a / b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfDevisible = requires(Self a, const Other b)
+	{
+		{ a /= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfDevisibleNoExcept = requires(Self a, const Other b)
+	{
+		{ a /= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Modulable = requires(const Self a, const Other b)
+	{
+		{ a % b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept ModulableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a % b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfModulable = requires(Self a, const Other b)
+	{
+		{ a %= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfModulableNoExcept = requires(Self a, const Other b)
+	{
+		{ a %= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Andable = requires(const Self a, const Other b)
+	{
+		{ a & b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept AndableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a & b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfAndable = requires(Self a, const Other b)
+	{
+		{ a &= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfAndableNoExcept = requires(Self a, const Other b)
+	{
+		{ a &= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept Orable = requires(const Self a, const Other b)
+	{
+		{ a | b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept OrableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a | b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfOrable = requires(Self a, const Other b)
+	{
+		{ a |= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfOrableNoExcept = requires(Self a, const Other b)
+	{
+		{ a |= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept LeftShiftable = requires(const Self a, const Other b)
+	{
+		{ a << b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept LeftShiftableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a << b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfLeftShiftable = requires(Self a, const Other b)
+	{
+		{ a <<= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfLeftShiftableNoExcept = requires(Self a, const Other b)
+	{
+		{ a <<= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept RightShiftable = requires(const Self a, const Other b)
+	{
+		{ a >> b } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept RightShiftableNoExcept = requires(const Self a, const Other b)
+	{
+		{ a >> b } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfRightShiftable = requires(Self a, const Other b)
+	{
+		{ a >>= b } -> ConvertibleTo<Self&>;
+	};
+
+	template <typename Self, typename Other = Self>
+	concept SelfRightShiftableNoExcept = requires(Self a, const Other b)
+	{
+		{ a >>= b } noexcept -> ConvertibleToNoExcept<Self&>;
+	};
 }
