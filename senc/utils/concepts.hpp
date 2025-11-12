@@ -156,6 +156,18 @@ namespace senc::utils
 		{ a-- } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	template <typename Self>
+	concept Negatable = requires(const Self a)
+	{
+		{ -a } -> ConvertibleTo<Self>;
+	};
+
+	template <typename Self>
+	concept NegatableNoExcept = requires(const Self a)
+	{
+		{ -a } noexcept -> ConvertibleToNoExcept<Self>;
+	};
+
 	template <typename Self, typename Other = Self>
 	concept Addable = requires(const Self a, const Other b)
 	{
