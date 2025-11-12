@@ -18,34 +18,6 @@
 namespace senc::utils
 {
 	/**
-	 * @concept senc::utils::UnderlyingDistType
-	 * @brief Looks for typename that can be used as underlying distribution type.
-	 * @tparam Self Examined typename.
-	 * @tparam T Type being sampled.
-	 */
-	template <typename Self, typename T>
-	concept UnderlyingDistType = std::copyable<Self> &&
-		std::constructible_from<Self, const T&, const T&> &&
-		requires(const Self self, DistEngine<T>& engine)
-		{
-			{ self(engine) } -> std::same_as<T>;
-		};
-
-	/**
-	 * @concept senc::utils::UnderlyingDistType
-	 * @brief Looks for typename that can be used as underlying distribution type,
-	 *		  with `noexcept` sampling.
-	 * @tparam Self Examined typename.
-	 * @tparam T Type being sampled.
-	 */
-	template <typename Self, typename T>
-	concept UnderlyingDistTypeNoExcept = UnderlyingDistType<Self, T> &&
-		requires(const Self self, DistEngine<T>& engine)
-		{
-			{ self(engine) } noexcept -> std::same_as<T>;
-		};
-
-	/**
 	 * @brief Underlying class used for sampling `CryptoPP::Integer`.
 	 */
 	class CryptoUnderlyingDist
@@ -104,6 +76,34 @@ namespace senc::utils
 	 */
 	template <typename T>
 	using UnderlyingDist = typename sfinae::underlying_dist<T>::type;
+
+	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistType = std::copyable<Self> &&
+		std::constructible_from<Self, const T&, const T&> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } -> std::same_as<T>;
+		};
+
+	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type,
+	 *		  with `noexcept` sampling.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistTypeNoExcept = UnderlyingDistType<Self, T> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } noexcept -> std::same_as<T>;
+		};
 
 	/**
 	 * @concept senc::utils::DistEngineType
