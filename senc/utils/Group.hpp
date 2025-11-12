@@ -24,8 +24,8 @@ namespace senc::utils
 	template <typename Self>
 	concept Group = std::copyable<Self> && requires(Self self, const Self cself)
 	{
-		{ Self::GENERATOR } -> std::convertible_to<Self>;
 		{ Self::ORDER } -> std::convertible_to<GroupOrder>;
+		{ Self::GENERATOR } -> std::convertible_to<Self>;
 		{ Self::IDENTITY } -> std::convertible_to<Self>;
 		{ cself.is_identity() } -> std::convertible_to<bool>;
 		{ cself.inverse() } -> std::same_as<Self>;
