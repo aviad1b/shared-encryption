@@ -18,12 +18,110 @@
 namespace senc::utils
 {
 	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistType = std::copyable<Self> &&
+		std::constructible_from<Self, const T&, const T&> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } -> std::same_as<T>;
+		};
+
+	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type,
+	 *		  with `noexcept` sampling.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistTypeNoExcept = UnderlyingDistType<Self, T> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } noexcept -> std::same_as<T>;
+		};
+
+	/**
+	 * @brief Underlying class used for sampling `CryptoPP::Integer`.
+	 */
+	class CryptoUnderlyingDist
+	{
+	public:
+		using Self = CryptoUnderlyingDist;
+
+		CryptoUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max);
+
+		CryptoUnderlyingDist(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		CryptoUnderlyingDist(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		CryptoPP::Integer operator()(CryptoPP::RandomNumberGenerator& engine) const;
+
+	private:
+		CryptoPP::Integer _min, _max;
+	};
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct dist_engine { };
+
+		template <std::integral T>
+		struct dist_engine<T> { using type = std::mt19937; };
+
+		template <>
+		struct dist_engine<CryptoPP::Integer> { using type = CryptoPP::RandomNumberGenerator; };
+
+		template <typename T>
+		struct underlying_dist { };
+
+		template <std::integral T>
+		struct underlying_dist<T> { using type = std::uniform_int_distribution<T>; };
+
+		template <>
+		struct underlying_dist<CryptoPP::Integer> { using type = CryptoUnderlyingDist; };
+	}
+
+	/**
+	 * @typedef senc::utils::DistEngine
+	 * @brief Engine used for sampling a distribution value.
+	 * @tparam T Distribution value type.
+	 */
+	template <typename T>
+	using DistEngine = typename sfinae::dist_engine<T>::type;
+
+	/**
+	 * @brief Underlying distribution type used by Distribution class.
+	 * @tparam T Distribution value type.
+	 */
+	template <typename T>
+	using UnderlyingDist = typename sfinae::underlying_dist<T>::type;
+
+	/**
+	 * @concept senc::utils::DistEngineType
+	 * @brief Looks for typename which can be used as engine for sampling in Distribution class.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept DistEngineType = true; // no constraints
+
+	/**
 	 * @concept senc::utils::DistVal
 	 * @brief Looks for a typename that can be sampled from `Distribution`.
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept DistVal = std::integral<Self> || std::same_as<Self, CryptoPP::Integer>;
+	concept DistVal = DistEngineType<DistEngine<Self>, Self> && 
+		UnderlyingDistType<UnderlyingDist<Self>, Self>;
 
 	/**
 	 * @class senc::utils::Distribution
@@ -31,21 +129,18 @@ namespace senc::utils
 	 * @tparam T Value type.
 	 */
 	template <DistVal T>
-	class Distribution { };
-
-	template <std::integral T>
-	class Distribution<T>
+	class Distribution
 	{
 	public:
 		using Self = Distribution<T>;
 
 		/**
-		 * @brief Constructs a uniform integer distribution (range [min, max]).
+		 * @brief Constructs a uniform distribution (range [min, max]).
 		 * @param min Minimum value in range.
 		 * @param max Maximum value in range.
 		 * @param engine Engine used for random generations (by ref).
 		 */
-		Distribution(T min, T max, std::mt19937& engine);
+		Distribution(T min, T max, DistEngine<T>& engine);
 
 		/**
 		 * @brief Copy constructor of distribution.
@@ -60,45 +155,11 @@ namespace senc::utils
 		/**
 		 * @brief Samples a random integer from distribution.
 		 */
-		T operator()() const noexcept;
+		T operator()() const noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>>);
 
 	private:
-		std::uniform_int_distribution<T> _dist;
-		std::mt19937& _engine;
-	};
-
-	template <std::same_as<CryptoPP::Integer> T>
-	class Distribution<T>
-	{
-	public:
-		using Self = Distribution<T>;
-
-		/**
-		 * @brief Constructs a uniform integer distribution (range [min, max]).
-		 * @param min Minimum value in range.
-		 * @param max Maximum value in range.
-		 * @param engine Engine used for random generations (by ref).
-		 */
-		Distribution(T min, T max, CryptoPP::RandomNumberGenerator& engine);
-
-		/**
-		 * @brief Copy constructor of distribution.
-		 */
-		Distribution(const Self&) = default;
-
-		/**
-		 * @brief Copy assignment operator distribution.
-		 */
-		Self& operator=(const Self&) = default;
-
-		/**
-		 * @brief Samples a random integer from distribution.
-		 */
-		T operator()() const;
-
-	private:
-		T _min, _max;
-		CryptoPP::RandomNumberGenerator& _engine;
+		UnderlyingDist<T> _dist;
+		DistEngine<T>& _engine;
 	};
 
 	/**

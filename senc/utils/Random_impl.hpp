@@ -10,12 +10,12 @@
 
 namespace senc::utils
 {
-	template <std::integral T>
-	inline Distribution<T>::Distribution(T min, T max, std::mt19937& engine)
+	template <DistVal T>
+	inline Distribution<T>::Distribution(T min, T max, DistEngine<T>& engine)
 		: _dist(min, max), _engine(engine) { }
 
-	template <std::integral T>
-	inline T Distribution<T>::operator()() const noexcept
+	template <DistVal T>
+	inline T Distribution<T>::operator()() const noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>>)
 	{
 		return this->_dist(this->_engine);
 	}
@@ -35,18 +35,6 @@ namespace senc::utils
 	requires DistVal<T>
 	{
 		return get_range_dist(0, upperBound - 1);
-	}
-
-	template <std::same_as<CryptoPP::Integer> T>
-	inline Distribution<T>::Distribution(T min, T max, CryptoPP::RandomNumberGenerator& engine)
-		: _min(min), _max(max), _engine(engine) { }
-
-	template <std::same_as<CryptoPP::Integer> T>
-	inline T Distribution<T>::operator()() const
-	{
-		return CryptoPP::Integer::RandomNumber(
-			this->_engine, this->_min, this->_max
-		);
 	}
 
 	template <RandomSamplable T>
