@@ -24,12 +24,12 @@ namespace senc::utils
 	template <typename Self>
 	concept Group = std::copyable<Self> && requires(Self self, const Self cself)
 	{
+		{ Self::GENERATOR } -> std::convertible_to<Self>;
+		{ Self::ORDER } -> std::convertible_to<GroupOrder>;
+		{ cself.inverse() } -> std::same_as<Self>;
 		{ std::declval<Self>() * std::declval<Self>() } -> std::same_as<Self>;
 		{ self *= std::declval<Self>() } -> std::same_as<Self&>;
 		{ std::declval<Self>() / std::declval<Self>() } -> std::same_as<Self>;
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
-		{ cself.inverse() } -> std::same_as<Self>;
-		{ Self::GENERATOR } -> std::convertible_to<Self>;
-		{ Self::ORDER } -> std::convertible_to<GroupOrder>;
 	};
 }
