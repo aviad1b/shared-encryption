@@ -118,13 +118,15 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a modular integer with a given value.
 		 */
-		ModInt(Int value) noexcept(IntConstructibleNoExcept<Int>);
+		ModInt(Int value) noexcept(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>);
 
 		/**
 		 * @brief Samples a random modular integer.
 		 * @return Sampled modular integer.
 		 */
-		static Self sample() noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int>)
+		static Self sample()
+			noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int> &&
+				IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>)
 		requires DistVal<Int>;
 
 		/**
@@ -174,7 +176,8 @@ namespace senc::utils
 		 * @brief Negates modular integer (under modulus).
 		 * @return Negative of `*this` under modulus.
 		 */
-		Self operator-() const SENC_REQ_NOEXCEPT(
+		Self operator-() const SENC_REQ_NOEXCEPT_COND(
+			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
 			(Negatable, Int)
 		);
 
@@ -184,8 +187,7 @@ namespace senc::utils
 		 * @throw ModException If failed to find inverse (only if `isPrime` is not `true`).
 		 */
 		Self inverse() const SENC_REQ_NOEXCEPT_COND(
-			isPrime,
-			(SelfModulable, Int),
+			(isPrime && SelfModulableNoExcept<Int>),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -195,7 +197,8 @@ namespace senc::utils
 		 * @brief Increases modular integer.
 		 * @return `*this` after being increased.
 		 */
-		Self& operator++() SENC_REQ_NOEXCEPT(
+		Self& operator++() SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(LeftIncrementable, Int)
 		);
 
@@ -203,7 +206,8 @@ namespace senc::utils
 		 * @brief Increases modular integer.
 		 * @return `*this` before being increased.
 		 */
-		Self operator++(int) SENC_REQ_NOEXCEPT(
+		Self operator++(int) SENC_REQ_NOEXCEPT_COND(
+			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
 			(RightIncrementable, Int)
 		);
 
@@ -212,7 +216,8 @@ namespace senc::utils
 		 * @param value Integer value to add with this.
 		 * @return Addition result.
 		 */
-		Self operator+(Int value) const SENC_REQ_NOEXCEPT(
+		Self operator+(Int value) const SENC_REQ_NOEXCEPT_COND(
+			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
 			(Addable, Int)
 		);
 
@@ -221,7 +226,8 @@ namespace senc::utils
 		 * @param value Integer value to add to this.
 		 * @return `*this`, after addition.
 		 */
-		Self& operator+=(Int value) SENC_REQ_NOEXCEPT(
+		Self& operator+=(Int value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfAddable, Int)
 		);
 
@@ -230,7 +236,8 @@ namespace senc::utils
 		 * @param other Other modular integer to add with this one.
 		 * @return Addition result.
 		 */
-		Self operator+(Self other) const SENC_REQ_NOEXCEPT(
+		Self operator+(Self other) const SENC_REQ_NOEXCEPT_COND(
+			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
 			(Addable, Int)
 		);
 
@@ -239,7 +246,8 @@ namespace senc::utils
 		 * @param other Other modular integer to add to this one.
 		 * @return `*this`, after addition.
 		 */
-		Self& operator+=(Self other) SENC_REQ_NOEXCEPT(
+		Self& operator+=(Self other) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfAddable, Int)
 		);
 
@@ -248,7 +256,8 @@ namespace senc::utils
 		 * @return `*this` after being decreased.
 		 */
 		Self& operator--() SENC_REQ_NOEXCEPT(
-			(LeftDecrementable, Int)
+			(LeftDecrementable, Int),
+			(EqualityComparable, Int)
 		);
 
 		/**
@@ -256,7 +265,8 @@ namespace senc::utils
 		 * @return `*this` before being decreased.
 		 */
 		Self operator--(int) SENC_REQ_NOEXCEPT(
-			(RightDecrementable, Int)
+			(RightDecrementable, Int),
+			(EqualityComparable, Int)
 		);
 
 		/**
@@ -264,7 +274,8 @@ namespace senc::utils
 		 * @param value Integer value to subtract this with.
 		 * @return Subtraction result.
 		 */
-		Self operator-(Int value) const SENC_REQ_NOEXCEPT(
+		Self operator-(Int value) const SENC_REQ_NOEXCEPT_COND(
+			ModulableNoExcept<Int>,
 			(Addable, Int),
 			(Subtractable, Int)
 		);
@@ -274,7 +285,8 @@ namespace senc::utils
 		 * @param value Integer value to subtract this by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self& operator-=(Int value) SENC_REQ_NOEXCEPT(
+		Self& operator-=(Int value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfAddable, Int),
 			(SelfSubtractable, Int)
 		);
@@ -284,7 +296,8 @@ namespace senc::utils
 		 * @param other Other modular integer to subtract this one with.
 		 * @return Subtraction result.
 		 */
-		Self operator-(Self other) const SENC_REQ_NOEXCEPT(
+		Self operator-(Self other) const SENC_REQ_NOEXCEPT_COND(
+			ModulableNoExcept<Int>,
 			(Addable, Int),
 			(Subtractable, Int)
 		);
@@ -294,7 +307,8 @@ namespace senc::utils
 		 * @param other Other modular integer to subtract this one by.
 		 * @return `*this`, after subtraction.
 		 */
-		Self& operator-=(Self other) SENC_REQ_NOEXCEPT(
+		Self& operator-=(Self other) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfAddable, Int),
 			(SelfSubtractable, Int)
 		);
@@ -304,7 +318,8 @@ namespace senc::utils
 		 * @param value Integer value to multiply with this.
 		 * @return Multiplication result.
 		 */
-		Self operator*(Int value) const SENC_REQ_NOEXCEPT(
+		Self operator*(Int value) const SENC_REQ_NOEXCEPT_COND(
+			ModulableNoExcept<Int>,
 			(Multiplicable, Int)
 		);
 
@@ -313,7 +328,8 @@ namespace senc::utils
 		 * @param value Integer value to multiply this by.
 		 * @return `*this`, after multiplication.
 		 */
-		Self& operator*=(Int value) SENC_REQ_NOEXCEPT(
+		Self& operator*=(Int value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfMultiplicable, Int)
 		);
 
@@ -322,7 +338,8 @@ namespace senc::utils
 		 * @param other Other modular integer to multiply with this one.
 		 * @return Multiplication result.
 		 */
-		Self operator*(Self other) const SENC_REQ_NOEXCEPT(
+		Self operator*(Self other) const SENC_REQ_NOEXCEPT_COND(
+			ModulableNoExcept<Int>,
 			(Multiplicable, Int)
 		);
 
@@ -331,7 +348,8 @@ namespace senc::utils
 		 * @param other Other modular integer to multiply this one by.
 		 * @return `*this`, after multiplication.
 		 */
-		Self& operator*=(Self other) SENC_REQ_NOEXCEPT(
+		Self& operator*=(Self other) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
 			(SelfMultiplicable, Int)
 		);
 
@@ -342,7 +360,7 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/(Int value) const SENC_REQ_NOEXCEPT_COND(
-			isPrime,
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
 			(Multiplicable, Int),
 			(SelfModulable, Int),
 			(LowerComparable, Int),
@@ -357,7 +375,7 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self& operator/=(Int value) SENC_REQ_NOEXCEPT_COND(
-			isPrime,
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
 			(Multiplicable, Int),
 			(SelfModulable, Int),
 			(LowerComparable, Int),
@@ -372,7 +390,7 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/(Self other) const SENC_REQ_NOEXCEPT_COND(
-			isPrime,
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
 			(Multiplicable, Int),
 			(SelfModulable, Int),
 			(LowerComparable, Int),
@@ -387,7 +405,7 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
-			isPrime,
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
 			(Multiplicable, Int),
 			(SelfModulable, Int),
 			(LowerComparable, Int),
@@ -401,11 +419,10 @@ namespace senc::utils
 		 * @return Raised modular inetger.
 		 */
 		template <typename Exp>
-		Self pow(const Exp& exp) SENC_REQ_NOEXCEPT(
-			(Copyable, Int),
+		Self pow(const Exp& exp) SENC_REQ_NOEXCEPT_COND(
+			(CopyableNoExcept<Int> && SelfModulableNoExcept<Int>),
 			(Copyable, Exp),
 			(IntConstructible, Int),
-			(SelfModulable, Int),
 			(LowerComparable, Exp),
 			(Andable, Exp),
 			(SelfRightShiftable, Exp)
@@ -449,9 +466,9 @@ namespace senc::utils
 	 */
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
-	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
-		(Addable, Int),
-		(Subtractable, Int)
+	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
+		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
+		(Negatable, Int)
 	);
 
 	/**
@@ -462,7 +479,8 @@ namespace senc::utils
 	 */
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
-	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
+	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
+		ModulableNoExcept<Int>,
 		(Multiplicable, Int)
 	);
 
@@ -476,7 +494,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		isPrime,
+		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
 		(Multiplicable, Int),
 		(SelfModulable, Int),
 		(LowerComparable, Int),
