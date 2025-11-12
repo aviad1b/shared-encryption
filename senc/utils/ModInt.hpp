@@ -83,8 +83,17 @@ namespace senc::utils
 	 * @return Modular inverse of `value` under `modulus`.
 	 * @throw ModException If failed to find inverse.
 	 */
-	template <std::integral T>
-	T modular_inverse(T value, T modulus);
+	template <typename T>
+	T modular_inverse(const T& value, const T& modulus) SENC_REQ(
+		(Copyable, T),
+		(IntConstructible, T),
+		(EqualityComparable, T),
+		(Addable, T),
+		(Subtractable, T),
+		(Multiplicable, T),
+		(Devisible, T),
+		(Modulable, T)
+	);
 
 	/**
 	 * @class senc::utils::ModInt

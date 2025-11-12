@@ -50,15 +50,24 @@ namespace senc::utils
 		return mod_pow(value, modulus - 2, modulus);
 	}
 
-	template <std::integral T>
-	T modular_inverse(T value, T modulus)
+	template <typename T>
+	T modular_inverse(const T& value, const T& modulus) SENC_REQ(
+		(Copyable, T),
+		(IntConstructible, T),
+		(EqualityComparable, T),
+		(Addable, T),
+		(Subtractable, T),
+		(Multiplicable, T),
+		(Devisible, T),
+		(Modulable, T)
+	)
 	{
 		// using the extended euclidean algorithm
 
 		T a = value, b = modulus;
 		T x0 = 1, x1 = 0;
 
-		while (b)
+		while (b != 0)
 		{
 			T q = a / b;
 			T temp = a % b;
@@ -73,9 +82,13 @@ namespace senc::utils
 		// now a = gcd(value, modulus). if gcd != 1, inverse doesn't exist
 		if (1 != a)
 		{
-			std::stringstream s;
-			s << "No inverse for " << value << " under modulus " << modulus;
-			throw ModException(s.str());
+			if constexpr (Outputable<T>)
+			{
+				std::stringstream s;
+				s << "No inverse for " << value << " under modulus " << modulus;
+				throw ModException(s.str());
+			}
+			else throw ModException("No inverse for given value under given modulus");
 		}
 
 		// x0 may be negative, fix it
