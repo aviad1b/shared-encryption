@@ -94,5 +94,5 @@ namespace senc::utils
 
 	ECGroup::ECGroup(bool isIdentity) : _isIdentity(isIdentity) { }
 
-	ECGroup::ECGroup(const Point& point) : _isIdentity(false), _point(point) { }
+	ECGroup::ECGroup(const Point& point) : _point(point), _isIdentity(false) { }
 }
