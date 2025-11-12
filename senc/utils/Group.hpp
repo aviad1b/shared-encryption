@@ -6,6 +6,7 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#include "Random.hpp"
 #include <concepts>
 
 namespace senc::utils
@@ -34,4 +35,12 @@ namespace senc::utils
 		{ std::declval<Self>() / std::declval<Self>() } -> std::same_as<Self>;
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
 	};
+
+	/**
+	 * @concept senc::utils::SamplableGroup
+	 * @brief Looks for a typename which satisfies both `Group` and `HasSampleMethod`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept SamplableGroup = Group<Self> && HasSampleMethod<Self>;
 }
