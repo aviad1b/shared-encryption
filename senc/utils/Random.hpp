@@ -86,7 +86,7 @@ namespace senc::utils
 	template <typename Self, typename T>
 	concept UnderlyingDistType = std::copyable<Self> &&
 		std::constructible_from<Self, const T&, const T&> &&
-		requires(const Self self, DistEngine<T>& engine)
+		requires(Self& self, DistEngine<T>& engine)
 		{
 			{ self(engine) } -> std::same_as<T>;
 		};
@@ -100,7 +100,7 @@ namespace senc::utils
 	 */
 	template <typename Self, typename T>
 	concept UnderlyingDistTypeNoExcept = UnderlyingDistType<Self, T> &&
-		requires(const Self self, DistEngine<T>& engine)
+		requires(Self& self, DistEngine<T>& engine)
 		{
 			{ self(engine) } noexcept -> std::same_as<T>;
 		};
