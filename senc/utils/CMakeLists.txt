@@ -1,4 +1,4 @@
-﻿add_library (senc_utils
+﻿add_library(senc_utils
 	"concepts.hpp"
 	"math.hpp"
 	"Exception.hpp"
@@ -9,6 +9,7 @@
 	"poly.hpp"
 	"poly_impl.hpp"
 	"Random.hpp"
+	"Random.cpp"
 	"Random_impl.hpp"
 	"ModInt.hpp"
 	"ModInt_impl.hpp"
@@ -17,8 +18,11 @@
 	"Fraction_impl.hpp"
 	"Fraction.cpp"
 	"Group.hpp"
+	"ECGroup.hpp"
+	"ECGroup.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
+target_link_libraries(senc_utils PUBLIC cryptopp::cryptopp)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
