@@ -178,7 +178,7 @@ namespace senc::utils
 		 */
 		Self operator-() const SENC_REQ_NOEXCEPT_COND(
 			(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
-			(Negatable, Int)
+			(Subtractable, Int)
 		);
 
 		/**

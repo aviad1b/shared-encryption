@@ -149,7 +149,7 @@ namespace senc::utils
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-() const SENC_REQ_NOEXCEPT_COND(
 		(IntConstructibleNoExcept<Int> && ModulableNoExcept<Int>),
-		(Negatable, Int)
+		(Subtractable, Int)
 	)
 	{
 		return Self(modulus - this->_value);
