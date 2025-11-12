@@ -18,7 +18,7 @@ namespace senc::utils
 		// fast exponent algorithm under prime modulus
 		T res = 1;
 		base %= modulus;
-		while (exp > 0)
+		while (0 < exp)
 		{
 			if (exp & 1)
 				res = (res * base) % modulus;
