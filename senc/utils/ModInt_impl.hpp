@@ -34,8 +34,14 @@ namespace senc::utils
 		return res;
 	}
 
-	template <std::integral T>
-	T prime_modular_inverse(T value, T modulus)
+	template <typename T>
+	T prime_modular_inverse(T value, T modulus) SENC_REQ(
+		(IntConstructible, T),
+		(SelfModulable, T),
+		(LowerComparable, T),
+		(Andable, T),
+		(SelfRightShiftable, T)
+	)
 	{
 		// using Fermat's formula for prime modulus
 		return mod_pow(value, modulus - 2, modulus);

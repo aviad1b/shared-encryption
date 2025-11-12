@@ -64,8 +64,14 @@ namespace senc::utils
 	 * @param moduls Modulus to find inverse of `value` under.
 	 * @return Modular inverse of `value` under `modulus`.
 	 */
-	template <std::integral T>
-	T prime_modular_inverse(T value, T modulus);
+	template <typename T>
+	T prime_modular_inverse(T value, T modulus) SENC_REQ(
+		(IntConstructible, T),
+		(SelfModulable, T),
+		(LowerComparable, T),
+		(Andable, T),
+		(SelfRightShiftable, T)
+	);
 
 	/**
 	 * @brief Finds modular inverse of a given value under given modulus.
