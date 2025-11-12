@@ -23,6 +23,9 @@ namespace senc::utils
 
 	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
 
+	const Distribution<CryptoPP::Integer> ECGroup::DIST =
+		Random<CryptoPP::Integer>::get_dist_below(ORDER);
+
 	ECGroup::ECGroup(const CryptoPP::Integer& x, const CryptoPP::Integer& y)
 		: _point(x, y), _isIdentity(false) { }
 
@@ -31,6 +34,11 @@ namespace senc::utils
 		if (scalar.IsZero())
 			return IDENTITY;
 		return Self(EC_CURVE.Multiply(scalar, EC_BASE_POINT));
+	}
+
+	ECGroup::Self ECGroup::sample()
+	{
+		return from_scalar(DIST());
 	}
 
 	bool ECGroup::is_identity() const
@@ -94,5 +102,5 @@ namespace senc::utils
 
 	ECGroup::ECGroup(bool isIdentity) : _isIdentity(isIdentity) { }
 
-	ECGroup::ECGroup(const Point& point) : _isIdentity(false), _point(point) { }
+	ECGroup::ECGroup(const Point& point) : _point(point), _isIdentity(false) { }
 }

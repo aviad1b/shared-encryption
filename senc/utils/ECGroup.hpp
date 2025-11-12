@@ -15,6 +15,7 @@
 #include <cryptopp/ecp.h>
 #include <ostream>
 
+#include "Random.hpp"
 #include "Group.hpp"
 
 namespace senc::utils
@@ -66,6 +67,12 @@ namespace senc::utils
 		 * @return Elliptic curve group mapped from `scalar`.
 		 */
 		static Self from_scalar(const CryptoPP::Integer& scalar);
+
+		/**
+		 * @brief Samples a random group element.
+		 * @return Sampled element.
+		 */
+		static Self sample();
 
 		/**
 		 * @brief Determines whether or not this is the identity element.
@@ -124,6 +131,7 @@ namespace senc::utils
 		using Point = ECP::Point;
 
 		// static constants
+		static const Distribution<CryptoPP::Integer> DIST;           // distribution for sampling
 		static const CryptoPP::DL_GroupParameters_EC<ECP> EC_PARAMS; // eliptic curve parameters
 		static const ECP EC_CURVE;                                   // elliptic curve itself
 		static const Point EC_BASE_POINT;                            // base point of curve
