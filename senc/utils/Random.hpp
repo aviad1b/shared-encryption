@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <cryptopp/integer.h>
+#include <cryptopp/osrng.h>
 #include <functional>
 #include <concepts>
 #include <random>
@@ -16,23 +18,129 @@
 namespace senc::utils
 {
 	/**
-	 * @class senc::utils::Distribution
-	 * @brief Represents a uniform distribution of integers.
-	 * @tparam T Integer type.
+	 * @brief Underlying class used for sampling `CryptoPP::Integer`.
 	 */
-	template <std::integral T>
+	class CryptoUnderlyingDist
+	{
+	public:
+		using Self = CryptoUnderlyingDist;
+
+		CryptoUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max);
+
+		CryptoUnderlyingDist(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		CryptoUnderlyingDist(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		CryptoPP::Integer operator()(CryptoPP::RandomNumberGenerator& engine) const;
+
+	private:
+		CryptoPP::Integer _min, _max;
+	};
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct dist_engine { };
+
+		template <std::integral T>
+		struct dist_engine<T> { using type = std::mt19937; };
+
+		template <>
+		struct dist_engine<CryptoPP::Integer> { using type = CryptoPP::RandomNumberGenerator; };
+
+		template <typename T>
+		struct underlying_dist { };
+
+		template <std::integral T>
+		struct underlying_dist<T> { using type = std::uniform_int_distribution<T>; };
+
+		template <>
+		struct underlying_dist<CryptoPP::Integer> { using type = CryptoUnderlyingDist; };
+	}
+
+	/**
+	 * @typedef senc::utils::DistEngine
+	 * @brief Engine used for sampling a distribution value.
+	 * @tparam T Distribution value type.
+	 */
+	template <typename T>
+	using DistEngine = typename sfinae::dist_engine<T>::type;
+
+	/**
+	 * @brief Underlying distribution type used by Distribution class.
+	 * @tparam T Distribution value type.
+	 */
+	template <typename T>
+	using UnderlyingDist = typename sfinae::underlying_dist<T>::type;
+
+	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistType = std::copyable<Self> &&
+		std::constructible_from<Self, const T&, const T&> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } -> std::same_as<T>;
+		};
+
+	/**
+	 * @concept senc::utils::UnderlyingDistType
+	 * @brief Looks for typename that can be used as underlying distribution type,
+	 *		  with `noexcept` sampling.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept UnderlyingDistTypeNoExcept = UnderlyingDistType<Self, T> &&
+		requires(const Self self, DistEngine<T>& engine)
+		{
+			{ self(engine) } noexcept -> std::same_as<T>;
+		};
+
+	/**
+	 * @concept senc::utils::DistEngineType
+	 * @brief Looks for typename which can be used as engine for sampling in Distribution class.
+	 * @tparam Self Examined typename.
+	 * @tparam T Type being sampled.
+	 */
+	template <typename Self, typename T>
+	concept DistEngineType = true; // no constraints
+
+	/**
+	 * @concept senc::utils::DistVal
+	 * @brief Looks for a typename that can be sampled from `Distribution`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept DistVal = DistEngineType<DistEngine<Self>, Self> && 
+		UnderlyingDistType<UnderlyingDist<Self>, Self>;
+
+	/**
+	 * @class senc::utils::Distribution
+	 * @brief Represents a uniform distribution of values.
+	 * @tparam T Value type.
+	 */
+	template <DistVal T>
 	class Distribution
 	{
 	public:
 		using Self = Distribution<T>;
 
 		/**
-		 * @brief Constructs a uniform integer distribution (range [min, max]).
+		 * @brief Constructs a uniform distribution (range [min, max]).
 		 * @param min Minimum value in range.
 		 * @param max Maximum value in range.
 		 * @param engine Engine used for random generations (by ref).
 		 */
-		Distribution(T min, T max, std::mt19937& engine);
+		Distribution(const T& min, const T& max, DistEngine<T>& engine);
 
 		/**
 		 * @brief Copy constructor of distribution.
@@ -47,11 +155,11 @@ namespace senc::utils
 		/**
 		 * @brief Samples a random integer from distribution.
 		 */
-		T operator()() const noexcept;
+		T operator()() const noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>);
 
 	private:
-		std::uniform_int_distribution<T> _dist;
-		std::mt19937& _engine;
+		UnderlyingDist<T> _dist;
+		DistEngine<T>& _engine;
 	};
 
 	/**
@@ -71,7 +179,7 @@ namespace senc::utils
 	 * @tparam Self Examiend typename.
 	 */
 	template <typename Self>
-	concept RandomSamplable = std::integral<Self> || HasSampleMethod<Self>;
+	concept RandomSamplable = DistVal<Self> || HasSampleMethod<Self>;
 
 	/**
 	 * @class senc::utils::Random
@@ -88,29 +196,29 @@ namespace senc::utils
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
-		static Distribution<T> get_range_dist(T min, T max) noexcept
+		static Distribution<T> get_range_dist(const T& min, const T& max) noexcept
 		requires std::integral<T>;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
-		static Distribution<T> get_dist_below(T upperBound) noexcept
-		requires std::integral<T>;
+		static Distribution<T> get_dist_below(const T& upperBound) noexcept
+		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a number within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
-		static T sample_from_range(T min, T max) noexcept
-		requires std::integral<T>;
+		static T sample_from_range(const T& min, const T& max) noexcept
+		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a non-genative number below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
-		static T sample_below(T upperBound) noexcept
-		requires std::integral<T>;
+		static T sample_below(const T& upperBound) noexcept
+		requires DistVal<T>;
 
 	private:
 		static thread_local std::mt19937& engine() noexcept
@@ -119,6 +227,12 @@ namespace senc::utils
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
 			);
 			return eng;
+		}
+
+		static thread_local CryptoPP::RandomNumberGenerator& engine_crypto()
+		{
+			static thread_local CryptoPP::AutoSeededRandomPool rng;
+			return rng;
 		}
 	};
 }
