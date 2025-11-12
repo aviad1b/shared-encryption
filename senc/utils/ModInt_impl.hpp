@@ -236,7 +236,8 @@ namespace senc::utils
 
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator--() SENC_REQ_NOEXCEPT(
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator--() SENC_REQ_NOEXCEPT_COND(
+		CopyableNoExcept<Int>,
 		(LeftDecrementable, Int),
 		(EqualityComparable, Int)
 	)
