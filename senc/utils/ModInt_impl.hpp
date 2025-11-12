@@ -13,7 +13,7 @@
 namespace senc::utils
 {
 	template <typename T, typename E>
-	T mod_pow(T base, E exp, T modulus) SENC_REQ(
+	T mod_pow(T base, E exp, const T& modulus) SENC_REQ(
 		(Copyable, T),
 		(Copyable, E),
 		(IntConstructible, T),
@@ -37,7 +37,7 @@ namespace senc::utils
 	}
 
 	template <typename T>
-	T prime_modular_inverse(T value, T modulus) SENC_REQ(
+	T prime_modular_inverse(T value, const T& modulus) SENC_REQ(
 		(Copyable, T),
 		(IntConstructible, T),
 		(SelfModulable, T),
