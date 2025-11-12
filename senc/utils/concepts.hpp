@@ -356,18 +356,20 @@ namespace senc::utils
 }
 
 // extracts concept from a concept-types pack
-#define SENC_CONCEPT_NAME(pack) SENC_CONCEPT_NAME_IMPL##pack
+#define SENC_CONCEPT_NAME(pack) SENC_CONCEPT_NAME_IMPL pack
 #define SENC_CONCEPT_NAME_IMPL(con, type1, ...) con
 
 // extracts types from a concept-types pack
-#define SENC_CONCEPT_TYPES(pack) SENC_CONCEPT_TYPES_IMPL##pack
+#define SENC_CONCEPT_TYPES(pack) SENC_CONCEPT_TYPES_IMPL pack
 #define SENC_CONCEPT_TYPES_IMPL(con, type1, ...) type1, __VA_ARGS__
 
 // creates noexcept check for concept (appends `NoExcept` to concept name)
-#define SENC_NOEXCEPT_CHECK(pack) SENC_CONCEPT_NAME(pack)##NoExcept<SENC_CONCEPT_TYPES(pack)>
+#define SENC_NOEXCEPT_CHECK(pack) SENC_NOEXCEPT_CHECK_IMPL(SENC_CONCEPT_NAME(pack), SENC_CONCEPT_TYPES(pack))
+#define SENC_NOEXCEPT_CHECK_IMPL(con, type) con##NoExcept<type>
 
 // creates requires check for concept
-#define SENC_REQUIRES_CHECK(pack) SENC_CONCEPT_NAME(pack)<SENC_CONCEPT_TYPES(pack)>
+#define SENC_REQUIRES_CHECK(pack) SENC_REQUIRES_CHECK_IMPL(SENC_CONCEPT_NAME(pack), SENC_CONCEPT_TYPE(pack))
+#define SENC_REQUIRES_CHECK_IMPL(con, type) con<type>
 
 
 // SENC_REQ generates both noexcept and requires checks for provided concepts
