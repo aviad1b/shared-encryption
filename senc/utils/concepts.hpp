@@ -37,6 +37,24 @@ namespace senc::utils
 		InputIterator<std::ranges::iterator_t<Self>, T>;
 
 	template <typename Self>
+	concept Copyable = requires(Self a, const Self b)
+	{
+		{ Self(b) };
+		{ Self(std::move(a)) };
+		{ a = b };
+		{ a = std::move(b) };
+	};
+
+	template <typename Self>
+	concept CopyableNoExcept = requires(Self a, const Self b)
+	{
+		{ Self(b) } noexcept;
+		{ Self(std::move(a)) } noexcept;
+		{ a = b } noexcept;
+		{ a = std::move(b) } noexcept;
+	};
+
+	template <typename Self>
 	concept Outputable = requires(std::ostream& os, const Self self)
 	{
 		{ os << self } -> std::convertible_to<std::ostream&>;
