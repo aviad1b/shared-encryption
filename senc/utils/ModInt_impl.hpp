@@ -14,6 +14,8 @@ namespace senc::utils
 {
 	template <typename T, typename E>
 	T mod_pow(T base, E exp, T modulus) SENC_REQ(
+		(Copyable, T),
+		(Copyable, E),
 		(IntConstructible, T),
 		(SelfModulable, T),
 		(LowerComparable, E),
