@@ -140,7 +140,7 @@ namespace senc::utils
 		 * @param max Maximum value in range.
 		 * @param engine Engine used for random generations (by ref).
 		 */
-		Distribution(T min, T max, DistEngine<T>& engine);
+		Distribution(const T& min, const T& max, DistEngine<T>& engine);
 
 		/**
 		 * @brief Copy constructor of distribution.
@@ -196,28 +196,28 @@ namespace senc::utils
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
-		static Distribution<T> get_range_dist(T min, T max) noexcept
+		static Distribution<T> get_range_dist(const T& min, const T& max) noexcept
 		requires std::integral<T>;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
-		static Distribution<T> get_dist_below(T upperBound) noexcept
+		static Distribution<T> get_dist_below(const T& upperBound) noexcept
 		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a number within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */
-		static T sample_from_range(T min, T max) noexcept
+		static T sample_from_range(const T& min, const T& max) noexcept
 		requires DistVal<T>;
 
 		/**
 		 * @brief Samples a non-genative number below a given upper bound.
 		 * @note Requires `T` to be an integer type.
 		 */
-		static T sample_below(T upperBound) noexcept
+		static T sample_below(const T& upperBound) noexcept
 		requires DistVal<T>;
 
 	private:

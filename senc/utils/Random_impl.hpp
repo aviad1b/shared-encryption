@@ -11,7 +11,7 @@
 namespace senc::utils
 {
 	template <DistVal T>
-	inline Distribution<T>::Distribution(T min, T max, DistEngine<T>& engine)
+	inline Distribution<T>::Distribution(const T& min, const T& max, DistEngine<T>& engine)
 		: _dist(min, max), _engine(engine) { }
 
 	template <DistVal T>
@@ -21,7 +21,7 @@ namespace senc::utils
 	}
 
 	template <RandomSamplable T>
-	inline Distribution<T> Random<T>::get_range_dist(T min, T max) noexcept
+	inline Distribution<T> Random<T>::get_range_dist(const T& min, const T& max) noexcept
 	requires std::integral<T>
 	{
 		if constexpr(std::same_as<T, CryptoPP::Integer>)
@@ -31,21 +31,21 @@ namespace senc::utils
 	}
 
 	template <RandomSamplable T>
-	inline Distribution<T> Random<T>::get_dist_below(T upperBound) noexcept
+	inline Distribution<T> Random<T>::get_dist_below(const T& upperBound) noexcept
 	requires DistVal<T>
 	{
 		return get_range_dist(0, upperBound - 1);
 	}
 
 	template <RandomSamplable T>
-	inline T Random<T>::sample_from_range(T min, T max) noexcept
+	inline T Random<T>::sample_from_range(const T& min, const T& max) noexcept
 	requires DistVal<T>
 	{
 		return get_range_dist(min, max)();
 	}
 	
 	template <RandomSamplable T>
-	inline T Random<T>::sample_below(T upperBound) noexcept
+	inline T Random<T>::sample_below(const T& upperBound) noexcept
 	requires DistVal<T>
 	{
 		return get_dist_below(upperBound)();
