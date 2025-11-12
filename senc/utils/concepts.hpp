@@ -392,7 +392,7 @@ namespace senc::utils
 #define SENC_REQUIRES_CHECK_IMPL(con, ...) con<__VA_ARGS__>
 
 
-// SENC_REQ generates both noexcept and requires checks for provided concepts
+// SENC_REQ_NOEXCEPT generates both noexcept and requires checks for provided concepts
 
 #define SENC_REQ_NOEXCEPT_1(p1) \
 	noexcept(SENC_NOEXCEPT_CHECK(p1)) \
