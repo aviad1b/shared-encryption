@@ -50,7 +50,7 @@ namespace senc::utils
 	 * @return `base` raised to the power of `exp` under modulus `modulus`.
 	 */
 	template <typename T, typename E>
-	T mod_pow(T base, E exp, const T& modulus) SENC_REQ(
+	T mod_pow(T base, E exp, const T& modulus) SENC_REQ_NOEXCEPT(
 		(Copyable, T),
 		(Copyable, E),
 		(IntConstructible, T),
@@ -67,7 +67,7 @@ namespace senc::utils
 	 * @return Modular inverse of `value` under `modulus`.
 	 */
 	template <typename T>
-	T prime_modular_inverse(T value, const T& modulus) SENC_REQ(
+	T prime_modular_inverse(T value, const T& modulus) SENC_REQ_NOEXCEPT(
 		(Copyable, T),
 		(IntConstructible, T),
 		(SelfModulable, T),
