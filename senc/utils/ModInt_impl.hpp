@@ -95,47 +95,72 @@ namespace senc::utils
 		return (x0 % modulus + modulus) % modulus;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::ModInt() noexcept : Self(0) { }
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::ModInt()
+		noexcept(IntConstructibleNoExcept<Int>) : Self(0) { }
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::ModInt(Int value) noexcept : _value(value % modulus) { }
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::ModInt(Int value)
+		noexcept(IntConstructibleNoExcept<Int>) : _value(value % modulus) { }
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::sample() noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::sample()
+		noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int>)
+	requires DistVal<Int>
 	{
 		return Self(DIST());
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::operator Int() const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::operator const Int&() const noexcept
 	{
 		return this->_value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline bool ModInt<Int, modulus, isPrime>::operator==(Self other) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline bool ModInt<Int, modulus, isPrime>::operator==(Self other) const SENC_REQ_NOEXCEPT(
+		(EqualityComparable, Int)
+	)
 	{
 		return (this->_value == other._value);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline bool ModInt<Int, modulus, isPrime>::operator==(Int value) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline bool ModInt<Int, modulus, isPrime>::operator==(Int value) const SENC_REQ_NOEXCEPT(
+		(EqualityComparable, Int)
+	)
 	{
 		return (this->_value == value);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	const Distribution<Int> ModInt<Int, modulus, isPrime>::DIST = Random<Int>::get_dist_below(modulus);
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-() const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-() const SENC_REQ_NOEXCEPT(
+		(Negatable, Int)
+	)
 	{
 		return Self(modulus - this->_value);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::inverse() const noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::inverse() const SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		if constexpr (isPrime)
 			return prime_modular_inverse(this->_value, modulus);
@@ -143,71 +168,106 @@ namespace senc::utils
 			return modular_inverse(this->_value, modulus);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator++() noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator++() SENC_REQ_NOEXCEPT(
+		(LeftIncrementable, Int)
+	)
 	{
-		this->_value++;
+		++this->_value;
 		this->_value %= modulus;
 		return *this;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator++(int) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator++(int) SENC_REQ_NOEXCEPT(
+		(RightIncrementable, Int)
+	)
 	{
-		Self res = *this;
-		++(*this);
-		return res;
+		return this->_value++; // ctor automatically applies modulo
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Int value) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Int value) const SENC_REQ_NOEXCEPT(
+		(Addable, Int)
+	)
 	{
 		return Self((this->_value + value) % modulus);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator+=(Int value) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator+=(Int value) SENC_REQ_NOEXCEPT(
+		(SelfAddable, Int)
+	)
 	{
 		this->_value += value;
 		this->_value %= modulus;
 		return *this;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Self other) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator+(Self other) const SENC_REQ_NOEXCEPT(
+		(Addable, Int)
+	)
 	{
 		return *this + other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator+=(Self other) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator+=(Self other) SENC_REQ_NOEXCEPT(
+		(SelfAddable, Int)
+	)
 	{
 		return *this += other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator--() noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator--() SENC_REQ_NOEXCEPT(
+		(LeftDecrementable, Int)
+	)
 	{
-		// not safe to use `--` here directly since we may go below zero
-		return *this -= 1;
+		if (this->_value > 0)
+			--this->_value;
+		else
+			this->_value = modulus - 1;
+		return *this;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator--(int) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator--(int) SENC_REQ_NOEXCEPT(
+		(RightDecrementable, Int)
+	)
 	{
-		Self res = *this;
-		--(*this);
-		return res;
+		if (this->_value > 0)
+			return this->_value--; // ctor automatically applies modulo
+		// if zero, set to max then return zero
+		this->_value = modulus - 1;
+		return 0;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-(Int value) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-(Int value) const SENC_REQ_NOEXCEPT(
+		(Addable, Int),
+		(Subtractable, Int)
+	)
 	{
 		return Self((modulus + this->_value - value) % modulus);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator-=(Int value) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator-=(Int value) SENC_REQ_NOEXCEPT(
+		(SelfAddable, Int),
+		(SelfSubtractable, Int)
+	)
 	{
 		this->_value += modulus;
 		this->_value -= value;
@@ -215,106 +275,191 @@ namespace senc::utils
 		return *this;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-(Self other) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator-(Self other) const SENC_REQ_NOEXCEPT(
+		(Addable, Int),
+		(Subtractable, Int)
+	)
 	{
 		return *this - other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator-=(Self other) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator-=(Self other) SENC_REQ_NOEXCEPT(
+		(SelfAddable, Int),
+		(SelfSubtractable, Int)
+	)
 	{
 		return *this -= other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator*(Int value) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator*(Int value) const SENC_REQ_NOEXCEPT(
+		(Multiplicable, Int)
+	)
 	{
 		return Self((this->_value * value) % modulus);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator*=(Int value) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator*=(Int value) SENC_REQ_NOEXCEPT(
+		(SelfMultiplicable, Int)
+	)
 	{
 		this->_value *= value;
 		this->_value %= modulus;
 		return *this;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator*(Self other) const noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator*(Self other) const SENC_REQ_NOEXCEPT(
+		(Multiplicable, Int)
+	)
 	{
 		return *this * other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator*=(Self other) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator*=(Self other) SENC_REQ_NOEXCEPT(
+		(SelfMultiplicable, Int)
+	)
 	{
 		return *this *= other._value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Int value) const noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Int value) const SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(Multiplicable, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		return *this / Self(value % modulus);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator/=(Int value) noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator/=(Int value) SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(Multiplicable, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		return *this = *this / value;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Self other) const noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/(Self other) const SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(Multiplicable, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		return *this * other.inverse();
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/=(Self other) noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(Multiplicable, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		return *this = *this / other;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::pow(std::integral auto exp) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <typename Exp>
+	inline ModInt<Int, modulus, isPrime>::Self ModInt<Int, modulus, isPrime>::pow(const Exp& exp) SENC_REQ_NOEXCEPT(
+		(Copyable, Int),
+		(Copyable, Exp),
+		(IntConstructible, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Exp),
+		(Andable, Exp),
+		(SelfRightShiftable, Exp)
+	)
 	{
 		return Self(mod_pow(this->_value, exp, modulus));
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	bool operator==(Int value, ModInt<Int, modulus, isPrime> modint) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline bool operator==(Int value, ModInt<Int, modulus, isPrime> modint) SENC_REQ_NOEXCEPT(
+		(EqualityComparable, Int)
+	)
 	{
 		return (modint == value);
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
+		(Addable, Int)
+	)
 	{
 		return b + a;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
+		(Addable, Int),
+		(Subtractable, Int)
+	)
 	{
 		return ModInt<Int, modulus, isPrime>(a % modulus) - b;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) noexcept
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
+		(Multiplicable, Int)
+	)
 	{
 		return b * a;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) noexcept(isPrime)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
+		isPrime,
+		(Multiplicable, Int),
+		(SelfModulable, Int),
+		(LowerComparable, Int),
+		(Andable, Int),
+		(SelfRightShiftable, Int)
+	)
 	{
 		return ModInt<Int, modulus, isPrime>(a % modulus) / b;
 	}
 
-	template <std::integral Int, Int modulus, bool isPrime>
-	std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus, isPrime> modint)
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	inline std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus, isPrime> modint)
+	requires Outputable<Int>
 	{
 		return os << (Int)modint;
 	}
