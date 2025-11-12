@@ -12,8 +12,14 @@
 
 namespace senc::utils
 {
-	template <std::integral T, std::integral E>
-	T mod_pow(T base, E exp, T modulus) noexcept
+	template <typename T, typename E>
+	T mod_pow(T base, E exp, T modulus) SENC_REQ(
+		(IntConstructible, T),
+		(SelfModulable, T),
+		(LowerComparable, E),
+		(Andable, E),
+		(SelfRightShiftable, E)
+	)
 	{
 		// fast exponent algorithm under prime modulus
 		T res = 1;
