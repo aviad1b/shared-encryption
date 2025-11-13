@@ -70,7 +70,7 @@ namespace senc::utils
 		// setting x1 to zero: since CryptoPP::Integer sometimes isn't zero-constructible,
 		// we use default constructor in the case where it's available
 		T x1 = []() -> T {
-			if constexpr (DefaultConstructible<T> && !std::is_fundamental_v<T>)
+			if constexpr (DefaultConstructibleClass<T>)
 				return T();
 			else
 				return 0;
