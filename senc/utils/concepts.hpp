@@ -93,6 +93,15 @@ namespace senc::utils
 	concept ZeroConstructibleNoExcept = requires { { Self(0) } noexcept; };
 
 	template <typename Self>
+	concept ClassDefaultOrZeroConstructible = DefaultConstructibleClass<Self> ||
+		ZeroConstructible<Self>;
+
+	template <typename Self>
+	concept ClassDefaultOrZeroConstructibleNoExcept =
+		(DefaultConstructibleClass<Self> && DefaultConstructibleClassNoExcept<Self>) ||
+		(ZeroConstructible<Self> && ZeroConstructibleNoExcept<Self>);
+
+	template <typename Self>
 	concept IntConstructible = std::constructible_from<Self, int>;
 
 	template <typename Self>
