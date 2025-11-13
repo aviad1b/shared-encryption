@@ -107,13 +107,18 @@ namespace senc::utils
 	/**
 	 * @concept senc::utils::ModTraitsType
 	 * @brief Looks for a typename which defines traits for ModInt.
-	 *		  Requires traits: Underlying type (`Underlying`), Modulus (`modulus()`).
+	 *		  Requires traits:
+	 *        - Underlying type (`Underlying`)
+	 *        - Modulus (`modulus()`)
+	 *        - Is known prime (`constexpr is_known_prime()`).
 	 * @note A concept cannot really check for that, but `modulus()` should be constant.
 	 */
 	template <typename Self>
 	concept ModTraitsType = ModIntUnderlyingType<typename Self::Underlying> && requires
 	{
 		{ Self::modulus() } noexcept -> ConvertibleToNoExcept<const typename Self::Underlying&>;
+		{ Self::is_known_prime() } noexcept -> BoolConvertibleNoExcept;
+		{ []() constexpr { return Self::is_known_prime(); }() }; // must be constexpr-evaluable
 	};
 
 	/**
