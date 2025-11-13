@@ -33,8 +33,9 @@ namespace senc::utils
 	 */
 	template <typename Self, typename Exponent>
 	concept SquareAndMultiplyCompatible = IntConstructible<Self> &&
-		Copyable<Self> && Modulable<Self> && SelfMultiplicable<Self> && 
-		LowerComparable<Exponent> && SelfDevisible<Exponent>;
+		Copyable<Self> && SelfMultiplicable<Self> && 
+		LowerComparable<Exponent> && SelfDevisible<Exponent> &&
+		Modulable<Exponent> && EqualityComparable<Exponent>;
 
 	/**
 	 * @concept senc::utils::PowerRaisable
