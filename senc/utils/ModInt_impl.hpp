@@ -97,6 +97,10 @@ namespace senc::utils
 
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	const Distribution<Int> ModInt<Int, modulus, isPrime>::DIST = Random<Int>::get_dist_below(modulus);
+
+	template <typename Int, Int modulus, bool isPrime>
+	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime>::ModInt()
 		noexcept(IntConstructibleNoExcept<Int>) : Self(0) { }
 
@@ -140,10 +144,6 @@ namespace senc::utils
 	{
 		return (this->_value == value);
 	}
-
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
-	const Distribution<Int> ModInt<Int, modulus, isPrime>::DIST = Random<Int>::get_dist_below(modulus);
 
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
