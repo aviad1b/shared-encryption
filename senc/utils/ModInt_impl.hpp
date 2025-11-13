@@ -116,7 +116,7 @@ namespace senc::utils
 		return Self(DIST());
 	}
 
-	template<ModIntUnderlyingType Int, Int mod, bool isPrime>
+	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	inline const Int& ModInt<Int, mod, isPrime>::modulus() const
 	{
 		return mod;
