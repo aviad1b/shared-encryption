@@ -219,8 +219,8 @@ TEST(ModIntTests, Power)
 TEST(ModIntTests, PowerCrypto)
 {
     CMI7 x(3);
-    EXPECT_EQ(static_cast<CInt>(x.pow(3)), mod_pow(CInt(3), CInt(3), CInt(7)));
-    EXPECT_EQ(static_cast<CInt>(pow(x, 3)), mod_pow(CInt(3), CInt(3), CInt(7)));
+    EXPECT_EQ(static_cast<CInt>(x.pow(CInt(3))), mod_pow(CInt(3), CInt(3), CInt(7)));
+    EXPECT_EQ(static_cast<CInt>(pow(x, CInt(3))), mod_pow(CInt(3), CInt(3), CInt(7)));
 }
 
 TEST(ModIntTests, IntPlusModInt)
