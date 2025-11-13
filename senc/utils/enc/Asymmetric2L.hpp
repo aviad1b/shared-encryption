@@ -20,16 +20,16 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Asymmetric2L = requires(const Self self,
-		const typename Self::Plaintext plaintext, const typename Self::Cyphertext ciphertext,
+		const typename Self::Plaintext plaintext, const typename Self::Ciphertext ciphertext,
 		const typename Self::PubKey pubKey1, const typename Self::PubKey pubKey2,
 		const typename Self::PrivKey privKey1, const typename Self::PrivKey privKey2)
 	{
 		typename Self::PrivKey;
 		typename Self::PubKey;
 		typename Self::Plaintext;
-		typename Self::Cyphertext;
+		typename Self::Ciphertext;
 		{ self.keygen() } -> std::same_as<std::tuple<typename Self::PrivKey, typename Self::PubKey>>;
-		{ self.encrypt(plaintext, pubKey1, pubKey2) } -> std::same_as<typename Self::Cyphertext>;
+		{ self.encrypt(plaintext, pubKey1, pubKey2) } -> std::same_as<typename Self::Ciphertext>;
 		{ self.decrypt(ciphertext, privKey1, privKey2) } -> std::same_as<typename Self::Plaintext>;
 	};
 
