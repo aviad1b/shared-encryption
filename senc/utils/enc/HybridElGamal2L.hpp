@@ -42,6 +42,12 @@ namespace senc::utils::enc
 		HybridElGamal2L(S&& symmetricSchema, KDF&& kdf);
 
 		/**
+		 * @brief Generates a key-pair for the schema.
+		 * @return Generated key-pair (public key, private key).
+		 */
+		std::pair<PubKey, PrivKey> keygen() const;
+
+		/**
 		 * @brief Encrypts a given plaintext.
 		 * @param plaintext Plaintext to encrypt.
 		 * @param pubKey1 Public key for first encryption layer.
