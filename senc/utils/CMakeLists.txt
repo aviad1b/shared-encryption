@@ -21,6 +21,8 @@
 	"ECGroup.hpp"
 	"ECGroup.cpp"
 	"enc/general.hpp"
+	"enc/HybridElGamal2L.hpp"
+	"enc/HybridElGamal2L_impl.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
