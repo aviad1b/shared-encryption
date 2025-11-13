@@ -21,6 +21,26 @@ using senc::utils::pow;
 using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
 using MI6 = ModInt<IntegralModTraits<int, 6, false>>; // composite modulus 6
 
+const CryptoPP::Integer CRYPTO_SEVEN = 7;
+const CryptoPP::Integer CRYPTO_SIX = 6;
+
+struct CMI7Traits
+{
+    using Underlying = CryptoPP::Integer;
+    static const CryptoPP::Integer& modulus() noexcept { return CRYPTO_SEVEN; }
+    static constexpr bool is_known_prime() noexcept { return true; }
+};
+
+struct CMI6Traits
+{
+    using Underlying = CryptoPP::Integer;
+    static const CryptoPP::Integer& modulus() noexcept { return CRYPTO_SIX; }
+    static constexpr bool is_known_prime() noexcept { return false; }
+};
+
+using CMI7 = ModInt<CMI7Traits>;
+using CMI6 = ModInt<CMI6Traits>;
+
 TEST(ModIntTests, BasicCorrectness)
 {
     EXPECT_EQ(mod_pow(2, 3, 7), 8 % 7);      // 2^3 = 8 mod 7 -> 1
