@@ -265,7 +265,8 @@ namespace senc::utils
 		 * @brief Decreases modular integer.
 		 * @return `*this` before being decreased.
 		 */
-		Self operator--(int) SENC_REQ_NOEXCEPT(
+		Self operator--(int) SENC_REQ_NOEXCEPT_COND(
+			CopyableNoExcept<Int>,
 			(RightDecrementable, Int),
 			(EqualityComparable, Int)
 		);
