@@ -11,14 +11,36 @@
 #include "../utils/ModInt.hpp"
 #include "../utils/math.hpp"
 
+using senc::utils::IntegralModTraits;
 using senc::utils::ModException;
 using senc::utils::ModInt;
 
 using senc::utils::mod_pow;
 using senc::utils::pow;
 
-using MI7 = ModInt<int, 7, true>; // prime modulus 7
-using MI6 = ModInt<int, 6, false>; // composite modulus 6
+using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
+using MI6 = ModInt<IntegralModTraits<int, 6, false>>; // composite modulus 6
+
+using CInt = CryptoPP::Integer;
+const CInt CRYPTO_SEVEN = 7;
+const CInt CRYPTO_SIX = 6;
+
+struct CMI7Traits
+{
+    using Underlying = CInt;
+    static const CInt& modulus() noexcept { return CRYPTO_SEVEN; }
+    static constexpr bool is_known_prime() noexcept { return true; }
+};
+
+struct CMI6Traits
+{
+    using Underlying = CInt;
+    static const CInt& modulus() noexcept { return CRYPTO_SIX; }
+    static constexpr bool is_known_prime() noexcept { return false; }
+};
+
+using CMI7 = ModInt<CMI7Traits>;
+using CMI6 = ModInt<CMI6Traits>;
 
 TEST(ModIntTests, BasicCorrectness)
 {
@@ -27,10 +49,26 @@ TEST(ModIntTests, BasicCorrectness)
     EXPECT_EQ(mod_pow(3, 4, 7), 81 % 7);     // 81 mod 7 = 4
 }
 
+TEST(ModIntTests, BasicCorrectnessCrypto)
+{
+    EXPECT_EQ(mod_pow(CInt(2), CInt(3), CInt(7)), CInt(8) % CInt(7));  // 2^3 = 8 mod 7 -> 1
+    EXPECT_EQ(mod_pow(CInt(5), CInt(), CInt(7)), CInt(1));             // x^0 = 1 always
+    EXPECT_EQ(mod_pow(CInt(3), CInt(4), CInt(7)), CInt(81) % CInt(7)); // 81 mod 7 = 4
+}
+
 TEST(ModIntTests, LargeExponent)
 {
     // Fermat: 2^(6 mod 7) mod 7 = 1
     EXPECT_EQ(mod_pow(2, 1000000, 7), mod_pow(2, 1000000 % 6, 7));
+}
+
+TEST(ModIntTests, LargeExponentCrypto)
+{
+    // Fermat: 2^(6 mod 7) mod 7 = 1
+    EXPECT_EQ(
+        mod_pow(CInt(2), CInt(1000000), CInt(7)),
+        mod_pow(CInt(2), CInt(1000000) % CInt(6), CInt(7))
+    );
 }
 
 TEST(ModIntTests, ConstructionAndValue)
@@ -39,9 +77,25 @@ TEST(ModIntTests, ConstructionAndValue)
     EXPECT_EQ(static_cast<int>(x), 10 % 7); // expect 3
 }
 
+TEST(ModIntTests, ConstructionAndValueCrypto)
+{
+    CMI7 x(10);
+    EXPECT_EQ(static_cast<CInt>(x), CInt(10) % CInt(7)); // expect 3
+}
+
 TEST(ModIntTests, EqualityComparisons)
 {
     MI7 a(3), b(10), c(4);
+    EXPECT_TRUE(a == b); // both represent 3
+    EXPECT_FALSE(a == c);
+
+    EXPECT_TRUE(3 == a);
+    EXPECT_FALSE(4 == a);
+}
+
+TEST(ModIntTests, EqualityComparisonsCrypto)
+{
+    CMI7 a(3), b(10), c(4);
     EXPECT_TRUE(a == b); // both represent 3
     EXPECT_FALSE(a == c);
 
@@ -57,12 +111,28 @@ TEST(ModIntTests, Addition)
     EXPECT_EQ(static_cast<int>(a), 4);
 }
 
+TEST(ModIntTests, AdditionCrypto)
+{
+    CMI7 a(5), b(6);
+    EXPECT_EQ(static_cast<CInt>(a + b), (CInt(5) + CInt(6)) % CInt(7));  // 11 % 7 = 4
+    a += b;
+    EXPECT_EQ(static_cast<CInt>(a), CInt(4));
+}
+
 TEST(ModIntTests, Subtraction)
 {
     MI7 a(1), b(3);
     EXPECT_EQ(static_cast<int>(a - b), (1 - 3 + 7) % 7); // 5
     a -= b;
     EXPECT_EQ(static_cast<int>(a), 5);
+}
+
+TEST(ModIntTests, SubtractionCrypto)
+{
+    CMI7 a(1), b(3);
+    EXPECT_EQ(static_cast<CInt>(a - b), (CInt(1) - CInt(3) + CInt(7)) % CInt(7)); // 5
+    a -= b;
+    EXPECT_EQ(static_cast<CInt>(a), CInt(5));
 }
 
 TEST(ModIntTests, Multiplication)
@@ -73,10 +143,24 @@ TEST(ModIntTests, Multiplication)
     EXPECT_EQ(static_cast<int>(a), 5);
 }
 
+TEST(ModIntTests, MultiplicationCrypto)
+{
+    CMI7 a(3), b(4);
+    EXPECT_EQ(static_cast<CInt>(a * b), (CInt(3) * CInt(4)) % CInt(7)); // 12 % 7 = 5
+    a *= b;
+    EXPECT_EQ(static_cast<CInt>(a), CInt(5));
+}
+
 TEST(ModIntTests, DivisionPrimeModulus)
 {
     MI7 a(3), b(5); // inverse of 5 mod 7 is 3
     EXPECT_EQ(static_cast<int>(a / b), (3 * 3) % 7);
+}
+
+TEST(ModIntTests, DivisionPrimeModulusCrypto)
+{
+    CMI7 a(3), b(5); // inverse of 5 mod 7 is 3
+    EXPECT_EQ(static_cast<CInt>(a / b), (CInt(3) * CInt(3)) % CInt(7));
 }
 
 TEST(ModIntTests, DivisionInvertibleComposite)
@@ -89,10 +173,27 @@ TEST(ModIntTests, DivisionInvertibleComposite)
     EXPECT_EQ(static_cast<int>(c), 3);
 }
 
+TEST(ModIntTests, DivisionInvertibleCompositeCrypto)
+{
+    // modulus = 6; gcd(5,6) == 1 so 5 is invertible mod 6
+    CMI6 a(3), b(5);
+    // 5^{-1} mod 6 = 5 (because 5*5=25=1 mod 6), so (3/5) = 3*5 = 15 mod 6 = 3
+    CMI6 c;
+    EXPECT_NO_THROW(c = a / b);
+    EXPECT_EQ(static_cast<CInt>(c), CInt(3));
+}
+
 TEST(ModIntTests, DivisionThrowsNotInvertible)
 {
     // modulus = 6; gcd(2,6) == 2 so 2 has no inverse mod 6
     MI6 a(3), b(2);
+    EXPECT_THROW(a / b, ModException);
+}
+
+TEST(ModIntTests, DivisionThrowsNotInvertibleCrypto)
+{
+    // modulus = 6; gcd(2,6) == 2 so 2 has no inverse mod 6
+    CMI6 a(3), b(2);
     EXPECT_THROW(a / b, ModException);
 }
 
@@ -102,11 +203,24 @@ TEST(ModIntTests, Inverse)
     EXPECT_EQ(static_cast<int>(x.inverse()), 5);
 }
 
+TEST(ModIntTests, InverseCrypto)
+{
+    CMI7 x(3);
+    EXPECT_EQ(static_cast<CInt>(x.inverse()), CInt(5));
+}
+
 TEST(ModIntTests, Power)
 {
     MI7 x(3);
     EXPECT_EQ(static_cast<int>(x.pow(3)), mod_pow(3, 3, 7));
     EXPECT_EQ(static_cast<int>(pow(x, 3)), mod_pow(3, 3, 7));
+}
+
+TEST(ModIntTests, PowerCrypto)
+{
+    CMI7 x(3);
+    EXPECT_EQ(static_cast<CInt>(x.pow(3)), mod_pow(CInt(3), CInt(3), CInt(7)));
+    EXPECT_EQ(static_cast<CInt>(pow(x, 3)), mod_pow(CInt(3), CInt(3), CInt(7)));
 }
 
 TEST(ModIntTests, IntPlusModInt)
@@ -115,10 +229,22 @@ TEST(ModIntTests, IntPlusModInt)
     EXPECT_EQ(static_cast<int>(2 + x), (2 + 5) % 7);
 }
 
+TEST(ModIntTests, IntPlusModIntCrypto)
+{
+    CMI7 x(5);
+    EXPECT_EQ(static_cast<CInt>(CInt(2) + x), (CInt(2) + CInt(5)) % CInt(7));
+}
+
 TEST(ModIntTests, IntMinusModInt)
 {
     MI7 x(5);
     EXPECT_EQ(static_cast<int>(2 - x), (2 - 5 + 7) % 7);
+}
+
+TEST(ModIntTests, IntMinusModIntCrypto)
+{
+    CMI7 x(5);
+    EXPECT_EQ(static_cast<CInt>(CInt(2) - x), (CInt(2) - CInt(5) + CInt(7)) % CInt(7));
 }
 
 TEST(ModIntTests, IntTimesModInt)
@@ -127,8 +253,20 @@ TEST(ModIntTests, IntTimesModInt)
     EXPECT_EQ(static_cast<int>(3 * x), (3 * 4) % 7);
 }
 
+TEST(ModIntTests, IntTimesModIntCrypto)
+{
+    CMI7 x(4);
+    EXPECT_EQ(static_cast<CInt>(CInt(3) * x), (CInt(3) * CInt(4)) % CInt(7));
+}
+
 TEST(ModIntTests, IntDivModIntPrime)
 {
     MI7 x(3); // inverse is 5
     EXPECT_EQ(static_cast<int>(2 / x), (2 * 5) % 7);
+}
+
+TEST(ModIntTests, IntDivModIntPrimeCrypto)
+{
+    CMI7 x(3); // inverse is 5
+    EXPECT_EQ(static_cast<CInt>(CInt(2) / x), (CInt(2) * CInt(5)) % CInt(7));
 }

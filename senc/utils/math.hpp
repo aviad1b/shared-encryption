@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <concepts>
+#include "concepts.hpp"
 #include <cmath>
 
 namespace senc::utils
@@ -18,17 +18,6 @@ namespace senc::utils
 	 * @brief Type used as exponent in `pow` function.
 	 */
 	using Exponent = int;
-
-	/**
-	 * @concept senc::utils::SelfMultiplicable
-	 * @brief Looks for a typename that can be multiplied by itself.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept SelfMultiplicable = requires(Self self)
-	{
-		{ self *= std::declval<Self>() } -> std::same_as<Self&>;
-	};
 
 	/**
 	 * @concept senc::utils::HasPowMethod
