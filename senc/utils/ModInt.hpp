@@ -126,12 +126,14 @@ namespace senc::utils
 	 * @brief A `ModTraitsType` for integral-based ModInt.
 	 * @tparam Int Underlying integral type for ModInt.
 	 * @tparam mod Modulus value.
+	 * @tparam isKnownPrime Whether or not `mod` is a known prime.
 	 */
-	template <std::integral Int, Int mod>
+	template <std::integral Int, Int mod, bool isKnownPrime = false>
 	struct IntegralModTraits
 	{
 		using Underlying = Int;
 		static constexpr Int modulus() { return mod; }
+		static constexpr bool is_known_prime() { return isKnownPrime; }
 	};
 
 	/**
