@@ -105,6 +105,21 @@ namespace senc::utils::enc
 	};
 
 	/**
+	 * @concept senc::utils::enc::Symmetric2L
+	 * @brief Looks for a typename which implements a symmetric two-layer encryption schema.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept Symmetric2L = Symmetric<Self> && requires(
+		const Self self, const Key<Self> key1, const Key<Self> key2,
+		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext
+	)
+	{
+		{ self.encrypt(plaintext, key1, key2) } -> std::same_as<Ciphertext<Self>>;
+		{ self.decrypt(ciphertext, key1, key2) } -> std::same_as<Plaintext<Self>>;
+	};
+
+	/**
 	 * @concept senc::utils::enc::Asymmetric2L
 	 * @brief Looks for a typename which implements an asymmetric two-layer encryption schema.
 	 * @tparam Self Examined typename.
