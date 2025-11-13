@@ -388,7 +388,7 @@ namespace senc::utils
 
 	template <ModTraitsType ModTraits>
 	template <typename Exp>
-	inline ModInt<ModTraits>::Self ModInt<ModTraits>::pow(const Exp& exp) SENC_REQ_NOEXCEPT_COND(
+	inline ModInt<ModTraits>::Self ModInt<ModTraits>::pow(const Exp& exp) const SENC_REQ_NOEXCEPT_COND(
 		(CopyableNoExcept<Int> && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> &&
 			IntConstructibleNoExcept<Int>),
 		(LowerComparable, Exp),

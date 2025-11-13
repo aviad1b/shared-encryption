@@ -461,7 +461,7 @@ namespace senc::utils
 		 * @return Raised modular inetger.
 		 */
 		template <typename Exp>
-		Self pow(const Exp& exp) SENC_REQ_NOEXCEPT_COND(
+		Self pow(const Exp& exp) const SENC_REQ_NOEXCEPT_COND(
 			(CopyableNoExcept<Int> && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> &&
 				IntConstructibleNoExcept<Int>),
 			(LowerComparable, Exp),
