@@ -86,7 +86,7 @@ namespace senc::utils
 				if (e % 2 == 1)
 					res *= base;
 				base *= base;
-				exp /= 2;
+				e /= 2;
 			}
 			return res;
 		}
