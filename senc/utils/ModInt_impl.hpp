@@ -102,7 +102,7 @@ namespace senc::utils
 	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::ModInt() noexcept(ZeroConstructibleNoExcept<Int>)
 	requires (ZeroConstructible<Int> && (!DefaultConstructible<Int> || std::is_fundamental_v<Int>))
-	: _value(0) { }
+		: _value(0) { }
 
 	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::ModInt(Int value)
