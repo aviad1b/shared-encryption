@@ -243,7 +243,7 @@ namespace senc::utils
 		if (this->_value == 0)
 		{
 			// if zero, set to max then return zero
-			this->_value = mod;
+			this->_value = modulus();
 			this->_value--;
 			return 0;
 		}
