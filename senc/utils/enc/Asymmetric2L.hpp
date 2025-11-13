@@ -8,9 +8,8 @@
 
 #pragma once
 
+#include <concepts>
 #include <tuple>
-#include "../concepts.hpp"
-#include "../Group.hpp"
 
 namespace senc::utils::enc
 {
