@@ -60,6 +60,19 @@ namespace senc::utils
 		{ std::declval<Self>()(std::declval<Args>()...) } -> RetConvertible<Ret>;
 	};
 
+	/**
+	 * @concept senc::utils::Callable
+	 * @brief Checks for a typename which is const-callable with given arg types for given return type.
+	 * @tparam Self Examined typename.
+	 * @tparam Ret Expected return type.
+	 * @tparam Args Expected argument types.
+	 */
+	template <typename Self, typename Ret, typename... Args>
+	concept ConstCallable = requires(const Self self)
+	{
+		{ self(std::declval<Args>()...) } -> RetConvertible<Ret>;
+	};
+
 	template <typename Self>
 	concept Copyable = requires(Self a, const Self b)
 	{
