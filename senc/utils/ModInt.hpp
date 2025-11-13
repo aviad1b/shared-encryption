@@ -107,26 +107,26 @@ namespace senc::utils
 	/**
 	 * @concept senc::utils::ModTraitsType
 	 * @brief Looks for a typename which defines traits for ModInt.
-	 *		  Requires traits: Underlying type (`Underlying`), Modulus (`MODULUS`).
-	 * @note A concept cannot really check for that, but `MODULUS` should be constant.
+	 *		  Requires traits: Underlying type (`Underlying`), Modulus (`modulus()`).
+	 * @note A concept cannot really check for that, but `modulus()` should be constant.
 	 */
 	template <typename Self>
 	concept ModTraitsType = ModIntUnderlyingType<typename Self::Underlying> && requires
 	{
-		{ Self::MODULUS } noexcept -> std::same_as<typename Self::Underlying>;
+		{ Self::modulus() } noexcept -> ConvertibleToNoExcept<const typename Self::Underlying&>;
 	};
 
 	/**
 	 * @struct senc::utils::IntegralModTraits
 	 * @brief A `ModTraitsType` for integral-based ModInt.
 	 * @tparam Int Underlying integral type for ModInt.
-	 * @tparam modulus Modulus value.
+	 * @tparam mod Modulus value.
 	 */
-	template <std::integral Int, Int modulus>
+	template <std::integral Int, Int mod>
 	struct IntegralModTraits
 	{
 		using Underlying = Int;
-		static constexpr Int MODULUS = modulus;
+		static constexpr Int modulus() { return mod; }
 	};
 
 	/**
