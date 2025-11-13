@@ -118,7 +118,7 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a modular integer with a given value.
 		 */
-		ModInt(Int value) noexcept(ModulableNoExcept<Int>);
+		ModInt(Int value) noexcept(ModulableNoExcept<Int> && CopyableNoExcept<Int>);
 
 		/**
 		 * @brief Samples a random modular integer.
@@ -126,7 +126,7 @@ namespace senc::utils
 		 */
 		static Self sample()
 			noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<Int>, Int> &&
-				ModulableNoExcept<Int>)
+				ModulableNoExcept<Int> && CopyableNoExcept<Int>)
 		requires DistVal<Int>;
 
 		/**
@@ -177,7 +177,7 @@ namespace senc::utils
 		 * @return Negative of `*this` under modulus.
 		 */
 		Self operator-() const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			ModulableNoExcept<Int> && CopyableNoExcept<Int>,
 			(Subtractable, Int)
 		);
 
@@ -187,7 +187,7 @@ namespace senc::utils
 		 * @throw ModException If failed to find inverse (only if `isPrime` is not `true`).
 		 */
 		Self inverse() const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && SelfModulableNoExcept<Int>),
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -207,7 +207,7 @@ namespace senc::utils
 		 * @return `*this` before being increased.
 		 */
 		Self operator++(int) SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(RightIncrementable, Int)
 		);
 
@@ -217,7 +217,7 @@ namespace senc::utils
 		 * @return Addition result.
 		 */
 		Self operator+(Int value) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Addable, Int)
 		);
 
@@ -237,7 +237,7 @@ namespace senc::utils
 		 * @return Addition result.
 		 */
 		Self operator+(Self other) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Addable, Int)
 		);
 
@@ -277,7 +277,7 @@ namespace senc::utils
 		 * @return Subtraction result.
 		 */
 		Self operator-(Int value) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Addable, Int),
 			(Subtractable, Int)
 		);
@@ -299,7 +299,7 @@ namespace senc::utils
 		 * @return Subtraction result.
 		 */
 		Self operator-(Self other) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Addable, Int),
 			(Subtractable, Int)
 		);
@@ -321,7 +321,7 @@ namespace senc::utils
 		 * @return Multiplication result.
 		 */
 		Self operator*(Int value) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int)
 		);
 
@@ -341,7 +341,7 @@ namespace senc::utils
 		 * @return Multiplication result.
 		 */
 		Self operator*(Self other) const SENC_REQ_NOEXCEPT_COND(
-			ModulableNoExcept<Int>,
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int)
 		);
 
@@ -362,9 +362,8 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/(Int value) const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
-			(SelfModulable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -377,9 +376,8 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self& operator/=(Int value) SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
-			(SelfModulable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -392,9 +390,8 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/(Self other) const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
-			(SelfModulable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -407,9 +404,8 @@ namespace senc::utils
 		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 		 */
 		Self operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
+			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
-			(SelfModulable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -422,9 +418,7 @@ namespace senc::utils
 		 */
 		template <typename Exp>
 		Self pow(const Exp& exp) SENC_REQ_NOEXCEPT_COND(
-			(CopyableNoExcept<Int> && SelfModulableNoExcept<Int>),
-			(Copyable, Exp),
-			(IntConstructible, Int),
+			(CopyableNoExcept<Int> && SelfModulableNoExcept<Int> && IntConstructibleNoExcept<Int>),
 			(LowerComparable, Exp),
 			(Andable, Exp),
 			(SelfRightShiftable, Exp)
@@ -456,7 +450,8 @@ namespace senc::utils
 	 */
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
-	inline ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT(
+	inline ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
+		(ModulableNoExcept<Int>&& CopyableNoExcept<Int>),
 		(Addable, Int)
 	);
 
@@ -469,8 +464,9 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		ModulableNoExcept<Int>,
-		(Negatable, Int)
+		(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+		(Addable, Int),
+		(Subtractable, Int)
 	);
 
 	/**
@@ -482,7 +478,7 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		ModulableNoExcept<Int>,
+		(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int)
 	);
 
@@ -496,9 +492,8 @@ namespace senc::utils
 	template <typename Int, Int modulus, bool isPrime>
 	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
 	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int>),
+		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int),
-		(SelfModulable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
 		(SelfRightShiftable, Int)
