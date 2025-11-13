@@ -50,7 +50,6 @@ namespace senc::utils
 		return mod_pow(value, modulus - 2, modulus);
 	}
 
-	// TODO: requierments no longer suffice. fix
 	template <typename T>
 	T modular_inverse(const T& value, const T& modulus) SENC_REQ(
 		(Copyable, T),
