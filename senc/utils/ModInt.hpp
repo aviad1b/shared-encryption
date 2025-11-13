@@ -119,7 +119,7 @@ namespace senc::utils
 	{
 		{ Self::modulus() } noexcept -> ConvertibleToNoExcept<const typename Self::Underlying&>;
 		{ Self::is_known_prime() } noexcept -> BoolConvertibleNoExcept;
-		{ std::bool_constant<(Self::is_known_prime(), true)>() }; // must be constexpr-evaluable
+		{ std::bool_constant<Self::is_known_prime()>() }; // must be constexpr-evaluable
 	};
 
 	/**
