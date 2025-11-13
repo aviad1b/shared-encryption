@@ -21,6 +21,7 @@
 	"ECGroup.hpp"
 	"ECGroup.cpp"
 	"enc/Asymmetric2L.hpp"
+	"enc/Symmetric1L.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
