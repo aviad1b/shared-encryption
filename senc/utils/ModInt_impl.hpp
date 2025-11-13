@@ -106,12 +106,12 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
-	inline ModInt<ModTraits>::ModInt() noexcept(DefaultConstructibleNoExcept<Int>)
-	requires (DefaultConstructible<Int> && !std::is_fundamental_v<Int>) { }
+	inline ModInt<ModTraits>::ModInt() noexcept(DefaultConstructibleClassNoExcept<Int>)
+	requires (DefaultConstructibleClass<Int>) { }
 
 	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::ModInt() noexcept(ZeroConstructibleNoExcept<Int>)
-	requires (ZeroConstructible<Int> && (!DefaultConstructible<Int> || std::is_fundamental_v<Int>))
+	requires (ZeroConstructible<Int> && !DefaultConstructibleClass<Int>)
 		: _value(0) { }
 
 	template <ModTraitsType ModTraits>

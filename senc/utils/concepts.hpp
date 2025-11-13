@@ -79,10 +79,12 @@ namespace senc::utils
 	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
 
 	template <typename Self>
-	concept DefaultConstructible = std::is_default_constructible_v<Self>;
+	concept DefaultConstructibleClass = std::is_default_constructible_v<Self> &&
+		!std::is_fundamental_v<Self>;
 
 	template <typename Self>
-	concept DefaultConstructibleNoExcept = std::is_nothrow_default_constructible_v<Self>;
+	concept DefaultConstructibleClassNoExcept = std::is_nothrow_default_constructible_v<Self> &&
+		!std::is_fundamental_v<Self>;
 
 	template <typename Self>
 	concept ZeroConstructible = requires { { Self(0) }; };

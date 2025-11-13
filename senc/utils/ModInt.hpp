@@ -153,14 +153,14 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a modular integer with zero value.
 		 */
-		ModInt() noexcept(DefaultConstructibleNoExcept<Int>)
-		requires (DefaultConstructible<Int> && !std::is_fundamental_v<Int>);
+		ModInt() noexcept(DefaultConstructibleClassNoExcept<Int>)
+		requires (DefaultConstructibleClass<Int>);
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
 		 */
 		ModInt() noexcept(ZeroConstructibleNoExcept<Int>)
-		requires (ZeroConstructible<Int> && (!DefaultConstructible<Int> || std::is_fundamental_v<Int>));
+		requires (ZeroConstructible<Int> && !DefaultConstructibleClass<Int>);
 
 		/**
 		 * @brief Constructs a modular integer with a given value.
