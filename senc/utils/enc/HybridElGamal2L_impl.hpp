@@ -8,7 +8,11 @@
 
 #include "HybridElGamal2L.hpp"
 
+#include <utility>
+
 namespace senc::utils::enc
 {
-
+	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(S&& symmetricSchema, KDF&& kdf)
+		: _symmetricSchema(std::forward<S>(symmetricSchema)), _kdf(std::forward<KDF>(kdf)) { }
 }
