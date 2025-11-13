@@ -96,10 +96,6 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
-	const Distribution<ModInt<ModTraits>::Int>
-		ModInt<ModTraits>::DIST = Random<Int>::get_dist_below(modulus());
-
-	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::ModInt()
 		noexcept(IntConstructibleNoExcept<Int>) : Self(0) { }
 

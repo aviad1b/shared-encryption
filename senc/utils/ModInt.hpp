@@ -465,7 +465,7 @@ namespace senc::utils
 		);
 
 	private:
-		static const Distribution<Int> DIST;
+		static inline const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus());
 
 		Int _value;
 	};
