@@ -54,9 +54,9 @@ namespace senc::utils
 		(Copyable, T),
 		(Copyable, E),
 		(IntConstructible, T),
+		(Modulable, T),
 		(SelfModulable, T),
 		(LowerComparable, E),
-		(Andable, E),
 		(SelfDevisible, E)
 	);
 
@@ -70,9 +70,9 @@ namespace senc::utils
 	T prime_modular_inverse(T value, const T& modulus) SENC_REQ_NOEXCEPT(
 		(Copyable, T),
 		(IntConstructible, T),
+		(Modulable, T),
 		(SelfModulable, T),
 		(LowerComparable, T),
-		(Andable, T),
 		(SelfDevisible, T),
 		(ClassDefaultOrZeroConstructible, T)
 	);
@@ -237,7 +237,6 @@ namespace senc::utils
 		Self inverse() const SENC_REQ_NOEXCEPT_COND(
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(LowerComparable, Int),
-			(Andable, Int),
 			(SelfDevisible, Int),
 			(ClassDefaultOrZeroConstructible, Int)
 		);
@@ -414,7 +413,6 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
-			(Andable, Int),
 			(SelfDevisible, Int)
 		);
 
@@ -428,7 +426,6 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
-			(Andable, Int),
 			(SelfDevisible, Int)
 		);
 
@@ -442,7 +439,6 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
-			(Andable, Int),
 			(SelfDevisible, Int)
 		);
 
@@ -456,7 +452,6 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
-			(Andable, Int),
 			(SelfDevisible, Int)
 		);
 
@@ -467,9 +462,9 @@ namespace senc::utils
 		 */
 		template <typename Exp>
 		Self pow(const Exp& exp) SENC_REQ_NOEXCEPT_COND(
-			(CopyableNoExcept<Int> && SelfModulableNoExcept<Int> && IntConstructibleNoExcept<Int>),
+			(CopyableNoExcept<Int> && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> &&
+				IntConstructibleNoExcept<Int>),
 			(LowerComparable, Exp),
-			(Andable, Exp),
 			(SelfDevisible, Exp)
 		);
 
@@ -545,7 +540,6 @@ namespace senc::utils
 			CopyableNoExcept<typename ModInt<ModTraits>::Int>),
 		(Multiplicable, typename ModInt<ModTraits>::Int),
 		(LowerComparable, typename ModInt<ModTraits>::Int),
-		(Andable, typename ModInt<ModTraits>::Int),
 		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	);
 
