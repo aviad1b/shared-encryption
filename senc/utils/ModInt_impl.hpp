@@ -442,7 +442,7 @@ namespace senc::utils
 		(SelfRightShiftable, typename ModInt<ModTraits>::Int)
 	)
 	{
-		return ModInt<ModTraits>(a % mod) / b;
+		return ModInt<ModTraits>(a) / b;
 	}
 
 	template <ModTraitsType ModTraits>
