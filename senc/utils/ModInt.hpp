@@ -111,8 +111,7 @@ namespace senc::utils
 	 * @tparam modulus Modulus for integer computations.
 	 * @tparam isPrime `true` if `modulus` is known to be prime (for more efficient computations).
 	 */
-	template <typename Int, Int modulus, bool isPrime = false>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime = false>
 	class ModInt
 	{
 	public:
@@ -445,8 +444,7 @@ namespace senc::utils
 	 * @param modint Modular integer to check if has value `value`.
 	 * @return `true` if `modint` has value `value`, othewise `false`.
 	 */
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	bool operator==(Int value, ModInt<Int, modulus, isPrime> modint) SENC_REQ_NOEXCEPT(
 		(EqualityComparable, Int)
 	);
@@ -457,8 +455,7 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Addition result.
 	 */
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime> operator+(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
 		(ModulableNoExcept<Int>&& CopyableNoExcept<Int>),
 		(Addable, Int)
@@ -470,8 +467,7 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Subtraction result.
 	 */
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	inline ModInt<Int, modulus, isPrime> operator-(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
 		(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Addable, Int),
@@ -484,8 +480,7 @@ namespace senc::utils
 	 * @param b Modular integer.
 	 * @return Multiplication result.
 	 */
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	ModInt<Int, modulus, isPrime> operator*(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
 		(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int)
@@ -498,8 +493,7 @@ namespace senc::utils
 	 * @return Division result.
 	 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
 	 */
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	ModInt<Int, modulus, isPrime> operator/(Int a, ModInt<Int, modulus, isPrime> b) SENC_REQ_NOEXCEPT_COND(
 		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int),
@@ -508,8 +502,7 @@ namespace senc::utils
 		(SelfRightShiftable, Int)
 	);
 
-	template <typename Int, Int modulus, bool isPrime>
-	requires (Copyable<Int> && Modulable<Int> && SelfModulable<Int> && IntConstructible<Int>)
+	template <ModIntUnderlyingType Int, Int modulus, bool isPrime>
 	std::ostream& operator<<(std::ostream& os, ModInt<Int, modulus, isPrime> modint)
 	requires Outputable<Int>;
 }
