@@ -26,6 +26,17 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::SeuqreAndMultiplyCompatible
+	 * @brief Looks for a typename that can be used in the square-and-multiplt algorithm.
+	 * @tparam Self Examined typename.
+	 * @tparam Exponent Exponent type.
+	 */
+	template <typename Self, typename Exponent>
+	concept SquareAndMultiplyCompatible = IntConstructible<Self> &&
+		Copyable<Self> && Modulable<Self> && SelfMultiplicable<Self> && 
+		LowerComparable<Exponent> && SelfDevisible<Exponent>;
+
+	/**
 	 * @concept senc::utils::PowerRaisable
 	 * @brief Looks for a typename of which instances can be raised to a power.
 	 * @tparam Self Examined typename.
