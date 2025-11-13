@@ -11,14 +11,15 @@
 #include "../utils/ModInt.hpp"
 #include "../utils/math.hpp"
 
+using senc::utils::IntegralModTraits;
 using senc::utils::ModException;
 using senc::utils::ModInt;
 
 using senc::utils::mod_pow;
 using senc::utils::pow;
 
-using MI7 = ModInt<int, 7, true>; // prime modulus 7
-using MI6 = ModInt<int, 6, false>; // composite modulus 6
+using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
+using MI6 = ModInt<IntegralModTraits<int, 6, false>>; // composite modulus 6
 
 TEST(ModIntTests, BasicCorrectness)
 {
