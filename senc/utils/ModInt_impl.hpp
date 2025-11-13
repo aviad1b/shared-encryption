@@ -449,6 +449,6 @@ namespace senc::utils
 	inline std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
 	requires Outputable<typename ModInt<ModTraits>::Int>
 	{
-		return os << (Int)modint;
+		return os << (typename ModInt<ModTraits>::Int)modint;
 	}
 }
