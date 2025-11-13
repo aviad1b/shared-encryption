@@ -132,9 +132,11 @@ namespace senc::utils
 	struct IntegralModTraits
 	{
 		using Underlying = Int;
-		static constexpr Int modulus() { return mod; }
-		static constexpr bool is_known_prime() { return isKnownPrime; }
+		static constexpr Int modulus() noexcept { return mod; }
+		static constexpr bool is_known_prime() noexcept { return isKnownPrime; }
 	};
+
+	static_assert(ModTraitsType<IntegralModTraits<int, 7, true>>);
 
 	/**
 	 * @class senc::utils::ModInt
