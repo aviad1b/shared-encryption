@@ -238,7 +238,8 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfDevisible, Int)
+			(SelfDevisible, Int),
+			(ClassDefaultOrZeroConstructible, Int)
 		);
 
 		/**
