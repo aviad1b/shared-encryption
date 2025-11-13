@@ -96,7 +96,7 @@ namespace senc::utils
 	}
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
-	const Distribution<Int> ModInt<Int, mod, isPrime>::DIST = Random<Int>::get_dist_below(mod);
+	const Distribution<Int> ModInt<Int, mod, isPrime>::DIST = Random<Int>::get_dist_below(modulus());
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	inline ModInt<Int, mod, isPrime>::ModInt()
@@ -105,7 +105,7 @@ namespace senc::utils
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	inline ModInt<Int, mod, isPrime>::ModInt(Int value)
 		noexcept(ModulableNoExcept<Int> && CopyableNoExcept<Int>)
-		: _value(value % mod) { }
+		: _value(value % modulus()) { }
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	inline ModInt<Int, mod, isPrime>::Self ModInt<Int, mod, isPrime>::sample()
@@ -150,7 +150,7 @@ namespace senc::utils
 		(Subtractable, Int)
 	)
 	{
-		return Self(mod - this->_value);
+		return Self(modulus() - this->_value);
 	}
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
@@ -162,9 +162,9 @@ namespace senc::utils
 	)
 	{
 		if constexpr (IS_PRIME_MOD)
-			return prime_modular_inverse(this->_value, mod);
+			return prime_modular_inverse(this->_value, modulus());
 		else
-			return modular_inverse(this->_value, mod);
+			return modular_inverse(this->_value, modulus());
 	}
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
@@ -174,7 +174,7 @@ namespace senc::utils
 	)
 	{
 		++this->_value;
-		this->_value %= mod;
+		this->_value %= modulus();
 		return *this;
 	}
 
@@ -203,7 +203,7 @@ namespace senc::utils
 	)
 	{
 		this->_value += value;
-		this->_value %= mod;
+		this->_value %= modulus();
 		return *this;
 	}
 
@@ -233,7 +233,7 @@ namespace senc::utils
 	)
 	{
 		if (this->_value == 0)
-			this->_value = mod;
+			this->_value = modulus();
 		--this->_value;
 		return *this;
 	}
