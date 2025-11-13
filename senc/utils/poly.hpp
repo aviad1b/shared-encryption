@@ -28,7 +28,7 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept PolyInput = PowerRaisable<Self>;
+	concept PolyInput = PowerRaisable<Self, PolyDegree>;
 
 	/**
 	 * @concept senc::utils::PolyOutput

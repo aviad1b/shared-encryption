@@ -98,7 +98,7 @@ namespace senc::utils
 	{
 		C res = this->_coeffs[0];
 		for (size_t i = 1; i < this->_coeffs.size(); ++i)
-			res += this->_coeffs[i] * ::senc::utils::pow(x, static_cast<Exponent>(i));
+			res += this->_coeffs[i] * ::senc::utils::pow(x, static_cast<PolyDegree>(i));
 		return res;
 	}
 

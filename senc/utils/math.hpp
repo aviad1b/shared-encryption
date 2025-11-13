@@ -14,31 +14,41 @@
 namespace senc::utils
 {
 	/**
-	 * @typedef senc::utils::Exponent
-	 * @brief Type used as exponent in `pow` function.
-	 */
-	using Exponent = int;
-
-	/**
 	 * @concept senc::utils::HasPowMethod
 	 * @brief Looks for a typename with a power-computing method.
 	 * @tparam Self Examined typename.
+	 * @tparam Exponent Exponent type.
 	 */
-	template <typename Self>
+	template <typename Self, typename Exponent>
 	concept HasPowMethod = requires(const Self self)
 	{
 		{ self.pow(std::declval<Exponent>()) } -> std::same_as<Self>;
 	};
 
 	/**
+	 * @concept senc::utils::SeuqreAndMultiplyCompatible
+	 * @brief Looks for a typename that can be used in the square-and-multiplt algorithm.
+	 * @tparam Self Examined typename.
+	 * @tparam Exponent Exponent type.
+	 */
+	template <typename Self, typename Exponent>
+	concept SquareAndMultiplyCompatible = IntConstructible<Self> &&
+		Copyable<Self> && SelfMultiplicable<Self> && 
+		LowerComparable<Exponent> && SelfDevisible<Exponent> &&
+		Modulable<Exponent> && EqualityComparable<Exponent>;
+
+	/**
 	 * @concept senc::utils::PowerRaisable
 	 * @brief Looks for a typename of which instances can be raised to a power.
 	 * @tparam Self Examined typename.
+	 * @tparam Exponent Exponent type.
 	 */
-	template <typename Self>
-	concept PowerRaisable = std::is_fundamental_v<Self> ||
-		HasPowMethod<Self> || 
-		(SelfMultiplicable<Self> && std::copy_constructible<Self>);
+	template <typename Self, typename Exponent>
+	concept PowerRaisable = (std::is_fundamental_v<Self> && std::is_fundamental_v<Exponent>) ||
+		HasPowMethod<Self, Exponent> || 
+		SquareAndMultiplyCompatible<Self, Exponent> ||
+		(SelfMultiplicable<Self> && std::copy_constructible<Self> &&
+			IntConstructible<Exponent> && LowerComparable<Exponent> && LeftIncrementable<Exponent>);
 
 	/**
 	 * @brief Raises given value to a given power.
@@ -50,19 +60,35 @@ namespace senc::utils
 	 * Otherwise, if `T` satisfies `HasPowMethod`, returns result of `val.pow(exp)`.
 	 * Otherwise, computes multiplication in a loop.
 	 */
-	template <PowerRaisable T>
-	inline T pow(const T& val, Exponent exp)
+	template <typename T, typename Exponent>
+	requires PowerRaisable<T, Exponent>
+	inline T pow(const T& val, const Exponent& exp)
 	{
-		if constexpr (std::is_fundamental_v<T>)
+		if constexpr (std::is_fundamental_v<T> && std::is_fundamental_v<Exponent>)
 		{
 			return static_cast<T>(std::pow(
 				static_cast<double>(val),
 				static_cast<double>(exp)
 			));
 		}
-		else if constexpr (HasPowMethod<T>)
+		else if constexpr (HasPowMethod<T, Exponent>)
 		{
 			return val.pow(exp);
+		}
+		else if constexpr (SquareAndMultiplyCompatible<T, Exponent>)
+		{
+			Exponent e = exp;
+			T base = val;
+			T res = 1;
+
+			while (0 < e)
+			{
+				if (e % 2 == 1)
+					res *= base;
+				base *= base;
+				e /= 2;
+			}
+			return res;
 		}
 		else
 		{
