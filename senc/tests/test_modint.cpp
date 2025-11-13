@@ -52,7 +52,7 @@ TEST(ModIntTests, BasicCorrectness)
 TEST(ModIntTests, BasicCorrectnessCrypto)
 {
     EXPECT_EQ(mod_pow(CInt(2), CInt(3), CInt(7)), CInt(8) % CInt(7));  // 2^3 = 8 mod 7 -> 1
-    EXPECT_EQ(mod_pow(CInt(5), CInt(), CInt(7)), CInt(1));            // x^0 = 1 always
+    EXPECT_EQ(mod_pow(CInt(5), CInt(), CInt(7)), CInt(1));             // x^0 = 1 always
     EXPECT_EQ(mod_pow(CInt(3), CInt(4), CInt(7)), CInt(81) % CInt(7)); // 81 mod 7 = 4
 }
 
