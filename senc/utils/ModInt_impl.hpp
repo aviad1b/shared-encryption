@@ -257,7 +257,7 @@ namespace senc::utils
 		(Subtractable, Int)
 	)
 	{
-		return Self((mod + this->_value - value) % mod);
+		return Self((modulus() + this->_value - value) % modulus());
 	}
 
 	template <ModTraitsType ModTraits>
@@ -267,9 +267,9 @@ namespace senc::utils
 		(SelfSubtractable, Int)
 	)
 	{
-		this->_value += mod;
+		this->_value += modulus();
 		this->_value -= value;
-		this->_value %= mod;
+		this->_value %= modulus();
 		return *this;
 	}
 
@@ -299,7 +299,7 @@ namespace senc::utils
 		(Multiplicable, Int)
 	)
 	{
-		return Self((this->_value * value) % mod);
+		return Self((this->_value * value) % modulus());
 	}
 
 	template <ModTraitsType ModTraits>
@@ -309,7 +309,7 @@ namespace senc::utils
 	)
 	{
 		this->_value *= value;
-		this->_value %= mod;
+		this->_value %= modulus();
 		return *this;
 	}
 
@@ -388,7 +388,7 @@ namespace senc::utils
 		(SelfRightShiftable, Exp)
 	)
 	{
-		return Self(mod_pow(this->_value, exp, mod));
+		return Self(mod_pow(this->_value, exp, modulus()));
 	}
 
 	template <ModTraitsType ModTraits>
