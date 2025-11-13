@@ -148,6 +148,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = ModInt<Int, mod, isPrime>;
+		static constexpr bool IS_PRIME_MOD = isPrime;
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
@@ -229,10 +230,10 @@ namespace senc::utils
 		/**
 		 * @brief Gets inverse of modular integer.
 		 * @return Modular inverse.
-		 * @throw ModException If failed to find inverse (only if `isPrime` is not `true`).
+		 * @throw ModException If failed to find inverse (only if modulus is not known to be prime).
 		 */
 		Self inverse() const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(LowerComparable, Int),
 			(Andable, Int),
 			(SelfRightShiftable, Int)
@@ -404,10 +405,10 @@ namespace senc::utils
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this with.
 		 * @return Division result.
-		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
 		Self operator/(Int value) const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
@@ -418,10 +419,10 @@ namespace senc::utils
 		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
-		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
 		Self& operator/=(Int value) SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
@@ -432,10 +433,10 @@ namespace senc::utils
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one with.
 		 * @return Division result.
-		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
 		Self operator/(Self other) const SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
@@ -446,10 +447,10 @@ namespace senc::utils
 		 * @brief Divides the modular integer by another.
 		 * @param other Other modular integer to divide this one by.
 		 * @return `*this`, after division.
-		 * @throw ModException If failed to divide (only if `isPrime` is not `true`).
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
 		Self operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
-			(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
@@ -532,7 +533,8 @@ namespace senc::utils
 	 */
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	ModInt<Int, mod, isPrime> operator/(Int a, ModInt<Int, mod, isPrime> b) SENC_REQ_NOEXCEPT_COND(
-		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+		(ModInt<Int, mod, isPrime>::IS_PRIME_MOD &&
+			ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
