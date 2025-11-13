@@ -7,7 +7,7 @@
  *********************************************************************/
 
 #include <concepts>
-#include <tuple>
+#include <utility>
 
 namespace senc::utils::enc
 {
@@ -69,7 +69,7 @@ namespace senc::utils::enc
 	{
 		typename Self::PrivKey;
 		typename Self::PubKey;
-		{ self.keygen() } -> std::same_as<std::tuple<typename Self::PubKey, typename Self::PrivKey>>;
+		{ self.keygen() } -> std::same_as<std::pair<typename Self::PubKey, typename Self::PrivKey>>;
 	};
 
 	/**
