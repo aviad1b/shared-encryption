@@ -146,7 +146,8 @@ namespace senc::utils
 	}
 
 	template <std::integral Int>
-	inline Fraction<Int>::Self Fraction<Int>::pow(Exponent exp) const
+	template <PowerRaisable<Int> Exponent>
+	inline Fraction<Int>::Self Fraction<Int>::pow(const Exponent& exp) const
 	{
 		return Self(
 			::senc::utils::pow(this->_num, exp),
