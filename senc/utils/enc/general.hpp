@@ -95,10 +95,9 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Symmetric1L = Symmetric<Self> && requires(
-		const Self self,
+		const Self self, const Key<Self> key,
 		const Plaintext<Self> plaintext,
-		const Ciphertext<Self> ciphertext,
-		const Key<Self> key
+		const Ciphertext<Self> ciphertext
 	)
 	{
 		{ self.encrypt(plaintext, key) } -> std::same_as<Ciphertext<Self>>;
@@ -113,9 +112,9 @@ namespace senc::utils::enc
 	template <typename Self>
 	concept Asymmetric2L = Asymmetric<Self> && requires(
 		const Self self,
-		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext,
 		const PubKey<Self> pubKey1, const PubKey<Self> pubKey2,
-		const PrivKey<Self> privKey1, const PrivKey<Self> privKey2
+		const PrivKey<Self> privKey1, const PrivKey<Self> privKey2,
+		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext
 	)
 	{
 		{ self.encrypt(plaintext, pubKey1, pubKey2) } -> std::same_as<Ciphertext<Self>>;
