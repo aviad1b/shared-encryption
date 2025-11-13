@@ -57,7 +57,7 @@ namespace senc::utils
 		(SelfModulable, T),
 		(LowerComparable, E),
 		(Andable, E),
-		(SelfRightShiftable, E)
+		(SelfDevisible, E)
 	);
 
 	/**
@@ -73,7 +73,7 @@ namespace senc::utils
 		(SelfModulable, T),
 		(LowerComparable, T),
 		(Andable, T),
-		(SelfRightShiftable, T)
+		(SelfDevisible, T)
 	);
 
 	/**
@@ -230,7 +230,7 @@ namespace senc::utils
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfRightShiftable, Int)
+			(SelfDevisible, Int)
 		);
 
 		/**
@@ -406,7 +406,7 @@ namespace senc::utils
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfRightShiftable, Int)
+			(SelfDevisible, Int)
 		);
 
 		/**
@@ -420,7 +420,7 @@ namespace senc::utils
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfRightShiftable, Int)
+			(SelfDevisible, Int)
 		);
 
 		/**
@@ -434,7 +434,7 @@ namespace senc::utils
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfRightShiftable, Int)
+			(SelfDevisible, Int)
 		);
 
 		/**
@@ -448,7 +448,7 @@ namespace senc::utils
 			(Multiplicable, Int),
 			(LowerComparable, Int),
 			(Andable, Int),
-			(SelfRightShiftable, Int)
+			(SelfDevisible, Int)
 		);
 
 		/**
@@ -461,7 +461,7 @@ namespace senc::utils
 			(CopyableNoExcept<Int> && SelfModulableNoExcept<Int> && IntConstructibleNoExcept<Int>),
 			(LowerComparable, Exp),
 			(Andable, Exp),
-			(SelfRightShiftable, Exp)
+			(SelfDevisible, Exp)
 		);
 
 	private:
@@ -537,7 +537,7 @@ namespace senc::utils
 		(Multiplicable, typename ModInt<ModTraits>::Int),
 		(LowerComparable, typename ModInt<ModTraits>::Int),
 		(Andable, typename ModInt<ModTraits>::Int),
-		(SelfRightShiftable, typename ModInt<ModTraits>::Int)
+		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	);
 
 	template <ModTraitsType ModTraits>

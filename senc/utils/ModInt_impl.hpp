@@ -20,7 +20,7 @@ namespace senc::utils
 		(SelfModulable, T),
 		(LowerComparable, E),
 		(Andable, E),
-		(SelfRightShiftable, E)
+		(SelfDevisible, E)
 	)
 	{
 		// fast exponent algorithm under prime modulus
@@ -28,10 +28,10 @@ namespace senc::utils
 		base %= modulus;
 		while (0 < exp)
 		{
-			if (exp & 1)
+			if ((exp & 1) != 0)
 				res = (res * base) % modulus;
 			base = (base * base) % modulus;
-			exp >>= 1;
+			exp /= 2;
 		}
 		return res;
 	}
@@ -43,7 +43,7 @@ namespace senc::utils
 		(SelfModulable, T),
 		(LowerComparable, T),
 		(Andable, T),
-		(SelfRightShiftable, T)
+		(SelfDevisible, T)
 	)
 	{
 		// using Fermat's formula for prime modulus
@@ -149,7 +149,7 @@ namespace senc::utils
 		(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(LowerComparable, Int),
 		(Andable, Int),
-		(SelfRightShiftable, Int)
+		(SelfDevisible, Int)
 	)
 	{
 		if constexpr (IS_PRIME_MOD)
@@ -333,7 +333,7 @@ namespace senc::utils
 		(Multiplicable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
-		(SelfRightShiftable, Int)
+		(SelfDevisible, Int)
 	)
 	{
 		return *this / Self(value);
@@ -345,7 +345,7 @@ namespace senc::utils
 		(Multiplicable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
-		(SelfRightShiftable, Int)
+		(SelfDevisible, Int)
 	)
 	{
 		return *this = *this / value;
@@ -357,7 +357,7 @@ namespace senc::utils
 		(Multiplicable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
-		(SelfRightShiftable, Int)
+		(SelfDevisible, Int)
 	)
 	{
 		return *this * other.inverse();
@@ -369,7 +369,7 @@ namespace senc::utils
 		(Multiplicable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
-		(SelfRightShiftable, Int)
+		(SelfDevisible, Int)
 	)
 	{
 		return *this = *this / other;
@@ -381,7 +381,7 @@ namespace senc::utils
 		(CopyableNoExcept<Int> && SelfModulableNoExcept<Int> && IntConstructibleNoExcept<Int>),
 		(LowerComparable, Exp),
 		(Andable, Exp),
-		(SelfRightShiftable, Exp)
+		(SelfDevisible, Exp)
 	)
 	{
 		return Self(mod_pow(this->_value, exp, modulus()));
@@ -435,7 +435,7 @@ namespace senc::utils
 		(Multiplicable, typename ModInt<ModTraits>::Int),
 		(LowerComparable, typename ModInt<ModTraits>::Int),
 		(Andable, typename ModInt<ModTraits>::Int),
-		(SelfRightShiftable, typename ModInt<ModTraits>::Int)
+		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	)
 	{
 		return ModInt<ModTraits>(a) / b;
