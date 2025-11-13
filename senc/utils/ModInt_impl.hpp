@@ -117,12 +117,6 @@ namespace senc::utils
 	}
 
 	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
-	inline const Int& ModInt<Int, mod, isPrime>::modulus() const
-	{
-		return mod;
-	}
-
-	template <ModIntUnderlyingType Int, Int mod, bool isPrime>
 	inline ModInt<Int, mod, isPrime>::operator const Int&() const noexcept
 	{
 		return this->_value;

@@ -149,6 +149,7 @@ namespace senc::utils
 	public:
 		using Self = ModInt<Int, mod, isPrime>;
 		static constexpr bool IS_PRIME_MOD = isPrime;
+		static auto modulus() { return mod; }
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
@@ -188,12 +189,6 @@ namespace senc::utils
 		 * @brief Move assignment operator of modular integer.
 		 */
 		Self& operator=(Self&&) noexcept(std::is_nothrow_move_assignable_v<Int>) = default;
-
-		/**
-		 * @brief Gets modulus.
-		 * @return Modulus.
-		 */
-		const Int& modulus() const;
 
 		/**
 		 * @brief Casting of modular integer into its underlying fundamental.
