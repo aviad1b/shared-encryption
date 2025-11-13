@@ -96,6 +96,15 @@ namespace senc::utils
 	);
 
 	/**
+	 * @concept senc::utils::ModIntUnderlyingType
+	 * @brief Looks for a typename that can be used as an underlying type for ModInt.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept ModIntUnderlyingType = Copyable<Self> &&
+		Modulable<Self> && SelfModulable<Self> && IntConstructible<Self>;
+
+	/**
 	 * @class senc::utils::ModInt
 	 * @brief Modular integer type.
 	 * @tparam Int Integer type to base modular integer on.
