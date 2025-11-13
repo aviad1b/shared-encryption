@@ -50,6 +50,7 @@ namespace senc::utils
 		return mod_pow(value, modulus - 2, modulus);
 	}
 
+	// TODO: requierments no longer suffice. fix
 	template <typename T>
 	T modular_inverse(const T& value, const T& modulus) SENC_REQ(
 		(Copyable, T),
@@ -65,7 +66,16 @@ namespace senc::utils
 		// using the extended euclidean algorithm
 
 		T a = value, b = modulus;
-		T x0 = 1, x1 = 0;
+		T x0 = 1;
+
+		// setting x1 to zero: since CryptoPP::Integer sometimes isn't zero-constructible,
+		// we use default constructor in the case where it's available
+		T x1 = []() -> T {
+			if constexpr (DefaultConstructible<T> && !std::is_fundamental_v<T>)
+				return T();
+			else
+				return 0;
+		}();
 
 		while (b != 0)
 		{
