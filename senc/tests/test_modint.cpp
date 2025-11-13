@@ -21,20 +21,21 @@ using senc::utils::pow;
 using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
 using MI6 = ModInt<IntegralModTraits<int, 6, false>>; // composite modulus 6
 
-const CryptoPP::Integer CRYPTO_SEVEN = 7;
-const CryptoPP::Integer CRYPTO_SIX = 6;
+using CInt = CryptoPP::Integer;
+const CInt CRYPTO_SEVEN = 7;
+const CInt CRYPTO_SIX = 6;
 
 struct CMI7Traits
 {
-    using Underlying = CryptoPP::Integer;
-    static const CryptoPP::Integer& modulus() noexcept { return CRYPTO_SEVEN; }
+    using Underlying = CInt;
+    static const CInt& modulus() noexcept { return CRYPTO_SEVEN; }
     static constexpr bool is_known_prime() noexcept { return true; }
 };
 
 struct CMI6Traits
 {
-    using Underlying = CryptoPP::Integer;
-    static const CryptoPP::Integer& modulus() noexcept { return CRYPTO_SIX; }
+    using Underlying = CInt;
+    static const CInt& modulus() noexcept { return CRYPTO_SIX; }
     static constexpr bool is_known_prime() noexcept { return false; }
 };
 
@@ -46,6 +47,13 @@ TEST(ModIntTests, BasicCorrectness)
     EXPECT_EQ(mod_pow(2, 3, 7), 8 % 7);      // 2^3 = 8 mod 7 -> 1
     EXPECT_EQ(mod_pow(5, 0, 7), 1);          // x^0 = 1 always
     EXPECT_EQ(mod_pow(3, 4, 7), 81 % 7);     // 81 mod 7 = 4
+}
+
+TEST(ModIntTests, BasicCorrectnessCrypto)
+{
+    EXPECT_EQ(mod_pow(CInt(2), CInt(3), CInt(7)), CInt(8) % CInt(7));  // 2^3 = 8 mod 7 -> 1
+    EXPECT_EQ(mod_pow(CInt(5), CInt(), CInt(7)), CInt(1));            // x^0 = 1 always
+    EXPECT_EQ(mod_pow(CInt(3), CInt(4), CInt(7)), CInt(81) % CInt(7)); // 81 mod 7 = 4
 }
 
 TEST(ModIntTests, LargeExponent)
