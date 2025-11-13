@@ -105,6 +105,18 @@ namespace senc::utils
 		Modulable<Self> && SelfModulable<Self> && IntConstructible<Self>;
 
 	/**
+	 * @concept senc::utils::ModTraitsType
+	 * @brief Looks for a typename which defines traits for ModInt.
+	 *		  Requires traits: Underlying type (`Underlying`), Modulus (`MODULUS`).
+	 * @note A concept cannot really check for that, but `MODULUS` should be constant.
+	 */
+	template <typename Self>
+	concept ModTraitsType = ModIntUnderlyingType<typename Self::Underlying> && requires
+	{
+		{ Self::MODULUS } noexcept -> std::same_as<typename Self::Underlying>;
+	};
+
+	/**
 	 * @class senc::utils::ModInt
 	 * @brief Modular integer type.
 	 * @tparam Int Integer type to base modular integer on.
