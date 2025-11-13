@@ -120,6 +120,22 @@ namespace senc::utils::enc
 	};
 
 	/**
+	 * @concept senc::utils::enc::Asymmetric1L
+	 * @brief Looks for a typename which implements an asymmetric one-layer encryption schema.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept Asymmetric1L = Asymmetric<Self> && requires(
+		const Self self,
+		const PubKey<Self> pubKey, const PrivKey<Self> privKey,
+		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext
+	)
+	{
+		{ self.encrypt(plaintext, pubKey) } -> std::same_as<Ciphertext<Self>>;
+		{ self.decrypt(ciphertext, privKey) } -> std::same_as<Plaintext<Self>>;
+	};
+
+	/**
 	 * @concept senc::utils::enc::Asymmetric2L
 	 * @brief Looks for a typename which implements an asymmetric two-layer encryption schema.
 	 * @tparam Self Examined typename.
