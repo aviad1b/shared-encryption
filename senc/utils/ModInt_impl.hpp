@@ -43,7 +43,8 @@ namespace senc::utils
 		(SelfModulable, T),
 		(LowerComparable, T),
 		(Andable, T),
-		(SelfDevisible, T)
+		(SelfDevisible, T),
+		(ClassDefaultOrZeroConstructible, T)
 	)
 	{
 		// using Fermat's formula for prime modulus
