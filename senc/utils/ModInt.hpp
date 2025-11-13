@@ -117,6 +117,19 @@ namespace senc::utils
 	};
 
 	/**
+	 * @struct senc::utils::IntegralModTraits
+	 * @brief A `ModTraitsType` for integral-based ModInt.
+	 * @tparam Int Underlying integral type for ModInt.
+	 * @tparam modulus Modulus value.
+	 */
+	template <std::integral Int, Int modulus>
+	struct IntegralModTraits
+	{
+		using Underlying = Int;
+		static constexpr Int MODULUS = modulus;
+	};
+
+	/**
 	 * @class senc::utils::ModInt
 	 * @brief Modular integer type.
 	 * @tparam Int Integer type to base modular integer on.
