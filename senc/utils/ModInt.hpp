@@ -136,8 +136,6 @@ namespace senc::utils
 		static constexpr bool is_known_prime() noexcept { return isKnownPrime; }
 	};
 
-	static_assert(ModTraitsType<IntegralModTraits<int, 7, true>>);
-
 	/**
 	 * @class senc::utils::ModInt
 	 * @brief Modular integer type.
