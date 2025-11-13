@@ -67,18 +67,10 @@ namespace senc::utils::enc
 	template <typename Self>
 	concept Asymmetric = Schema<Self> && requires(const Self self)
 	{
-		typename Self::PrivKey;
 		typename Self::PubKey;
+		typename Self::PrivKey;
 		{ self.keygen() } -> std::same_as<std::pair<typename Self::PubKey, typename Self::PrivKey>>;
 	};
-
-	/**
-	 * @typedef senc::utils::enc::PrivKey
-	 * @brief Private key type of an asymmetric encryption schema.
-	 * @tparam S Asymmetric encryption schema implementing typename.
-	 */
-	template <Asymmetric S>
-	using PrivKey = typename S::PrivKey;
 
 	/**
 	 * @typedef senc::utils::enc::PubKey
@@ -87,6 +79,14 @@ namespace senc::utils::enc
 	 */
 	template <Asymmetric S>
 	using PubKey = typename S::PubKey;
+
+	/**
+	 * @typedef senc::utils::enc::PrivKey
+	 * @brief Private key type of an asymmetric encryption schema.
+	 * @tparam S Asymmetric encryption schema implementing typename.
+	 */
+	template <Asymmetric S>
+	using PrivKey = typename S::PrivKey;
 
 	/**
 	 * @concept senc::utils::enc::Symmetric1L
