@@ -46,6 +46,7 @@ namespace senc::utils
 	template <typename Self, typename Exponent>
 	concept PowerRaisable = (std::is_fundamental_v<Self> && std::is_fundamental_v<Exponent>) ||
 		HasPowMethod<Self, Exponent> || 
+		SquareAndMultiplyCompatible<Self, Exponent> ||
 		(SelfMultiplicable<Self> && std::copy_constructible<Self> &&
 			IntConstructible<Exponent> && LowerComparable<Exponent> && LeftIncrementable<Exponent>);
 
@@ -73,6 +74,21 @@ namespace senc::utils
 		else if constexpr (HasPowMethod<T, Exponent>)
 		{
 			return val.pow(exp);
+		}
+		else if constexpr (SquareAndMultiplyCompatible<T, Exponent>)
+		{
+			Exponent e = exp;
+			T base = val;
+			T res = 1;
+
+			while (0 < e)
+			{
+				if (e % 2 == 1)
+					res *= base;
+				base *= base;
+				exp /= 2;
+			}
+			return res;
 		}
 		else
 		{
