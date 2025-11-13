@@ -373,7 +373,6 @@ namespace senc::utils
 	inline ModInt<Int, modulus, isPrime>::Self& ModInt<Int, modulus, isPrime>::operator/=(Int value) SENC_REQ_NOEXCEPT_COND(
 		(isPrime && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int),
-		(SelfModulable, Int),
 		(LowerComparable, Int),
 		(Andable, Int),
 		(SelfRightShiftable, Int)
