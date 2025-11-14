@@ -12,6 +12,7 @@
 #include <tuple>
 
 #include "../concepts.hpp"
+#include "../random.hpp"
 #include "../Group.hpp"
 #include "general.hpp"
 
@@ -66,6 +67,7 @@ namespace senc::utils::enc
 		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const;
 
 	private:
+		static const Distribution<CryptoPP::Integer> PRIV_KEY_DIST;
 		S _symmetricSchema;
 		KDF _kdf;
 	};
