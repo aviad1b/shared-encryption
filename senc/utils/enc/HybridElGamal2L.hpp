@@ -67,7 +67,7 @@ namespace senc::utils::enc
 		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const;
 
 	private:
-		static const Distribution<CryptoPP::Integer> PRIV_KEY_DIST;
+		static const Distribution<CryptoPP::Integer> UNDER_ORDER_DIST;
 		S _symmetricSchema;
 		KDF _kdf;
 	};

@@ -14,7 +14,7 @@
 namespace senc::utils::enc
 {
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
-	const Distribution<CryptoPP::Integer> HybridElGamal2L<G, S, KDF>::PRIV_KEY_DIST =
+	const Distribution<CryptoPP::Integer> HybridElGamal2L<G, S, KDF>::UNDER_ORDER_DIST =
 		Random<CryptoPP::Integer>::get_dist_below(G::ORDER);
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
@@ -25,7 +25,7 @@ namespace senc::utils::enc
 	inline std::pair<HybridElGamal2L<G, S, KDF>::PubKey, HybridElGamal2L<G, S, KDF>::PrivKey>
 		HybridElGamal2L<G, S, KDF>::keygen() const
 	{
-		PrivKey privKey = PRIV_KEY_DIST();
+		PrivKey privKey = UNDER_ORDER_DIST();
 		PubKey pubKey = senc::utils::pow(G::GENERATOR, privKey);
 		return { pubKey, privKey };
 	}
