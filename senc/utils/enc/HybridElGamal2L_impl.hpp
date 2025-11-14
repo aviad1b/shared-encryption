@@ -48,4 +48,17 @@ namespace senc::utils::enc
 
 		return { c1, c2, c3 };
 	}
+
+	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	inline HybridElGamal2L<G, S, KDF>::Plaintext HybridElGamal2L<G, S, KDF>::decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const
+	{
+		const auto& [c1, c2, c3] = ciphertext;
+
+		auto z1 = senc::utils::pow(c1, privKey1);
+		auto z2 = senc::utils::pow(c2, privKey2);
+
+		auto k = this->_kdf(z1, z2);
+
+		return this->_symmetricSchema.decrypt(c3, k);
+	}
 }
