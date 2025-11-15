@@ -22,7 +22,7 @@ namespace senc::utils::enc
 	{
 	public:
 		using Plaintext = CryptoPP::SecByteBlock;
-		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, CryptoPP::SecByteBlock>;
+		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, std::vector<std::byte>>;
 		using Key = CryptoPP::SecByteBlock;
 
 		/**
