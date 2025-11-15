@@ -34,4 +34,23 @@ namespace senc::utils::enc
 
 		return { cipherIV, cipherData };
 	}
+
+	AES1L::Plaintext AES1L::decrypt(const Ciphertext& ciphertext, const Key& key)
+	{
+		const auto& [cipherIV, cipherData] = ciphertext;
+		CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption decryptor;
+
+		// write binary output into plaintext:
+		std::vector<CryptoPP::byte> plaintext;
+		decryptor.SetKeyWithIV(key, key.size(), cipherIV);
+		CryptoPP::ArraySource(
+			cipherData.data(), cipherData.size(),
+			true,
+			new CryptoPP::StreamTransformationFilter(
+				decryptor,
+				new CryptoPP::VectorSink(plaintext)
+			)
+		);
+		return plaintext;
+	}
 }
