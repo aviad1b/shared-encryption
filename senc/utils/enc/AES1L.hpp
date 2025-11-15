@@ -21,8 +21,8 @@ namespace senc::utils::enc
 	class AES1L
 	{
 	public:
-		using Plaintext = CryptoPP::SecByteBlock;
-		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, std::vector<std::byte>>;
+		using Plaintext = std::vector<CryptoPP::byte>;
+		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, std::vector<CryptoPP::byte>>;
 		using Key = CryptoPP::SecByteBlock;
 
 		/**
