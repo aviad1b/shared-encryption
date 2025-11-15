@@ -9,8 +9,8 @@
 #pragma once
 
 #include <cryptopp/secblock.h>
-#include <cstddef>
-#include <vector>
+#include <cryptopp/osrng.h>
+#include <tuple>
 
 namespace senc::utils::enc
 {
@@ -22,7 +22,7 @@ namespace senc::utils::enc
 	{
 	public:
 		using Plaintext = CryptoPP::SecByteBlock;
-		using Ciphertext = CryptoPP::SecByteBlock;
+		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, CryptoPP::SecByteBlock>;
 		using Key = CryptoPP::SecByteBlock;
 
 		/**
@@ -45,5 +45,8 @@ namespace senc::utils::enc
 		 * @return Decrypted ciphertext (plaintext).
 		 */
 		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key);
+
+	private:
+		CryptoPP::AutoSeededRandomPool _prng;
 	};
 }
