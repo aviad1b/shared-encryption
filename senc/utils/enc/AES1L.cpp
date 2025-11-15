@@ -31,5 +31,7 @@ namespace senc::utils::enc
 				new CryptoPP::VectorSink(cipherData)
 			)
 		);
+
+		return { cipherIV, cipherData };
 	}
 }
