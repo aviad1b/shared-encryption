@@ -47,6 +47,6 @@ namespace senc::utils::enc
 		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key);
 
 	private:
-		CryptoPP::AutoSeededRandomPool _prng;
+		static CryptoPP::AutoSeededRandomPool _prng;
 	};
 }
