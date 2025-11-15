@@ -20,6 +20,11 @@
 	"Group.hpp"
 	"ECGroup.hpp"
 	"ECGroup.cpp"
+	"enc/general.hpp"
+	"enc/HybridElGamal2L.hpp"
+	"enc/HybridElGamal2L_impl.hpp"
+	"enc/AES1L.hpp"
+	"enc/AES1L.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
