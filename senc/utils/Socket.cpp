@@ -105,13 +105,6 @@ namespace senc::utils
 		return UNDERLYING_NO_SOCK != this->_sock;
 	}
 
-	void Socket::send(const Buffer& data)
-	{
-		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
-			throw SocketException("Failed to send", get_last_sock_err());
-	}
-
 	Buffer Socket::recv(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));

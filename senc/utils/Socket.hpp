@@ -275,7 +275,7 @@ namespace senc::utils
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send(const Buffer& data);
+		void send(const HasByteData auto& data);
 
 		/**
 		 * @brief Recieves binary data through socket.
@@ -493,7 +493,7 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const Buffer& data, const IP& addr, Port port);
+		void sendto(const HasByteData auto& data, const IP& addr, Port port);
 
 		/**
 		 * @brief Recieves data from given IP address and port.
