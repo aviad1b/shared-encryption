@@ -513,6 +513,15 @@ namespace senc::utils
 		 */
 		Buffer recvfrom(std::size_t maxsize);
 
+		/**
+		 * @brief Recieves data from given IP address and port into.
+		 * @param out An object holding mutable byte data to read received data into.
+		 * @return Amount of bytes read.
+		 * @throw senc::utils::SocketException On failure.
+		 * @note Reads `out.size()` bytes at max.
+		 */
+		std::size_t recvfrom_into(HasMutableByteData auto& out);
+
 	protected:
 		using Underlying = Base::Underlying;
 

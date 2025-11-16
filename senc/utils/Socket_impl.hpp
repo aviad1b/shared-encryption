@@ -127,6 +127,15 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
+	inline std::size_t UdpSocket<IP>::recvfrom_into(HasMutableByteData auto& out)
+	{
+		const int count = ::recvfrom(this->_sock, (char*)out.data(), (int)out.size(), 0, nullptr, nullptr);
+		if (count < 0)
+			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
+		return count;
+	}
+
+	template <IPType IP>
 	inline UdpSocket<IP>::UdpSocket(Underlying sock, bool isConnected)
 		: Base(sock, isConnected) { }
 }
