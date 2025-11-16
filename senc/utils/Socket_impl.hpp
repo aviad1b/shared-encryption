@@ -18,13 +18,7 @@ namespace senc::utils
 
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
-		if (!is_connected())
-			throw SocketException("Failed to recieve", "Socket is not connected");
-
-		const int count = ::recv(this->_sock, (char*)out.data(), (int)out.size(), 0);
-		if (count < 0)
-			throw SocketException("Failed to recieve", get_last_sock_err());
-		return count;
+		return recv_connected_into(out.data(), out.size());
 	}
 
 	template <IPType IP>
