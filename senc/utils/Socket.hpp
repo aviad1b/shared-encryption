@@ -504,7 +504,7 @@ namespace senc::utils
 		void send_to(const HasByteData auto& data, const IP& addr, Port port);
 
 		/**
-		 * @brief Recieves data from given IP address and port.
+		 * @brief Recieves data through socket.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
@@ -513,7 +513,7 @@ namespace senc::utils
 		Buffer recv_from(std::size_t maxsize);
 
 		/**
-		 * @brief Recieves data from given IP address and port into.
+		 * @brief Recieves data through socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
