@@ -141,10 +141,8 @@ namespace senc::utils
 		);
 		if (count < 0)
 			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
-		return std::tuple_cat(
-			std::make_tuple(count),
-			IP::from_underlying_sock_addr(addr)
-		);
+		auto [ip, port] = IP::from_underlying_sock_addr(addr);
+		return { count, ip, port };
 	}
 
 	template <IPType IP>
