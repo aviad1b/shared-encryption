@@ -33,7 +33,7 @@ namespace senc::utils::enc
 		using Plaintext = Plaintext<S>;
 		using Ciphertext = std::tuple<G, G, Ciphertext<S>>;
 		using PubKey = G;
-		using PrivKey = CryptoPP::Integer;
+		using PrivKey = BigInt;
 
 		/**
 		 * @brief Constructs an instance with the given `S` and `KDF` instances.
@@ -67,7 +67,7 @@ namespace senc::utils::enc
 		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const;
 
 	private:
-		static const Distribution<CryptoPP::Integer> UNDER_ORDER_DIST;
+		static const Distribution<BigInt> UNDER_ORDER_DIST;
 		S _symmetricSchema;
 		KDF _kdf;
 	};
