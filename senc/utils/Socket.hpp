@@ -299,12 +299,13 @@ namespace senc::utils
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
 
 		Underlying _sock;
+		bool _isConnected;
 
 		/**
 		 * @brief Constructor of base socket from underlying library's socket.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Socket(Underlying sock);
+		Socket(Underlying sock, bool isConnected = false);
 
 		/**
 		 * @brief Socket move constructor.
@@ -377,8 +378,6 @@ namespace senc::utils
 
 	protected:
 		using Underlying = Base::Underlying;
-
-		bool _isConnected;
 
 		/**
 		 * @brief Constructor of connectable socket from underlying library's parameters.

@@ -112,13 +112,14 @@ namespace senc::utils
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
-	Socket::Socket(Underlying sock) : _sock(sock)
+	Socket::Socket(Underlying sock, bool isConnected)
+		: _sock(sock), _isConnected(isConnected)
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)
 			throw SocketException("Failed to create socket", get_last_sock_err());
 	}
 
-	Socket::Socket(Self&& other) : _sock(other._sock)
+	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(false)
 	{
 		other._sock = UNDERLYING_NO_SOCK;
 	}
@@ -127,7 +128,9 @@ namespace senc::utils
 	{
 		this->close();
 		this->_sock = other._sock;
+		this->_isConnected = other._isConnected;
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 		return *this;
 	}
 
@@ -136,6 +139,7 @@ namespace senc::utils
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
+		this->_isConnected = false;
 	}
 
 	std::string Socket::get_last_sock_err()
