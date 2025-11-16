@@ -138,11 +138,32 @@ namespace senc::utils
 		return this->_isConnected;
 	}
 
+	void Socket::send_connected(const byte* data, std::size_t size)
+	{
+		if (!is_connected())
+			throw SocketException("Failed to send", "Socket is not connected");
+
+		// Note: We assume here that size does not surpass int limit.
+		if (static_cast<int>(size) != ::send(this->_sock, (const char*)data, (int)size, 0))
+			throw SocketException("Failed to send", get_last_sock_err());
+	}
+
 	Buffer Socket::recv_connected(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
 		const std::size_t count = recv_connected_into(res);
 		return Buffer(res.begin(), res.begin() + count);
+	}
+
+	std::size_t Socket::recv_connected_into(byte* out, std::size_t maxsize)
+	{
+		if (!is_connected())
+			throw SocketException("Failed to recieve", "Socket is not connected");
+
+		const int count = ::recv(this->_sock, (char*)out, (int)maxsize, 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return count;
 	}
 
 	Socket::Socket(Underlying sock, bool isConnected)

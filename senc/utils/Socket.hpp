@@ -308,6 +308,14 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends binary data through (a connected) socket.
+		 * @param data Pointer to sequential binary data.
+		 * @param size Size of data (byte count).
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void send_connected(const byte* data, std::size_t size);
+
+		/**
+		 * @brief Sends binary data through (a connected) socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
@@ -320,6 +328,15 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		Buffer recv_connected(std::size_t maxsize);
+
+		/**
+		 * @brief Recieves binary data through (a connected) socket.
+		 * @param out Address to read received data into.
+		 * @param maxsize Maximum amount of bytes to recieve.
+		 * @return Amount of bytes read.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		std::size_t recv_connected_into(byte* out, std::size_t maxsize);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
@@ -526,6 +543,17 @@ namespace senc::utils
 		/**
 		 * @brief Sends data to given IP address and port.
 		 * @note Requires socket to be disconnected.
+		 * @param data Pointer to sequential binary data.
+		 * @param size Size of data (byte count).
+		 * @param addr IP address to send data to.
+		 * @param port UDP port to send data to.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void send_to(const byte* data, std::size_t size, const IP& addr, Port port);
+
+		/**
+		 * @brief Sends data to given IP address and port.
+		 * @note Requires socket to be disconnected.
 		 * @param data Binary data to send.
 		 * @param addr IP address to send data to.
 		 * @param port UDP port to send data to.
@@ -555,6 +583,15 @@ namespace senc::utils
 			IP addr;
 			Port port;
 		};
+
+		/**
+		 * @brief Recieves data through socket.
+		 * @param out Address to read received data into.
+		 * @param maxsize Maximum amount of bytes to recieve.
+		 * @return Amount of bytes read.
+		 * @throw senc::utils::SocketException On failure.d
+		 */
+		recv_from_into_ret_t recv_from_into(byte* out, std::size_t maxsize);
 
 		/**
 		 * @brief Recieves data through socket.
