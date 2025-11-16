@@ -113,7 +113,7 @@ namespace senc::utils
 	Buffer Socket::recv_connected(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
-		const std::size_t count = recv_into(res);
+		const std::size_t count = recv_connected_into(res);
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
