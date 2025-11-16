@@ -24,7 +24,7 @@ namespace senc::utils
 	inline Distribution<T> Random<T>::get_range_dist(const T& min, const T& max) noexcept
 	requires std::integral<T>
 	{
-		if constexpr(std::same_as<T, CryptoPP::Integer>)
+		if constexpr(std::same_as<T, BigInt>)
 			return Distribution<T>(min, max, engine_crypto());
 		else
 			return Distribution<T>(min, max, engine());
