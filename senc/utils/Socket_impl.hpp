@@ -101,7 +101,7 @@ namespace senc::utils
 		this->_isConnected = false;
 	}
 
-	template<IPType IP>
+	template <IPType IP>
 	inline void UdpSocket<IP>::send_to(const byte* data, std::size_t size, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
