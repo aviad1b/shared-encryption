@@ -108,9 +108,7 @@ namespace senc::utils
 	Buffer Socket::recv(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
-		const int count = ::recv(this->_sock, (char*)res.data(), maxsize, 0);
-		if (count < 0)
-			throw SocketException("Failed to recieve", get_last_sock_err());
+		const std::size_t count = recv_into(res);
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
