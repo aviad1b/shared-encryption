@@ -123,20 +123,28 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline Buffer UdpSocket<IP>::recv_from(std::size_t maxsize)
+	inline UdpSocket<IP>::recv_from_ret_t UdpSocket<IP>::recv_from(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
-		const std::size_t count = recv_from_into(res);
-		return Buffer(res.begin(), res.begin() + count);
+		auto ret = recv_from_into(res);
+		return { Buffer(res.begin(), res.begin() + ret.count), ret.addr, ret.port };
 	}
 
 	template <IPType IP>
-	inline std::size_t UdpSocket<IP>::recv_from_into(HasMutableByteData auto& out)
+	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(HasMutableByteData auto& out)
 	{
-		const int count = ::recvfrom(this->_sock, (char*)out.data(), (int)out.size(), 0, nullptr, nullptr);
+		typename IP::UnderlyingSockAddr addr{};
+		const int addrLen = sizeof(addr);
+		const int count = ::recvfrom(
+			this->_sock, (char*)out.data(), (int)out.size(), 0,
+			(struct sockaddr*)&addr, &addrLen
+		);
 		if (count < 0)
 			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
-		return count;
+		return std::tuple_cat(
+			std::make_tuple(count),
+			IP::from_underlying_sock_addr(addr)
+		);
 	}
 
 	template <IPType IP>

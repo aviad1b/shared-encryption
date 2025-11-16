@@ -533,6 +533,13 @@ namespace senc::utils
 		 */
 		void send_to(const HasByteData auto& data, const IP& addr, Port port);
 
+		struct recv_from_ret_t
+		{
+			Buffer data;
+			IP addr;
+			Port port;
+		};
+
 		/**
 		 * @brief Recieves data through socket.
 		 * @note Requires socket to be disconnected.
@@ -540,7 +547,14 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Buffer recv_from(std::size_t maxsize);
+		recv_from_ret_t recv_from(std::size_t maxsize);
+
+		struct recv_from_into_ret_t
+		{
+			std::size_t count;
+			IP addr;
+			Port port;
+		};
 
 		/**
 		 * @brief Recieves data through socket.
@@ -549,7 +563,7 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 * @note Reads `out.size()` bytes at max.
 		 */
-		std::size_t recv_from_into(HasMutableByteData auto& out);
+		recv_from_into_ret_t recv_from_into(HasMutableByteData auto& out);
 
 	protected:
 		using Underlying = Base::Underlying;
