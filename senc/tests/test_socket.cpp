@@ -13,6 +13,8 @@
 
 using senc::utils::UdpSocket;
 using senc::utils::TcpSocket;
+using senc::utils::Buffer;
+using senc::utils::byte;
 using senc::utils::IPv4;
 using senc::utils::IPv6;
 
@@ -39,7 +41,7 @@ TEST(SocketTests, TestIPv6)
  */
 TEST(SocketTests, TestUDP)
 {
-	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
+	const Buffer sendData { byte(1), byte(2), byte(3) };
 	UdpSocket<IPv4> sock1, sock2;
 
 	sock1.bind(4350);
@@ -55,7 +57,7 @@ TEST(SocketTests, TestUDP)
  */
 TEST(SocketTests, TestTCP)
 {
-	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
+	const Buffer sendData { byte(1), byte(2), byte(3) };
 	TcpSocket<IPv4> listen_sock, send_sock;
 	std::promise<TcpSocket<IPv4>> p;
 	std::future<TcpSocket<IPv4>> f = p.get_future();

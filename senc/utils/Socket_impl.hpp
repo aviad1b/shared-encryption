@@ -10,6 +10,21 @@
 
 namespace senc::utils
 {
+	inline void Socket::send(const HasByteData auto& data)
+	{
+		// Note: We assume here that data.size() does not surpass int limit.
+		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
+			throw SocketException("Failed to send", get_last_sock_err());
+	}
+
+	inline std::size_t Socket::recv_into(HasMutableByteData auto& out)
+	{
+		const int count = ::recv(this->_sock, (char*)out.data(), (int)out.size(), 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return count;
+	}
+
 	template <IPType IP>
 	inline bool ConnectableSocket<IP>::is_connected() const
 	{
@@ -91,7 +106,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline void UdpSocket<IP>::sendto(const std::vector<std::byte>& data, const IP& addr, Port port)
+	inline void UdpSocket<IP>::sendto(const HasByteData auto& data, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
@@ -102,13 +117,20 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize)
+	inline Buffer UdpSocket<IP>::recvfrom(std::size_t maxsize)
 	{
-		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0, nullptr, nullptr);
+		Buffer res(maxsize, static_cast<byte>(0));
+		const std::size_t count = recvfrom_into(res);
+		return Buffer(res.begin(), res.begin() + count);
+	}
+
+	template <IPType IP>
+	inline std::size_t UdpSocket<IP>::recvfrom_into(HasMutableByteData auto& out)
+	{
+		const int count = ::recvfrom(this->_sock, (char*)out.data(), (int)out.size(), 0, nullptr, nullptr);
 		if (count < 0)
 			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
-		return std::vector<std::byte>(res.begin(), res.begin() + count);
+		return count;
 	}
 
 	template <IPType IP>
