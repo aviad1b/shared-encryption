@@ -10,7 +10,7 @@
 
 namespace senc::utils
 {
-	inline void Socket::send(const HasByteData auto& data)
+	inline void Socket::send_connected(const HasByteData auto& data)
 	{
 		if (!this->_isConnected)
 			throw SocketException("Failed to send", "Socket is not connected");

@@ -275,7 +275,7 @@ namespace senc::utils
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send(const HasByteData auto& data);
+		void send_connected(const HasByteData auto& data);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
