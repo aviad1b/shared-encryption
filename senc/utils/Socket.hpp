@@ -292,7 +292,7 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 * @note Reads `out.size()` bytes at max.
 		 */
-		std::size_t recv_into(HasMutableByteData auto& out);
+		std::size_t recv_connected_into(HasMutableByteData auto& out);
 
 	protected:
 		using Underlying = SOCKET;

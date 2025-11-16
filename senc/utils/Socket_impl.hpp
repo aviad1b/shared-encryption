@@ -20,7 +20,7 @@ namespace senc::utils
 			throw SocketException("Failed to send", get_last_sock_err());
 	}
 
-	inline std::size_t Socket::recv_into(HasMutableByteData auto& out)
+	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		if (!this->_isConnected)
 			throw SocketException("Failed to send", "Socket is not connected");
