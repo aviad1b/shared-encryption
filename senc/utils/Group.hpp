@@ -6,10 +6,10 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
-#include <cryptopp/integer.h>
 #include <concepts>
 
 #include "Random.hpp"
+#include "math.hpp"
 
 namespace senc::utils
 {
@@ -17,7 +17,7 @@ namespace senc::utils
 	 * @typedef senc::utils::GroupOrder
 	 * @brief Represents an algebric group's order.
 	 */
-	using GroupOrder = CryptoPP::Integer;
+	using GroupOrder = BigInt;
 
 	/**
 	 * @concept senc::utils::Group
