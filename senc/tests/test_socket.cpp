@@ -46,9 +46,9 @@ TEST(SocketTests, TestUDP)
 
 	sock1.bind(4350);
 
-	sock2.sendto(sendData, "127.0.0.1", 4350);
+	sock2.send_to(sendData, "127.0.0.1", 4350);
 
-	auto recvData = sock1.recvfrom(sendData.size());
+	auto recvData = sock1.recv_from(sendData.size()).data;
 	EXPECT_EQ(sendData, recvData);
 }
 
@@ -77,7 +77,7 @@ TEST(SocketTests, TestTCP)
 
 	TcpSocket<IPv4> recv_sock = f.get();
 
-	send_sock.send(sendData);
-	auto recvData = recv_sock.recv(sendData.size());
+	send_sock.send_connected(sendData);
+	auto recvData = recv_sock.recv_connected(sendData.size());
 	EXPECT_EQ(sendData, recvData);
 }

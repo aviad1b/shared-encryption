@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "Exception.hpp"
 #include "bytes.hpp"
@@ -29,13 +30,18 @@ namespace senc::utils
 
 	template <typename Self>
 	concept IPType = std::copyable<Self> &&
-		std::equality_comparable<Self> && 
-		requires(const Self self, typename Self::UnderlyingSockAddr* out)
+		std::equality_comparable<Self> &&
+		std::constructible_from<Self, typename Self::Underlying> &&
+		requires(
+			const Self self, typename Self::UnderlyingSockAddr* out,
+			const typename Self::UnderlyingSockAddr underlyingSockAddr
+		)
 		{
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::ANY } -> std::convertible_to<const Self&>;
 			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
 			{ self.init_underlying(out, std::declval<Port>()) } noexcept;
+			{ Self::from_underlying_sock_addr(underlyingSockAddr) } -> std::same_as<std::tuple<Self, Port>>;
 		};
 
 	/**
@@ -54,6 +60,18 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv4 address from underlying struct.
+		 * @param underlying Underlying struct instance.
+		 */
+		explicit IPv4(const Underlying& underlying);
+
+		/**
+		 * @brief Gets IPv4 address and port from underlying sockaddr struct.
+		 */
+		static std::tuple<Self, Port> from_underlying_sock_addr(
+			const UnderlyingSockAddr& underlyingSockAddr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
@@ -138,6 +156,18 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv6 address from underlying struct.
+		 * @param underlying Underlying struct instance.
+		 */
+		explicit IPv6(const Underlying& underlying);
+
+		/**
+		 * @brief Gets IPv6 address and port from underlying sockaddr struct.
+		 */
+		static std::tuple<Self, Port> from_underlying_sock_addr(
+			const UnderlyingSockAddr& underlyingSockAddr);
 
 		/**
 		 * @brief Constructs an IPv6 address from string representation.
@@ -271,40 +301,47 @@ namespace senc::utils
 		bool is_closed() const;
 
 		/**
-		 * @brief Sends binary data through socket.
+		 * @brief Determines if socket is already connected to an address.
+		 * @return `true` if socket is connected, otherwise `false`.
+		 */
+		bool is_connected() const;
+
+		/**
+		 * @brief Sends binary data through (a connected) socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send(const HasByteData auto& data);
+		void send_connected(const HasByteData auto& data);
 
 		/**
-		 * @brief Recieves binary data through socket.
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Buffer recv(std::size_t maxsize);
+		Buffer recv_connected(std::size_t maxsize);
 
 		/**
-		 * @brief Recieves binary data through socket.
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
 		 * @note Reads `out.size()` bytes at max.
 		 */
-		std::size_t recv_into(HasMutableByteData auto& out);
+		std::size_t recv_connected_into(HasMutableByteData auto& out);
 
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
 
 		Underlying _sock;
+		bool _isConnected;
 
 		/**
 		 * @brief Constructor of base socket from underlying library's socket.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Socket(Underlying sock);
+		Socket(Underlying sock, bool isConnected = false);
 
 		/**
 		 * @brief Socket move constructor.
@@ -347,12 +384,6 @@ namespace senc::utils
 		void close();
 
 		/**
-		 * @brief Determines if socket is already connected to an address.
-		 * @return `true` if socket is connected, otherwise `false`.
-		 */
-		bool is_connected() const;
-
-		/**
 		 * @brief Connects socket to a given IP address and port.
 		 * @param addr IP address to connect to.
 		 * @param port Transport-level port to connect to.
@@ -377,8 +408,6 @@ namespace senc::utils
 
 	protected:
 		using Underlying = Base::Underlying;
-
-		bool _isConnected;
 
 		/**
 		 * @brief Constructor of connectable socket from underlying library's parameters.
@@ -502,25 +531,39 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const HasByteData auto& data, const IP& addr, Port port);
+		void send_to(const HasByteData auto& data, const IP& addr, Port port);
+
+		struct recv_from_ret_t
+		{
+			Buffer data;
+			IP addr;
+			Port port;
+		};
 
 		/**
-		 * @brief Recieves data from given IP address and port.
+		 * @brief Recieves data through socket.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Buffer recvfrom(std::size_t maxsize);
+		recv_from_ret_t recv_from(std::size_t maxsize);
+
+		struct recv_from_into_ret_t
+		{
+			std::size_t count;
+			IP addr;
+			Port port;
+		};
 
 		/**
-		 * @brief Recieves data from given IP address and port into.
+		 * @brief Recieves data through socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
 		 * @note Reads `out.size()` bytes at max.
 		 */
-		std::size_t recvfrom_into(HasMutableByteData auto& out);
+		recv_from_into_ret_t recv_from_into(HasMutableByteData auto& out);
 
 	protected:
 		using Underlying = Base::Underlying;

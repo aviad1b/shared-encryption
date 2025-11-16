@@ -16,6 +16,20 @@ namespace senc::utils
 {
 	const IPv4::Self IPv4::ANY("0.0.0.0");
 
+	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET, &underlying, addrStr, INET_ADDRSTRLEN))
+			throw SocketException("Unknown IPv4 address");
+		this->_addrStr = addrStr;
+	}
+
+	std::tuple<IPv4::Self, Port> IPv4::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin_addr), underlyingSockAddr.sin_port };
+	}
+
 	IPv4::IPv4(const char* addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
@@ -44,6 +58,20 @@ namespace senc::utils
 	}
 
 	const IPv6::Self IPv6::ANY("::");
+
+	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET6_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET6, &underlying, addrStr, INET6_ADDRSTRLEN))
+			throw SocketException("Unknown IPv6 address");
+		this->_addrStr = addrStr;
+	}
+
+	std::tuple<IPv6::Self, Port> IPv6::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin6_addr), underlyingSockAddr.sin6_port };
+	}
 
 	IPv6::IPv6(const char* addr) : Self(std::string(addr)) { }
 
@@ -105,29 +133,38 @@ namespace senc::utils
 		return UNDERLYING_NO_SOCK != this->_sock;
 	}
 
-	Buffer Socket::recv(std::size_t maxsize)
+	bool Socket::is_connected() const
+	{
+		return this->_isConnected;
+	}
+
+	Buffer Socket::recv_connected(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
-		const std::size_t count = recv_into(res);
+		const std::size_t count = recv_connected_into(res);
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
-	Socket::Socket(Underlying sock) : _sock(sock)
+	Socket::Socket(Underlying sock, bool isConnected)
+		: _sock(sock), _isConnected(isConnected)
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)
 			throw SocketException("Failed to create socket", get_last_sock_err());
 	}
 
-	Socket::Socket(Self&& other) : _sock(other._sock)
+	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(other._isConnected)
 	{
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 	}
 
 	Socket::Self& Socket::operator=(Self&& other)
 	{
 		this->close();
 		this->_sock = other._sock;
+		this->_isConnected = other._isConnected;
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 		return *this;
 	}
 
@@ -136,6 +173,7 @@ namespace senc::utils
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
+		this->_isConnected = false;
 	}
 
 	std::string Socket::get_last_sock_err()
