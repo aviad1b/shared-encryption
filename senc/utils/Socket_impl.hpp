@@ -112,7 +112,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline void UdpSocket<IP>::sendto(const HasByteData auto& data, const IP& addr, Port port)
+	inline void UdpSocket<IP>::send_to(const HasByteData auto& data, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);

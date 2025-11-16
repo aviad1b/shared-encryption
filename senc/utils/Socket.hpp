@@ -501,7 +501,7 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const HasByteData auto& data, const IP& addr, Port port);
+		void send_to(const HasByteData auto& data, const IP& addr, Port port);
 
 		/**
 		 * @brief Recieves data from given IP address and port.
