@@ -134,7 +134,7 @@ namespace senc::utils
 	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(HasMutableByteData auto& out)
 	{
 		typename IP::UnderlyingSockAddr addr{};
-		const int addrLen = sizeof(addr);
+		int addrLen = sizeof(addr);
 		const int count = ::recvfrom(
 			this->_sock, (char*)out.data(), (int)out.size(), 0,
 			(struct sockaddr*)&addr, &addrLen
