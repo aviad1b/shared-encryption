@@ -9,7 +9,6 @@
 #pragma once
 
 #include <cryptopp/eccrypto.h>
-#include <cryptopp/integer.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/oids.h>
 #include <cryptopp/ecp.h>
