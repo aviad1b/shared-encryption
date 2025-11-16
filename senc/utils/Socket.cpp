@@ -155,6 +155,17 @@ namespace senc::utils
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
+	std::size_t Socket::recv_connected_into(byte* out, std::size_t maxsize)
+	{
+		if (!is_connected())
+			throw SocketException("Failed to recieve", "Socket is not connected");
+
+		const int count = ::recv(this->_sock, (char*)out, (int)maxsize, 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return count;
+	}
+
 	Socket::Socket(Underlying sock, bool isConnected)
 		: _sock(sock), _isConnected(isConnected)
 	{
