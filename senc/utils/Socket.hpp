@@ -65,7 +65,7 @@ namespace senc::utils
 		 * @brief Constructs an IPv4 address from underlying struct.
 		 * @param underlying Underlying struct instance.
 		 */
-		IPv4(const Underlying& underlying);
+		explicit IPv4(const Underlying& underlying);
 
 		/**
 		 * @brief Gets IPv4 address and port from underlying sockaddr struct.
@@ -161,7 +161,7 @@ namespace senc::utils
 		 * @brief Constructs an IPv6 address from underlying struct.
 		 * @param underlying Underlying struct instance.
 		 */
-		IPv6(const Underlying& underlying);
+		explicit IPv6(const Underlying& underlying);
 
 		/**
 		 * @brief Gets IPv6 address and port from underlying sockaddr struct.
