@@ -12,6 +12,9 @@ namespace senc::utils
 {
 	inline void Socket::send(const HasByteData auto& data)
 	{
+		if (!this->_isConnected)
+			throw SocketException("Failed to send", "Socket is not connected");
+
 		// Note: We assume here that data.size() does not surpass int limit.
 		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
 			throw SocketException("Failed to send", get_last_sock_err());
