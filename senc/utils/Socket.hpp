@@ -29,7 +29,8 @@ namespace senc::utils
 
 	template <typename Self>
 	concept IPType = std::copyable<Self> &&
-		std::equality_comparable<Self> && 
+		std::equality_comparable<Self> &&
+		std::constructible_from<Self, typename Self::Underlying> &&
 		requires(const Self self, typename Self::UnderlyingSockAddr* out)
 		{
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
@@ -54,6 +55,12 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv4 address from underlying struct.
+		 * @param underlying Underlying struct instance.
+		 */
+		IPv4(const Underlying& underlying);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
@@ -138,6 +145,12 @@ namespace senc::utils
 		 * @brief Used for binding socket to any address.
 		 */
 		static const Self ANY;
+
+		/**
+		 * @brief Constructs an IPv6 address from underlying struct.
+		 * @param underlying Underlying struct instance.
+		 */
+		IPv6(const Underlying& underlying);
 
 		/**
 		 * @brief Constructs an IPv6 address from string representation.

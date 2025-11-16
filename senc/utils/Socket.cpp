@@ -16,6 +16,14 @@ namespace senc::utils
 {
 	const IPv4::Self IPv4::ANY("0.0.0.0");
 
+	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET, &underlying, addrStr, INET_ADDRSTRLEN))
+			throw SocketException("Unknown IPv4 address");
+		this->_addrStr = addrStr;
+	}
+
 	IPv4::IPv4(const char* addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
@@ -44,6 +52,14 @@ namespace senc::utils
 	}
 
 	const IPv6::Self IPv6::ANY("::");
+
+	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET6_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET6, &underlying, addrStr, INET6_ADDRSTRLEN))
+			throw SocketException("Unknown IPv6 address");
+		this->_addrStr = addrStr;
+	}
 
 	IPv6::IPv6(const char* addr) : Self(std::string(addr)) { }
 
