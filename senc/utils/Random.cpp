@@ -10,10 +10,10 @@
 
 namespace senc::utils
 {
-	CryptoUnderlyingDist::CryptoUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max)
+	BigIntUnderlyingDist::BigIntUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max)
 		: _min(min), _max(max) { }
 
-	CryptoPP::Integer CryptoUnderlyingDist::operator()(CryptoPP::RandomNumberGenerator& engine) const
+	CryptoPP::Integer BigIntUnderlyingDist::operator()(CryptoPP::RandomNumberGenerator& engine) const
 	{
 		CryptoPP::Integer res;
 		res.Randomize(

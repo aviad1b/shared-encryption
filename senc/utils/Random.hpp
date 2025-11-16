@@ -15,23 +15,25 @@
 #include <random>
 #include <chrono>
 
+#include "math.hpp"
+
 namespace senc::utils
 {
 	/**
-	 * @brief Underlying class used for sampling `CryptoPP::Integer`.
+	 * @brief Underlying class used for sampling `BigInt`.
 	 */
-	class CryptoUnderlyingDist
+	class BigIntUnderlyingDist
 	{
 	public:
-		using Self = CryptoUnderlyingDist;
+		using Self = BigIntUnderlyingDist;
 
-		CryptoUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max);
+		BigIntUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max);
 
-		CryptoUnderlyingDist(const Self&) = default;
+		BigIntUnderlyingDist(const Self&) = default;
 
 		Self& operator=(const Self&) = default;
 
-		CryptoUnderlyingDist(Self&&) = default;
+		BigIntUnderlyingDist(Self&&) = default;
 
 		Self& operator=(Self&&) = default;
 
@@ -59,7 +61,7 @@ namespace senc::utils
 		struct underlying_dist<T> { using type = std::uniform_int_distribution<T>; };
 
 		template <>
-		struct underlying_dist<CryptoPP::Integer> { using type = CryptoUnderlyingDist; };
+		struct underlying_dist<CryptoPP::Integer> { using type = BigIntUnderlyingDist; };
 	}
 
 	/**
