@@ -22,6 +22,9 @@ namespace senc::utils
 
 	inline std::size_t Socket::recv_into(HasMutableByteData auto& out)
 	{
+		if (!this->_isConnected)
+			throw SocketException("Failed to send", "Socket is not connected");
+
 		const int count = ::recv(this->_sock, (char*)out.data(), (int)out.size(), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
