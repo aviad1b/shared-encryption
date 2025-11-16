@@ -308,6 +308,14 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends binary data through (a connected) socket.
+		 * @param data Pointer to sequential binary data.
+		 * @param size Size of data (byte count).
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void send_connected(const byte* data, std::size_t size);
+
+		/**
+		 * @brief Sends binary data through (a connected) socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
