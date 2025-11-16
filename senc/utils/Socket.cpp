@@ -105,6 +105,11 @@ namespace senc::utils
 		return UNDERLYING_NO_SOCK != this->_sock;
 	}
 
+	bool Socket::is_connected() const
+	{
+		return this->_isConnected;
+	}
+
 	Buffer Socket::recv_connected(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));

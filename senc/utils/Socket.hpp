@@ -271,6 +271,12 @@ namespace senc::utils
 		bool is_closed() const;
 
 		/**
+		 * @brief Determines if socket is already connected to an address.
+		 * @return `true` if socket is connected, otherwise `false`.
+		 */
+		bool is_connected() const;
+
+		/**
 		 * @brief Sends binary data through (a connected) socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
@@ -346,12 +352,6 @@ namespace senc::utils
 		 * @brief Closes socket connection.
 		 */
 		void close();
-
-		/**
-		 * @brief Determines if socket is already connected to an address.
-		 * @return `true` if socket is connected, otherwise `false`.
-		 */
-		bool is_connected() const;
 
 		/**
 		 * @brief Connects socket to a given IP address and port.

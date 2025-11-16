@@ -12,7 +12,7 @@ namespace senc::utils
 {
 	inline void Socket::send_connected(const HasByteData auto& data)
 	{
-		if (!this->_isConnected)
+		if (!is_connected())
 			throw SocketException("Failed to send", "Socket is not connected");
 
 		// Note: We assume here that data.size() does not surpass int limit.
@@ -22,7 +22,7 @@ namespace senc::utils
 
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
-		if (!this->_isConnected)
+		if (!is_connected())
 			throw SocketException("Failed to send", "Socket is not connected");
 
 		const int count = ::recv(this->_sock, (char*)out.data(), (int)out.size(), 0);
@@ -35,12 +35,6 @@ namespace senc::utils
 	inline void ConnectableSocket<IP>::close()
 	{
 		Base::close();
-	}
-
-	template <IPType IP>
-	inline bool ConnectableSocket<IP>::is_connected() const
-	{
-		return this->_isConnected;
 	}
 
 	template <IPType IP>
