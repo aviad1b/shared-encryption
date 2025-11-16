@@ -285,6 +285,15 @@ namespace senc::utils
 		 */
 		Buffer recv(std::size_t maxsize);
 
+		/**
+		 * @brief Recieves binary data through socket.
+		 * @param out An object holding mutable byte data to read received data into.
+		 * @return Amount of bytes read.
+		 * @throw senc::utils::SocketException On failure.
+		 * @note Reads `out.size()` bytes at max.
+		 */
+		std::size_t recv_into(HasMutableByteData auto& out);
+
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
