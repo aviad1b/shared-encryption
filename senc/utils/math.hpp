@@ -8,11 +8,19 @@
 
 #pragma once
 
-#include "concepts.hpp"
+#include <cryptopp/integer.h>
 #include <cmath>
+
+#include "concepts.hpp"
 
 namespace senc::utils
 {
+	/**
+	 * @typedef senc::utils::BigInt
+	 * @brief Type that can holds big integer values.
+	 */
+	using BigInt = CryptoPP::Integer;
+
 	/**
 	 * @concept senc::utils::HasPowMethod
 	 * @brief Looks for a typename with a power-computing method.
