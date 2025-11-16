@@ -152,9 +152,10 @@ namespace senc::utils
 			throw SocketException("Failed to create socket", get_last_sock_err());
 	}
 
-	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(false)
+	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(other._isConnected)
 	{
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 	}
 
 	Socket::Self& Socket::operator=(Self&& other)
