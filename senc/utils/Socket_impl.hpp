@@ -90,7 +90,7 @@ namespace senc::utils
 		auto sock = ::accept(this->_sock, nullptr, nullptr);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
 			throw SocketException("Failed to accept", Socket::get_last_sock_err());
-		return { sock, true }; // isConnected=true
+		return Self(sock, true); // isConnected=true
 	}
 
 	template <IPType IP>
