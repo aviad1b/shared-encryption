@@ -115,12 +115,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void UdpSocket<IP>::send_to(const HasByteData auto& data, const IP& addr, Port port)
 	{
-		typename IP::UnderlyingSockAddr sa{};
-		addr.init_underlying(&sa, port);
-
-		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::sendto(this->_sock, (const char*)data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
-			throw SocketException("Failed to send", Socket::get_last_sock_err());
+		return send_to(data.data(), data.size(), addr, port);
 	}
 
 	template <IPType IP>
