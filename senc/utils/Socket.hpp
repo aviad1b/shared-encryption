@@ -543,6 +543,17 @@ namespace senc::utils
 		/**
 		 * @brief Sends data to given IP address and port.
 		 * @note Requires socket to be disconnected.
+		 * @param data Pointer to sequential binary data.
+		 * @param size Size of data (byte count).
+		 * @param addr IP address to send data to.
+		 * @param port UDP port to send data to.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void send_to(const byte* data, std::size_t size, const IP& addr, Port port);
+
+		/**
+		 * @brief Sends data to given IP address and port.
+		 * @note Requires socket to be disconnected.
 		 * @param data Binary data to send.
 		 * @param addr IP address to send data to.
 		 * @param port UDP port to send data to.
