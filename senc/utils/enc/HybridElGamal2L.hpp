@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include <cryptopp/integer.h>
 #include <tuple>
 
 #include "../concepts.hpp"
 #include "../random.hpp"
 #include "../Group.hpp"
+#include "../math.hpp"
 #include "general.hpp"
 
 namespace senc::utils::enc
