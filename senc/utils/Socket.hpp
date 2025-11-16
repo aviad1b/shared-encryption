@@ -271,14 +271,14 @@ namespace senc::utils
 		bool is_closed() const;
 
 		/**
-		 * @brief Sends binary data through socket.
+		 * @brief Sends binary data through (a connected) socket.
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		void send(const HasByteData auto& data);
 
 		/**
-		 * @brief Recieves binary data through socket.
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
@@ -286,7 +286,7 @@ namespace senc::utils
 		Buffer recv(std::size_t maxsize);
 
 		/**
-		 * @brief Recieves binary data through socket.
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
