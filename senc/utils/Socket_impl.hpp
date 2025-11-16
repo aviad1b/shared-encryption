@@ -19,7 +19,7 @@ namespace senc::utils
 
 	inline std::size_t Socket::recv_into(HasMutableByteData auto& out)
 	{
-		const int count = ::recv(this->_sock, (char*)out.data(), out.size(), 0);
+		const int count = ::recv(this->_sock, (char*)out.data(), (int)out.size(), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
 		return count;
