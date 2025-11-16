@@ -510,7 +510,7 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Buffer recvfrom(std::size_t maxsize);
+		Buffer recv_from(std::size_t maxsize);
 
 		/**
 		 * @brief Recieves data from given IP address and port into.

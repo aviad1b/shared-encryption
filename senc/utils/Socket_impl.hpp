@@ -123,7 +123,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline Buffer UdpSocket<IP>::recvfrom(std::size_t maxsize)
+	inline Buffer UdpSocket<IP>::recv_from(std::size_t maxsize)
 	{
 		Buffer res(maxsize, static_cast<byte>(0));
 		const std::size_t count = recvfrom_into(res);
