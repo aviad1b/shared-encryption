@@ -283,7 +283,7 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Buffer recv(std::size_t maxsize);
+		Buffer recv_connected(std::size_t maxsize);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
