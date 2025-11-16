@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "Exception.hpp"
 #include "bytes.hpp"
@@ -31,12 +32,16 @@ namespace senc::utils
 	concept IPType = std::copyable<Self> &&
 		std::equality_comparable<Self> &&
 		std::constructible_from<Self, typename Self::Underlying> &&
-		requires(const Self self, typename Self::UnderlyingSockAddr* out)
+		requires(
+			const Self self, typename Self::UnderlyingSockAddr* out,
+			const typename Self::UnderlyingSockAddr underlyingSockAddr
+		)
 		{
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::ANY } -> std::convertible_to<const Self&>;
 			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
 			{ self.init_underlying(out, std::declval<Port>()) } noexcept;
+			{ Self::from_underlying_sock_addr(underlyingSockAddr) } -> std::same_as<std::tuple<Self, Port>>;
 		};
 
 	/**
@@ -61,6 +66,12 @@ namespace senc::utils
 		 * @param underlying Underlying struct instance.
 		 */
 		IPv4(const Underlying& underlying);
+
+		/**
+		 * @brief Gets IPv4 address and port from underlying sockaddr struct.
+		 */
+		static std::tuple<Self, Port> from_underlying_sock_addr(
+			const UnderlyingSockAddr& underlyingSockAddr);
 
 		/**
 		 * @brief Constructs an IPv4 address from string representation.
@@ -151,6 +162,12 @@ namespace senc::utils
 		 * @param underlying Underlying struct instance.
 		 */
 		IPv6(const Underlying& underlying);
+
+		/**
+		 * @brief Gets IPv6 address and port from underlying sockaddr struct.
+		 */
+		static std::tuple<Self, Port> from_underlying_sock_addr(
+			const UnderlyingSockAddr& underlyingSockAddr);
 
 		/**
 		 * @brief Constructs an IPv6 address from string representation.

@@ -24,6 +24,12 @@ namespace senc::utils
 		this->_addrStr = addrStr;
 	}
 
+	std::tuple<IPv4::Self, Port> IPv4::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin_addr), underlyingSockAddr.sin_port };
+	}
+
 	IPv4::IPv4(const char* addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
@@ -59,6 +65,12 @@ namespace senc::utils
 		if (!::inet_ntop(AF_INET6, &underlying, addrStr, INET6_ADDRSTRLEN))
 			throw SocketException("Unknown IPv6 address");
 		this->_addrStr = addrStr;
+	}
+
+	std::tuple<IPv6::Self, Port> IPv6::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin6_addr), underlyingSockAddr.sin6_port };
 	}
 
 	IPv6::IPv6(const char* addr) : Self(std::string(addr)) { }
