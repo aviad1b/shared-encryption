@@ -144,16 +144,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(HasMutableByteData auto& out)
 	{
-		typename IP::UnderlyingSockAddr addr{};
-		int addrLen = sizeof(addr);
-		const int count = ::recvfrom(
-			this->_sock, (char*)out.data(), (int)out.size(), 0,
-			(struct sockaddr*)&addr, &addrLen
-		);
-		if (count < 0)
-			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
-		auto [ip, port] = IP::from_underlying_sock_addr(addr);
-		return { static_cast<std::size_t>(count), ip, port };
+		return recv_from_into(out.data(), out.size());
 	}
 
 	template <IPType IP>
