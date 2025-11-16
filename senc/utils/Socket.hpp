@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "Exception.hpp"
+#include "bytes.hpp"
 
 namespace senc::utils
 {
@@ -274,7 +275,7 @@ namespace senc::utils
 		 * @param data Binary data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send(const std::vector<std::byte>& data);
+		void send(const Buffer& data);
 
 		/**
 		 * @brief Recieves binary data through socket.
@@ -282,7 +283,7 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recv(std::size_t maxsize);
+		Buffer recv(std::size_t maxsize);
 
 	protected:
 		using Underlying = SOCKET;
@@ -492,7 +493,7 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void sendto(const std::vector<std::byte>& data, const IP& addr, Port port);
+		void sendto(const Buffer& data, const IP& addr, Port port);
 
 		/**
 		 * @brief Recieves data from given IP address and port.
@@ -501,7 +502,7 @@ namespace senc::utils
 		 * @return Recieved data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::vector<std::byte> recvfrom(std::size_t maxsize);
+		Buffer recvfrom(std::size_t maxsize);
 
 	protected:
 		using Underlying = Base::Underlying;

@@ -105,20 +105,20 @@ namespace senc::utils
 		return UNDERLYING_NO_SOCK != this->_sock;
 	}
 
-	void Socket::send(const std::vector<std::byte>& data)
+	void Socket::send(const Buffer& data)
 	{
 		// Note: We assume here that data.size() does not surpass int limit.
 		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
 			throw SocketException("Failed to send", get_last_sock_err());
 	}
 
-	std::vector<std::byte> Socket::recv(std::size_t maxsize)
+	Buffer Socket::recv(std::size_t maxsize)
 	{
-		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
+		Buffer res(maxsize, static_cast<byte>(0));
 		const int count = ::recv(this->_sock, (char*)res.data(), maxsize, 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
-		return std::vector<std::byte>(res.begin(), res.begin() + count);
+		return Buffer(res.begin(), res.begin() + count);
 	}
 
 	Socket::Socket(Underlying sock) : _sock(sock)
