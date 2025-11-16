@@ -586,6 +586,15 @@ namespace senc::utils
 
 		/**
 		 * @brief Recieves data through socket.
+		 * @param out Address to read received data into.
+		 * @param maxsize Maximum amount of bytes to recieve.
+		 * @return Amount of bytes read.
+		 * @throw senc::utils::SocketException On failure.d
+		 */
+		recv_from_into_ret_t recv_from_into(byte* out, std::size_t maxsize);
+
+		/**
+		 * @brief Recieves data through socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
