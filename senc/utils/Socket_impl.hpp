@@ -26,6 +26,12 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
+	inline void ConnectableSocket<IP>::close()
+	{
+		Base::close();
+	}
+
+	template <IPType IP>
 	inline bool ConnectableSocket<IP>::is_connected() const
 	{
 		return this->_isConnected;
