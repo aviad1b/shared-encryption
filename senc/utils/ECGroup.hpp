@@ -42,7 +42,11 @@ namespace senc::utils
 		 */
 		static Self generator();
 
-		static const Self IDENTITY;    // group identity element
+		/**
+		 * @brief Gets group identity element.
+		 * @return Group identity element.
+		 */
+		static Self identity();
 
 		/**
 		 * @brief Constructs a non-identity group element from given x and y values on the curve.
@@ -146,6 +150,7 @@ namespace senc::utils
 		static const ECP EC_CURVE;                                   // elliptic curve itself
 		static const Point EC_BASE_POINT;                            // base point of curve
 		static const Self GENERATOR;
+		static const Self IDENTITY;
 
 		// instance fields
 		Point _point;

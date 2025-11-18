@@ -33,6 +33,11 @@ namespace senc::utils
 		return GENERATOR;
 	}
 
+	ECGroup::Self ECGroup::identity()
+	{
+		return IDENTITY;
+	}
+
 	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }
 

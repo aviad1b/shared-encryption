@@ -29,7 +29,7 @@ namespace senc::utils
 	{
 		{ Self::order() } -> std::convertible_to<GroupOrder>;
 		{ Self::generator() } -> std::convertible_to<Self>;
-		{ Self::IDENTITY } -> std::convertible_to<Self>;
+		{ Self::identity() } -> std::convertible_to<Self>;
 		{ cself.is_identity() } -> std::convertible_to<bool>;
 		{ cself.inverse() } -> std::same_as<Self>;
 		{ std::declval<Self>() * std::declval<Self>() } -> std::same_as<Self>;
