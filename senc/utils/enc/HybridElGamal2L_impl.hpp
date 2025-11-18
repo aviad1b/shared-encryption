@@ -26,7 +26,7 @@ namespace senc::utils::enc
 		HybridElGamal2L<G, S, KDF>::keygen() const
 	{
 		PrivKey privKey = UNDER_ORDER_DIST();
-		PubKey pubKey = senc::utils::pow(G::GENERATOR, privKey);
+		PubKey pubKey = senc::utils::pow(G::generator(), privKey);
 		return { pubKey, privKey };
 	}
 
@@ -36,8 +36,8 @@ namespace senc::utils::enc
 		auto r1 = UNDER_ORDER_DIST();
 		auto r2 = UNDER_ORDER_DIST();
 
-		auto c1 = senc::utils::pow(G::GENERATOR, r1);
-		auto c2 = senc::utils::pow(G::GENERATOR, r2);
+		auto c1 = senc::utils::pow(G::generator(), r1);
+		auto c2 = senc::utils::pow(G::generator(), r2);
 
 		auto z1 = senc::utils::pow(pubKey1, r1);
 		auto z2 = senc::utils::pow(pubKey2, r2);

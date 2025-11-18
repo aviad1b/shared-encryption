@@ -28,6 +28,11 @@ namespace senc::utils
 		return EC_PARAMS.GetSubgroupOrder();
 	}
 
+	ECGroup::Self ECGroup::generator()
+	{
+		return GENERATOR;
+	}
+
 	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }
 

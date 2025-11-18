@@ -36,7 +36,12 @@ namespace senc::utils
 		 */
 		static GroupOrder order();
 
-		static const Self GENERATOR;   // group generator
+		/**
+		 * @brief Gets group generator.
+		 * @return Group generator.
+		 */
+		static Self generator();
+
 		static const Self IDENTITY;    // group identity element
 
 		/**
@@ -140,6 +145,7 @@ namespace senc::utils
 		static const CryptoPP::DL_GroupParameters_EC<ECP> EC_PARAMS; // eliptic curve parameters
 		static const ECP EC_CURVE;                                   // elliptic curve itself
 		static const Point EC_BASE_POINT;                            // base point of curve
+		static const Self GENERATOR;
 
 		// instance fields
 		Point _point;
