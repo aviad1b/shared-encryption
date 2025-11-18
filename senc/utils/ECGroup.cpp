@@ -17,14 +17,16 @@ namespace senc::utils
 
 	const ECGroup::Point ECGroup::EC_BASE_POINT = EC_PARAMS.GetSubgroupGenerator();
 
-	const GroupOrder ECGroup::ORDER = EC_PARAMS.GetSubgroupOrder();
-
 	const ECGroup::Self ECGroup::GENERATOR = Self(EC_BASE_POINT);
 
 	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
 
-	const Distribution<BigInt> ECGroup::DIST =
-		Random<BigInt>::get_dist_below(ORDER);
+	const Distribution<BigInt> ECGroup::DIST = Random<BigInt>::get_dist_below(order());
+
+	GroupOrder ECGroup::order()
+	{
+		return EC_PARAMS.GetSubgroupOrder();
+	}
 
 	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }

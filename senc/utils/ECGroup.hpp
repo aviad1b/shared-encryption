@@ -30,7 +30,12 @@ namespace senc::utils
 	public:
 		using Self = ECGroup;
 
-		static const GroupOrder ORDER; // group order
+		/**
+		 * @brief Gets group order.
+		 * @return Group order.
+		 */
+		static GroupOrder order();
+
 		static const Self GENERATOR;   // group generator
 		static const Self IDENTITY;    // group identity element
 

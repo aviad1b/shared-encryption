@@ -15,7 +15,7 @@ namespace senc::utils::enc
 {
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	const Distribution<BigInt> HybridElGamal2L<G, S, KDF>::UNDER_ORDER_DIST =
-		Random<BigInt>::get_dist_below(G::ORDER);
+		Random<BigInt>::get_dist_below(G::order());
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(S&& symmetricSchema, KDF&& kdf)
