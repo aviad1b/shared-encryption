@@ -30,9 +30,23 @@ namespace senc::utils
 	public:
 		using Self = ECGroup;
 
-		static const GroupOrder ORDER; // group order
-		static const Self GENERATOR;   // group generator
-		static const Self IDENTITY;    // group identity element
+		/**
+		 * @brief Gets group order.
+		 * @return Group order.
+		 */
+		static GroupOrder order();
+
+		/**
+		 * @brief Gets group generator.
+		 * @return Group generator.
+		 */
+		static Self generator();
+
+		/**
+		 * @brief Gets group identity element.
+		 * @return Group identity element.
+		 */
+		static Self identity();
 
 		/**
 		 * @brief Constructs a non-identity group element from given x and y values on the curve.
@@ -135,6 +149,8 @@ namespace senc::utils
 		static const CryptoPP::DL_GroupParameters_EC<ECP> EC_PARAMS; // eliptic curve parameters
 		static const ECP EC_CURVE;                                   // elliptic curve itself
 		static const Point EC_BASE_POINT;                            // base point of curve
+		static const Self GENERATOR;
+		static const Self IDENTITY;
 
 		// instance fields
 		Point _point;
