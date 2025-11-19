@@ -10,5 +10,10 @@
 
 namespace senc::utils
 {
-
+	template <typename S, ShamirShardID SID>
+	inline Shamir<S, SID>::Poly Shamir<S, SID>::sample_poly(
+		const S& secret, Threshold threshold, std::function<S()> secretSampler)
+	{
+		return Poly::sample(threshold, [=]() -> PackedSecret { return secretSampler(); });
+	}
 }
