@@ -203,7 +203,7 @@ namespace senc::utils
 		 * @note Requires `T` to be an integer type.
 		 */
 		static Distribution<T> get_range_dist(const T& min, const T& max) noexcept
-		requires std::integral<T>;
+		requires DistVal<T>;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
