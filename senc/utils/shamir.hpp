@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Fraction.hpp"
 #include "concepts.hpp"
 #include "poly.hpp"
 
@@ -25,6 +26,23 @@ namespace senc::utils::shamir
 		));
 	// if ShardID type is integral, we will use `Fraction` as poly output.
 	// otherwise, we will use the type itself, assuming it is fully devisible.
+
+	namespace sfinae
+	{
+		template <ShardID SID>
+		struct poly_output { using type = SID; };
+
+		template <std::integral SID>
+		struct poly_output<SID> { using type = Fraction<SID>; };
+	}
+
+	/**
+	 * @typedef senc::utils::shamir::PolyOutput
+	 * @brief Type of shamir polynom output for given shard ID type.
+	 * @tparam SID Shamir shard ID type.
+	 */
+	template <ShardID SID>
+	using PolyOutput = typename sfinae::poly_output<SID>::type;
 
 	/**
 	 * @concept senc::utils::shamir::Secret
