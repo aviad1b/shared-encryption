@@ -28,6 +28,8 @@ namespace senc::utils::enc
 		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, Buffer>;
 		using Key = CryptoPP::SecByteBlock;
 
+		static constexpr std::size_t KEY_SIZE = CryptoPP::AES::DEFAULT_KEYLENGTH;
+
 		/**
 		 * @brief Generates a key for AES one-layer schema.
 		 */

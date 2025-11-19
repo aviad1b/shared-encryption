@@ -10,7 +10,7 @@ namespace senc::utils::enc
 
 	AES1L::Key AES1L::keygen() const
 	{
-		CryptoPP::SecByteBlock res(CryptoPP::AES::DEFAULT_KEYLENGTH);
+		CryptoPP::SecByteBlock res(KEY_SIZE);
 		_prng.GenerateBlock(res, res.size());
 		return res;
 	}
