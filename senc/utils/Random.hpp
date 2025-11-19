@@ -125,6 +125,10 @@ namespace senc::utils
 	concept DistVal = DistEngineType<DistEngine<Self>, Self> && 
 		UnderlyingDistType<UnderlyingDist<Self>, Self>;
 
+	// safety static asserts: types that should satisfy `DistVal`
+	static_assert(DistVal<int>);
+	static_assert(DistVal<BigInt>);
+
 	/**
 	 * @class senc::utils::Distribution
 	 * @brief Represents a uniform distribution of values.
