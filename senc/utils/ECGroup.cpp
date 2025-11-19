@@ -115,6 +115,17 @@ namespace senc::utils
 		return *this *= other.inverse();
 	}
 
+	ECGroup::Self ECGroup::pow(const BigInt& exp) const
+	{
+		if (this->is_identity() || exp.IsZero())
+			return identity();
+
+		if (exp.IsNegative())
+			return this->inverse().pow(-exp);
+
+		return Self(EC_CURVE.Multiply(exp, this->_point));
+	}
+
 	std::ostream& operator<<(std::ostream& os, const ECGroup& elem)
 	{
 		if (elem.is_identity())

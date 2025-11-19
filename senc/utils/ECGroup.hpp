@@ -148,6 +148,13 @@ namespace senc::utils
 		Self& operator/=(const Self& other);
 
 		/**
+		 * @brief Applies repeated group operation.
+		 * @param exp Amount of times to apply group operation (plus one).
+		 * @return Result of repeated group operation.
+		 */
+		Self pow(const BigInt& exp) const;
+
+		/**
 		 * @brief Output operator for `ECGroup`.
 		 */
 		friend std::ostream& operator<<(std::ostream& os, const ECGroup& elem);
