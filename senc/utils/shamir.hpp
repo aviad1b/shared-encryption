@@ -20,29 +20,7 @@ namespace senc::utils::shamir
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept ShardID = PolyInput<Self> &&
-		(std::integral<Self> || (
-			Devisible<Self> && SelfDevisible<Self> && PolyOutput<Self>
-		));
-	// if ShardID type is integral, we will use `Fraction` as poly output.
-	// otherwise, we will use the type itself, assuming it is fully devisible.
-
-	namespace sfinae
-	{
-		template <ShardID SID>
-		struct poly_output { using type = SID; };
-
-		template <std::integral SID>
-		struct poly_output<SID> { using type = Fraction<SID>; };
-	}
-
-	/**
-	 * @typedef senc::utils::shamir::PolyOutput
-	 * @brief Type of shamir polynom output for given shard ID type.
-	 * @tparam SID Shamir shard ID type.
-	 */
-	template <ShardID SID>
-	using PolyOutput = typename sfinae::poly_output<SID>::type;
+	concept ShardID = PolyInput<Self>;
 
 	/**
 	 * @concept senc::utils::shamir::Secret
@@ -52,7 +30,25 @@ namespace senc::utils::shamir
 	 */
 	template <typename Self, typename SID>
 	concept Secret = Addable<Self> && SelfAddable<Self> &&
-		PolyCoeff<Self, SID, SID>;
+		PolyOutput<Self> && PolyCoeff<Self, SID, Self>;
+	// in out shamir polynom, secret is coefficients and output; shard ID is input
+
+	namespace sfinae
+	{
+		template <typename S>
+		struct packed_secret { using type = S; };
+
+		template <std::integral S>
+		struct packed_secret<S> { using type = Fraction<S>; };
+	}
+
+	/**
+	 * @typedef senc::utils::shamir::PackedSecret
+	 * @brief Secret packed by Shamir utilities for sharing.
+	 * @tparam S Original secret shared type. 
+	 */
+	template <typename S>
+	using PackedSecret = typename sfinae::packed_secret<S>::type;
 
 	/**
 	 * @typedef senc::utils::shamir::Poly
@@ -62,7 +58,7 @@ namespace senc::utils::shamir
 	 */
 	template <typename S, ShardID SID = std::int32_t>
 	requires Secret<S, SID>
-	using Poly = senc::utils::Poly<SID, PolyOutput<SID>, S>;
+	using Poly = senc::utils::Poly<SID, PackedSecret<S>, PackedSecret<S>>;
 }
 
 #include "shamir_impl.hpp"
