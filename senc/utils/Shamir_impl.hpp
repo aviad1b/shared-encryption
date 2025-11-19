@@ -16,4 +16,12 @@ namespace senc::utils
 	{
 		return Poly::sample(threshold, [=]() -> PackedSecret { return secretSampler(); });
 	}
+
+	template <typename S, ShamirShardID SID>
+	inline Shamir<S, SID>::Shard Shamir<S, SID>::make_shard(const Poly& poly, SID shardID)
+	{
+		if (!shardID)
+			throw ShamirException("Invalid shard ID provided: Should be non-zero");
+		return { shardID, poly(shardID) };
+	}
 }
