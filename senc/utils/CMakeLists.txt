@@ -28,6 +28,8 @@
 	"enc/AES1L.cpp"
 	"enc/ECHKDF2L.hpp"
 	"enc/ECHKDF2L.cpp"
+	"shamir.hpp"
+	"shamir_impl.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
