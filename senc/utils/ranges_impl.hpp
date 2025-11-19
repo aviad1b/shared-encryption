@@ -28,4 +28,45 @@ namespace senc::utils::ranges
 			std::multiplies<std::ranges::range_value_t<R>>{}
 		);
 	};
+
+	template <std::ranges::view V>
+	inline EnumerateViewIterator<V>::EnumerateViewIterator(
+		std::ranges::iterator_t<V>&& it, std::size_t idx
+	) : _it(std::forward<std::ranges::iterator_t<V>>(it)), _idx(idx) { }
+
+	template <std::ranges::view V>
+	inline EnumerateViewIterator<V>::value_type EnumerateViewIterator<V>::operator*() const
+	{
+		return { _idx, *_it };
+	}
+
+	template <std::ranges::view V>
+	inline EnumerateViewIterator<V>::Self& EnumerateViewIterator<V>::operator++()
+	{
+		++_it;
+		++_idx;
+		return *this;
+	}
+
+	template <std::ranges::view V>
+	inline bool EnumerateViewIterator<V>::operator==(const Self& other) const noexcept
+	{
+		return this->_it == other._it;
+	}
+
+	template <std::ranges::view V>
+	inline EnumerateView<V>::EnumerateView(V&& wrappedView) : _wrappedView(std::move(wrappedView)) { }
+
+	template <std::ranges::view V>
+	inline EnumerateView<V>::iterator EnumerateView<V>::begin()
+	{
+		return iterator(std::ranges::begin(this->_wrappedView), 0);
+	}
+
+	template <std::ranges::view V>
+	inline EnumerateView<V>::iterator EnumerateView<V>::end()
+	{
+		return iterator(std::ranges::end(this->_wrappedView), 0);
+		// `0` is a dummy index here, since `operator==` will discard it
+	}
 }
