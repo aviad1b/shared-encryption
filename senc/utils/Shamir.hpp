@@ -15,6 +15,12 @@
 namespace senc::utils
 {
 	/**
+	 * @typedef senc::utils::ShamirThreshold
+	 * @brief Type used to store threshold of units required for restoring.
+	 */
+	using ShamirThreshold = PolyDegree;
+
+	/**
 	 * @concept senc::utils::ShamirShardID
 	 * @brief Looks for a typename that can be used as a Shamir shard ID (poly input & output).
 	 * @tparam Self Examined typename.
