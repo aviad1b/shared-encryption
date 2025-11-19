@@ -19,9 +19,11 @@ using senc::utils::enc::AES1L;
 using senc::utils::ECGroup;
 using senc::utils::Buffer;
 
-struct EncDecTest : testing::Test, testing::WithParamInterface<Buffer> { };
+struct AES1L_EncDecTest : testing::Test, testing::WithParamInterface<Buffer> { };
 
-TEST_P(EncDecTest, AES)
+struct HybridElGamal_EncDecTest : testing::Test, testing::WithParamInterface<Buffer> { };
+
+TEST_P(AES1L_EncDecTest, AES)
 {
 	AES1L schema;
 	const auto key = schema.keygen();
@@ -31,13 +33,13 @@ TEST_P(EncDecTest, AES)
 	EXPECT_EQ(data, decrypted);
 }
 
-INSTANTIATE_TEST_CASE_P(AES, EncDecTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(AES, AES1L_EncDecTest, testing::Values(
 	Buffer({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }),
 	Buffer({ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }),
 	Buffer({ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })
 ));
 
-TEST_P(EncDecTest, HybridElGamal)
+TEST_P(HybridElGamal_EncDecTest, HybridElGamal)
 {
 	HybridElGamal2L<ECGroup, AES1L, ECHKDF2L> schema;
 	const auto [pubKey1, privKey1] = schema.keygen();
@@ -48,7 +50,7 @@ TEST_P(EncDecTest, HybridElGamal)
 	EXPECT_EQ(data, decrypted);
 }
 
-INSTANTIATE_TEST_CASE_P(HybridElGamal, EncDecTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(HybridElGamal, HybridElGamal_EncDecTest, testing::Values(
 	Buffer({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }),
 	Buffer({ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }),
 	Buffer({ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF })
