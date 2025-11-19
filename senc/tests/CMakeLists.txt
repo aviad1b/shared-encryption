@@ -4,6 +4,7 @@ add_executable(senc_tests
     "test_poly.cpp"
     "test_modint.cpp"
     "test_fraction.cpp"
+    "test_enc.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE

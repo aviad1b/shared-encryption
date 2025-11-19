@@ -6,6 +6,8 @@
 
 namespace senc::utils::enc
 {
+	CryptoPP::AutoSeededRandomPool AES1L::_prng;
+
 	AES1L::Key AES1L::keygen() const
 	{
 		CryptoPP::SecByteBlock res(CryptoPP::AES::DEFAULT_KEYLENGTH);

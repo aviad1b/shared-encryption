@@ -13,6 +13,8 @@
 
 using senc::utils::UdpSocket;
 using senc::utils::TcpSocket;
+using senc::utils::Buffer;
+using senc::utils::byte;
 using senc::utils::IPv4;
 using senc::utils::IPv6;
 
@@ -39,14 +41,14 @@ TEST(SocketTests, TestIPv6)
  */
 TEST(SocketTests, TestUDP)
 {
-	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
+	const Buffer sendData { byte(1), byte(2), byte(3) };
 	UdpSocket<IPv4> sock1, sock2;
 
 	sock1.bind(4350);
 
-	sock2.sendto(sendData, "127.0.0.1", 4350);
+	sock2.send_to(sendData, "127.0.0.1", 4350);
 
-	auto recvData = sock1.recvfrom(sendData.size());
+	auto recvData = sock1.recv_from(sendData.size()).data;
 	EXPECT_EQ(sendData, recvData);
 }
 
@@ -55,7 +57,7 @@ TEST(SocketTests, TestUDP)
  */
 TEST(SocketTests, TestTCP)
 {
-	const std::vector<std::byte> sendData { std::byte(1), std::byte(2), std::byte(3) };
+	const Buffer sendData { byte(1), byte(2), byte(3) };
 	TcpSocket<IPv4> listen_sock, send_sock;
 	std::promise<TcpSocket<IPv4>> p;
 	std::future<TcpSocket<IPv4>> f = p.get_future();
@@ -75,7 +77,7 @@ TEST(SocketTests, TestTCP)
 
 	TcpSocket<IPv4> recv_sock = f.get();
 
-	send_sock.send(sendData);
-	auto recvData = recv_sock.recv(sendData.size());
+	send_sock.send_connected(sendData);
+	auto recvData = recv_sock.recv_connected(sendData.size());
 	EXPECT_EQ(sendData, recvData);
 }

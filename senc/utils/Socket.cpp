@@ -16,6 +16,20 @@ namespace senc::utils
 {
 	const IPv4::Self IPv4::ANY("0.0.0.0");
 
+	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET, &underlying, addrStr, INET_ADDRSTRLEN))
+			throw SocketException("Unknown IPv4 address");
+		this->_addrStr = addrStr;
+	}
+
+	std::tuple<IPv4::Self, Port> IPv4::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin_addr), underlyingSockAddr.sin_port };
+	}
+
 	IPv4::IPv4(const char* addr) : Self(std::string(addr)) { }
 
 	IPv4::IPv4(const std::string& addr) : Self(std::string(addr)) { }
@@ -44,6 +58,20 @@ namespace senc::utils
 	}
 
 	const IPv6::Self IPv6::ANY("::");
+
+	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
+	{
+		char addrStr[INET6_ADDRSTRLEN] = "";
+		if (!::inet_ntop(AF_INET6, &underlying, addrStr, INET6_ADDRSTRLEN))
+			throw SocketException("Unknown IPv6 address");
+		this->_addrStr = addrStr;
+	}
+
+	std::tuple<IPv6::Self, Port> IPv6::from_underlying_sock_addr(
+		const UnderlyingSockAddr& underlyingSockAddr)
+	{
+		return { Self(underlyingSockAddr.sin6_addr), underlyingSockAddr.sin6_port };
+	}
 
 	IPv6::IPv6(const char* addr) : Self(std::string(addr)) { }
 
@@ -105,38 +133,59 @@ namespace senc::utils
 		return UNDERLYING_NO_SOCK != this->_sock;
 	}
 
-	void Socket::send(const std::vector<std::byte>& data)
+	bool Socket::is_connected() const
 	{
-		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::send(this->_sock, (const char*)data.data(), data.size(), 0))
+		return this->_isConnected;
+	}
+
+	void Socket::send_connected(const byte* data, std::size_t size)
+	{
+		if (!is_connected())
+			throw SocketException("Failed to send", "Socket is not connected");
+
+		// Note: We assume here that size does not surpass int limit.
+		if (static_cast<int>(size) != ::send(this->_sock, (const char*)data, (int)size, 0))
 			throw SocketException("Failed to send", get_last_sock_err());
 	}
 
-	std::vector<std::byte> Socket::recv(std::size_t maxsize)
+	Buffer Socket::recv_connected(std::size_t maxsize)
 	{
-		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recv(this->_sock, (char*)res.data(), maxsize, 0);
-		if (count < 0)
-			throw SocketException("Failed to recieve", get_last_sock_err());
-		return std::vector<std::byte>(res.begin(), res.begin() + count);
+		Buffer res(maxsize, static_cast<byte>(0));
+		const std::size_t count = recv_connected_into(res);
+		return Buffer(res.begin(), res.begin() + count);
 	}
 
-	Socket::Socket(Underlying sock) : _sock(sock)
+	std::size_t Socket::recv_connected_into(byte* out, std::size_t maxsize)
+	{
+		if (!is_connected())
+			throw SocketException("Failed to recieve", "Socket is not connected");
+
+		const int count = ::recv(this->_sock, (char*)out, (int)maxsize, 0);
+		if (count < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return count;
+	}
+
+	Socket::Socket(Underlying sock, bool isConnected)
+		: _sock(sock), _isConnected(isConnected)
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)
 			throw SocketException("Failed to create socket", get_last_sock_err());
 	}
 
-	Socket::Socket(Self&& other) : _sock(other._sock)
+	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(other._isConnected)
 	{
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 	}
 
 	Socket::Self& Socket::operator=(Self&& other)
 	{
 		this->close();
 		this->_sock = other._sock;
+		this->_isConnected = other._isConnected;
 		other._sock = UNDERLYING_NO_SOCK;
+		other._isConnected = false;
 		return *this;
 	}
 
@@ -145,6 +194,7 @@ namespace senc::utils
 		try { ::closesocket(this->_sock); }
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
+		this->_isConnected = false;
 	}
 
 	std::string Socket::get_last_sock_err()

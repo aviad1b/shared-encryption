@@ -10,10 +10,21 @@
 
 namespace senc::utils
 {
-	template <IPType IP>
-	inline bool ConnectableSocket<IP>::is_connected() const
+	inline void Socket::send_connected(const HasByteData auto& data)
 	{
-		return this->_isConnected;
+		// Note: We assume here that data.size() does not surpass int limit.
+		return send_connected(data.data(), data.size());
+	}
+
+	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
+	{
+		return recv_connected_into(out.data(), out.size());
+	}
+
+	template <IPType IP>
+	inline void ConnectableSocket<IP>::close()
+	{
+		Base::close();
 	}
 
 	template <IPType IP>
@@ -43,7 +54,7 @@ namespace senc::utils
 
 	template <IPType IP>
 	inline ConnectableSocket<IP>::ConnectableSocket(Underlying sock, bool isConnected)
-		: Base(sock), _isConnected(isConnected) { }
+		: Base(sock, isConnected) { }
 
 	template <IPType IP>
 	inline TcpSocket<IP>::TcpSocket() 
@@ -69,7 +80,7 @@ namespace senc::utils
 		auto sock = ::accept(this->_sock, nullptr, nullptr);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
 			throw SocketException("Failed to accept", Socket::get_last_sock_err());
-		return { sock, true }; // isConnected=true
+		return Self(sock, true); // isConnected=true
 	}
 
 	template <IPType IP>
@@ -91,24 +102,49 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline void UdpSocket<IP>::sendto(const std::vector<std::byte>& data, const IP& addr, Port port)
+	inline void UdpSocket<IP>::send_to(const byte* data, std::size_t size, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 
-		// Note: We assume here that data.size() does not surpass int limit.
-		if (static_cast<int>(data.size()) != ::sendto(this->_sock, (const char*)data.data(), data.size(), 0, (struct sockaddr*)&sa, sizeof(sa)))
+		// Note: We assume here that size does not surpass int limit.
+		if (static_cast<int>(size) != ::sendto(this->_sock, (const char*)data, size, 0, (struct sockaddr*)&sa, sizeof(sa)))
 			throw SocketException("Failed to send", Socket::get_last_sock_err());
 	}
 
 	template <IPType IP>
-	inline std::vector<std::byte> UdpSocket<IP>::recvfrom(std::size_t maxsize)
+	inline void UdpSocket<IP>::send_to(const HasByteData auto& data, const IP& addr, Port port)
 	{
-		std::vector<std::byte> res(maxsize, static_cast<std::byte>(0));
-		const int count = ::recvfrom(this->_sock, (char*)res.data(), maxsize, 0, nullptr, nullptr);
+		return send_to(data.data(), data.size(), addr, port);
+	}
+
+	template <IPType IP>
+	inline UdpSocket<IP>::recv_from_ret_t UdpSocket<IP>::recv_from(std::size_t maxsize)
+	{
+		Buffer res(maxsize, static_cast<byte>(0));
+		auto ret = recv_from_into(res);
+		return { Buffer(res.begin(), res.begin() + ret.count), ret.addr, ret.port };
+	}
+
+	template <IPType IP>
+	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(byte* out, std::size_t maxsize)
+	{
+		typename IP::UnderlyingSockAddr addr{};
+		int addrLen = sizeof(addr);
+		const int count = ::recvfrom(
+			this->_sock, (char*)out, (int)maxsize, 0,
+			(struct sockaddr*)&addr, &addrLen
+		);
 		if (count < 0)
 			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
-		return std::vector<std::byte>(res.begin(), res.begin() + count);
+		auto [ip, port] = IP::from_underlying_sock_addr(addr);
+		return { static_cast<std::size_t>(count), ip, port };
+	}
+
+	template <IPType IP>
+	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(HasMutableByteData auto& out)
+	{
+		return recv_from_into(out.data(), out.size());
 	}
 
 	template <IPType IP>

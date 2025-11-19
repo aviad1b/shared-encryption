@@ -17,19 +17,31 @@ namespace senc::utils
 
 	const ECGroup::Point ECGroup::EC_BASE_POINT = EC_PARAMS.GetSubgroupGenerator();
 
-	const GroupOrder ECGroup::ORDER = EC_PARAMS.GetSubgroupOrder();
-
 	const ECGroup::Self ECGroup::GENERATOR = Self(EC_BASE_POINT);
 
 	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
 
-	const Distribution<CryptoPP::Integer> ECGroup::DIST =
-		Random<CryptoPP::Integer>::get_dist_below(ORDER);
+	const Distribution<BigInt> ECGroup::DIST = Random<BigInt>::get_dist_below(order());
 
-	ECGroup::ECGroup(const CryptoPP::Integer& x, const CryptoPP::Integer& y)
+	GroupOrder ECGroup::order()
+	{
+		return EC_PARAMS.GetSubgroupOrder();
+	}
+
+	ECGroup::Self ECGroup::generator()
+	{
+		return GENERATOR;
+	}
+
+	ECGroup::Self ECGroup::identity()
+	{
+		return IDENTITY;
+	}
+
+	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }
 
-	ECGroup::Self ECGroup::from_scalar(const CryptoPP::Integer& scalar)
+	ECGroup::Self ECGroup::from_scalar(const BigInt& scalar)
 	{
 		if (scalar.IsZero())
 			return IDENTITY;
@@ -59,8 +71,8 @@ namespace senc::utils
 	{
 		if (this->is_identity())
 			return IDENTITY;
-		CryptoPP::Integer p = EC_CURVE.GetField().GetModulus();
-		CryptoPP::Integer negY = (p - this->_point.y) % p;
+		BigInt p = EC_CURVE.GetField().GetModulus();
+		BigInt negY = (p - this->_point.y) % p;
 		return Self(this->_point.x, negY);
 	}
 

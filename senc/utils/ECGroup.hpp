@@ -9,7 +9,6 @@
 #pragma once
 
 #include <cryptopp/eccrypto.h>
-#include <cryptopp/integer.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/oids.h>
 #include <cryptopp/ecp.h>
@@ -17,6 +16,7 @@
 
 #include "Random.hpp"
 #include "Group.hpp"
+#include "math.hpp"
 
 namespace senc::utils
 {
@@ -30,16 +30,30 @@ namespace senc::utils
 	public:
 		using Self = ECGroup;
 
-		static const GroupOrder ORDER; // group order
-		static const Self GENERATOR;   // group generator
-		static const Self IDENTITY;    // group identity element
+		/**
+		 * @brief Gets group order.
+		 * @return Group order.
+		 */
+		static GroupOrder order();
+
+		/**
+		 * @brief Gets group generator.
+		 * @return Group generator.
+		 */
+		static Self generator();
+
+		/**
+		 * @brief Gets group identity element.
+		 * @return Group identity element.
+		 */
+		static Self identity();
 
 		/**
 		 * @brief Constructs a non-identity group element from given x and y values on the curve.
 		 * @param x
 		 * @param y
 		 */
-		ECGroup(const CryptoPP::Integer& x, const CryptoPP::Integer& y);
+		ECGroup(const BigInt& x, const BigInt& y);
 
 		/**
 		 * @brief Copy constructor of elliptic curve group element.
@@ -66,7 +80,7 @@ namespace senc::utils
 		 * @param scalar Scalar to convert to ECGroup elem (in range [`0`, `ORDER`]).
 		 * @return Elliptic curve group mapped from `scalar`.
 		 */
-		static Self from_scalar(const CryptoPP::Integer& scalar);
+		static Self from_scalar(const BigInt& scalar);
 
 		/**
 		 * @brief Samples a random group element.
@@ -131,10 +145,12 @@ namespace senc::utils
 		using Point = ECP::Point;
 
 		// static constants
-		static const Distribution<CryptoPP::Integer> DIST;           // distribution for sampling
+		static const Distribution<BigInt> DIST;           // distribution for sampling
 		static const CryptoPP::DL_GroupParameters_EC<ECP> EC_PARAMS; // eliptic curve parameters
 		static const ECP EC_CURVE;                                   // elliptic curve itself
 		static const Point EC_BASE_POINT;                            // base point of curve
+		static const Self GENERATOR;
+		static const Self IDENTITY;
 
 		// instance fields
 		Point _point;

@@ -12,6 +12,8 @@
 #include <cryptopp/osrng.h>
 #include <tuple>
 
+#include "../bytes.hpp"
+
 namespace senc::utils::enc
 {
 	/**
@@ -22,8 +24,8 @@ namespace senc::utils::enc
 	{
 	public:
 		using Self = AES1L;
-		using Plaintext = std::vector<CryptoPP::byte>;
-		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, std::vector<CryptoPP::byte>>;
+		using Plaintext = Buffer;
+		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, Buffer>;
 		using Key = CryptoPP::SecByteBlock;
 
 		/**

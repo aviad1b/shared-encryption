@@ -6,10 +6,10 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
-#include <cryptopp/integer.h>
 #include <concepts>
 
 #include "Random.hpp"
+#include "math.hpp"
 
 namespace senc::utils
 {
@@ -17,7 +17,7 @@ namespace senc::utils
 	 * @typedef senc::utils::GroupOrder
 	 * @brief Represents an algebric group's order.
 	 */
-	using GroupOrder = CryptoPP::Integer;
+	using GroupOrder = BigInt;
 
 	/**
 	 * @concept senc::utils::Group
@@ -27,9 +27,9 @@ namespace senc::utils
 	template <typename Self>
 	concept Group = std::copyable<Self> && requires(Self self, const Self cself)
 	{
-		{ Self::ORDER } -> std::convertible_to<GroupOrder>;
-		{ Self::GENERATOR } -> std::convertible_to<Self>;
-		{ Self::IDENTITY } -> std::convertible_to<Self>;
+		{ Self::order() } -> std::convertible_to<GroupOrder>;
+		{ Self::generator() } -> std::convertible_to<Self>;
+		{ Self::identity() } -> std::convertible_to<Self>;
 		{ cself.is_identity() } -> std::convertible_to<bool>;
 		{ cself.inverse() } -> std::same_as<Self>;
 		{ std::declval<Self>() * std::declval<Self>() } -> std::same_as<Self>;

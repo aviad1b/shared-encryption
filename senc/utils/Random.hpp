@@ -15,30 +15,32 @@
 #include <random>
 #include <chrono>
 
+#include "math.hpp"
+
 namespace senc::utils
 {
 	/**
-	 * @brief Underlying class used for sampling `CryptoPP::Integer`.
+	 * @brief Underlying class used for sampling `BigInt`.
 	 */
-	class CryptoUnderlyingDist
+	class BigIntUnderlyingDist
 	{
 	public:
-		using Self = CryptoUnderlyingDist;
+		using Self = BigIntUnderlyingDist;
 
-		CryptoUnderlyingDist(const CryptoPP::Integer& min, const CryptoPP::Integer& max);
+		BigIntUnderlyingDist(const BigInt& min, const BigInt& max);
 
-		CryptoUnderlyingDist(const Self&) = default;
+		BigIntUnderlyingDist(const Self&) = default;
 
 		Self& operator=(const Self&) = default;
 
-		CryptoUnderlyingDist(Self&&) = default;
+		BigIntUnderlyingDist(Self&&) = default;
 
 		Self& operator=(Self&&) = default;
 
-		CryptoPP::Integer operator()(CryptoPP::RandomNumberGenerator& engine) const;
+		BigInt operator()(CryptoPP::RandomNumberGenerator& engine) const;
 
 	private:
-		CryptoPP::Integer _min, _max;
+		BigInt _min, _max;
 	};
 
 	namespace sfinae
@@ -50,7 +52,7 @@ namespace senc::utils
 		struct dist_engine<T> { using type = std::mt19937; };
 
 		template <>
-		struct dist_engine<CryptoPP::Integer> { using type = CryptoPP::RandomNumberGenerator; };
+		struct dist_engine<BigInt> { using type = CryptoPP::RandomNumberGenerator; };
 
 		template <typename T>
 		struct underlying_dist { };
@@ -59,7 +61,7 @@ namespace senc::utils
 		struct underlying_dist<T> { using type = std::uniform_int_distribution<T>; };
 
 		template <>
-		struct underlying_dist<CryptoPP::Integer> { using type = CryptoUnderlyingDist; };
+		struct underlying_dist<BigInt> { using type = BigIntUnderlyingDist; };
 	}
 
 	/**

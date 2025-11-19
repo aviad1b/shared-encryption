@@ -14,6 +14,7 @@
 using senc::utils::IntegralModTraits;
 using senc::utils::ModException;
 using senc::utils::ModInt;
+using senc::utils::BigInt;
 
 using senc::utils::mod_pow;
 using senc::utils::pow;
@@ -21,21 +22,20 @@ using senc::utils::pow;
 using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
 using MI6 = ModInt<IntegralModTraits<int, 6, false>>; // composite modulus 6
 
-using CInt = CryptoPP::Integer;
-const CInt CRYPTO_SEVEN = 7;
-const CInt CRYPTO_SIX = 6;
+const BigInt CRYPTO_SEVEN = 7;
+const BigInt CRYPTO_SIX = 6;
 
 struct CMI7Traits
 {
-    using Underlying = CInt;
-    static const CInt& modulus() noexcept { return CRYPTO_SEVEN; }
+    using Underlying = BigInt;
+    static const BigInt& modulus() noexcept { return CRYPTO_SEVEN; }
     static constexpr bool is_known_prime() noexcept { return true; }
 };
 
 struct CMI6Traits
 {
-    using Underlying = CInt;
-    static const CInt& modulus() noexcept { return CRYPTO_SIX; }
+    using Underlying = BigInt;
+    static const BigInt& modulus() noexcept { return CRYPTO_SIX; }
     static constexpr bool is_known_prime() noexcept { return false; }
 };
 
@@ -51,9 +51,9 @@ TEST(ModIntTests, BasicCorrectness)
 
 TEST(ModIntTests, BasicCorrectnessCrypto)
 {
-    EXPECT_EQ(mod_pow(CInt(2), CInt(3), CInt(7)), CInt(8) % CInt(7));  // 2^3 = 8 mod 7 -> 1
-    EXPECT_EQ(mod_pow(CInt(5), CInt(), CInt(7)), CInt(1));             // x^0 = 1 always
-    EXPECT_EQ(mod_pow(CInt(3), CInt(4), CInt(7)), CInt(81) % CInt(7)); // 81 mod 7 = 4
+    EXPECT_EQ(mod_pow(BigInt(2), BigInt(3), BigInt(7)), BigInt(8) % BigInt(7));  // 2^3 = 8 mod 7 -> 1
+    EXPECT_EQ(mod_pow(BigInt(5), BigInt(), BigInt(7)), BigInt(1));             // x^0 = 1 always
+    EXPECT_EQ(mod_pow(BigInt(3), BigInt(4), BigInt(7)), BigInt(81) % BigInt(7)); // 81 mod 7 = 4
 }
 
 TEST(ModIntTests, LargeExponent)
@@ -66,8 +66,8 @@ TEST(ModIntTests, LargeExponentCrypto)
 {
     // Fermat: 2^(6 mod 7) mod 7 = 1
     EXPECT_EQ(
-        mod_pow(CInt(2), CInt(1000000), CInt(7)),
-        mod_pow(CInt(2), CInt(1000000) % CInt(6), CInt(7))
+        mod_pow(BigInt(2), BigInt(1000000), BigInt(7)),
+        mod_pow(BigInt(2), BigInt(1000000) % BigInt(6), BigInt(7))
     );
 }
 
@@ -80,7 +80,7 @@ TEST(ModIntTests, ConstructionAndValue)
 TEST(ModIntTests, ConstructionAndValueCrypto)
 {
     CMI7 x(10);
-    EXPECT_EQ(static_cast<CInt>(x), CInt(10) % CInt(7)); // expect 3
+    EXPECT_EQ(static_cast<BigInt>(x), BigInt(10) % BigInt(7)); // expect 3
 }
 
 TEST(ModIntTests, EqualityComparisons)
@@ -114,9 +114,9 @@ TEST(ModIntTests, Addition)
 TEST(ModIntTests, AdditionCrypto)
 {
     CMI7 a(5), b(6);
-    EXPECT_EQ(static_cast<CInt>(a + b), (CInt(5) + CInt(6)) % CInt(7));  // 11 % 7 = 4
+    EXPECT_EQ(static_cast<BigInt>(a + b), (BigInt(5) + BigInt(6)) % BigInt(7));  // 11 % 7 = 4
     a += b;
-    EXPECT_EQ(static_cast<CInt>(a), CInt(4));
+    EXPECT_EQ(static_cast<BigInt>(a), BigInt(4));
 }
 
 TEST(ModIntTests, Subtraction)
@@ -130,9 +130,9 @@ TEST(ModIntTests, Subtraction)
 TEST(ModIntTests, SubtractionCrypto)
 {
     CMI7 a(1), b(3);
-    EXPECT_EQ(static_cast<CInt>(a - b), (CInt(1) - CInt(3) + CInt(7)) % CInt(7)); // 5
+    EXPECT_EQ(static_cast<BigInt>(a - b), (BigInt(1) - BigInt(3) + BigInt(7)) % BigInt(7)); // 5
     a -= b;
-    EXPECT_EQ(static_cast<CInt>(a), CInt(5));
+    EXPECT_EQ(static_cast<BigInt>(a), BigInt(5));
 }
 
 TEST(ModIntTests, Multiplication)
@@ -146,9 +146,9 @@ TEST(ModIntTests, Multiplication)
 TEST(ModIntTests, MultiplicationCrypto)
 {
     CMI7 a(3), b(4);
-    EXPECT_EQ(static_cast<CInt>(a * b), (CInt(3) * CInt(4)) % CInt(7)); // 12 % 7 = 5
+    EXPECT_EQ(static_cast<BigInt>(a * b), (BigInt(3) * BigInt(4)) % BigInt(7)); // 12 % 7 = 5
     a *= b;
-    EXPECT_EQ(static_cast<CInt>(a), CInt(5));
+    EXPECT_EQ(static_cast<BigInt>(a), BigInt(5));
 }
 
 TEST(ModIntTests, DivisionPrimeModulus)
@@ -160,7 +160,7 @@ TEST(ModIntTests, DivisionPrimeModulus)
 TEST(ModIntTests, DivisionPrimeModulusCrypto)
 {
     CMI7 a(3), b(5); // inverse of 5 mod 7 is 3
-    EXPECT_EQ(static_cast<CInt>(a / b), (CInt(3) * CInt(3)) % CInt(7));
+    EXPECT_EQ(static_cast<BigInt>(a / b), (BigInt(3) * BigInt(3)) % BigInt(7));
 }
 
 TEST(ModIntTests, DivisionInvertibleComposite)
@@ -180,7 +180,7 @@ TEST(ModIntTests, DivisionInvertibleCompositeCrypto)
     // 5^{-1} mod 6 = 5 (because 5*5=25=1 mod 6), so (3/5) = 3*5 = 15 mod 6 = 3
     CMI6 c;
     EXPECT_NO_THROW(c = a / b);
-    EXPECT_EQ(static_cast<CInt>(c), CInt(3));
+    EXPECT_EQ(static_cast<BigInt>(c), BigInt(3));
 }
 
 TEST(ModIntTests, DivisionThrowsNotInvertible)
@@ -206,7 +206,7 @@ TEST(ModIntTests, Inverse)
 TEST(ModIntTests, InverseCrypto)
 {
     CMI7 x(3);
-    EXPECT_EQ(static_cast<CInt>(x.inverse()), CInt(5));
+    EXPECT_EQ(static_cast<BigInt>(x.inverse()), BigInt(5));
 }
 
 TEST(ModIntTests, Power)
@@ -219,8 +219,8 @@ TEST(ModIntTests, Power)
 TEST(ModIntTests, PowerCrypto)
 {
     CMI7 x(3);
-    EXPECT_EQ(static_cast<CInt>(x.pow(CInt(3))), mod_pow(CInt(3), CInt(3), CInt(7)));
-    EXPECT_EQ(static_cast<CInt>(pow(x, CInt(3))), mod_pow(CInt(3), CInt(3), CInt(7)));
+    EXPECT_EQ(static_cast<BigInt>(x.pow(BigInt(3))), mod_pow(BigInt(3), BigInt(3), BigInt(7)));
+    EXPECT_EQ(static_cast<BigInt>(pow(x, BigInt(3))), mod_pow(BigInt(3), BigInt(3), BigInt(7)));
 }
 
 TEST(ModIntTests, IntPlusModInt)
@@ -232,7 +232,7 @@ TEST(ModIntTests, IntPlusModInt)
 TEST(ModIntTests, IntPlusModIntCrypto)
 {
     CMI7 x(5);
-    EXPECT_EQ(static_cast<CInt>(CInt(2) + x), (CInt(2) + CInt(5)) % CInt(7));
+    EXPECT_EQ(static_cast<BigInt>(BigInt(2) + x), (BigInt(2) + BigInt(5)) % BigInt(7));
 }
 
 TEST(ModIntTests, IntMinusModInt)
@@ -244,7 +244,7 @@ TEST(ModIntTests, IntMinusModInt)
 TEST(ModIntTests, IntMinusModIntCrypto)
 {
     CMI7 x(5);
-    EXPECT_EQ(static_cast<CInt>(CInt(2) - x), (CInt(2) - CInt(5) + CInt(7)) % CInt(7));
+    EXPECT_EQ(static_cast<BigInt>(BigInt(2) - x), (BigInt(2) - BigInt(5) + BigInt(7)) % BigInt(7));
 }
 
 TEST(ModIntTests, IntTimesModInt)
@@ -256,7 +256,7 @@ TEST(ModIntTests, IntTimesModInt)
 TEST(ModIntTests, IntTimesModIntCrypto)
 {
     CMI7 x(4);
-    EXPECT_EQ(static_cast<CInt>(CInt(3) * x), (CInt(3) * CInt(4)) % CInt(7));
+    EXPECT_EQ(static_cast<BigInt>(BigInt(3) * x), (BigInt(3) * BigInt(4)) % BigInt(7));
 }
 
 TEST(ModIntTests, IntDivModIntPrime)
@@ -268,5 +268,5 @@ TEST(ModIntTests, IntDivModIntPrime)
 TEST(ModIntTests, IntDivModIntPrimeCrypto)
 {
     CMI7 x(3); // inverse is 5
-    EXPECT_EQ(static_cast<CInt>(CInt(2) / x), (CInt(2) * CInt(5)) % CInt(7));
+    EXPECT_EQ(static_cast<BigInt>(BigInt(2) / x), (BigInt(2) * BigInt(5)) % BigInt(7));
 }
