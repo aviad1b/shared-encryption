@@ -64,7 +64,7 @@ namespace senc::utils
 	 */
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
-	using ShamirPoly = senc::utils::Poly<SID, ShamirPackedSecret<S>, ShamirPackedSecret<S>>;
+	using ShamirPoly = Poly<SID, ShamirPackedSecret<S>, ShamirPackedSecret<S>>;
 }
 
 #include "shamir_impl.hpp"
