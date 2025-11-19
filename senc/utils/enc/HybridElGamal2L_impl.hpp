@@ -37,7 +37,7 @@ namespace senc::utils::enc
 		: _symmetricSchema(std::forward<S>(symmetricSchema)), _kdf(std::forward<KDF>(kdf)) { }
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
-	inline std::pair<HybridElGamal2L<G, S, KDF>::PubKey, HybridElGamal2L<G, S, KDF>::PrivKey>
+	inline std::pair<typename HybridElGamal2L<G, S, KDF>::PubKey, typename HybridElGamal2L<G, S, KDF>::PrivKey>
 		HybridElGamal2L<G, S, KDF>::keygen() const
 	{
 		PrivKey privKey = UNDER_ORDER_DIST();
