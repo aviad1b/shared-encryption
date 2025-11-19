@@ -1,5 +1,6 @@
 add_executable(senc_tests
     "test_main.cpp"
+    "test_ranges.cpp"
     "test_socket.cpp"
     "test_poly.cpp"
     "test_modint.cpp"
