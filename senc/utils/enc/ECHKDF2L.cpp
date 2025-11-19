@@ -36,8 +36,8 @@ namespace senc::utils::enc
 
 		AES1L::Key key(AES1L::KEY_SIZE);
 		_hkdf.DeriveKey(
-			key.data(), key.size(),
-			ikm.data(), ikm.size(),
+			key, key.size(),
+			ikm, ikm.size(),
 			_salt.data(), _salt.size(),
 			nullptr, 0
 		);
