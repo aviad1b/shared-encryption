@@ -20,6 +20,16 @@ namespace senc::utils::shamir
 	 */
 	template <typename Self>
 	concept ShardID = PolyInput<Self> && PolyOutput<Self>;
+
+	/**
+	 * @concept senc::utils::shamir::Secret
+	 * @brief Looks for a typename that can be used as a Shamir-shared secret type.
+	 * @tparam Self Examined typename.
+	 * @tparam SID Shamir shard ID type.
+	 */
+	template <typename Self, typename SID>
+	concept Secret = Addable<Self> && SelfAddable<Self> &&
+		PolyCoeff<Self, SID, SID>;
 }
 
 #include "shamir_impl.hpp"
