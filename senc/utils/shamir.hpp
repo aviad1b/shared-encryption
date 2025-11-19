@@ -23,6 +23,8 @@ namespace senc::utils::shamir
 		(std::integral<Self> || (
 			Devisible<Self> && SelfDevisible<Self> && PolyOutput<Self>
 		));
+	// if ShardID type is integral, we will use `Fraction` as poly output.
+	// otherwise, we will use the type itself, assuming it is fully devisible.
 
 	/**
 	 * @concept senc::utils::shamir::Secret
