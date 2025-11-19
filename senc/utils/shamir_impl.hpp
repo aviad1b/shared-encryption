@@ -8,7 +8,7 @@
 
 #include "shamir.hpp"
 
-namespace senc::utils::shamir
+namespace senc::utils
 {
 
 }
