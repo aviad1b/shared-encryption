@@ -26,7 +26,8 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept ShamirShardID = PolyInput<Self>;
+	concept ShamirShardID = PolyInput<Self> && 
+		EqualityComparable<Self> && BoolConvertible<Self>;
 
 	/**
 	 * @concept senc::utils::ShamirSecret
