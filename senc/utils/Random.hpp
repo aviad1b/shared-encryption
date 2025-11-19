@@ -242,3 +242,5 @@ namespace senc::utils
 		}
 	};
 }
+
+#include "Random_impl.hpp"
