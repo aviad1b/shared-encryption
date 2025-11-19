@@ -102,6 +102,18 @@ namespace senc::utils
 		bool operator==(const Self& other) const;
 
 		/**
+		 * @brief Gets point's X value.
+		 * @return Point's X value.
+		 */
+		const BigInt& x() const;
+
+		/**
+		 * @brief Gets point's Y value.
+		 * @return Point's Y value.
+		 */
+		const BigInt& y() const;
+
+		/**
 		 * @brief Gets inverse of group element (by group operation).
 		 * @return Inverse element of `*this`.
 		 */
@@ -134,6 +146,13 @@ namespace senc::utils
 		 * @return `*this`, after operation applying.
 		 */
 		Self& operator/=(const Self& other);
+
+		/**
+		 * @brief Applies repeated group operation.
+		 * @param exp Amount of times to apply group operation (plus one).
+		 * @return Result of repeated group operation.
+		 */
+		Self pow(const BigInt& exp) const;
 
 		/**
 		 * @brief Output operator for `ECGroup`.

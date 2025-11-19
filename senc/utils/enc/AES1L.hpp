@@ -13,6 +13,7 @@
 #include <tuple>
 
 #include "../bytes.hpp"
+#include "general.hpp"
 
 namespace senc::utils::enc
 {
@@ -28,6 +29,8 @@ namespace senc::utils::enc
 		using Ciphertext = std::tuple<CryptoPP::SecByteBlock, Buffer>;
 		using Key = CryptoPP::SecByteBlock;
 
+		static constexpr std::size_t KEY_SIZE = CryptoPP::AES::DEFAULT_KEYLENGTH;
+
 		/**
 		 * @brief Generates a key for AES one-layer schema.
 		 */
@@ -39,7 +42,7 @@ namespace senc::utils::enc
 		 * @param key Key to use for encryption.
 		 * @return Encrypted plaintext (ciphertext).
 		 */
-		Ciphertext encrypt(const Plaintext& plaintext, const Key& key);
+		Ciphertext encrypt(const Plaintext& plaintext, const Key& key) const;
 
 		/**
 		 * @brief Decrypts a ciphertext using AES one-layer schema.
@@ -47,9 +50,11 @@ namespace senc::utils::enc
 		 * @param key Key to use for decryption.
 		 * @return Decrypted ciphertext (plaintext).
 		 */
-		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key);
+		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key) const;
 
 	private:
 		static CryptoPP::AutoSeededRandomPool _prng;
 	};
+
+	static_assert(Symmetric1L<AES1L>);
 }

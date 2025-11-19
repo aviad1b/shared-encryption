@@ -6,6 +6,8 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#pragma once
+
 #include <cryptopp/config_int.h>
 #include <concepts>
 #include <vector>

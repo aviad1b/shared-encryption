@@ -125,6 +125,10 @@ namespace senc::utils
 	concept DistVal = DistEngineType<DistEngine<Self>, Self> && 
 		UnderlyingDistType<UnderlyingDist<Self>, Self>;
 
+	// safety static asserts: types that should satisfy `DistVal`
+	static_assert(DistVal<int>);
+	static_assert(DistVal<BigInt>);
+
 	/**
 	 * @class senc::utils::Distribution
 	 * @brief Represents a uniform distribution of values.
@@ -199,7 +203,7 @@ namespace senc::utils
 		 * @note Requires `T` to be an integer type.
 		 */
 		static Distribution<T> get_range_dist(const T& min, const T& max) noexcept
-		requires std::integral<T>;
+		requires DistVal<T>;
 
 		/**
 		 * @brief Gets a non-negative sample distribution below a given upper bound.
@@ -238,3 +242,5 @@ namespace senc::utils
 		}
 	};
 }
+
+#include "Random_impl.hpp"
