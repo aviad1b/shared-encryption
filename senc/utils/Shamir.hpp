@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "Fraction.hpp"
 #include "concepts.hpp"
 #include "poly.hpp"
@@ -77,13 +79,13 @@ namespace senc::utils
 		using Self = ShamirException;
 		using Base = Exception;
 
-		ShamirException(const std::string& msg) : Base(msg) { }
+		ShamirException(const std::string& msg) : Base(msg) {}
 
-		ShamirException(std::string&& msg) : Base(std::move(msg)) { }
+		ShamirException(std::string&& msg) : Base(std::move(msg)) {}
 
-		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) { }
-		
-		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
+		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) {}
+
+		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
 
 		ShamirException(const Self&) = default;
 
@@ -92,6 +94,54 @@ namespace senc::utils
 		ShamirException(Self&&) = default;
 
 		Self& operator=(Self&&) = default;
+	};
+
+	/**
+	 * @class senc::utils::Shamir
+	 * @brief Holds static methods for Shamir secret sharing utilities.
+	 * @tparam S Shared secret type.
+	 * @tparam SID Type used as Shamir shard ID.
+	 */
+	template <typename S, ShamirShardID SID = std::int32_t>
+	requires ShamirSecret<S, SID>
+	class Shamir
+	{
+	public:
+		using PackedSecret = ShamirPackedSecret<S>;
+		using Threshold = ShamirThreshold;
+		using Poly = ShamirPoly<S, SID>;
+		using Shard = std::pair<SID, PackedSecret>; // x, poly(x)
+
+		Shamir() = delete;
+
+		/**
+		 * @brief Samples a Shamir polynomial for sharing a given secret.
+		 * @param secret Secret being shared (to use as first coefficient)..
+		 * @param threshold Threshold of units to be able to restore secret (polynom degree).
+		 * @param secretSampler A function for sampling more secrets (coefficients).
+		 * @return Sampled polynom for Shamir secret sharing.
+		 */
+		static Poly sample_poly(const S& secret, Threshold threshold, std::function<S()> secretSampler);
+
+		/**
+		 * @brief Gets Shamir shard based on sampled polynomial.
+		 * @param poly Polynomial sampled for Shamir.
+		 * @param shardID Non-zero ID value for Shamir shard.
+		 * @return A pair where `first` is polynomial input (shard ID),
+		 *		   and `second` is its output for `first`.
+		 * @throws ShamirException If `shardID` is zero-equivalent.
+		 */
+		static Shard make_shard(const Poly& poly, SID shardID);
+
+		/**
+		 * @brief Gets Shamir shards based on sampled polynom.
+		 * @param poly Polynomial sampled for Shamir.
+		 * @param shardsIDs Non-zero unique ID values for Shamir shards.
+		 * @return A list of pairs where each `first` is polynomial input (shard ID),
+		 *		   and each `second` is its output for its `first`.
+		 * @throws ShamirException If `shardsIDs` aren't unique, or if any of them is zero-equivalent.
+		 */
+		static std::vector<Shard> make_shards(const Poly& poly, const std::vector<SID>& shardsIDs);
 	};
 }
 
