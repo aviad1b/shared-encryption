@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   shamir_impl.hpp
- * \brief  Template implementation of Shamir secret sharing utilities.
+ * \brief  Implementation of Shamir class (secret sharing utilities).
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786

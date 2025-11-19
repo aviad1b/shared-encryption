@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   shamir.hpp
- * \brief  Header of Shamir secret sharing utilities.
+ * \file   Shamir.hpp
+ * \brief  Header of Shamir class (secret sharing utilities).
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786
