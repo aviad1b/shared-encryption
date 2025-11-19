@@ -30,14 +30,14 @@ namespace senc::utils::enc
 		const std::size_t bSize = bNum.MinEncodedSize();
 
 		// make (EACH_SIZE * 2)-byte input keying material for HKDF out of aNum and bNum:
-		CryptoPP::SecByteBlock ikm(_ikmEachSize * 2);
-		aNum.Encode(ikm + (_ikmEachSize - aSize), aSize);
-		bNum.Encode(ikm + _ikmEachSize + (_ikmEachSize - bSize), bSize);
+		Buffer ikm(_ikmEachSize * 2);
+		aNum.Encode(ikm.data() + (_ikmEachSize - aSize), aSize);
+		bNum.Encode(ikm.data() + _ikmEachSize + (_ikmEachSize - bSize), bSize);
 
 		AES1L::Key key(AES1L::KEY_SIZE);
 		_hkdf.DeriveKey(
-			key, key.size(),
-			ikm, ikm.size(),
+			key.data(), key.size(),
+			ikm.data(), ikm.size(),
 			_salt.data(), _salt.size(),
 			nullptr, 0
 		);
