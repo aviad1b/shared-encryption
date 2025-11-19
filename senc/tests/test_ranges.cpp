@@ -11,8 +11,8 @@
 
 #include "../utils/ranges.hpp"
 
-using senc::utils::ranges::views::enumerate;
-using senc::utils::ranges::product;
+using senc::utils::views::enumerate;
+using senc::utils::product;
 
 struct RangeProductTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
 

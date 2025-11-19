@@ -15,7 +15,7 @@
 
 #include "concepts.hpp"
 
-namespace senc::utils::ranges
+namespace senc::utils
 {
 	/**
 	 * @brief Computes product of all elements in range
@@ -26,91 +26,94 @@ namespace senc::utils::ranges
 	requires Multiplicable<std::ranges::range_value_t<R>>
 	std::optional<std::ranges::range_value_t<R>> product(R&& r);
 
-	/**
-	 * @class senc::utils::ranges::EnumerateViewIterator
-	 * @brief Iterator type of `senc::utils::ranges::EnumerateView`.
-	 * @tparam V Wrapped view type.
-	 */
-	template <std::ranges::view V>
-	class EnumerateViewIterator
+	namespace ranges
 	{
-	public:
-		using Self = EnumerateViewIterator;
-
-		using value_type = std::pair<std::size_t, std::ranges::range_reference_t<V>>;
-		using iterator_category = std::input_iterator_tag;
-		using iterator_concept = std::input_iterator_tag;
-
-		explicit EnumerateViewIterator(std::ranges::iterator_t<V>&& it, std::size_t idx);
-
-		value_type operator*() const;
-
-		Self& operator++();
-
-		bool operator==(const Self& other) const noexcept;
-
-	private:
-		std::ranges::iterator_t<V> _it;
-		std::size_t _idx;
-	};
-
-	/**
-	 * @class senc::utils::ranges::EnumerateView
-	 * @brief View range allowing indexed iteration.
-	 * @tparam V Wrapped view type.
-	 */
-	template <std::ranges::view V>
-	class EnumerateView : public std::ranges::view_interface<EnumerateView<V>>
-	{
-	public:
-		using Self = EnumerateView<V>;
-
-		using iterator = EnumerateViewIterator<V>;
-
-		EnumerateView() = default;
-
-		EnumerateView(Self&&) = default;
-
-		Self& operator=(Self&&) = default;
-
-		explicit EnumerateView(V&& wrappedView);
-
-		iterator begin();
-
-		iterator end();
-
-	private:
-		V _wrappedView;
-	};
-
-	// if given range, construct with an all view
-	template <std::ranges::range R>
-	EnumerateView(R&&) -> EnumerateView<std::views::all_t<R>>;
-
-	/**
-	 * @class senc::utils::ranges::EnumerateFn
-	 * @brief Closure type for `senc::utils::ranges::EnumerateView`.
-	 */
-	class EnumerateFn
-	{
-	public:
-		using Self = EnumerateFn;
-
-		EnumerateFn() noexcept = default;
-
-		template <std::ranges::range R>
-		constexpr auto operator()(R&& range) const
+		/**
+		 * @class senc::utils::ranges::EnumerateViewIterator
+		 * @brief Iterator type of `senc::utils::ranges::EnumerateView`.
+		 * @tparam V Wrapped view type.
+		 */
+		template <std::ranges::view V>
+		class EnumerateViewIterator
 		{
-			return EnumerateView(std::forward<R>(range));
-		}
-	};
+		public:
+			using Self = EnumerateViewIterator;
 
-	/**
-	 * @brief Allows simple pipe syntax for range and `EnumerateView`.
-	 */
-	inline auto operator|(std::ranges::range auto&& range, EnumerateFn fn)
-	{
-		return fn(range);
+			using value_type = std::pair<std::size_t, std::ranges::range_reference_t<V>>;
+			using iterator_category = std::input_iterator_tag;
+			using iterator_concept = std::input_iterator_tag;
+
+			explicit EnumerateViewIterator(std::ranges::iterator_t<V>&& it, std::size_t idx);
+
+			value_type operator*() const;
+
+			Self& operator++();
+
+			bool operator==(const Self& other) const noexcept;
+
+		private:
+			std::ranges::iterator_t<V> _it;
+			std::size_t _idx;
+		};
+
+		/**
+		 * @class senc::utils::ranges::EnumerateView
+		 * @brief View range allowing indexed iteration.
+		 * @tparam V Wrapped view type.
+		 */
+		template <std::ranges::view V>
+		class EnumerateView : public std::ranges::view_interface<EnumerateView<V>>
+		{
+		public:
+			using Self = EnumerateView<V>;
+
+			using iterator = EnumerateViewIterator<V>;
+
+			EnumerateView() = default;
+
+			EnumerateView(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit EnumerateView(V&& wrappedView);
+
+			iterator begin();
+
+			iterator end();
+
+		private:
+			V _wrappedView;
+		};
+
+		// if given range, construct with an all view
+		template <std::ranges::range R>
+		EnumerateView(R&&) -> EnumerateView<std::views::all_t<R>>;
+
+		/**
+		 * @class senc::utils::ranges::EnumerateFn
+		 * @brief Closure type for `senc::utils::ranges::EnumerateView`.
+		 */
+		class EnumerateFn
+		{
+		public:
+			using Self = EnumerateFn;
+
+			EnumerateFn() noexcept = default;
+
+			template <std::ranges::range R>
+			constexpr auto operator()(R&& range) const
+			{
+				return EnumerateView(std::forward<R>(range));
+			}
+		};
+
+		/**
+		 * @brief Allows simple pipe syntax for range and `EnumerateView`.
+		 */
+		inline auto operator|(std::ranges::range auto&& range, EnumerateFn fn)
+		{
+			return fn(range);
+		}
 	}
 
 	namespace views
@@ -118,7 +121,7 @@ namespace senc::utils::ranges
 		/**
 		 * @brief Enumerate view instance.
 		 */
-		inline constexpr EnumerateFn enumerate;
+		inline constexpr ranges::EnumerateFn enumerate;
 	}
 }
 
