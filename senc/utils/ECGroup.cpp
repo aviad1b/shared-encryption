@@ -67,6 +67,16 @@ namespace senc::utils
 		return (this->_point.x == other._point.x && this->_point.y == other._point.y);
 	}
 
+	const BigInt& ECGroup::x() const
+	{
+		return this->_point.x;
+	}
+
+	const BigInt& ECGroup::y() const
+	{
+		return this->_point.y;
+	}
+
 	ECGroup::Self ECGroup::inverse() const
 	{
 		if (this->is_identity())

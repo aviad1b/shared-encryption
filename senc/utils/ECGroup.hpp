@@ -102,6 +102,18 @@ namespace senc::utils
 		bool operator==(const Self& other) const;
 
 		/**
+		 * @brief Gets point's X value.
+		 * @return Point's X value.
+		 */
+		const BigInt& x() const;
+
+		/**
+		 * @brief Gets point's Y value.
+		 * @return Point's Y value.
+		 */
+		const BigInt& y() const;
+
+		/**
 		 * @brief Gets inverse of group element (by group operation).
 		 * @return Inverse element of `*this`.
 		 */
