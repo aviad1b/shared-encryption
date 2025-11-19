@@ -26,6 +26,8 @@
 	"enc/HybridElGamal2L_impl.hpp"
 	"enc/AES1L.hpp"
 	"enc/AES1L.cpp"
+	"enc/ECHKDF2L.hpp"
+	"enc/ECHKDF2L.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)
