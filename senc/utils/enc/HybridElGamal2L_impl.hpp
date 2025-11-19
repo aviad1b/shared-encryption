@@ -17,10 +17,25 @@ namespace senc::utils::enc
 	const Distribution<BigInt> HybridElGamal2L<G, S, KDF>::UNDER_ORDER_DIST =
 		Random<BigInt>::get_dist_below(G::order());
 
+	template<Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L()
+	requires std::is_default_constructible_v<S> && std::is_default_constructible_v<KDF>
+		: Self(S(), KDF()) { }
+
+	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(S&& symmetricSchema)
+	requires std::is_default_constructible_v<KDF>
+		: Self(symmetricSchema, KDF()) { }
+
+	template<Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(KDF&& kdf)
+	requires std::is_default_constructible_v<S>
+		: Self(S(), kdf) { }
+
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(S&& symmetricSchema, KDF&& kdf)
 		: _symmetricSchema(std::forward<S>(symmetricSchema)), _kdf(std::forward<KDF>(kdf)) { }
-	
+
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline std::pair<HybridElGamal2L<G, S, KDF>::PubKey, HybridElGamal2L<G, S, KDF>::PrivKey>
 		HybridElGamal2L<G, S, KDF>::keygen() const

@@ -36,6 +36,31 @@ namespace senc::utils::enc
 		using PrivKey = BigInt;
 
 		/**
+		 * @brief Constructs an instance with default-constructed `S` and `KDF` instances.
+		 * @param symmetricSchema `S` instance (symmetric schema)>
+		 * @param kdf `KDF` instance (key deriviation function).
+		 * @note Requires both `S` and `KDF` to be default-constructible.
+		 */
+		HybridElGamal2L()
+		requires std::is_default_constructible_v<S> && std::is_default_constructible_v<KDF>;
+
+		/**
+		 * @brief Constructs an instance with the given `S` instance and a default-constructed `KDF` instance.
+		 * @param symmetricSchema `S` instance (symmetric schema)>
+		 * @note Requires `KDF` to be default-constructible.
+		 */
+		HybridElGamal2L(S&& symmetricSchema)
+		requires std::is_default_constructible_v<KDF>;
+
+		/**
+		 * @brief Constructs an instance with the given `KDF` instance and a default-constructed `S` instance.
+		 * @param kdf `KDF` instance (key deriviation function).
+		 * @note Requires `S` to be default-constructible.
+		 */
+		HybridElGamal2L(KDF&& kdf)
+		requires std::is_default_constructible_v<S>;
+
+		/**
 		 * @brief Constructs an instance with the given `S` and `KDF` instances.
 		 * @param symmetricSchema `S` instance (symmetric schema)>
 		 * @param kdf `KDF` instance (key deriviation function).
