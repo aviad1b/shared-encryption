@@ -39,6 +39,9 @@ namespace senc::utils
 	 */
 	template <typename Self, typename SID>
 	concept ShamirSecret = Addable<Self> && SelfAddable<Self> &&
+		Subtractable<Self> && SelfSubtractable<Self> && Negatable<Self> &&
+		Multiplicable<Self> && SelfMultiplicable<Self> &&
+		Devisible<Self> && SelfDevisible<Self> &&
 		PolyOutput<Self> && PolyCoeff<Self, SID, Self>;
 	// in out shamir polynom, secret is coefficients and output; shard ID is input
 
