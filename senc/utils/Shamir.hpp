@@ -56,7 +56,7 @@ namespace senc::utils
 	 * @tparam S Type of shared secret.
 	 * @tparam SID Type used as Shamir shard ID.
 	 */
-	template <typename S, ShamirShardID SID = std::int32_t>
+	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
 	using ShamirPoly = senc::utils::Poly<SID, ShamirPackedSecret<S>, ShamirPackedSecret<S>>;
 }
