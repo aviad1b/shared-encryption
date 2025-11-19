@@ -116,9 +116,9 @@ namespace senc::utils::ranges
 	namespace views
 	{
 		/**
-		 * @brief Gets enumerate view instance.
+		 * @brief Enumerate view instance.
 		 */
-		inline constexpr auto enumerate = []() { return EnumerateFn{}; };
+		inline constexpr EnumerateFn enumerate;
 	}
 }
 
