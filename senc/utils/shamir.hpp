@@ -19,8 +19,10 @@ namespace senc::utils::shamir
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept ShardID = PolyInput<Self> && PolyOutput<Self> &&
-		(std::integral<Self> || (Devisible<Self> && SelfDevisible<Self>));
+	concept ShardID = PolyInput<Self> &&
+		(std::integral<Self> || (
+			Devisible<Self> && SelfDevisible<Self> && PolyOutput<Self>
+		));
 
 	/**
 	 * @concept senc::utils::shamir::Secret
