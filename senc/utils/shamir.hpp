@@ -53,6 +53,16 @@ namespace senc::utils::shamir
 	template <typename Self, typename SID>
 	concept Secret = Addable<Self> && SelfAddable<Self> &&
 		PolyCoeff<Self, SID, SID>;
+
+	/**
+	 * @typedef senc::utils::shamir::Poly
+	 * @brief Polynomial type used for Shamir secret sharing.
+	 * @tparam S Type of shared secret.
+	 * @tparam SID Type used as Shamir shard ID.
+	 */
+	template <typename S, ShardID SID = std::int32_t>
+	requires Secret<S, SID>
+	using Poly = senc::utils::Poly<SID, PolyOutput<SID>, S>;
 }
 
 #include "shamir_impl.hpp"
