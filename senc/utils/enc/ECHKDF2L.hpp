@@ -56,6 +56,8 @@ namespace senc::utils::enc
 		std::size_t _ikmEachSize;
 		Buffer _salt;
 
+		CryptoPP::HKDF<CryptoPP::SHA256> _hkdf;
+
 		static constexpr std::size_t DEFAULT_IKM_EACH_SIZE = 32; // default ikmEachSize is 32 (resulting 64-byte IKM)
 		static constexpr std::initializer_list<byte> DEFAULT_SALT = { 4, 3, 5 }; // default salt value
 	};

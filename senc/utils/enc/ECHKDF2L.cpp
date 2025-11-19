@@ -35,8 +35,7 @@ namespace senc::utils::enc
 		bNum.Encode(ikm + _ikmEachSize + (_ikmEachSize - bSize), bSize);
 
 		AES1L::Key key(AES1L::KEY_SIZE);
-		CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
-		hkdf.DeriveKey(
+		_hkdf.DeriveKey(
 			key.data(), key.size(),
 			ikm.data(), ikm.size(),
 			_salt.data(), _salt.size(),
