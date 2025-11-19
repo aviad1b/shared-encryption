@@ -11,9 +11,12 @@
 
 #include "../utils/ranges.hpp"
 
+using senc::utils::ranges::views::enumerate;
 using senc::utils::ranges::product;
 
 struct RangeProductTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
+
+struct RangeEnumerateTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
 
 TEST_P(RangeProductTest, Ranges)
 {
@@ -27,6 +30,26 @@ TEST_P(RangeProductTest, Ranges)
 }
 
 INSTANTIATE_TEST_CASE_P(Ranges, RangeProductTest, testing::Values(
+	std::vector<int>({ 1, 1, 1, 1, 1 }),
+	std::vector<int>({ 1, 2, 3, 4, 5 }),
+	std::vector<int>({ 234, 124, 12 })
+));
+
+TEST_P(RangeEnumerateTest, Ranges)
+{
+	const auto& elems = GetParam();
+	auto it = elems.begin();
+	std::size_t i = 0;
+	for (auto [idx, elem] : elems | enumerate)
+	{
+		EXPECT_EQ(*it, elem);
+		EXPECT_EQ(i, idx);
+		++i;
+		++it;
+	}
+}
+
+INSTANTIATE_TEST_CASE_P(Ranges, RangeEnumerateTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
