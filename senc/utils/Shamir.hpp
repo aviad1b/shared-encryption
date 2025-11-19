@@ -129,7 +129,7 @@ namespace senc::utils
 		 * @param shardID Non-zero ID value for Shamir shard.
 		 * @return A pair where `first` is polynomial input (shard ID),
 		 *		   and `second` is its output for `first`.
-		 * @throws ShamirException If `shardID` is zero-equivalent.
+		 * @throw ShamirException If `shardID` is zero-equivalent.
 		 */
 		static Shard make_shard(const Poly& poly, SID shardID);
 
@@ -139,9 +139,28 @@ namespace senc::utils
 		 * @param shardsIDs Non-zero unique ID values for Shamir shards.
 		 * @return A list of pairs where each `first` is polynomial input (shard ID),
 		 *		   and each `second` is its output for its `first`.
-		 * @throws ShamirException If `shardsIDs` aren't unique, or if any of them is zero-equivalent.
+		 * @throw ShamirException If `shardsIDs` aren't unique, or if any of them is zero-equivalent.
 		 */
 		static std::vector<Shard> make_shards(const Poly& poly, const std::vector<SID>& shardsIDs);
+
+		/**
+		 * @brief Restores a Shamir-shared secret.
+		 * @param shards Shamir shards to restore secret from.
+		 * @param threshold Original threshold used for sharing.
+		 * @return Restores secret.
+		 * @throw ShamirException If not enough shards are provided, or shards are invalid.
+		 */
+		static S restore_secret(const std::vector<Shard>& shards, Threshold threshold);
+
+	private:
+		/**
+		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
+		 * @param i Index of shard in sequence.
+		 * @param shardsIDs Sequence of shards IDs.
+		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
+		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
+		 */
+		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID> shardsIDs);
 	};
 }
 
