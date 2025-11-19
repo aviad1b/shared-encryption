@@ -13,6 +13,7 @@
 #include <tuple>
 
 #include "../bytes.hpp"
+#include "general.hpp"
 
 namespace senc::utils::enc
 {
@@ -54,4 +55,6 @@ namespace senc::utils::enc
 	private:
 		static CryptoPP::AutoSeededRandomPool _prng;
 	};
+
+	static_assert(Symmetric1L<AES1L>);
 }
