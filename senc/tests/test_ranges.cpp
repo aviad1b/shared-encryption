@@ -13,10 +13,30 @@
 
 using senc::utils::views::enumerate;
 using senc::utils::product;
+using senc::utils::sum;
+
+struct RangeSumTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
 
 struct RangeProductTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
 
 struct RangeEnumerateTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
+
+TEST_P(RangeSumTest, Ranges)
+{
+	const auto& elems = GetParam();
+	int sumCalc = 1;
+	for (int elem : elems)
+		sumCalc += elem;
+	auto sumRet = sum(elems);
+	EXPECT_TRUE(sumRet.has_value());
+	EXPECT_EQ(sumRet.value(), sumCalc);
+}
+
+INSTANTIATE_TEST_CASE_P(Ranges, RangeSumTest, testing::Values(
+	std::vector<int>({ 1, 1, 1, 1, 1 }),
+	std::vector<int>({ 1, 2, 3, 4, 5 }),
+	std::vector<int>({ 234, 124, 12 })
+));
 
 TEST_P(RangeProductTest, Ranges)
 {
