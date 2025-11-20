@@ -62,6 +62,8 @@ namespace senc::utils
 			shards |
 			std::views::transform([](const Shard& shard) -> const SID& { return shard.first; })
 		);
+		if (shards.size() <= threshold)
+			throw ShamirException("Not enough shards provided to restore secret");
 		PackedSecret res = utils::sum(
 			shards |
 			std::views::transform([](const Shard& shard) -> const PackedSecret& { return shard.second; }) |
