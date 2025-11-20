@@ -10,6 +10,8 @@
 
 #include <unordered_set>
 
+#include "ranges.hpp"
+
 namespace senc::utils
 {
 	template <typename S, ShamirShardID SID>
@@ -41,5 +43,27 @@ namespace senc::utils
 			usedIDs.insert(shardID);
 		}
 		return res;
+	}
+
+	template <typename S, ShamirShardID SID>
+	inline Shamir<S, SID>::PackedSecret Shamir<S, SID>::get_lagrange_coeff(
+		std::size_t i, const std::vector<SID> shardsIDs)
+	{
+		std::unordered_set<SID> shardsIDsSet;
+		for (const SID& shardID : shardsIDs)
+		{
+			if (!shardID)
+				throw ShamirException("Invalid ID provided: Should be non-zero");
+			shardsIDsSet.insert(shardID);
+		}
+		if (shardsIDs.size() != shardsIDsSet.size())
+			throw ShamirException("Invalid IDs provided: Not unique");
+		const auto& xi = shardsIDs[i];
+		return utils::product(
+			shardsIDs |
+			views::enumerate | // p = pair{j, xj}
+			std::views::filter([i](const auto& p) { return p.first != i; }) | // filter where index isn't i
+			std::views::transform([](const auto& p) { return -p.second / xi - p.second; })
+		).value();
 	}
 }
