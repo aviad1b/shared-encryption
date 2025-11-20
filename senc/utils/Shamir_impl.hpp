@@ -22,7 +22,7 @@ namespace senc::utils
 		return Poly::sample(
 			threshold,
 			[=]() -> PackedSecret { return secretSampler(); },
-			secret
+			PackedSecret(secret)
 		);
 	}
 
