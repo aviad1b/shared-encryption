@@ -47,7 +47,7 @@ namespace senc::utils
 		for (const SID& shardID : shardsIDs)
 		{
 			if (usedIDs.contains(shardID))
-				throw ShamirException(std::format("Same ID provided twice, IDs should be unique"), shardID);
+				throw ShamirException("Same ID provided twice, IDs should be unique");
 			res.push_back(make_shard(poly, shardID));
 			usedIDs.insert(shardID);
 		}
