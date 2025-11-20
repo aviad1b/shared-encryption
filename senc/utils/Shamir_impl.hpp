@@ -61,7 +61,7 @@ namespace senc::utils
 				const auto& [i, yi] = p; // shard index, shard value
 				return yi * get_lagrange_coeff(i, shardsIDs);
 			})
-		);
+		).value();
 
 		// if original was integral, unpack from fraction
 		if constexpr (std::integral<S>)
