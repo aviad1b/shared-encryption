@@ -169,4 +169,4 @@ namespace senc::utils
 	};
 }
 
-#include "shamir_impl.hpp"
+#include "Shamir_impl.hpp"

@@ -6,7 +6,7 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
-#include "shamir.hpp"
+#include "Shamir.hpp"
 
 #include <unordered_set>
 
