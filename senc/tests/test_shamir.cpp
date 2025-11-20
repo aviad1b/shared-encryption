@@ -31,7 +31,7 @@ TEST_P(ShareIntTest, ShareInt)
 	auto dist = Random<int>::get_range_dist(-100, 100);
 	const auto& params = GetParam();
 	auto poly = Shamir::sample_poly(params.secret, params.threshold, dist);
-	auto shards = Shamir::make_shards(poly, std::views::iota(0, params.numShards));
+	auto shards = Shamir::make_shards(poly, std::views::iota(1, params.numShards + 1));
 
 	if (params.success)
 	{
