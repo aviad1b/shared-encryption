@@ -151,7 +151,7 @@ namespace senc::utils
 		 * @param shards Shamir shards to restore secret from.
 		 * @param threshold Original threshold used for sharing.
 		 * @return Restores secret.
-		 * @throw ShamirException If not enough shards are provided, or shards are invalid.
+		 * @throw ShamirException If not enough shards are provided, or shards are invalid, or failed.
 		 */
 		static S restore_secret(const std::vector<Shard>& shards, Threshold threshold);
 

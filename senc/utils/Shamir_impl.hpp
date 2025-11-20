@@ -46,6 +46,34 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	inline S Shamir<S, SID>::restore_secret(const std::vector<Shard>& shards, Threshold threshold)
+	{
+		std::vector<SID> shardsIDs = utils::to_vector<SID>(
+			shards |
+			std::views::transform([](const Shard& shard) -> const SID& { return shard.first; })
+		);
+		PackedSecret res = utils::sum(
+			shards |
+			std::views::transform([](const Shard& shard) -> const PackedSecret& { return shard.second; }) |
+			views::enumerate |
+			std::views::transform([&shardsIDs](const std::pair<std::size_t, const PackedSecret&>& p) -> PackedSecret
+			{
+				const auto& [i, yi] = p; // shard index, shard value
+				return yi * get_lagrange_coeff(i, shardsIDs);
+			})
+		);
+
+		// if original was integral, unpack from fraction
+		if constexpr (std::integral<S>)
+		{
+			if (1 != res.denominator())
+				throw ShamirException("Failed to restore integral type");
+			return res.numerator();
+		}
+		else return res; // if not integral, S is same as PackedSecret; return
+	}
+
+	template <typename S, ShamirShardID SID>
 	inline Shamir<S, SID>::PackedSecret Shamir<S, SID>::get_lagrange_coeff(
 		std::size_t i, const std::vector<SID> shardsIDs)
 	{
