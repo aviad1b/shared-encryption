@@ -18,9 +18,9 @@
 namespace senc::utils
 {
 	/**
-	 * @brief Computes product of all elements in range
+	 * @brief Computes product of all elements in range.
 	 * @param r Range to compute product of.
-	 * @return `std::nullopt` is `r` is empty, elements product otherwise.
+	 * @return `std::nullopt` if `r` is empty, elements product otherwise.
 	 */
 	template <std::ranges::input_range R>
 	requires Multiplicable<std::ranges::range_value_t<R>>
