@@ -24,7 +24,7 @@ struct RangeEnumerateTest : testing::Test, testing::WithParamInterface<std::vect
 TEST_P(RangeSumTest, Ranges)
 {
 	const auto& elems = GetParam();
-	int sumCalc = 1;
+	int sumCalc = 0;
 	for (int elem : elems)
 		sumCalc += elem;
 	auto sumRet = sum(elems);
