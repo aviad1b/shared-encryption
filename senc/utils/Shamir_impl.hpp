@@ -15,6 +15,7 @@
 namespace senc::utils
 {
 	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline Shamir<S, SID>::Poly Shamir<S, SID>::sample_poly(
 		const S& secret, Threshold threshold, std::function<S()> secretSampler)
 	{
@@ -22,6 +23,7 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline Shamir<S, SID>::Shard Shamir<S, SID>::make_shard(const Poly& poly, SID shardID)
 	{
 		if (!shardID)
@@ -30,6 +32,7 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	template <std::ranges::input_range R>
 	requires std::convertible_to<std::ranges::range_value_t<R>, SID>
 	inline std::vector<Shamir<S, SID>::Shard> 
@@ -48,6 +51,7 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline S Shamir<S, SID>::restore_secret(const std::vector<Shard>& shards, Threshold threshold)
 	{
 		std::vector<SID> shardsIDs = utils::to_vector<SID>(
@@ -76,6 +80,7 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline Shamir<S, SID>::PackedSecret Shamir<S, SID>::get_lagrange_coeff(
 		std::size_t i, const std::vector<SID> shardsIDs)
 	{
