@@ -21,7 +21,8 @@ namespace senc::utils
 	{
 		return Poly::sample(
 			threshold,
-			[=]() -> PackedSecret { return secretSampler(); }
+			[=]() -> PackedSecret { return secretSampler(); },
+			secret
 		);
 	}
 
