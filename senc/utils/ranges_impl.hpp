@@ -11,7 +11,7 @@
 namespace senc::utils
 {
 	template <std::ranges::input_range R>
-		requires Multiplicable<std::ranges::range_value_t<R>>
+	requires Multiplicable<std::ranges::range_value_t<R>>
 	inline std::optional<std::ranges::range_value_t<R>> product(R&& r)
 	{
 		auto it = std::ranges::begin(r);
@@ -27,7 +27,7 @@ namespace senc::utils
 			it, end, res,
 			std::multiplies<std::ranges::range_value_t<R>>{}
 		);
-	};
+	}
 
 	namespace ranges
 	{
