@@ -10,6 +10,16 @@
 
 namespace senc::utils
 {
+	template <typename T, std::ranges::input_range R>
+	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	inline std::vector<T> to_vector(R&& range)
+	{
+		std::vector<T> res;
+		for (auto it = range.begin(); it != range.end(); ++it)
+			res.emplace_back(*it);
+		return res;
+	}
+
 	template <std::ranges::input_range R>
 	requires Multiplicable<std::ranges::range_value_t<R>>
 	inline std::optional<std::ranges::range_value_t<R>> product(R&& r)

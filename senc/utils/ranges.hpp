@@ -18,6 +18,16 @@
 namespace senc::utils
 {
 	/**
+	 * @brief Converts range into vector.
+	 * @tparam T Element type.
+	 * @param range Range to convert into vector.
+	 * @return Vector version of `range`.
+	 */
+	template <typename T, std::ranges::input_range R>
+	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	std::vector<T> to_vector(R&& range);
+
+	/**
 	 * @brief Computes product of all elements in range.
 	 * @param r Range to compute product of.
 	 * @return `std::nullopt` if `r` is empty, elements product otherwise.
