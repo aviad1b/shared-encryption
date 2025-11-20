@@ -30,8 +30,10 @@ namespace senc::utils
 	}
 
 	template <typename S, ShamirShardID SID>
+	template <std::ranges::input_range R>
+	requires std::convertible_to<std::ranges::range_value_t<R>, SID>
 	inline std::vector<Shamir<S, SID>::Shard> 
-		Shamir<S, SID>::make_shards(const Poly& poly, const std::vector<SID>& shardsIDs)
+		Shamir<S, SID>::make_shards(const Poly& poly, R&& shardsIDs)
 	{
 		std::unordered_set<SID> usedIDs;
 		std::vector<Shard> res;

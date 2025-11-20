@@ -144,7 +144,9 @@ namespace senc::utils
 		 *		   and each `second` is its output for its `first`.
 		 * @throw ShamirException If `shardsIDs` aren't unique, or if any of them is zero-equivalent.
 		 */
-		static std::vector<Shard> make_shards(const Poly& poly, const std::vector<SID>& shardsIDs);
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_value_t<R>, SID>
+		static std::vector<Shard> make_shards(const Poly& poly, R&& shardsIDs);
 
 		/**
 		 * @brief Restores a Shamir-shared secret.
