@@ -29,6 +29,24 @@ namespace senc::utils
 		);
 	}
 
+	template <std::ranges::input_range R>
+	std::optional<std::ranges::range_value_t<R>> sum(R&& r)
+	{
+		auto it = std::ranges::begin(r);
+		auto end = std::ranges::end(r);
+
+		if (it == end)
+			return std::nullopt;
+
+		auto res = *it;
+		++it;
+
+		return std::accumulate(
+			it, end, res,
+			std::plus<std::ranges::range_value_t<R>>{}
+		);
+	}
+
 	namespace ranges
 	{
 		template <std::ranges::view V>
