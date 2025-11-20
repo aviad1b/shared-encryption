@@ -30,6 +30,7 @@ namespace senc::utils
 	}
 
 	template <std::ranges::input_range R>
+	requires Addable<std::ranges::range_value_t<R>>
 	inline std::optional<std::ranges::range_value_t<R>> sum(R&& r)
 	{
 		auto it = std::ranges::begin(r);
