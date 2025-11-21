@@ -68,7 +68,7 @@ namespace senc::utils
 			shards |
 			std::views::transform([](const Shard& shard) -> const PackedSecret& { return shard.second; }) |
 			views::enumerate |
-			std::views::transform([&shardsIDs](const std::pair<std::size_t, const PackedSecret&>& p) -> PackedSecret
+			std::views::transform([&shardsIDs](auto p) -> PackedSecret
 			{
 				const auto& [i, yi] = p; // shard index, shard value
 				return yi * get_lagrange_coeff(i, shardsIDs);
