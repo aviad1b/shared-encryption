@@ -104,7 +104,7 @@ namespace senc::utils
 			shardsIDs |
 			views::enumerate | // p = pair{j, xj}
 			std::views::filter([i](auto p) { return p.first != i; }) | // filter where index isn't i
-			std::views::transform([](auto p) { return -p.second / xi - p.second; })
+			std::views::transform([xi](auto p) { return -p.second / xi - p.second; })
 		).value();
 	}
 }
