@@ -8,14 +8,14 @@ namespace senc::utils::enc
 {
 	CryptoPP::AutoSeededRandomPool AES1L::_prng;
 
-	AES1L::Key AES1L::keygen() const
+	AES1L::Key AES1L::keygen()
 	{
 		CryptoPP::SecByteBlock res(KEY_SIZE);
 		_prng.GenerateBlock(res, res.size());
 		return res;
 	}
 
-	AES1L::Ciphertext AES1L::encrypt(const Plaintext& plaintext, const Key& key) const
+	AES1L::Ciphertext AES1L::encrypt(const Plaintext& plaintext, const Key& key)
 	{
 		CryptoPP::SecByteBlock cipherIV(CryptoPP::AES::BLOCKSIZE);
 		_prng.GenerateBlock(cipherIV, cipherIV.size());		
@@ -37,7 +37,7 @@ namespace senc::utils::enc
 		return { cipherIV, cipherData };
 	}
 
-	AES1L::Plaintext AES1L::decrypt(const Ciphertext& ciphertext, const Key& key) const
+	AES1L::Plaintext AES1L::decrypt(const Ciphertext& ciphertext, const Key& key)
 	{
 		const auto& [cipherIV, cipherData] = ciphertext;
 		CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption decryptor;
