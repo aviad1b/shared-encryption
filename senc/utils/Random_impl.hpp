@@ -15,7 +15,7 @@ namespace senc::utils
 		: _dist(min, max), _engine(engine) { }
 
 	template <DistVal T>
-	inline T Distribution<T>::operator()() const noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>)
+	inline T Distribution<T>::operator()() noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>)
 	{
 		return this->_dist(this->_engine);
 	}
