@@ -129,9 +129,10 @@ namespace senc::utils
 		/**
 		 * @brief Allows simple pipe syntax for range and `EnumerateView`.
 		 */
-		inline auto operator|(std::ranges::range auto&& range, EnumerateFn fn)
+		template <std::ranges::range R>
+		inline auto operator|(R&& range, EnumerateFn fn)
 		{
-			return fn(range);
+			return fn(std::forward<R>(range));
 		}
 	}
 
