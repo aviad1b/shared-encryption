@@ -38,7 +38,7 @@ namespace senc::utils::enc
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline std::pair<typename HybridElGamal2L<G, S, KDF>::PubKey, typename HybridElGamal2L<G, S, KDF>::PrivKey>
-		HybridElGamal2L<G, S, KDF>::keygen() const
+		HybridElGamal2L<G, S, KDF>::keygen()
 	{
 		PrivKey privKey = UNDER_ORDER_DIST();
 		PubKey pubKey = senc::utils::pow(G::generator(), privKey);
@@ -46,7 +46,7 @@ namespace senc::utils::enc
 	}
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
-	inline HybridElGamal2L<G, S, KDF>::Ciphertext HybridElGamal2L<G, S, KDF>::encrypt(const Plaintext& plaintext, const PubKey& pubKey1, const PubKey& pubKey2) const
+	inline HybridElGamal2L<G, S, KDF>::Ciphertext HybridElGamal2L<G, S, KDF>::encrypt(const Plaintext& plaintext, const PubKey& pubKey1, const PubKey& pubKey2)
 	{
 		auto r1 = UNDER_ORDER_DIST();
 		auto r2 = UNDER_ORDER_DIST();
@@ -65,7 +65,7 @@ namespace senc::utils::enc
 	}
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
-	inline HybridElGamal2L<G, S, KDF>::Plaintext HybridElGamal2L<G, S, KDF>::decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const
+	inline HybridElGamal2L<G, S, KDF>::Plaintext HybridElGamal2L<G, S, KDF>::decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2)
 	{
 		const auto& [c1, c2, c3] = ciphertext;
 
