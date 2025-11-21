@@ -59,6 +59,7 @@ namespace senc::utils
 			using Self = EnumerateViewIterator;
 
 			using value_type = std::pair<std::size_t, std::ranges::range_reference_t<V>>;
+			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;
 
