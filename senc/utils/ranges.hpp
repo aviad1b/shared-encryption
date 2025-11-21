@@ -102,6 +102,10 @@ namespace senc::utils
 
 			EnumerateView() = default;
 
+			EnumerateView(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
 			EnumerateView(Self&&) = default;
 
 			Self& operator=(Self&&) = default;
