@@ -62,6 +62,16 @@ namespace senc::utils
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;
 
+			EnumerateViewIterator() = default;
+
+			EnumerateViewIterator(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			EnumerateViewIterator(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
 			explicit EnumerateViewIterator(std::ranges::iterator_t<V>&& it, std::size_t idx);
 
 			value_type operator*() const;
