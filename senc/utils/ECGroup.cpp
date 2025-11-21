@@ -21,7 +21,7 @@ namespace senc::utils
 
 	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
 
-	const Distribution<BigInt> ECGroup::DIST = Random<BigInt>::get_dist_below(order());
+	Distribution<BigInt> ECGroup::DIST = Random<BigInt>::get_dist_below(order());
 
 	GroupOrder ECGroup::order()
 	{

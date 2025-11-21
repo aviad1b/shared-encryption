@@ -161,7 +161,7 @@ namespace senc::utils
 		/**
 		 * @brief Samples a random integer from distribution.
 		 */
-		T operator()() const noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>);
+		T operator()() noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>);
 
 	private:
 		UnderlyingDist<T> _dist;

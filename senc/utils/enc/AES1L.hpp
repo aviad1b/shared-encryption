@@ -34,7 +34,7 @@ namespace senc::utils::enc
 		/**
 		 * @brief Generates a key for AES one-layer schema.
 		 */
-		Key keygen() const;
+		Key keygen();
 
 		/**
 		 * @brief Encrypts a plaintext using AES one-layer schema.
@@ -42,7 +42,7 @@ namespace senc::utils::enc
 		 * @param key Key to use for encryption.
 		 * @return Encrypted plaintext (ciphertext).
 		 */
-		Ciphertext encrypt(const Plaintext& plaintext, const Key& key) const;
+		Ciphertext encrypt(const Plaintext& plaintext, const Key& key);
 
 		/**
 		 * @brief Decrypts a ciphertext using AES one-layer schema.
@@ -50,7 +50,7 @@ namespace senc::utils::enc
 		 * @param key Key to use for decryption.
 		 * @return Decrypted ciphertext (plaintext).
 		 */
-		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key) const;
+		Plaintext decrypt(const Ciphertext& ciphertext, const Key& key);
 
 	private:
 		static CryptoPP::AutoSeededRandomPool _prng;
