@@ -80,6 +80,14 @@ namespace senc::utils
 		}
 
 		template <std::ranges::view V>
+		inline EnumerateViewIterator<V>::Self EnumerateViewIterator<V>::operator++(int)
+		{
+			Self res = *this;
+			++(*this);
+			return res;
+		}
+
+		template <std::ranges::view V>
 		inline bool EnumerateViewIterator<V>::operator==(const Self& other) const noexcept
 		{
 			return this->_it == other._it;

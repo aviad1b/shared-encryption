@@ -78,6 +78,8 @@ namespace senc::utils
 
 			Self& operator++();
 
+			Self operator++(int);
+
 			bool operator==(const Self& other) const noexcept;
 
 		private:
