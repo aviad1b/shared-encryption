@@ -125,7 +125,7 @@ namespace senc::utils
 			ModulableNoExcept<Int> && CopyableNoExcept<Int>)
 	requires DistVal<Int>
 	{
-		return Self(DIST());
+		return Self(_dist());
 	}
 
 	template <ModTraitsType ModTraits>
