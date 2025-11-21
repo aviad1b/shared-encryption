@@ -11,9 +11,14 @@
 
 #include "../utils/Random.hpp"
 #include "../utils/Shamir.hpp"
+#include "../utils/ModInt.hpp"
 
+using senc::utils::IntegralModTraits;
 using senc::utils::ShamirException;
+using senc::utils::ModInt;
 using senc::utils::Random;
+
+using MI7 = ModInt<IntegralModTraits<int, 7, true>>; // prime modulus 7
 
 struct ShareIntTestParams
 {
@@ -23,7 +28,11 @@ struct ShareIntTestParams
 	bool success;
 };
 
+using ShareModIntTestParams = ShareIntTestParams;
+
 struct ShareIntTest : testing::Test, testing::WithParamInterface<ShareIntTestParams> { };
+
+struct ShareModIntTest : testing::Test, testing::WithParamInterface<ShareModIntTestParams> { };
 
 TEST_P(ShareIntTest, ShareInt)
 {
@@ -31,6 +40,24 @@ TEST_P(ShareIntTest, ShareInt)
 	auto dist = Random<int>::get_range_dist(-100, 100);
 	const auto& params = GetParam();
 	auto poly = Shamir::sample_poly(params.secret, params.threshold, dist);
+	auto shards = Shamir::make_shards(poly, std::views::iota(1, params.numShards + 1));
+
+	if (params.success)
+	{
+		auto restored = Shamir::restore_secret(shards, params.threshold);
+		EXPECT_EQ(restored, params.secret);
+	}
+	else
+	{
+		EXPECT_THROW(Shamir::restore_secret(shards, params.threshold), ShamirException);
+	}
+}
+
+TEST_P(ShareModIntTest, ShareModInt)
+{
+	using Shamir = senc::utils::Shamir<MI7>;
+	const auto& params = GetParam();
+	auto poly = Shamir::sample_poly(params.secret, params.threshold, MI7::sample);
 	auto shards = Shamir::make_shards(poly, std::views::iota(1, params.numShards + 1));
 
 	if (params.success)
@@ -74,3 +101,36 @@ INSTANTIATE_TEST_CASE_P(ShareInt, ShareIntTest,
 		ShareIntTestParams{ -1, 2, 2, true }       // Small negative
 	)
 );
+
+INSTANTIATE_TEST_CASE_P(ShareModInt, ShareModIntTest, testing::Values(
+	// Basic valid cases (secrets in range [0, 6])
+	ShareModIntTestParams{ 3, 2, 3, true },    // Simple case: 2-of-3
+	ShareModIntTestParams{ 0, 2, 2, true },    // Secret is zero
+	ShareModIntTestParams{ 6, 3, 5, true },    // Maximum value in field
+	ShareModIntTestParams{ 1, 1, 1, true },    // Threshold = 1 (trivial case)
+	ShareModIntTestParams{ 5, 4, 6, true },    // Higher threshold: 4-of-6
+
+	// Edge cases - minimum threshold
+	ShareModIntTestParams{ 2, 1, 5, true },    // Threshold 1 with multiple shards
+	ShareModIntTestParams{ 4, 2, 2, true },    // Threshold equals number of shards
+
+	// Edge cases - various shard counts
+	ShareModIntTestParams{ 1, 3, 3, true },    // Exact threshold match
+	ShareModIntTestParams{ 6, 4, 6, true },    // 4-of-6 (max shards for mod 7)
+	ShareModIntTestParams{ 2, 5, 6, true },    // 5-of-6
+	ShareModIntTestParams{ 3, 6, 6, true },    // 6-of-6 (maximum threshold for mod 7)
+
+	// All possible secret values
+	ShareModIntTestParams{ 0, 2, 4, true },
+	ShareModIntTestParams{ 1, 2, 4, true },
+	ShareModIntTestParams{ 2, 2, 4, true },
+	ShareModIntTestParams{ 3, 2, 4, true },
+	ShareModIntTestParams{ 4, 2, 4, true },
+	ShareModIntTestParams{ 5, 2, 4, true },
+	ShareModIntTestParams{ 6, 2, 4, true },
+
+	// Failure cases - insufficient shards
+	ShareModIntTestParams{ 3, 3, 2, false },   // Need 3, only have 2
+	ShareModIntTestParams{ 5, 5, 4, false },   // Need 5, only have 4
+	ShareModIntTestParams{ 1, 6, 3, false }    // Need 6, only have 3
+));
