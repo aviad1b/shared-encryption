@@ -92,7 +92,7 @@ namespace senc::utils::enc
 		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2);
 
 	private:
-		static const Distribution<BigInt> UNDER_ORDER_DIST;
+		Distribution<BigInt> _underOrderDist;
 		S _symmetricSchema;
 		KDF _kdf;
 	};

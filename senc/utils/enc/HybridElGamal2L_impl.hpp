@@ -13,10 +13,6 @@
 
 namespace senc::utils::enc
 {
-	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
-	const Distribution<BigInt> HybridElGamal2L<G, S, KDF>::UNDER_ORDER_DIST =
-		Random<BigInt>::get_dist_below(G::order());
-
 	template<Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L()
 	requires std::is_default_constructible_v<S> && std::is_default_constructible_v<KDF>
@@ -34,13 +30,14 @@ namespace senc::utils::enc
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(S&& symmetricSchema, KDF&& kdf)
-		: _symmetricSchema(std::forward<S>(symmetricSchema)), _kdf(std::forward<KDF>(kdf)) { }
+		: _underOrderDist(Random<BigInt>::get_dist_below(G::order())),
+		  _symmetricSchema(std::forward<S>(symmetricSchema)), _kdf(std::forward<KDF>(kdf)) { }
 
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline std::pair<typename HybridElGamal2L<G, S, KDF>::PubKey, typename HybridElGamal2L<G, S, KDF>::PrivKey>
 		HybridElGamal2L<G, S, KDF>::keygen()
 	{
-		PrivKey privKey = UNDER_ORDER_DIST();
+		PrivKey privKey = _underOrderDist();
 		PubKey pubKey = senc::utils::pow(G::generator(), privKey);
 		return { pubKey, privKey };
 	}
@@ -48,8 +45,8 @@ namespace senc::utils::enc
 	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::Ciphertext HybridElGamal2L<G, S, KDF>::encrypt(const Plaintext& plaintext, const PubKey& pubKey1, const PubKey& pubKey2)
 	{
-		auto r1 = UNDER_ORDER_DIST();
-		auto r2 = UNDER_ORDER_DIST();
+		auto r1 = _underOrderDist();
+		auto r2 = _underOrderDist();
 
 		auto c1 = senc::utils::pow(G::generator(), r1);
 		auto c2 = senc::utils::pow(G::generator(), r2);
