@@ -376,7 +376,7 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
-	inline ModInt<ModTraits>::Self ModInt<ModTraits>::operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
+	inline ModInt<ModTraits>::Self& ModInt<ModTraits>::operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
 		(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 		(Multiplicable, Int),
 		(LowerComparable, Int),

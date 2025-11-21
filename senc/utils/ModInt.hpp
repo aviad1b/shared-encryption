@@ -448,7 +448,7 @@ namespace senc::utils
 		 * @return `*this`, after division.
 		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
-		Self operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
+		Self& operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
