@@ -41,7 +41,7 @@ namespace senc::utils
 	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) &&
 		(OneConstructible<Self> || HasIdentity<Self>) &&
 		Addable<Self> && SelfAddable<Self> &&
-		Subtractable<Self> && SelfSubtractable<Self> && Negatable<Self> &&
+		Subtractable<Self> && SelfSubtractable<Self>
 		Multiplicable<Self> && SelfMultiplicable<Self> &&
 		Devisible<Self> && SelfDevisible<Self> &&
 		PolyOutput<Self> && PolyCoeff<Self, SID, Self>;
