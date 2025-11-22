@@ -48,6 +48,18 @@ namespace senc::utils
 		std::ranges::input_range<Self> &&
 		InputIterator<std::ranges::iterator_t<Self>, T>;
 
+	template <typename Self, typename To>
+	concept ConvertibleTo = requires(Self&& self)
+	{
+		{ static_cast<To>(std::forward<Self>(self)) };
+	};
+
+	template <typename Self, typename To>
+	concept ConvertibleToNoExcept = requires(Self && self)
+	{
+		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
+	};
+
 	/**
 	 * @concept senc::utils::RetConvertible
 	 * @brief Looks for a typename which is equivalent to another as a return type.
@@ -109,18 +121,6 @@ namespace senc::utils
 		{ os << self } -> std::convertible_to<std::ostream&>;
 	};
 
-	template <typename Self, typename To>
-	concept ConvertibleTo = requires(Self&& self)
-	{
-		{ static_cast<To>(std::forward<Self>(self)) };
-	};
-
-	template <typename Self, typename To>
-	concept ConvertibleToNoExcept = requires(Self && self)
-	{
-		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
-	};
-
 	template <typename Self>
 	concept BoolConvertible = ConvertibleTo<Self, bool>;
 
@@ -149,6 +149,18 @@ namespace senc::utils
 	concept ClassDefaultOrZeroConstructibleNoExcept =
 		(DefaultConstructibleClass<Self> && DefaultConstructibleClassNoExcept<Self>) ||
 		(ZeroConstructible<Self> && ZeroConstructibleNoExcept<Self>);
+
+	template <typename Self>
+	concept OneConstructible = requires { { Self(1) }; };
+
+	template <typename Self>
+	concept OneConstructibleNoExcept = requires { { Self(1) } noexcept; };
+
+	template <typename Self>
+	concept HasIdentity = requires { { Self::identity() } -> ConvertibleTo<const Self&>; };
+
+	template <typename Self>
+	concept HasIdentityNoExcept = requires { { Self::identity() } noexcept -> ConvertibleToNoExcept<const Self&>; };
 
 	template <typename Self>
 	concept IntConstructible = std::constructible_from<Self, int>;
