@@ -270,6 +270,17 @@ namespace senc::utils
 		);
 
 		/**
+		 * @brief Adds integer value with this modular integer.
+		 * @param value Integer value to add with this.
+		 * @return Addition result.
+		 */
+		Self operator+(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Addable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this + static_cast<Int>(value); }
+
+		/**
 		 * @brief Adds integer value to this modular integer.
 		 * @param value Integer value to add to this.
 		 * @return `*this`, after addition.
