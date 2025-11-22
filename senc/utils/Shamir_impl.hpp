@@ -106,7 +106,7 @@ namespace senc::utils
 			shardsIDs |
 			views::enumerate | // p = pair{j, xj}
 			std::views::filter([i](auto p) { return p.first != i; }) | // filter where index isn't i
-			std::views::transform([xi](auto p) { return p.second / (p.second - xi); })
+			std::views::transform([xi](auto p) { return static_cast<PackedSecret>(p.second) / (p.second - xi); })
 		);
 		return optionalRes.has_value() ? optionalRes.value() : identityConstructPackedSecret();
 	}
