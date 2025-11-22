@@ -10,8 +10,10 @@
 
 #include <utility>
 
+#include "enc/general.hpp"
 #include "Fraction.hpp"
 #include "concepts.hpp"
+#include "Group.hpp"
 #include "poly.hpp"
 
 namespace senc::utils
@@ -169,6 +171,33 @@ namespace senc::utils
 		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
 		 */
 		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
+	};
+
+	/**
+	 * @class senc::utils::ShamirHybridElGamal
+	 * @brief Holds static methods for Shamir hybrid El-Gamal threshold decryption utilities.
+	 * @tparam G Group type for El-Gamal.
+	 * @tparam SE Symmetric (one-layer) encryption schema.
+	 * @tparam KDF Key deriviation function (from two `G` elements to key for `SE`).
+	 */
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF>
+	class ShamirHybridElGamal
+	{
+	public:
+		/**
+		 * @brief `ModTraits` type for `Secret` (`ModInt` of `GroupOrder`).
+		 */
+		struct SecretModTraits
+		{
+			using Underlying = GroupOrder;
+			static const GroupOrder& modulus() noexcept { return G::order(); }
+			static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
+		};
+
+		/**
+		 * @brief Secret type (El-Gamal key turned into ModInt).
+		 */
+		using S = ModInt<SecretModTraits>;
 	};
 }
 
