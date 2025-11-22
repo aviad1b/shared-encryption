@@ -270,6 +270,17 @@ namespace senc::utils
 		);
 
 		/**
+		 * @brief Adds integer value with this modular integer.
+		 * @param value Integer value to add with this.
+		 * @return Addition result.
+		 */
+		Self operator+(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Addable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this + static_cast<Int>(value); }
+
+		/**
 		 * @brief Adds integer value to this modular integer.
 		 * @param value Integer value to add to this.
 		 * @return `*this`, after addition.
@@ -278,6 +289,17 @@ namespace senc::utils
 			SelfModulableNoExcept<Int>,
 			(SelfAddable, Int)
 		);
+
+		/**
+		 * @brief Adds integer value to this modular integer.
+		 * @param value Integer value to add to this.
+		 * @return `*this`, after addition.
+		 */
+		Self& operator+=(auto value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
+			(SelfAddable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this += static_cast<Int>(value); }
 
 		/**
 		 * @brief Adds another modular integer with this one.
@@ -332,6 +354,18 @@ namespace senc::utils
 
 		/**
 		 * @brief Subtracts the modular integer by an integer value.
+		 * @param value Integer value to subtract this with.
+		 * @return Subtraction result.
+		 */
+		Self operator-(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Addable, Int),
+			(Subtractable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this - static_cast<Int>(value); }
+
+		/**
+		 * @brief Subtracts the modular integer by an integer value.
 		 * @param value Integer value to subtract this by.
 		 * @return `*this`, after subtraction.
 		 */
@@ -340,6 +374,18 @@ namespace senc::utils
 			(SelfAddable, Int),
 			(SelfSubtractable, Int)
 		);
+
+		/**
+		 * @brief Subtracts the modular integer by an integer value.
+		 * @param value Integer value to subtract this by.
+		 * @return `*this`, after subtraction.
+		 */
+		Self& operator-=(auto value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
+			(SelfAddable, Int),
+			(SelfSubtractable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this -= static_cast<Int>(value); }
 
 		/**
 		 * @brief Subtract the modular integer by another.
@@ -374,6 +420,17 @@ namespace senc::utils
 		);
 
 		/**
+		 * @brief Multiplies integer value with this modular integer.
+		 * @param value Integer value to multiply with this.
+		 * @return Multiplication result.
+		 */
+		Self operator*(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Multiplicable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this * static_cast<Int>(value); }
+
+		/**
 		 * @brief Multiplies the modular integer with a given integer value.
 		 * @param value Integer value to multiply this by.
 		 * @return `*this`, after multiplication.
@@ -382,6 +439,17 @@ namespace senc::utils
 			SelfModulableNoExcept<Int>,
 			(SelfMultiplicable, Int)
 		);
+
+		/**
+		 * @brief Multiplies the modular integer with a given integer value.
+		 * @param value Integer value to multiply this by.
+		 * @return `*this`, after multiplication.
+		 */
+		Self& operator*=(auto value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
+			(SelfMultiplicable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this *= static_cast<Int>(value); }
 
 		/**
 		 * @brief Multiplies another modular integer with this one.
@@ -418,6 +486,20 @@ namespace senc::utils
 
 		/**
 		 * @brief Divides the modular integer by an integer value.
+		 * @param value Integer value to divide this with.
+		 * @return Division result.
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
+		 */
+		Self operator/(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Multiplicable, Int),
+			(LowerComparable, Int),
+			(SelfDevisible, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this / static_cast<Int>(value); }
+
+		/**
+		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
 		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
@@ -428,6 +510,20 @@ namespace senc::utils
 			(LowerComparable, Int),
 			(SelfDevisible, Int)
 		);
+
+		/**
+		 * @brief Divides the modular integer by an integer value.
+		 * @param value Integer value to divide this by.
+		 * @return `*this`, after division.
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
+		 */
+		Self& operator/=(auto value) SENC_REQ_NOEXCEPT_COND(
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Multiplicable, Int),
+			(LowerComparable, Int),
+			(SelfDevisible, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this /= static_cast<Int>(value); }
 
 		/**
 		 * @brief Divides the modular integer by another.
