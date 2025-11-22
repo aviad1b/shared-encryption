@@ -1,6 +1,8 @@
 ﻿add_library(senc_utils
 	"bytes.hpp"
 	"concepts.hpp"
+	"ranges.hpp"
+	"ranges_impl.hpp"
 	"math.hpp"
 	"Exception.hpp"
 	"Exception.cpp"
@@ -28,6 +30,8 @@
 	"enc/AES1L.cpp"
 	"enc/ECHKDF2L.hpp"
 	"enc/ECHKDF2L.cpp"
+	"Shamir.hpp"
+	"Shamir_impl.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32)

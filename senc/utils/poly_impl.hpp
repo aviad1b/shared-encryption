@@ -106,7 +106,7 @@ namespace senc::utils
 	inline void Poly<I, O, C>::sample_missing_coeffs(PolyDegree degree, std::function<C()> coeffSampler)
 	{
 		this->_coeffs.reserve(static_cast<std::size_t>(degree) + 1);
-		while (this->_coeffs.size() <= degree)
+		while (this->_coeffs.size() <= static_cast<std::size_t>(degree))
 			this->_coeffs.push_back(coeffSampler());
 	}
 }

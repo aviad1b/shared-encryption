@@ -71,7 +71,7 @@ namespace senc::utils::enc
 		 * @brief Generates a key-pair for the schema.
 		 * @return Generated key-pair (public key, private key).
 		 */
-		std::pair<PubKey, PrivKey> keygen() const;
+		std::pair<PubKey, PrivKey> keygen();
 
 		/**
 		 * @brief Encrypts a given plaintext.
@@ -80,7 +80,7 @@ namespace senc::utils::enc
 		 * @param pubKey2 Public key for second encryption layer.
 		 * @return Encrypted plaintext (ciphertext).
 		 */
-		Ciphertext encrypt(const Plaintext& plaintext, const PubKey& pubKey1, const PubKey& pubKey2) const;
+		Ciphertext encrypt(const Plaintext& plaintext, const PubKey& pubKey1, const PubKey& pubKey2);
 
 		/**
 		 * @brief Decrypts a given ciphertext.
@@ -89,10 +89,10 @@ namespace senc::utils::enc
 		 * @param privKey2 Private key for second encryption layer.
 		 * @return Decrypted ciphertext (plaintext).
 		 */
-		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2) const;
+		Plaintext decrypt(const Ciphertext& ciphertext, const PrivKey& privKey1, const PrivKey& privKey2);
 
 	private:
-		static const Distribution<BigInt> UNDER_ORDER_DIST;
+		Distribution<BigInt> _underOrderDist;
 		S _symmetricSchema;
 		KDF _kdf;
 	};

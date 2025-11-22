@@ -47,7 +47,7 @@ namespace senc::utils::enc
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept Symmetric = Schema<Self> && requires(const Self self)
+	concept Symmetric = Schema<Self> && requires(Self self)
 	{
 		typename Self::Key;
 		{ self.keygen() } -> std::same_as<typename Self::Key>;
@@ -67,7 +67,7 @@ namespace senc::utils::enc
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept Asymmetric = Schema<Self> && requires(const Self self)
+	concept Asymmetric = Schema<Self> && requires(Self self)
 	{
 		typename Self::PubKey;
 		typename Self::PrivKey;
@@ -97,7 +97,7 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Symmetric1L = Symmetric<Self> && requires(
-		const Self self, const Key<Self> key,
+		Self self, const Key<Self> key,
 		const Plaintext<Self> plaintext,
 		const Ciphertext<Self> ciphertext
 	)
@@ -113,7 +113,7 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Symmetric2L = Symmetric<Self> && requires(
-		const Self self, const Key<Self> key1, const Key<Self> key2,
+		Self self, const Key<Self> key1, const Key<Self> key2,
 		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext
 	)
 	{
@@ -128,7 +128,7 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Asymmetric1L = Asymmetric<Self> && requires(
-		const Self self,
+		Self self,
 		const PubKey<Self> pubKey, const PrivKey<Self> privKey,
 		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext
 	)
@@ -144,7 +144,7 @@ namespace senc::utils::enc
 	 */
 	template <typename Self>
 	concept Asymmetric2L = Asymmetric<Self> && requires(
-		const Self self,
+		Self self,
 		const PubKey<Self> pubKey1, const PubKey<Self> pubKey2,
 		const PrivKey<Self> privKey1, const PrivKey<Self> privKey2,
 		const Plaintext<Self> plaintext, const Ciphertext<Self> ciphertext

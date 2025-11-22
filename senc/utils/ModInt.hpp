@@ -448,7 +448,7 @@ namespace senc::utils
 		 * @return `*this`, after division.
 		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
 		 */
-		Self operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
+		Self& operator/=(Self other) SENC_REQ_NOEXCEPT_COND(
 			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
 			(Multiplicable, Int),
 			(LowerComparable, Int),
@@ -469,7 +469,7 @@ namespace senc::utils
 		);
 
 	private:
-		static inline const Distribution<Int> DIST = Random<Int>::get_dist_below(modulus());
+		static inline Distribution<Int> _dist = Random<Int>::get_dist_below(modulus());
 
 		Int _value;
 	};
