@@ -91,7 +91,7 @@ INSTANTIATE_TEST_CASE_P(ShareInt, ShareIntTest, testing::Values(
 	// Failure cases - insufficient shards
 	ShareIntTestParams{ 42, 2, 2, false },     // Need 3, only have 2
 	ShareIntTestParams{ 10, 4, 4, false },     // Need 5, only have 4
-	ShareIntTestParams{ -20, 9, 5, false },   // Need 10, only have 5
+	ShareIntTestParams{ -20, 9, 5, false },    // Need 10, only have 5
 
 	// Boundary values for secrets
 	ShareIntTestParams{ -100, 1, 4, true },    // Minimum from distribution
