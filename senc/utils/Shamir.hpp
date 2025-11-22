@@ -169,22 +169,6 @@ namespace senc::utils
 		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
 		 */
 		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
-
-		static constexpr auto defaultConstructPackedSecret = []()
-		{
-			if constexpr (DefaultConstructibleClass<PackedSecret>)
-				return PackedSecret{};
-			else
-				return PackedSecret(0);
-		};
-
-		static constexpr auto identityConstructPackedSecret = []()
-		{
-			if constexpr (HasIdentity<PackedSecret>)
-				return PackedSecret::identity();
-			else
-				return PackedSecret(1);
-		};
 	};
 }
 
