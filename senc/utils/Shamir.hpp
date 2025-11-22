@@ -186,6 +186,8 @@ namespace senc::utils
 	class ShamirHybridElGamal
 	{
 	public:
+		ShamirHybridElGamal() = delete;
+
 		/**
 		 * @brief `ModTraits` type for `Secret` (`ModInt` of `GroupOrder`).
 		 */
