@@ -265,6 +265,10 @@ namespace senc::utils
 		static Plaintext decrypt_join_2l(const Ciphertext& ciphertext,
 										 const std::vector<Part>& parts1,
 										 const std::vector<Part>& parts2);
+
+	private:
+		static SE _symmetricSchema;
+		static KDF _kdf;
 	};
 }
 

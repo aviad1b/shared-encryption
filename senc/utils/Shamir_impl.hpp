@@ -156,4 +156,26 @@ namespace senc::utils
 			yi * Utils::get_legrange_coeff(i.value(), privKeyShardsIDs)
 		);
 	}
+
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF, ShamirShardID SID>
+	inline ShamirHybridElGamal<G, SE, KDF, SID>::Plaintext
+		ShamirHybridElGamal<G, SE, KDF, SID>::decrypt_join_2l(
+			const Ciphertext& ciphertext,
+			const std::vector<Part>& parts1,
+			const std::vector<Part>& parts2)
+	{
+		const G& c3 = std::get<2>(ciphertext);
+		auto z1 = utils::product(parts1);
+		auto z2 = utils::product(parts2);
+
+		auto k = _kdf(z1, z2);
+
+		return _symmetricSchema.decrypt(c3, k);
+	}
+
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF, ShamirShardID SID>
+	inline SE ShamirHybridElGamal<G, SE, KDF, SID>::_symmetricSchema;
+
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF, ShamirShardID SID>
+	inline KDF ShamirHybridElGamal<G, SE, KDF, SID>::_kdf;
 }
