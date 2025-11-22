@@ -129,6 +129,6 @@ INSTANTIATE_TEST_CASE_P(ShareModInt, ShareModIntTest, testing::Values(
 
 	// Failure cases - insufficient shards
 	ShareModIntTestParams{ 3, 2, 2, false },   // Need 3, only have 2
-	ShareModIntTestParams{ 5, 3, 4, false },   // Need 5, only have 4
+	ShareModIntTestParams{ 5, 4, 4, false },   // Need 5, only have 4
 	ShareModIntTestParams{ 1, 5, 3, false }    // Need 6, only have 3
 ));
