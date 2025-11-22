@@ -16,6 +16,35 @@ namespace senc::utils
 {
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
+	inline typename ShamirUtils<S, SID>::PackedSecret ShamirUtils<S, SID>::get_lagrange_coeff(
+		std::size_t i, const std::vector<SID>& shardsIDs)
+	{
+		// TODO: This check may lower performance, is it REALLY necessary?
+		std::unordered_set<SID> shardsIDsSet;
+		for (const SID& shardID : shardsIDs)
+		{
+			if (!shardID)
+				throw ShamirException("Invalid ID provided: Should be non-zero");
+			shardsIDsSet.insert(shardID);
+		}
+		if (shardsIDs.size() != shardsIDsSet.size())
+			throw ShamirException("Invalid IDs provided: Not unique");
+		const auto& xi = shardsIDs[i];
+		return utils::product(
+			shardsIDs |
+			views::enumerate | // p = pair{j, xj}
+			std::views::filter([i](auto p) { return p.first != i; }) | // filter where index isn't i
+			std::views::transform([xi](auto p)
+			{
+				return static_cast<PackedSecret>(p.second) / (
+					static_cast<PackedSecret>(p.second) - static_cast<PackedSecret>(xi)
+				);
+			})
+		);
+	}
+
+	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline typename Shamir<S, SID>::Poly Shamir<S, SID>::sample_poly(
 		const S& secret, Threshold threshold, std::function<S()> secretSampler)
 	{
@@ -71,7 +100,7 @@ namespace senc::utils
 			std::views::transform([&shardsIDs](auto p) -> PackedSecret
 			{
 				const auto& [i, yi] = p; // shard index, shard value
-				return yi * get_lagrange_coeff(i, shardsIDs);
+				return yi * Utils::get_lagrange_coeff(i, shardsIDs);
 			})
 		);
 
@@ -83,34 +112,5 @@ namespace senc::utils
 			return res.numerator();
 		}
 		else return res; // if not integral, S is same as PackedSecret; return
-	}
-
-	template <typename S, ShamirShardID SID>
-	requires ShamirSecret<S, SID>
-	inline typename Shamir<S, SID>::PackedSecret Shamir<S, SID>::get_lagrange_coeff(
-		std::size_t i, const std::vector<SID>& shardsIDs)
-	{
-		// TODO: This check may lower performance, is it REALLY necessary?
-		std::unordered_set<SID> shardsIDsSet;
-		for (const SID& shardID : shardsIDs)
-		{
-			if (!shardID)
-				throw ShamirException("Invalid ID provided: Should be non-zero");
-			shardsIDsSet.insert(shardID);
-		}
-		if (shardsIDs.size() != shardsIDsSet.size())
-			throw ShamirException("Invalid IDs provided: Not unique");
-		const auto& xi = shardsIDs[i];
-		return utils::product(
-			shardsIDs |
-			views::enumerate | // p = pair{j, xj}
-			std::views::filter([i](auto p) { return p.first != i; }) | // filter where index isn't i
-			std::views::transform([xi](auto p)
-			{
-				return static_cast<PackedSecret>(p.second) / (
-					static_cast<PackedSecret>(p.second) - static_cast<PackedSecret>(xi)
-				);
-			})
-		);
 	}
 }

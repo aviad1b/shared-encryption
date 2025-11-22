@@ -13,6 +13,7 @@
 #include "enc/HybridElGamal2L.hpp"
 #include "Fraction.hpp"
 #include "concepts.hpp"
+#include "ModInt.hpp"
 #include "Group.hpp"
 #include "poly.hpp"
 
@@ -104,6 +105,29 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
+	class ShamirUtils
+	{
+	public:
+		using PackedSecret = ShamirPackedSecret<S>;
+		using Threshold = ShamirThreshold;
+		using Poly = ShamirPoly<S, SID>;
+		using Shard = std::pair<SID, PackedSecret>; // x, poly(x)
+
+		ShamirUtils() = delete;
+
+	protected:
+		/**
+		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
+		 * @param i Index of shard in sequence.
+		 * @param shardsIDs Sequence of shards IDs.
+		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
+		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
+		 */
+		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
+	};
+
 	/**
 	 * @class senc::utils::Shamir
 	 * @brief Holds static methods for Shamir secret sharing utilities.
@@ -112,13 +136,14 @@ namespace senc::utils
 	 */
 	template <typename S, ShamirShardID SID = std::int32_t>
 	requires ShamirSecret<S, SID>
-	class Shamir
+	class Shamir : protected ShamirUtils<S, SID>
 	{
 	public:
-		using PackedSecret = ShamirPackedSecret<S>;
-		using Threshold = ShamirThreshold;
-		using Poly = ShamirPoly<S, SID>;
-		using Shard = std::pair<SID, PackedSecret>; // x, poly(x)
+		using Utils = ShamirUtils<S, SID>;
+		using PackedSecret = typename Utils::PackedSecret;
+		using Threshold = typename Utils::Threshold;
+		using Poly = typename Utils::Poly;
+		using Shard = typename Utils::Shard;
 
 		Shamir() = delete;
 
@@ -161,17 +186,24 @@ namespace senc::utils
 		 * @throw ShamirException If not enough shards are provided, or shards are invalid, or failed.
 		 */
 		static S restore_secret(const std::vector<Shard>& shards, Threshold threshold);
-
-	private:
-		/**
-		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
-		 * @param i Index of shard in sequence.
-		 * @param shardsIDs Sequence of shards IDs.
-		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
-		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
-		 */
-		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
 	};
+
+	/**
+	 * @brief `ModTraits` type for `ShamirHybridElGamal::S` (`ModInt` of `GroupOrder`).
+	 */
+	template <Group G>
+	struct ShamirHybridElGamalSecretModTraits
+	{
+		using Underlying = GroupOrder;
+		static const GroupOrder& modulus() noexcept { return G::order(); }
+		static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
+	};
+
+	/**
+	 * @brief Shared secret type for Shamir Hybrid El-Gamal.
+	 */
+	template <Group G>
+	using ShamirHybridElGamalS = ModInt<ShamirHybridElGamalSecretModTraits<G>>;
 
 	/**
 	 * @class senc::utils::ShamirHybridElGamal
@@ -183,28 +215,15 @@ namespace senc::utils
 	 */
 	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF,
 			  ShamirShardID SID = std::int32_t>
-	class ShamirHybridElGamal
+	class ShamirHybridElGamal : protected ShamirUtils<ShamirHybridElGamalS<G>, SID>
 	{
 	public:
-		/**
-		 * @brief `ModTraits` type for `Secret` (`ModInt` of `GroupOrder`).
-		 */
-		struct SecretModTraits
-		{
-			using Underlying = GroupOrder;
-			static const GroupOrder& modulus() noexcept { return G::order(); }
-			static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
-		};
-
-		/**
-		 * @brief Secret type (El-Gamal key turned into ModInt).
-		 */
-		using S = ModInt<SecretModTraits>;
-
-		using PackedSecret = typename Shamir<S, SID>::PackedSecret;
-		using Threshold = typename Shamir<S, SID>::Threshold;
-		using Poly = typename Shamir<S, SID>::Poly;
-		using Shard = typename Shamir<S, SID>::Shard;
+		using S = ShamirHybridElGamalS<G>;
+		using Utils = ShamirUtils<S, SID>;
+		using PackedSecret = typename Utils::PackedSecret;
+		using Threshold = typename Utils::Threshold;
+		using Poly = typename Utils::Poly;
+		using Shard = typename Utils::Shard;
 
 		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
 		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
