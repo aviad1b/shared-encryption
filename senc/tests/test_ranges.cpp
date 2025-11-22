@@ -28,8 +28,7 @@ TEST_P(RangeSumTest, Ranges)
 	for (int elem : elems)
 		sumCalc += elem;
 	auto sumRet = sum(elems);
-	EXPECT_TRUE(sumRet.has_value());
-	EXPECT_EQ(sumRet.value(), sumCalc);
+	EXPECT_EQ(sumRet, sumCalc);
 }
 
 INSTANTIATE_TEST_CASE_P(Ranges, RangeSumTest, testing::Values(
