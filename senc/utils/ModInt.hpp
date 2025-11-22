@@ -395,6 +395,17 @@ namespace senc::utils
 		);
 
 		/**
+		 * @brief Multiplies the modular integer with a given integer value.
+		 * @param value Integer value to multiply this by.
+		 * @return `*this`, after multiplication.
+		 */
+		Self& operator*=(auto value) SENC_REQ_NOEXCEPT_COND(
+			SelfModulableNoExcept<Int>,
+			(SelfMultiplicable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this *= static_cast<Int>(value); }
+
+		/**
 		 * @brief Multiplies another modular integer with this one.
 		 * @param other Other modular integer to multiply with this one.
 		 * @return Multiplication result.
