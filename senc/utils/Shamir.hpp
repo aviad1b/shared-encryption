@@ -169,7 +169,7 @@ namespace senc::utils
 		 */
 		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID> shardsIDs);
 
-		constexpr auto defaultConstructPackedSecret = []()
+		static constexpr auto defaultConstructPackedSecret = []()
 		{
 			if constexpr (DefaultConstructibleClass<PackedSecret>)
 				return PackedSecret{};
@@ -177,7 +177,7 @@ namespace senc::utils
 				return PackedSecret(0);
 		};
 
-		constexpr auto identityConstructPackedSecret = []()
+		static constexpr auto identityConstructPackedSecret = []()
 		{
 			if constexpr (HasIdentity<PackedSecret>)
 				return PackedSecret::identity();
