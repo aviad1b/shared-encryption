@@ -179,8 +179,10 @@ namespace senc::utils
 	 * @tparam G Group type for El-Gamal.
 	 * @tparam SE Symmetric (one-layer) encryption schema.
 	 * @tparam KDF Key deriviation function (from two `G` elements to key for `SE`).
+	 * @tparam SID Type used as Shamir shard ID.
 	 */
-	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF>
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF,
+			  ShamirShardID SID = std::int32_t>
 	class ShamirHybridElGamal
 	{
 	public:
@@ -198,6 +200,11 @@ namespace senc::utils
 		 * @brief Secret type (El-Gamal key turned into ModInt).
 		 */
 		using S = ModInt<SecretModTraits>;
+
+		using PackedSecret = typename Shamir<S, SID>::PackedSecret;
+		using Threshold = typename Shamir<S, SID>::Threshold;
+		using Poly = typename Shamir<S, SID>::Poly;
+		using Shard = typename Shamir<S, SID>::Shard;
 	};
 }
 
