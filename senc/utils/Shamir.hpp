@@ -38,8 +38,8 @@ namespace senc::utils
 	 * @tparam SID Shamir shard ID type.
 	 */
 	template <typename Self, typename SID>
-	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) &&
-		(OneConstructible<Self> || HasIdentity<Self>) &&
+	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) && // for utils::sum
+		(OneConstructible<Self> || HasIdentity<Self>) && // for utils::product
 		std::constructible_from<Self, SID> && // for acurate computations
 		Addable<Self> && SelfAddable<Self> &&
 		Subtractable<Self> && SelfSubtractable<Self> &&
@@ -169,22 +169,6 @@ namespace senc::utils
 		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
 		 */
 		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
-
-		static constexpr auto defaultConstructPackedSecret = []()
-		{
-			if constexpr (DefaultConstructibleClass<PackedSecret>)
-				return PackedSecret{};
-			else
-				return PackedSecret(0);
-		};
-
-		static constexpr auto identityConstructPackedSecret = []()
-		{
-			if constexpr (HasIdentity<PackedSecret>)
-				return PackedSecret::identity();
-			else
-				return PackedSecret(1);
-		};
 	};
 }
 
