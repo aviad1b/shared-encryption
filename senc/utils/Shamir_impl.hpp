@@ -64,7 +64,7 @@ namespace senc::utils
 		);
 		if (shards.size() <= static_cast<std::size_t>(threshold))
 			throw ShamirException("Not enough shards provided to restore secret");
-		PackedSecret res = utils::sum(
+		std::optional<PackedSecret> optionalRes = utils::sum(
 			shards |
 			std::views::transform([](const Shard& shard) -> const PackedSecret& { return shard.second; }) |
 			views::enumerate |
@@ -73,7 +73,8 @@ namespace senc::utils
 				const auto& [i, yi] = p; // shard index, shard value
 				return yi * get_lagrange_coeff(i, shardsIDs);
 			})
-		).value();
+		);
+		PackedSecret res = optionalRes.has_value() ? optionalRes.value() : defaultConstructPackedSecret();
 
 		// if original was integral, unpack from fraction
 		if constexpr (std::integral<S>)
