@@ -96,8 +96,8 @@ INSTANTIATE_TEST_CASE_P(ShareInt, ShareIntTest, testing::Values(
 	// Boundary values for secrets
 	ShareIntTestParams{ -100, 1, 4, true },    // Minimum from distribution
 	ShareIntTestParams{ 100, 1, 4, true },     // Maximum from distribution
-	ShareIntTestParams{ 1, 2, 2, true },       // Small positive
-	ShareIntTestParams{ -1, 2, 2, true }       // Small negative
+	ShareIntTestParams{ 1, 1, 2, true },       // Small positive
+	ShareIntTestParams{ -1, 1, 2, true }       // Small negative
 ));
 
 INSTANTIATE_TEST_CASE_P(ShareModInt, ShareModIntTest, testing::Values(
