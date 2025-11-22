@@ -227,7 +227,7 @@ namespace senc::utils
 
 		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
 		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
-		using Part = std::tuple<G, G>;
+		using Part = G;
 
 		ShamirHybridElGamal() = delete;
 
