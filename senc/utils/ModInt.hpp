@@ -354,6 +354,18 @@ namespace senc::utils
 
 		/**
 		 * @brief Subtracts the modular integer by an integer value.
+		 * @param value Integer value to subtract this with.
+		 * @return Subtraction result.
+		 */
+		Self operator-(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(ModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Addable, Int),
+			(Subtractable, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this - static_cast<Int>(value); }
+
+		/**
+		 * @brief Subtracts the modular integer by an integer value.
 		 * @param value Integer value to subtract this by.
 		 * @return `*this`, after subtraction.
 		 */
