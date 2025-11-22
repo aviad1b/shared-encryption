@@ -186,8 +186,6 @@ namespace senc::utils
 	class ShamirHybridElGamal
 	{
 	public:
-		ShamirHybridElGamal() = delete;
-
 		/**
 		 * @brief `ModTraits` type for `Secret` (`ModInt` of `GroupOrder`).
 		 */
@@ -211,6 +209,8 @@ namespace senc::utils
 		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
 		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
 		using Part = std::tuple<G, G>;
+
+		ShamirHybridElGamal() = delete;
 
 		/**
 		 * @brief Samples a Shamir polynomial for sharing a Hybrid El-Gamal private key.
