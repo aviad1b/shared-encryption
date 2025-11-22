@@ -486,6 +486,20 @@ namespace senc::utils
 
 		/**
 		 * @brief Divides the modular integer by an integer value.
+		 * @param value Integer value to divide this with.
+		 * @return Division result.
+		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
+		 */
+		Self operator/(auto value) const SENC_REQ_NOEXCEPT_COND(
+			(IS_PRIME_MOD && ModulableNoExcept<Int> && SelfModulableNoExcept<Int> && CopyableNoExcept<Int>),
+			(Multiplicable, Int),
+			(LowerComparable, Int),
+			(SelfDevisible, Int),
+			(ConvertibleTo, decltype(value), Int)
+		) { return *this / static_cast<Int>(value); }
+
+		/**
+		 * @brief Divides the modular integer by an integer value.
 		 * @param value Integer value to divide this by.
 		 * @return `*this`, after division.
 		 * @throw ModException If failed to divide (only if modulus is not known to be prime).
