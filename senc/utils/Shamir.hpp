@@ -10,7 +10,7 @@
 
 #include <utility>
 
-#include "enc/general.hpp"
+#include "enc/HybridElGamal2L.hpp"
 #include "Fraction.hpp"
 #include "concepts.hpp"
 #include "Group.hpp"
@@ -205,6 +205,44 @@ namespace senc::utils
 		using Threshold = typename Shamir<S, SID>::Threshold;
 		using Poly = typename Shamir<S, SID>::Poly;
 		using Shard = typename Shamir<S, SID>::Shard;
+
+		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
+		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
+		using Part = std::tuple<G, G>;
+
+		/**
+		 * @brief Samples a Shamir polynomial for sharing a Hybrid El-Gamal private key.
+		 * @param privKey Private key being shared (to use as first coefficient).
+		 * @param threshold Threshold of units to be able to restore key (polynom degree).
+		 * @param secretSampler A function for sampling more secrets (coefficients).
+		 * @return Sampled polynom for Shamir threshold decryption.
+		 */
+		static Poly sample_poly(const BigInt& privKey, Threshold threshold);
+
+		/**
+		 * @brief First step of Shamir El-Gamal two-layer decryption: Get decryption part matching a shard.
+		 * @tparam Layer Layer being decrypted (either 1 or 2).
+		 * @param ciphertext Tuple of (c1, c2, c3) from El-Gamal two-layer encryption.
+		 * @param privKeyShard Private key Shamir shard to use for decryption (of layer `layer`).
+		 * @param privKeyShardsIDs ID values of private key Shamir shards (of layer `layer`).
+		 * @return Part of decryption matching `privKeyShard` (computed from c1,c2).
+		 */
+		template <int layer>
+		requires (1 == layer || 2 == layer)
+		static Part decrypt_get_2l(const Ciphertext& ciphertext,
+								   const Shard& privKeyShard,
+								   const std::vector<SID>& privKeyShardsIDs);
+
+		/**
+		 * @brief Joins Shamir El-Gamal two-layer decryption parts into whole decrypted message.
+		 * @param ciphertext Tuple of (c1, c2, c3) from El-Gamal two-layer encryption.
+		 * @param parts1 Decryption parts to join for first layer (gathered from `decrypt_get_2l<1>`).
+		 * @param parts2 Decryption parts to join for second layer (gathered from `decrypt_get_2l<2>`).
+		 * @return Decrypted plaintext.
+		 */
+		static Plaintext decrypt_join_2l(const Ciphertext& ciphertext,
+										 const std::vector<Part>& parts1,
+										 const std::vector<Part>& parts2);
 	};
 }
 
