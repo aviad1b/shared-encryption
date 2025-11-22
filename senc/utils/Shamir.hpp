@@ -176,6 +176,14 @@ namespace senc::utils
 			else
 				return PackedSecret(0);
 		};
+
+		constexpr auto identityConstructPackedSecret = []()
+		{
+			if constexpr (HasIdentity<PackedSecret>)
+				return PackedSecret::identity();
+			else
+				return PackedSecret(1);
+		};
 	};
 }
 
