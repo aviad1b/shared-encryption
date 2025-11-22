@@ -38,7 +38,8 @@ namespace senc::utils
 	 * @tparam SID Shamir shard ID type.
 	 */
 	template <typename Self, typename SID>
-	concept ShamirSecret = Addable<Self> && SelfAddable<Self> &&
+	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) &&
+		Addable<Self> && SelfAddable<Self> &&
 		Subtractable<Self> && SelfSubtractable<Self> && Negatable<Self> &&
 		Multiplicable<Self> && SelfMultiplicable<Self> &&
 		Devisible<Self> && SelfDevisible<Self> &&
