@@ -113,4 +113,13 @@ namespace senc::utils
 		}
 		else return res; // if not integral, S is same as PackedSecret; return
 	}
+
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF, ShamirShardID SID>
+	inline ShamirHybridElGamal<G, SE, KDF, SID>::Poly
+		ShamirHybridElGamal<G, SE, KDF, SID>::sample_poly(const BigInt& privKey, Threshold threshold)
+	{
+		return Shamir<S, SID>::sample_poly(
+			privKey, threshold, S::sample
+		);
+	}
 }
