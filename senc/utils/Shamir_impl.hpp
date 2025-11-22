@@ -122,4 +122,38 @@ namespace senc::utils
 			privKey, threshold, S::sample
 		);
 	}
+
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF, ShamirShardID SID>
+	template <int layer>
+	requires (1 == layer || 2 == layer)
+	inline ShamirHybridElGamal<G, SE, KDF, SID>::Part
+		ShamirHybridElGamal<G, SE, KDF, SID>::decrypt_get_2l(
+			const Ciphertext& ciphertext,
+			const Shard& privKeyShard,
+			const std::vector<SID>& privKeyShardsIDs)
+	{
+		const G& c = std::get<layer - 1>(ciphertext);
+		const auto& [xi, yi] = privKeyShard;
+
+		// TODO: Code duplication?
+		std::unordered_set<SID> privKeyShardsIDsSet;
+		std::optional<std::size_t> i;
+		for (const auto& [idx, shardID] : privKeyShardsIDs | views::enumerate)
+		{
+			if (!shardID)
+				throw ShamirException("Invalid ID provided: Should be non-zero");
+			privKeyShardsIDsSet.insert(shardID);
+			if (shardID == xi)
+				i = idx;
+		}
+		if (privKeyShardsIDs.size() != privKeyShardsIDsSet.size())
+			throw ShamirException("Invalid IDs provided: Not unique");
+		if (!i.has_value())
+			throw ShamirException("Shard with ID no present");
+
+		return utils::pow(
+			c,
+			yi * Utils::get_legrange_coeff(i.value(), privKeyShardsIDs)
+		);
+	}
 }

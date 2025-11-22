@@ -247,6 +247,7 @@ namespace senc::utils
 		 * @param privKeyShard Private key Shamir shard to use for decryption (of layer `layer`).
 		 * @param privKeyShardsIDs ID values of private key Shamir shards (of layer `layer`).
 		 * @return Part of decryption matching `privKeyShard` (computed from c1,c2).
+		 * @throw ShamirException If `privKeyShardsIDs` are invalid or `privKeyShard` is invalid.
 		 */
 		template <int layer>
 		requires (1 == layer || 2 == layer)
