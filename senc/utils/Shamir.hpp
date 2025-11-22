@@ -167,7 +167,7 @@ namespace senc::utils
 		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
 		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
 		 */
-		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID> shardsIDs);
+		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
 
 		static constexpr auto defaultConstructPackedSecret = []()
 		{

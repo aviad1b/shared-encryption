@@ -89,7 +89,7 @@ namespace senc::utils
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
 	inline typename Shamir<S, SID>::PackedSecret Shamir<S, SID>::get_lagrange_coeff(
-		std::size_t i, const std::vector<SID> shardsIDs)
+		std::size_t i, const std::vector<SID>& shardsIDs)
 	{
 		std::unordered_set<SID> shardsIDsSet;
 		for (const SID& shardID : shardsIDs)
