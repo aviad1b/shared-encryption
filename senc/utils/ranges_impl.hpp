@@ -21,14 +21,21 @@ namespace senc::utils
 	}
 
 	template <std::ranges::input_range R>
-	requires Multiplicable<std::ranges::range_value_t<R>>
-	inline std::optional<std::ranges::range_value_t<R>> product(R&& r)
+	requires Multiplicable<std::ranges::range_value_t<R>> &&
+		(OneConstructible<std::ranges::range_value_t<R>> || 
+			HasIdentity<std::ranges::range_value_t<R>>)
+	inline std::ranges::range_value_t<R> product(R&& r)
 	{
 		auto it = std::ranges::begin(r);
 		auto end = std::ranges::end(r);
 
 		if (it == end)
-			return std::nullopt;
+		{
+			if constexpr (HasIdentity<std::ranges::range_value_t<R>>)
+				return std::ranges::range_value_t<R>::identity();
+			else
+				return std::ranges::range_value_t<R>(1);
+		}
 
 		auto res = *it;
 		++it;

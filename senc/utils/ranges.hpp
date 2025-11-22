@@ -33,8 +33,10 @@ namespace senc::utils
 	 * @return `std::nullopt` if `r` is empty, elements product otherwise.
 	 */
 	template <std::ranges::input_range R>
-	requires Multiplicable<std::ranges::range_value_t<R>>
-	std::optional<std::ranges::range_value_t<R>> product(R&& r);
+	requires Multiplicable<std::ranges::range_value_t<R>> &&
+		(OneConstructible<std::ranges::range_value_t<R>> || 
+			HasIdentity<std::ranges::range_value_t<R>>)
+	std::ranges::range_value_t<R> product(R&& r);
 
 	/**
 	 * @brief Computes sum of all element in range.

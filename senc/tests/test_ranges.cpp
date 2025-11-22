@@ -44,8 +44,7 @@ TEST_P(RangeProductTest, Ranges)
 	for (int elem : elems)
 		prodCalc *= elem;
 	auto prodRet = product(elems);
-	EXPECT_TRUE(prodRet.has_value());
-	EXPECT_EQ(prodRet.value(), prodCalc);
+	EXPECT_EQ(prodRet, prodCalc);
 }
 
 INSTANTIATE_TEST_CASE_P(Ranges, RangeProductTest, testing::Values(
