@@ -40,6 +40,7 @@ namespace senc::utils
 	template <typename Self, typename SID>
 	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) &&
 		(OneConstructible<Self> || HasIdentity<Self>) &&
+		std::constructible_from<Self, SID> && // for acurate computations
 		Addable<Self> && SelfAddable<Self> &&
 		Subtractable<Self> && SelfSubtractable<Self> &&
 		Multiplicable<Self> && SelfMultiplicable<Self> &&
