@@ -153,7 +153,7 @@ namespace senc::utils
 
 		return utils::pow(
 			c,
-			yi * Utils::get_legrange_coeff(i.value(), privKeyShardsIDs)
+			yi * Utils::get_lagrange_coeff(i.value(), privKeyShardsIDs)
 		);
 	}
 
