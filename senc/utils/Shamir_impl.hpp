@@ -164,7 +164,7 @@ namespace senc::utils
 			const std::vector<Part>& parts1,
 			const std::vector<Part>& parts2)
 	{
-		const G& c3 = std::get<2>(ciphertext);
+		const auto& c3 = std::get<2>(ciphertext);
 		auto z1 = utils::product(parts1);
 		auto z2 = utils::product(parts2);
 
