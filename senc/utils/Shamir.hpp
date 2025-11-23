@@ -10,8 +10,11 @@
 
 #include <utility>
 
+#include "enc/HybridElGamal2L.hpp"
 #include "Fraction.hpp"
 #include "concepts.hpp"
+#include "ModInt.hpp"
+#include "Group.hpp"
 #include "poly.hpp"
 
 namespace senc::utils
@@ -102,15 +105,9 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
-	/**
-	 * @class senc::utils::Shamir
-	 * @brief Holds static methods for Shamir secret sharing utilities.
-	 * @tparam S Shared secret type.
-	 * @tparam SID Type used as Shamir shard ID.
-	 */
-	template <typename S, ShamirShardID SID = std::int32_t>
+	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
-	class Shamir
+	class ShamirUtils
 	{
 	public:
 		using PackedSecret = ShamirPackedSecret<S>;
@@ -118,16 +115,7 @@ namespace senc::utils
 		using Poly = ShamirPoly<S, SID>;
 		using Shard = std::pair<SID, PackedSecret>; // x, poly(x)
 
-		Shamir() = delete;
-
-		/**
-		 * @brief Samples a Shamir polynomial for sharing a given secret.
-		 * @param secret Secret being shared (to use as first coefficient)..
-		 * @param threshold Threshold of units to be able to restore secret (polynom degree).
-		 * @param secretSampler A function for sampling more secrets (coefficients).
-		 * @return Sampled polynom for Shamir secret sharing.
-		 */
-		static Poly sample_poly(const S& secret, Threshold threshold, std::function<S()> secretSampler);
+		ShamirUtils() = delete;
 
 		/**
 		 * @brief Gets Shamir shard based on sampled polynomial.
@@ -151,16 +139,7 @@ namespace senc::utils
 		requires std::convertible_to<std::ranges::range_value_t<R>, SID>
 		static std::vector<Shard> make_shards(const Poly& poly, R&& shardsIDs);
 
-		/**
-		 * @brief Restores a Shamir-shared secret.
-		 * @param shards Shamir shards to restore secret from.
-		 * @param threshold Original threshold used for sharing.
-		 * @return Restores secret.
-		 * @throw ShamirException If not enough shards are provided, or shards are invalid, or failed.
-		 */
-		static S restore_secret(const std::vector<Shard>& shards, Threshold threshold);
-
-	private:
+	protected:
 		/**
 		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
 		 * @param i Index of shard in sequence.
@@ -169,6 +148,127 @@ namespace senc::utils
 		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
 		 */
 		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
+	};
+
+	/**
+	 * @class senc::utils::Shamir
+	 * @brief Holds static methods for Shamir secret sharing utilities.
+	 * @tparam S Shared secret type.
+	 * @tparam SID Type used as Shamir shard ID.
+	 */
+	template <typename S, ShamirShardID SID = std::int32_t>
+	requires ShamirSecret<S, SID>
+	class Shamir : public ShamirUtils<S, SID>
+	{
+	public:
+		using Utils = ShamirUtils<S, SID>;
+		using PackedSecret = typename Utils::PackedSecret;
+		using Threshold = typename Utils::Threshold;
+		using Poly = typename Utils::Poly;
+		using Shard = typename Utils::Shard;
+
+		Shamir() = delete;
+
+		/**
+		 * @brief Samples a Shamir polynomial for sharing a given secret.
+		 * @param secret Secret being shared (to use as first coefficient)..
+		 * @param threshold Threshold of units to be able to restore secret (polynom degree).
+		 * @param secretSampler A function for sampling more secrets (coefficients).
+		 * @return Sampled polynom for Shamir secret sharing.
+		 */
+		static Poly sample_poly(const S& secret, Threshold threshold, std::function<S()> secretSampler);
+
+		/**
+		 * @brief Restores a Shamir-shared secret.
+		 * @param shards Shamir shards to restore secret from.
+		 * @param threshold Original threshold used for sharing.
+		 * @return Restores secret.
+		 * @throw ShamirException If not enough shards are provided, or shards are invalid, or failed.
+		 */
+		static S restore_secret(const std::vector<Shard>& shards, Threshold threshold);
+	};
+
+	/**
+	 * @brief `ModTraits` type for `ShamirHybridElGamal::S` (`ModInt` of `GroupOrder`).
+	 */
+	template <Group G>
+	struct ShamirHybridElGamalSecretModTraits
+	{
+		using Underlying = GroupOrder;
+		static GroupOrder modulus() noexcept { return G::order(); }
+		static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
+	};
+
+	/**
+	 * @brief Shared secret type for Shamir Hybrid El-Gamal.
+	 */
+	template <Group G>
+	using ShamirHybridElGamalS = ModInt<ShamirHybridElGamalSecretModTraits<G>>;
+
+	/**
+	 * @class senc::utils::ShamirHybridElGamal
+	 * @brief Holds static methods for Shamir hybrid El-Gamal threshold decryption utilities.
+	 * @tparam G Group type for El-Gamal.
+	 * @tparam SE Symmetric (one-layer) encryption schema.
+	 * @tparam KDF Key deriviation function (from two `G` elements to key for `SE`).
+	 * @tparam SID Type used as Shamir shard ID.
+	 */
+	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF,
+			  ShamirShardID SID = std::int32_t>
+	class ShamirHybridElGamal : public ShamirUtils<ShamirHybridElGamalS<G>, SID>
+	{
+	public:
+		using S = ShamirHybridElGamalS<G>;
+		using Utils = ShamirUtils<S, SID>;
+		using PackedSecret = typename Utils::PackedSecret;
+		using Threshold = typename Utils::Threshold;
+		using Poly = typename Utils::Poly;
+		using Shard = typename Utils::Shard;
+
+		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
+		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
+		using Part = G;
+
+		ShamirHybridElGamal() = delete;
+
+		/**
+		 * @brief Samples a Shamir polynomial for sharing a Hybrid El-Gamal private key.
+		 * @param privKey Private key being shared (to use as first coefficient).
+		 * @param threshold Threshold of units to be able to restore key (polynom degree).
+		 * @param secretSampler A function for sampling more secrets (coefficients).
+		 * @return Sampled polynom for Shamir threshold decryption.
+		 */
+		static Poly sample_poly(const BigInt& privKey, Threshold threshold);
+
+		/**
+		 * @brief First step of Shamir El-Gamal two-layer decryption: Get decryption part matching a shard.
+		 * @tparam Layer Layer being decrypted (either 1 or 2).
+		 * @param ciphertext Tuple of (c1, c2, c3) from El-Gamal two-layer encryption.
+		 * @param privKeyShard Private key Shamir shard to use for decryption (of layer `layer`).
+		 * @param privKeyShardsIDs ID values of private key Shamir shards (of layer `layer`).
+		 * @return Part of decryption matching `privKeyShard` (computed from c1,c2).
+		 * @throw ShamirException If `privKeyShardsIDs` are invalid or `privKeyShard` is invalid.
+		 */
+		template <int layer>
+		requires (1 == layer || 2 == layer)
+		static Part decrypt_get_2l(const Ciphertext& ciphertext,
+								   const Shard& privKeyShard,
+								   const std::vector<SID>& privKeyShardsIDs);
+
+		/**
+		 * @brief Joins Shamir El-Gamal two-layer decryption parts into whole decrypted message.
+		 * @param ciphertext Tuple of (c1, c2, c3) from El-Gamal two-layer encryption.
+		 * @param parts1 Decryption parts to join for first layer (gathered from `decrypt_get_2l<1>`).
+		 * @param parts2 Decryption parts to join for second layer (gathered from `decrypt_get_2l<2>`).
+		 * @return Decrypted plaintext.
+		 */
+		static Plaintext decrypt_join_2l(const Ciphertext& ciphertext,
+										 const std::vector<Part>& parts1,
+										 const std::vector<Part>& parts2);
+
+	private:
+		static SE _symmetricSchema;
+		static KDF _kdf;
 	};
 }
 

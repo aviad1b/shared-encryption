@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include <optional>
 #include <numeric>
 #include <utility>
 #include <ranges>
+#include <vector>
 
 #include "concepts.hpp"
 
