@@ -74,7 +74,7 @@ TEST_P(ThresholdEncTest, ThresholdEnc)
 
 	auto decrypted = Shamir::decrypt_join_2l(encrypted, parts1, parts2);
 
-	EXPECT_EQ(encrypted, decrypted);
+	EXPECT_EQ(data, decrypted);
 }
 
 INSTANTIATE_TEST_CASE_P(ThresholdEnc, ThresholdEncTest, testing::Values(
