@@ -195,7 +195,7 @@ namespace senc::utils
 	struct ShamirHybridElGamalSecretModTraits
 	{
 		using Underlying = GroupOrder;
-		static const GroupOrder& modulus() noexcept { return G::order(); }
+		static GroupOrder modulus() noexcept { return G::order(); }
 		static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
 	};
 
