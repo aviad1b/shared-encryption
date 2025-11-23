@@ -84,5 +84,5 @@ INSTANTIATE_TEST_CASE_P(ThresholdEnc, ThresholdEncTest, testing::Values(
 
 	// Trivial case: One shard required
 	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 1, 1 }, // one shard given
-	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 2, 3 }  // more then one shard given
+	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 2, 3 }  // more than one shard given
 ));
