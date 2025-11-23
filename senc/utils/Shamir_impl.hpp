@@ -16,6 +16,34 @@ namespace senc::utils
 {
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
+	inline typename ShamirUtils<S, SID>::Shard ShamirUtils<S, SID>::make_shard(const Poly& poly, SID shardID)
+	{
+		if (!shardID)
+			throw ShamirException("Invalid shard ID provided: Should be non-zero");
+		return { shardID, poly(shardID) };
+	}
+
+	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
+	template <std::ranges::input_range R>
+	requires std::convertible_to<std::ranges::range_value_t<R>, SID>
+	inline std::vector<typename ShamirUtils<S, SID>::Shard> 
+		ShamirUtils<S, SID>::make_shards(const Poly& poly, R&& shardsIDs)
+	{
+		std::unordered_set<SID> usedIDs;
+		std::vector<Shard> res;
+		for (const SID& shardID : shardsIDs)
+		{
+			if (usedIDs.contains(shardID))
+				throw ShamirException("Same ID provided twice, IDs should be unique");
+			res.push_back(make_shard(poly, shardID));
+			usedIDs.insert(shardID);
+		}
+		return res;
+	}
+
+	template <typename S, ShamirShardID SID>
+	requires ShamirSecret<S, SID>
 	inline typename ShamirUtils<S, SID>::PackedSecret ShamirUtils<S, SID>::get_lagrange_coeff(
 		std::size_t i, const std::vector<SID>& shardsIDs)
 	{
@@ -53,34 +81,6 @@ namespace senc::utils
 			[=]() -> PackedSecret { return secretSampler(); },
 			PackedSecret(secret)
 		);
-	}
-
-	template <typename S, ShamirShardID SID>
-	requires ShamirSecret<S, SID>
-	inline typename Shamir<S, SID>::Shard Shamir<S, SID>::make_shard(const Poly& poly, SID shardID)
-	{
-		if (!shardID)
-			throw ShamirException("Invalid shard ID provided: Should be non-zero");
-		return { shardID, poly(shardID) };
-	}
-
-	template <typename S, ShamirShardID SID>
-	requires ShamirSecret<S, SID>
-	template <std::ranges::input_range R>
-	requires std::convertible_to<std::ranges::range_value_t<R>, SID>
-	inline std::vector<typename Shamir<S, SID>::Shard> 
-		Shamir<S, SID>::make_shards(const Poly& poly, R&& shardsIDs)
-	{
-		std::unordered_set<SID> usedIDs;
-		std::vector<Shard> res;
-		for (const SID& shardID : shardsIDs)
-		{
-			if (usedIDs.contains(shardID))
-				throw ShamirException("Same ID provided twice, IDs should be unique");
-			res.push_back(make_shard(poly, shardID));
-			usedIDs.insert(shardID);
-		}
-		return res;
 	}
 
 	template <typename S, ShamirShardID SID>

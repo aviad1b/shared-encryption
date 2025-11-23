@@ -117,45 +117,6 @@ namespace senc::utils
 
 		ShamirUtils() = delete;
 
-	protected:
-		/**
-		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
-		 * @param i Index of shard in sequence.
-		 * @param shardsIDs Sequence of shards IDs.
-		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
-		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
-		 */
-		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
-	};
-
-	/**
-	 * @class senc::utils::Shamir
-	 * @brief Holds static methods for Shamir secret sharing utilities.
-	 * @tparam S Shared secret type.
-	 * @tparam SID Type used as Shamir shard ID.
-	 */
-	template <typename S, ShamirShardID SID = std::int32_t>
-	requires ShamirSecret<S, SID>
-	class Shamir : protected ShamirUtils<S, SID>
-	{
-	public:
-		using Utils = ShamirUtils<S, SID>;
-		using PackedSecret = typename Utils::PackedSecret;
-		using Threshold = typename Utils::Threshold;
-		using Poly = typename Utils::Poly;
-		using Shard = typename Utils::Shard;
-
-		Shamir() = delete;
-
-		/**
-		 * @brief Samples a Shamir polynomial for sharing a given secret.
-		 * @param secret Secret being shared (to use as first coefficient)..
-		 * @param threshold Threshold of units to be able to restore secret (polynom degree).
-		 * @param secretSampler A function for sampling more secrets (coefficients).
-		 * @return Sampled polynom for Shamir secret sharing.
-		 */
-		static Poly sample_poly(const S& secret, Threshold threshold, std::function<S()> secretSampler);
-
 		/**
 		 * @brief Gets Shamir shard based on sampled polynomial.
 		 * @param poly Polynomial sampled for Shamir.
@@ -177,6 +138,45 @@ namespace senc::utils
 		template <std::ranges::input_range R>
 		requires std::convertible_to<std::ranges::range_value_t<R>, SID>
 		static std::vector<Shard> make_shards(const Poly& poly, R&& shardsIDs);
+
+	protected:
+		/**
+		 * @brief Gets Lagrange coefficient for a specific shard in a sequence.
+		 * @param i Index of shard in sequence.
+		 * @param shardsIDs Sequence of shards IDs.
+		 * @return Lagrange coefficient of the `i`th shard from `shardsIDs`.
+		 * @throw ShamirException If `shardsIDs` are not unique or contain a zero-equivalent.
+		 */
+		static PackedSecret get_lagrange_coeff(std::size_t i, const std::vector<SID>& shardsIDs);
+	};
+
+	/**
+	 * @class senc::utils::Shamir
+	 * @brief Holds static methods for Shamir secret sharing utilities.
+	 * @tparam S Shared secret type.
+	 * @tparam SID Type used as Shamir shard ID.
+	 */
+	template <typename S, ShamirShardID SID = std::int32_t>
+	requires ShamirSecret<S, SID>
+	class Shamir : public ShamirUtils<S, SID>
+	{
+	public:
+		using Utils = ShamirUtils<S, SID>;
+		using PackedSecret = typename Utils::PackedSecret;
+		using Threshold = typename Utils::Threshold;
+		using Poly = typename Utils::Poly;
+		using Shard = typename Utils::Shard;
+
+		Shamir() = delete;
+
+		/**
+		 * @brief Samples a Shamir polynomial for sharing a given secret.
+		 * @param secret Secret being shared (to use as first coefficient)..
+		 * @param threshold Threshold of units to be able to restore secret (polynom degree).
+		 * @param secretSampler A function for sampling more secrets (coefficients).
+		 * @return Sampled polynom for Shamir secret sharing.
+		 */
+		static Poly sample_poly(const S& secret, Threshold threshold, std::function<S()> secretSampler);
 
 		/**
 		 * @brief Restores a Shamir-shared secret.
@@ -215,7 +215,7 @@ namespace senc::utils
 	 */
 	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF,
 			  ShamirShardID SID = std::int32_t>
-	class ShamirHybridElGamal : protected ShamirUtils<ShamirHybridElGamalS<G>, SID>
+	class ShamirHybridElGamal : public ShamirUtils<ShamirHybridElGamalS<G>, SID>
 	{
 	public:
 		using S = ShamirHybridElGamalS<G>;
