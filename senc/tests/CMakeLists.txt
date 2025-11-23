@@ -7,6 +7,7 @@ add_executable(senc_tests
     "test_fraction.cpp"
     "test_enc.cpp"
     "test_shamir.cpp"
+    "test_threshold_enc.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
