@@ -76,3 +76,13 @@ TEST_P(ThresholdEncTest, ThresholdEnc)
 
 	EXPECT_EQ(encrypted, decrypted);
 }
+
+INSTANTIATE_TEST_CASE_P(ThresholdEnc, ThresholdEncTest, testing::Values(
+	// Arbitrary values, exactly above threshold
+	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 5, 4, 6, 5 },
+	ThresholdEncTestParams{ Buffer{0xFF, 0xFF, 0xFF}, 6, 5, 5, 4 },
+
+	// Trivial case: One shard required
+	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 1, 1 }, // one shard given
+	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 2, 3 }  // more then one shard given
+));
