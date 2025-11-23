@@ -50,7 +50,7 @@ TEST_P(ThresholdEncTest, ThresholdEnc)
 	auto poly2 = Shamir::sample_poly(privKey2, threshold2);
 
 	auto shardsIDs1 = senc::utils::to_vector<int>(std::views::iota(1, numUnits1 + 1));
-	auto shardsIDs2 = senc::utils::to_vector<int>(std::views::iota(numUnits1 + 2, numUnits2 + 1));
+	auto shardsIDs2 = senc::utils::to_vector<int>(std::views::iota(numUnits1 + 2, numUnits1 + 2 + numUnits2 + 1));
 
 	auto shards1 = Shamir::make_shards(poly1, shardsIDs1);
 	auto shards2 = Shamir::make_shards(poly2, shardsIDs2);
