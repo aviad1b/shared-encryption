@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(cryptopp-cmake)
 add_compile_options(-Werror -Wall -Wextra -Wvla)
 
 add_subdirectory("utils")
-add_subdirectory("packets")
+add_subdirectory("common")
 add_subdirectory("server")
 add_subdirectory("client")
 
