@@ -1,4 +1,5 @@
 add_library(senc_common
+	"aliases.hpp"
 	"packets.hpp"
 	"common.cpp"
 )
