@@ -11,6 +11,7 @@
 #include "../utils/enc/AES1L.hpp"
 #include "../utils/ECGroup.hpp"
 #include "../utils/Shamir.hpp"
+#include <string>
 
 namespace senc
 {
@@ -30,4 +31,6 @@ namespace senc
 	using Ciphertext = utils::enc::Ciphertext<Schema>;
 
 	using PrivKeyShard = typename Shamir::Shard;
+
+	using UserSetID = std::string;
 }
