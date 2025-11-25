@@ -31,6 +31,7 @@ namespace senc
 	using Ciphertext = utils::enc::Ciphertext<Schema>;
 
 	using PrivKeyShard = typename Shamir::Shard;
+	using PrivKeyShardID = typename Shamir::ShardID;
 
 	using UserSetID = std::string;
 	using OperationID = std::string;
