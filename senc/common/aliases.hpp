@@ -33,4 +33,5 @@ namespace senc
 	using PrivKeyShard = typename Shamir::Shard;
 
 	using UserSetID = std::string;
+	using OperationID = std::string;
 }
