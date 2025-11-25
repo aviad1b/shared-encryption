@@ -8,6 +8,8 @@
 
 #include "bytes.hpp"
 
+#include "Exception.hpp"
+
 namespace senc::utils
 {
 	template <typename T>
