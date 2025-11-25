@@ -36,7 +36,7 @@ namespace senc::utils
 	{
 		return Buffer(
 			static_cast<const byte*>(str.c_str()),
-			static_cast<const byte*>(str.c_str() + str.length() + 1),
+			static_cast<const byte*>(str.c_str() + str.length() + 1)
 		);
 	}
 
