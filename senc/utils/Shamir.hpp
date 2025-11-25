@@ -114,6 +114,7 @@ namespace senc::utils
 		using Threshold = ShamirThreshold;
 		using Poly = ShamirPoly<S, SID>;
 		using Shard = std::pair<SID, PackedSecret>; // x, poly(x)
+		using ShardID = SID;
 
 		ShamirUtils() = delete;
 
@@ -166,6 +167,7 @@ namespace senc::utils
 		using Threshold = typename Utils::Threshold;
 		using Poly = typename Utils::Poly;
 		using Shard = typename Utils::Shard;
+		using ShardID = typename Utils::ShardID;
 
 		Shamir() = delete;
 
@@ -224,6 +226,7 @@ namespace senc::utils
 		using Threshold = typename Utils::Threshold;
 		using Poly = typename Utils::Poly;
 		using Shard = typename Utils::Shard;
+		using ShardID = typename Utils::ShardID;
 
 		using Plaintext = enc::Plaintext<enc::HybridElGamal2L<G, SE, KDF>>;
 		using Ciphertext = enc::Ciphertext<enc::HybridElGamal2L<G, SE, KDF>>;
