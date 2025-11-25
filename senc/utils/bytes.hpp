@@ -9,8 +9,10 @@
 #pragma once
 
 #include <cryptopp/config_int.h>
-#include <concepts>
 #include <vector>
+#include <string>
+
+#include "concepts.hpp"
 
 namespace senc::utils
 {
@@ -70,5 +72,77 @@ namespace senc::utils
 	concept HasFromBytes = requires(const Buffer bytes)
 	{
 		{ Self::from_bytes(bytes) } -> std::convertible_to<Self>;
+	};
+
+	/**
+	 * @brief Converts a fundamental/enum value to a buffer of bytes.
+	 * @param value Value to convert to bytes.
+	 * @return Bytes representation of `value`.
+	 */
+	template <typename T>
+	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	Buffer to_bytes(T value);
+
+	/**
+	 * @brief Parses a fundamental/enum value from a buffer of bytes.
+	 * @param bytes Buffer of bytes to parse value from.
+	 * @return Parsed value.
+	 */
+	template <typename T>
+	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	T from_bytes(const Buffer& bytes);
+
+	/**
+	 * @brief Converts a string value to a buffer of bytes.
+	 * @param str String to convert to bytes.
+	 * @return Bytes representation of `str`.
+	 */
+	template <StringType T>
+	Buffer to_bytes(const T& str);
+
+	/**
+	 * @brief Parses a string value from a buffer of bytes.
+	 * @param bytes Buffer of bytes to parse value from.
+	 * @return Parsed string.
+	 */
+	template <StringType T>
+	T from_bytes(const Buffer& bytes);
+
+	/**
+	 * @brief Converts a `HasToBytes` object to a buffer of bytes.
+	 * @param obj Object to convert to bytes.
+	 * @return Bytes representation of `obj`.
+	 */
+	template <HasToBytes T>
+	Buffer to_bytes(const T& obj);
+
+	/**
+	 * @brief Parses a `HasFromBytes` object from a buffer of bytes.
+	 * @param bytes Buffer of bytes to parse object from.
+	 * @return Parsed object.
+	 */
+	template <HasFromBytes T>
+	T from_bytes(const Buffer& bytes);
+
+	/**
+	 * @concept senc::utils::ByteConvertible
+	 * @brief Looks for a typename that can be converted to bytes using `to_bytes`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept ByteConvertible = requires(const Self& self)
+	{
+		{ ::senc::utils::to_bytes(self) } -> std::convertible_to<Buffer>;
+	};
+
+	/**
+	 * @concept senc::utils::ByteParsable
+	 * @brief Looks for a typename that can be parsed from bytes using `from_bytes`.
+	 * @tparam Self Examied typename.
+	 */
+	template <typename Self>
+	concept ByteParsable = requires(const Buffer& bytes)
+	{
+		{ ::senc::utils::from_bytes<Self>(bytes) } -> std::convertible_to<Self>;
 	};
 }
