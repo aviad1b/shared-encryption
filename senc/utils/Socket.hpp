@@ -361,7 +361,7 @@ namespace senc::utils
 		 * @return Read string data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <StringType Str, std::size_t chunkSize = 32>
+		template <StringType Str = std::string, std::size_t chunkSize = 32>
 		Str recv_connected_str();
 
 	protected:
