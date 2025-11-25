@@ -326,7 +326,8 @@ namespace senc::utils
 		 * @param data String data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send_connected_str(const StringType auto& data);
+		template <StringType Str>
+		void send_connected_str(const Str& data);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.

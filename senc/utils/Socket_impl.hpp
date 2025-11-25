@@ -16,9 +16,10 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
-	inline void Socket::send_connected_str(const StringType auto& data)
+	template <StringType Str>
+	inline void Socket::send_connected_str(const Str& data)
 	{
-		using C = typename std::remove_cvref_t<decltype(data)>::value_type;
+		using C = typename Str::value_type;
 		return send_connected(data.c_str(), (data.size + 1) * sizeof(C));
 	}
 
