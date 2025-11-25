@@ -375,10 +375,19 @@ namespace senc::utils
 		 */
 		void close();
 
+		/**
+		 * @brief Outputs leftover data from previous recvs.
+		 * @param out Address to output to.
+		 * @param maxsize Maximum byte count to output from leftover data.
+		 * @return Amount of bytes outputted.
+		 */
+		std::size_t out_leftover_data(byte* out, std::size_t maxsize);
+
 		static std::string get_last_sock_err();
 
 	private:
 		static const SocketInitializer SOCKET_INITIALIZER;
+		Buffer _buffer; // for leftover data
 	};
 
 	/**
