@@ -8,6 +8,8 @@
 
 #include "Socket.hpp"
 
+#include <algorithm>
+
 namespace senc::utils
 {
 	inline void Socket::send_connected(const HasByteData auto& data)
@@ -26,6 +28,32 @@ namespace senc::utils
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());
+	}
+
+	template <StringType Str, std::size_t chunkSize>
+	inline Str Socket::recv_connected_str()
+	{
+		using C = typename Str::value_type;
+		constexpr C nullchr = static_cast<C>(0);
+		C chunk[chunkSize] = {0};
+		const C* pNullChrInChunk = nullptr;
+		const C* chunkEnd = chunk + chunkSize;
+		Str res{};
+
+		// while nullchr not found in chunk
+		do
+		{
+			recv_connected_into(chunk, chunkSize * sizeof(C));
+			res += chunk;
+		} while (chunkEnd != (pNullChrInChunk = std::find(chunk, chunkEnd, nullchr)));
+
+		// res now has string, with `pNullChrInChunk` pointing to null termination
+		// extra bytes are after null termination
+		const std::size_t extraBytesCount = (chunkEnd - pNullChrInChunk) * sizeof(C);
+		const byte* extraBytesStart = chunk + pNullChrInChunk;
+
+		// append extra bytes to `_buffer`:
+		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
 	}
 
 	template <IPType IP>

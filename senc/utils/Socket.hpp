@@ -355,6 +355,15 @@ namespace senc::utils
 		 */
 		std::size_t recv_connected_into(HasMutableByteData auto& out);
 
+		/**
+		 * @brief Recieves string data through (a connected) socket.
+		 * @tparam Str String data type to recieve (same as one sent on other end).
+		 * @return Read string data.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <StringType Str, std::size_t chunkSize = 32>
+		Str recv_connected_str();
+
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
