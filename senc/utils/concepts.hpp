@@ -12,6 +12,7 @@
 #include <concepts>
 #include <iterator>
 #include <ostream>
+#include <string>
 #include <ranges>
 
 namespace senc::utils
@@ -47,6 +48,23 @@ namespace senc::utils
 	concept InputRange =
 		std::ranges::input_range<Self> &&
 		InputIterator<std::ranges::iterator_t<Self>, T>;
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct is_string_type : std::false_type { };
+
+		template <typename Char, typename Traits, typename Alloc>
+		struct is_string_type<std::basic_string<Char, Traits, Alloc>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::StringType
+	 * @brief Looks for a basic string type (from `std`).
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept StringType = sfinae::is_string_type<Self>::value;
 
 	template <typename Self, typename To>
 	concept ConvertibleTo = requires(Self&& self)
