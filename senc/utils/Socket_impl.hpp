@@ -54,6 +54,8 @@ namespace senc::utils
 
 		// append extra bytes to `_buffer`:
 		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
+
+		return res;
 	}
 
 	template <IPType IP>
