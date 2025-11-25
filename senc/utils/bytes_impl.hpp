@@ -8,6 +8,8 @@
 
 #include "bytes.hpp"
 
+#include <cstring>
+
 #include "Exception.hpp"
 
 namespace senc::utils
