@@ -1,5 +1,6 @@
 ﻿add_library(senc_utils
 	"bytes.hpp"
+	"bytes_impl.hpp"
 	"concepts.hpp"
 	"ranges.hpp"
 	"ranges_impl.hpp"

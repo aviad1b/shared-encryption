@@ -146,3 +146,5 @@ namespace senc::utils
 		{ ::senc::utils::from_bytes<Self>(bytes) } -> std::convertible_to<Self>;
 	};
 }
+
+#include "bytes_impl.hpp"
