@@ -322,6 +322,13 @@ namespace senc::utils
 		void send_connected(const HasByteData auto& data);
 
 		/**
+		 * @brief Sends string data through (a connected) socket.
+		 * @param data String data to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void send_connected_str(const StringType auto& data);
+
+		/**
 		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.

@@ -16,6 +16,12 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
+	inline void Socket::send_connected_str(const StringType auto& data)
+	{
+		using C = typename std::remove_cvref_t<decltype(data)>::value_type;
+		return send_connected(data.c_str(), (data.size + 1) * sizeof(C));
+	}
+
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());
