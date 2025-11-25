@@ -106,11 +106,14 @@ TEST(SocketTests, TestStrTCP)
 
 	TcpSocket<IPv4> recv_sock = f.get();
 
-	const std::string send_str = "abc";
+	const std::string send_str = "abcd";
 	const Buffer send_bytes = { 1, 2, 3 };
 	send_sock.send_connected_str(send_str);
 	send_sock.send_connected(send_bytes);
-	auto recv_str = recv_sock.recv_connected_str<std::string, 5>(); // chunksize 5 to *partially* get next
+
+	// recieve string with three chars at a time, causing the beggining of next input to be leftover
+	auto recv_str = recv_sock.recv_connected_str<std::string, 2>();
+
 	auto recv_bytes = recv_sock.recv_connected(3);
 
 	EXPECT_EQ(send_str, recv_str);
