@@ -29,5 +29,5 @@ namespace senc
 
 	using Ciphertext = utils::enc::Ciphertext<Schema>;
 
-	using Shard = typename Shamir::Shard;
+	using PrivKeyShard = typename Shamir::Shard;
 }
