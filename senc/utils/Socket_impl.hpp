@@ -22,7 +22,7 @@ namespace senc::utils
 	inline void Socket::send_connected_str(const Str& data)
 	{
 		using C = typename Str::value_type;
-		return send_connected(data.c_str(), (data.size + 1) * sizeof(C));
+		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
 	}
 
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
