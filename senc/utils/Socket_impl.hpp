@@ -45,7 +45,7 @@ namespace senc::utils
 		{
 			recv_connected_into(chunk, chunkSize * sizeof(C));
 			res += chunk;
-		} while (chunkEnd != (pNullChrInChunk = std::find(chunk, chunkEnd, nullchr)));
+		} while (chunkEnd != (pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr)));
 
 		// res now has string, with `pNullChrInChunk` pointing to null termination
 		// extra bytes are after null termination
