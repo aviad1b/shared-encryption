@@ -138,7 +138,7 @@ namespace senc::utils
 		return this->_isConnected;
 	}
 
-	void Socket::send_connected(const byte* data, std::size_t size)
+	void Socket::send_connected(const void* data, std::size_t size)
 	{
 		if (!is_connected())
 			throw SocketException("Failed to send", "Socket is not connected");
@@ -155,7 +155,7 @@ namespace senc::utils
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
-	std::size_t Socket::recv_connected_into(byte* out, std::size_t maxsize)
+	std::size_t Socket::recv_connected_into(void* out, std::size_t maxsize)
 	{
 		// if has leftover data, consider connected and output leftover data first
 		std::size_t newOutStart = out_leftover_data(out, maxsize);
@@ -199,7 +199,7 @@ namespace senc::utils
 		this->_isConnected = false;
 	}
 
-	std::size_t Socket::out_leftover_data(byte* out, std::size_t maxsize)
+	std::size_t Socket::out_leftover_data(void* out, std::size_t maxsize)
 	{
 		if (this->_buffer.empty())
 			return 0; // no leftover output

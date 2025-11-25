@@ -102,7 +102,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline void UdpSocket<IP>::send_to(const byte* data, std::size_t size, const IP& addr, Port port)
+	inline void UdpSocket<IP>::send_to(const void* data, std::size_t size, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
@@ -127,7 +127,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(byte* out, std::size_t maxsize)
+	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(void* out, std::size_t maxsize)
 	{
 		typename IP::UnderlyingSockAddr addr{};
 		int addrLen = sizeof(addr);
