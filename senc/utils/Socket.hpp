@@ -417,6 +417,16 @@ namespace senc::utils
 		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		T recv_connected_primitive();
 
+		/**
+		 * @brief Recieves value through (a connected) socket, using the fitting method.
+		 * @tparam T Value type.
+		 * @param out Reference to store read value to.
+		 */
+		template <typename T, std::size_t chunkSize = 32>
+		requires (HasMutableByteData<T> || StringType<T> || 
+			std::is_fundamental_v<T> || std::is_enum_v<T>)
+		void recv_connected_value(T& out);
+
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;

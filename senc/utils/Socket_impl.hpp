@@ -92,6 +92,19 @@ namespace senc::utils
 		return res;
 	}
 
+	template <typename T, std::size_t chunkSize>
+	requires (HasMutableByteData<T> || StringType<T> || 
+			std::is_fundamental_v<T> || std::is_enum_v<T>)
+	inline void Socket::recv_connected_value(T& out)
+	{
+		if constexpr (StringType<T>)
+			out = recv_connected_str<T, chunkSize>();
+		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
+			out = recv_connected_primitive();
+		else
+			recv_connected_exact(out.size());
+	}
+
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::close()
 	{
