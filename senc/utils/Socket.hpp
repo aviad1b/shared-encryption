@@ -397,6 +397,16 @@ namespace senc::utils
 		template <StringType Str = std::string, std::size_t chunkSize = 32>
 		Str recv_connected_str();
 
+		/**
+		 * @brief Recieves simple value through (a connected) socket.
+		 * @tparam T Value type (fundamental or enum).
+		 * @return Read value.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires std::is_fundamental_v<T> || std::is_enum_v<T>
+		T recv_connected_value();
+
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;

@@ -70,6 +70,15 @@ namespace senc::utils
 		return res;
 	}
 
+	template <typename T>
+	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	inline T Socket::recv_connected_value()
+	{
+		T res{};
+		recv_connected_exact_into(&res, sizeof(T));
+		return res;
+	}
+
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::close()
 	{
