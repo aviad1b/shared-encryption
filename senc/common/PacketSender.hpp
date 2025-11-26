@@ -56,5 +56,7 @@ namespace senc
 
 		static void send_pub_key(utils::Socket& sock, const PubKey& pubKey);
 		static void send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard);
+
+		static void send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext);
 	};
 }

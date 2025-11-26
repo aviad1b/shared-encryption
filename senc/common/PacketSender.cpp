@@ -110,4 +110,37 @@ namespace senc
 		sock.send_connected_value(shard.first);
 		send_big_int(sock, static_cast<const utils::BigInt&>(shard.second));
 	}
+
+	void PacketSender::send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext)
+	{
+		const auto& [c1, c2, c3] = ciphertext;
+		const auto& [c3a, c3b] = c3;
+
+		// send size dividers
+		std::initializer_list<std::uint64_t> sizes = {
+			static_cast<std::uint64_t>(c1.x().MinEncodedSize()),
+			static_cast<std::uint64_t>(c1.y().MinEncodedSize()),
+			static_cast<std::uint64_t>(c2.x().MinEncodedSize()),
+			static_cast<std::uint64_t>(c2.y().MinEncodedSize()),
+			static_cast<std::uint64_t>(c3a.size()),
+			static_cast<std::uint64_t>(c3b.size())
+		};
+		for (std::uint64_t size : sizes)
+			sock.send_connected_value(size);
+
+		// send actual data
+		utils::Buffer buff(std::max(sizes));
+
+		c1.x().Encode(buff.data(), c1.x().MinEncodedSize());
+		sock.send_connected(buff.data(), c1.x().MinEncodedSize());
+		c1.y().Encode(buff.data(), c1.y().MinEncodedSize());
+		sock.send_connected(buff.data(), c1.y().MinEncodedSize());
+
+		c2.x().Encode(buff.data(), c2.x().MinEncodedSize());
+		sock.send_connected(buff.data(), c2.x().MinEncodedSize());
+		c2.y().Encode(buff.data(), c2.y().MinEncodedSize());
+		sock.send_connected(buff.data(), c2.y().MinEncodedSize());
+
+		sock.send_connected_value(c3);
+	}
 }
