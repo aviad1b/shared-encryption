@@ -162,6 +162,16 @@ namespace senc
 		}
 	}
 
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet)
+	{
+		sock.send_connected_value(packet.op_id);
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet)
+	{
+		sock.send_connected_value(packet.status);
+	}
+
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
 		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
