@@ -59,7 +59,13 @@ namespace senc::pkt
 
 	struct RequestTag { };
 
+	template <typename Self>
+	concept Request = std::derived_from<Self, RequestTag>;
+
 	struct ResponseTag { };
+
+	template <typename Self>
+	concept Response = std::derived_from<Self, ResponseTag>;
 
 
 	// =================================================================
