@@ -112,7 +112,7 @@ TEST(SocketTests, TestStrTCP)
 	send_sock.send_connected(send_bytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recv_str = recv_sock.recv_connected_str<std::string, 2>();
+	auto recv_str = recv_sock.recv_connected_str<std::string, 3>();
 
 	auto recv_bytes = recv_sock.recv_connected(3);
 
