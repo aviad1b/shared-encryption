@@ -49,7 +49,7 @@ namespace senc::utils
 
 		// res now has string, with `pNullChrInChunk` pointing to null termination
 		// extra bytes are after null termination
-		const std::size_t extraBytesCount = (chunkEnd - pNullChrInChunk) * sizeof(C);
+		const std::size_t extraBytesCount = (chunkEnd - pNullChrInChunk - 1) * sizeof(C);
 		const byte* extraBytesStart = reinterpret_cast<const byte*>(pNullChrInChunk + 1);
 
 		// append extra bytes to `_buffer`:
