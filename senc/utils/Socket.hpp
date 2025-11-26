@@ -335,7 +335,7 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		template <typename T>
-		requires std::is_fundamental_v<T> || std::is_enum_v<T>
+		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		void send_connected_primitive(T value);
 
 		/**
@@ -404,7 +404,7 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		template <typename T>
-		requires std::is_fundamental_v<T> || std::is_enum_v<T>
+		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		T recv_connected_primitive();
 
 	protected:

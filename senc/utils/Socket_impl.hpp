@@ -26,7 +26,7 @@ namespace senc::utils
 	}
 
 	template <typename T>
-	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 	inline void Socket::send_connected_primitive(T value)
 	{
 		send_connected(&value, sizeof(value));
@@ -71,7 +71,7 @@ namespace senc::utils
 	}
 
 	template <typename T>
-	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 	inline T Socket::recv_connected_primitive()
 	{
 		T res{};
