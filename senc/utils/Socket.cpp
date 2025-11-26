@@ -169,6 +169,9 @@ namespace senc::utils
 		if (!(leftoverBytes > 0 || is_connected()))
 			throw SocketException("Failed to recieve", "Socket is not connected");
 
+		if (leftoverBytes > 0 && !underlying_has_data(this->_sock))
+			return leftoverBytes; // if read leftover, and has nothing more - stop here
+
 		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
