@@ -206,7 +206,7 @@ namespace senc::utils
 
 		const std::size_t outputSize = std::min(this->_buffer.size(), maxsize);
 		std::memcpy(out, this->_buffer.data(), outputSize);
-		this->_buffer.clear();
+		this->_buffer = Buffer(this->_buffer.begin() + outputSize, this->_buffer.end());
 		return outputSize;
 	}
 
