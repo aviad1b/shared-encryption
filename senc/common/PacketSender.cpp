@@ -101,6 +101,67 @@ namespace senc
 		sock.send_connected_value(packet.op_id);
 	}
 
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::UpdateRequest& packet)
+	{
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::UpdateResponse& packet)
+	{
+		// send vector lengths
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.added_as_owner.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.added_as_reg_member.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.on_lookup.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.to_decrypt.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.finished_decryptions.size()));
+
+		// send added_as_owner records
+		for (const auto& record : packet.added_as_owner)
+		{
+			sock.send_connected_value(record.user_set_id);
+			send_pub_key(sock, record.pub_key1);
+			send_pub_key(sock, record.pub_key2);
+			send_priv_key_shard(sock, record.priv_key1_shard);
+			send_priv_key_shard(sock, record.priv_key2_shard);
+		}
+
+		// send added_as_reg_member records
+		for (const auto& record : packet.added_as_reg_member)
+		{
+			sock.send_connected_value(record.user_set_id);
+			send_pub_key(sock, record.pub_key1);
+			send_pub_key(sock, record.pub_key2);
+			send_priv_key_shard(sock, record.priv_key1_shard);
+		}
+		
+		// send on_lookup records
+		for (const auto& record : packet.on_lookup)
+			sock.send_connected_value(record);
+
+		// send to_decrypt records
+		for (const auto& record : packet.to_decrypt)
+		{
+			sock.send_connected_value(record.op_id);
+			send_ciphertext(sock, record.ciphertext);
+			sock.send_connected_value(static_cast<std::uint32_t>(record.shards_ids.size()));
+			for (const auto& shardID : record.shards_ids)
+				sock.send_connected_value(shardID);
+		}
+
+		// send finished_decryptions records
+		for (const auto& record : packet.finished_decryptions)
+		{
+			// send parts counts
+			sock.send_connected_value(static_cast<std::uint32_t>(record.parts1.size()));
+			sock.send_connected_value(static_cast<std::uint32_t>(record.parts2.size()));
+			sock.send_connected_value(record.op_id);
+			sock.send_connected_value(record.user_set_id);
+			for (const auto& part : record.parts1)
+				send_decryption_part(sock, part);
+			for (const auto& part : record.parts2)
+				send_decryption_part(sock, part);
+		}
+	}
+
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
 		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
