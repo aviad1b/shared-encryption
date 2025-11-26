@@ -81,3 +81,53 @@ TEST(SocketTests, TestTCP)
 	auto recvData = recv_sock.recv_connected(sendData.size());
 	EXPECT_EQ(sendData, recvData);
 }
+
+/**
+ * @brief Tests send and recv of strings over TCP.
+ */
+TEST(SocketTests, TestStrTCP)
+{
+	TcpSocket<IPv4> listen_sock, send_sock;
+	std::promise<TcpSocket<IPv4>> p;
+	std::future<TcpSocket<IPv4>> f = p.get_future();
+
+	listen_sock.bind(4350);
+	listen_sock.listen();
+
+	std::jthread t(
+		[&listen_sock, &p]()
+		{
+			try { p.set_value(listen_sock.accept()); }
+			catch (...) { p.set_exception(std::current_exception()); }
+		}
+	);
+
+	send_sock.connect("127.0.0.1", 4350);
+
+	TcpSocket<IPv4> recv_sock = f.get();
+
+	const std::string send_str = "abcd";
+	const Buffer send_bytes = { 1, 2, 3 };
+	send_sock.send_connected_str(send_str);
+	send_sock.send_connected(send_bytes);
+
+	// recieve string with three chars at a time, causing the beggining of next input to be leftover
+	auto recv_str = recv_sock.recv_connected_str<std::string, 3>();
+
+	auto recv_bytes = recv_sock.recv_connected(3);
+
+	EXPECT_EQ(send_str, recv_str);
+	EXPECT_EQ(send_bytes, recv_bytes);
+
+	const std::wstring send_wstr = L"abcd";
+	send_sock.send_connected_str(send_wstr);
+	send_sock.send_connected(send_bytes);
+
+	// recieve string with three chars at a time, causing the beggining of next input to be leftover
+	auto recv_wstr = recv_sock.recv_connected_str<std::wstring, 3>();
+
+	recv_bytes = recv_sock.recv_connected(3);
+
+	EXPECT_EQ(send_wstr, recv_wstr);
+	EXPECT_EQ(send_bytes, recv_bytes);
+}

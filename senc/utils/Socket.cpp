@@ -138,7 +138,7 @@ namespace senc::utils
 		return this->_isConnected;
 	}
 
-	void Socket::send_connected(const byte* data, std::size_t size)
+	void Socket::send_connected(const void* data, std::size_t size)
 	{
 		if (!is_connected())
 			throw SocketException("Failed to send", "Socket is not connected");
@@ -155,15 +155,17 @@ namespace senc::utils
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
-	std::size_t Socket::recv_connected_into(byte* out, std::size_t maxsize)
+	std::size_t Socket::recv_connected_into(void* out, std::size_t maxsize)
 	{
-		if (!is_connected())
+		// if has leftover data, consider connected and output leftover data first
+		std::size_t leftoverBytes = out_leftover_data(out, maxsize);
+		if (!(leftoverBytes > 0 || is_connected()))
 			throw SocketException("Failed to recieve", "Socket is not connected");
 
-		const int count = ::recv(this->_sock, (char*)out, (int)maxsize, 0);
+		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
-		return count;
+		return count + leftoverBytes;
 	}
 
 	Socket::Socket(Underlying sock, bool isConnected)
@@ -195,6 +197,17 @@ namespace senc::utils
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
 		this->_isConnected = false;
+	}
+
+	std::size_t Socket::out_leftover_data(void* out, std::size_t maxsize)
+	{
+		if (this->_buffer.empty())
+			return 0; // no leftover output
+
+		const std::size_t outputSize = std::min(this->_buffer.size(), maxsize);
+		std::memcpy(out, this->_buffer.data(), outputSize);
+		this->_buffer = Buffer(this->_buffer.begin() + outputSize, this->_buffer.end());
+		return outputSize;
 	}
 
 	std::string Socket::get_last_sock_err()

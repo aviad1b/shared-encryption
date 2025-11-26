@@ -312,7 +312,7 @@ namespace senc::utils
 		 * @param size Size of data (byte count).
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send_connected(const byte* data, std::size_t size);
+		void send_connected(const void* data, std::size_t size);
 
 		/**
 		 * @brief Sends binary data through (a connected) socket.
@@ -320,6 +320,14 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		void send_connected(const HasByteData auto& data);
+
+		/**
+		 * @brief Sends string data through (a connected) socket.
+		 * @param data String data to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <StringType Str>
+		void send_connected_str(const Str& data);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
@@ -336,7 +344,7 @@ namespace senc::utils
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		std::size_t recv_connected_into(byte* out, std::size_t maxsize);
+		std::size_t recv_connected_into(void* out, std::size_t maxsize);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
@@ -346,6 +354,15 @@ namespace senc::utils
 		 * @note Reads `out.size()` bytes at max.
 		 */
 		std::size_t recv_connected_into(HasMutableByteData auto& out);
+
+		/**
+		 * @brief Recieves string data through (a connected) socket.
+		 * @tparam Str String data type to recieve (same as one sent on other end).
+		 * @return Read string data.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <StringType Str = std::string, std::size_t chunkSize = 32>
+		Str recv_connected_str();
 
 	protected:
 		using Underlying = SOCKET;
@@ -375,10 +392,19 @@ namespace senc::utils
 		 */
 		void close();
 
+		/**
+		 * @brief Outputs leftover data from previous recvs.
+		 * @param out Address to output to.
+		 * @param maxsize Maximum byte count to output from leftover data.
+		 * @return Amount of bytes outputted.
+		 */
+		std::size_t out_leftover_data(void* out, std::size_t maxsize);
+
 		static std::string get_last_sock_err();
 
 	private:
 		static const SocketInitializer SOCKET_INITIALIZER;
+		Buffer _buffer; // for leftover data
 	};
 
 	/**
@@ -549,7 +575,7 @@ namespace senc::utils
 		 * @param port UDP port to send data to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		void send_to(const byte* data, std::size_t size, const IP& addr, Port port);
+		void send_to(const void* data, std::size_t size, const IP& addr, Port port);
 
 		/**
 		 * @brief Sends data to given IP address and port.
@@ -591,7 +617,7 @@ namespace senc::utils
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.d
 		 */
-		recv_from_into_ret_t recv_from_into(byte* out, std::size_t maxsize);
+		recv_from_into_ret_t recv_from_into(void* out, std::size_t maxsize);
 
 		/**
 		 * @brief Recieves data through socket.

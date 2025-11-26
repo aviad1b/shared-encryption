@@ -8,6 +8,8 @@
 
 #include "Socket.hpp"
 
+#include <algorithm>
+
 namespace senc::utils
 {
 	inline void Socket::send_connected(const HasByteData auto& data)
@@ -16,9 +18,44 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
+	template <StringType Str>
+	inline void Socket::send_connected_str(const Str& data)
+	{
+		using C = typename Str::value_type;
+		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
+	}
+
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());
+	}
+
+	template <StringType Str, std::size_t chunkSize>
+	inline Str Socket::recv_connected_str()
+	{
+		using C = typename Str::value_type;
+		constexpr C nullchr = static_cast<C>(0);
+		C chunk[chunkSize] = {0};
+		const C* pNullChrInChunk = nullptr;
+		const C* chunkEnd = chunk + chunkSize;
+		Str res{};
+
+		// while nullchr not found in chunk
+		do
+		{
+			recv_connected_into(chunk, chunkSize * sizeof(C));
+			res += chunk;
+		} while (chunkEnd == (pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr)));
+
+		// res now has string, with `pNullChrInChunk` pointing to null termination
+		// extra bytes are after null termination
+		const std::size_t extraBytesCount = (chunkEnd - pNullChrInChunk - 1) * sizeof(C);
+		const byte* extraBytesStart = reinterpret_cast<const byte*>(pNullChrInChunk + 1);
+
+		// append extra bytes to `_buffer`:
+		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
+
+		return res;
 	}
 
 	template <IPType IP>
@@ -102,7 +139,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline void UdpSocket<IP>::send_to(const byte* data, std::size_t size, const IP& addr, Port port)
+	inline void UdpSocket<IP>::send_to(const void* data, std::size_t size, const IP& addr, Port port)
 	{
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
@@ -127,7 +164,7 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(byte* out, std::size_t maxsize)
+	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(void* out, std::size_t maxsize)
 	{
 		typename IP::UnderlyingSockAddr addr{};
 		int addrLen = sizeof(addr);
