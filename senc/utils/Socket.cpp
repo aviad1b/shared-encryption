@@ -155,6 +155,13 @@ namespace senc::utils
 		return Buffer(res.begin(), res.begin() + count);
 	}
 
+	Buffer Socket::recv_connected_exact(std::size_t size)
+	{
+		Buffer res(size, static_cast<byte>(0));
+		recv_connected_exact_into(res);
+		return res;
+	}
+
 	std::size_t Socket::recv_connected_into(void* out, std::size_t maxsize)
 	{
 		// if has leftover data, consider connected and output leftover data first

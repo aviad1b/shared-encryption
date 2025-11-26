@@ -339,6 +339,14 @@ namespace senc::utils
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
+		 * @param size Exact amount of bytes to recieve.
+		 * @return Recieved data.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		Buffer recv_connected_exact(std::size_t size);
+
+		/**
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param out Address to read received data into.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Amount of bytes read.
