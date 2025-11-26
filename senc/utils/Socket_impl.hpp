@@ -113,7 +113,7 @@ namespace senc::utils
 		if constexpr (StringType<T>)
 			out = recv_connected_str<T, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
-			out = recv_connected_primitive();
+			out = recv_connected_primitive<T>();
 		else if constexpr (TupleLike<T>)
 			recv_connected_values<T, chunkSize>(out);
 		else
