@@ -45,6 +45,15 @@ namespace senc::utils
 			send_connected(value);
 	}
 
+	template <TupleLike Tpl>
+	inline void Socket::send_connected_values(const Tpl& values)
+	{
+		std::apply(
+			[=](auto&... args) { (send_connected_value(args), ...); },
+			values
+		);
+	}
+
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());

@@ -349,6 +349,14 @@ namespace senc::utils
 		void send_connected_value(const T& value);
 
 		/**
+		 * @brief Sends values through (a connected) socket, using the fitting method for each.
+		 * @param values Values to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <TupleLike Tpl>
+		void send_connected_values(const Tpl& values);
+
+		/**
 		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
