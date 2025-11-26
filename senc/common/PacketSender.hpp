@@ -49,5 +49,8 @@ namespace senc
 
 		static void send_packet(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet);
 		static void send_packet(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet);
+
+	private:
+		static void send_big_int(utils::Socket& sock, const utils::BigInt& value);
 	};
 }

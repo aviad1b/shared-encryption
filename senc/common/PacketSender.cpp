@@ -42,4 +42,13 @@ namespace senc
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::LogoutResponse& packet)
 	{
 	}
+
+	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
+	{
+		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
+
+		utils::Buffer buff(value.MinEncodedSize());
+		value.Encode(buff.data(), buff.size());
+		sock.send_connected(buff);
+	}
 }
