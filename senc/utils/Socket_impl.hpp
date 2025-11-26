@@ -33,7 +33,7 @@ namespace senc::utils
 	}
 
 	template <typename T>
-	requires (std::same_as<T, Buffer> || StringType<T> ||
+	requires (HasByteData<T> || StringType<T> ||
 			std::is_fundamental_v<T> || std::is_enum_v<T>)
 	inline void Socket::send_connected_value(const T& value)
 	{
