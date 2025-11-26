@@ -253,5 +253,21 @@ namespace senc::utils
 		return msg ? std::string(msg) : "";
 	}
 
+	bool Socket::underlying_has_data(Underlying sock)
+	{
+		fd_set rfds{};
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
+
+		struct timeval tv{};
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+
+		int r = select(0, &rfds, nullptr, nullptr, &tv);
+		if (r < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return r != 0; // true if data is available
+	}
+
 	const SocketInitializer Socket::SOCKET_INITIALIZER;
 }
