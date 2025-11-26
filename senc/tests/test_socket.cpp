@@ -143,8 +143,8 @@ TEST(SocketTests, TestExactTCP)
 TEST(SocketTests, TestTupleTCP)
 {
 	auto [sendSock, recvSock] = prepare_tcp();
-	auto sendTpl = std::make_tuple(5, Buffer{1, 2, 3}, std::string("hello"));
-	auto recvTpl = std::make_tuple(0, Buffer(3, byte(0)), std::string());
+	auto sendTpl = std::make_tuple(Buffer{1, 2, 3}, std::string("hello"), 5);
+	auto recvTpl = std::make_tuple(Buffer(3, byte(0)), std::string(), 0);
 
 	sendSock.send_connected_value(sendTpl);
 	recvSock.recv_connected_value(recvTpl);

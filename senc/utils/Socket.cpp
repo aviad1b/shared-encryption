@@ -169,6 +169,9 @@ namespace senc::utils
 		if (!(leftoverBytes > 0 || is_connected()))
 			throw SocketException("Failed to recieve", "Socket is not connected");
 
+		if (leftoverBytes > 0 && !underlying_has_data(this->_sock))
+			return leftoverBytes; // if read leftover, and has nothing more - stop here
+
 		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
@@ -251,6 +254,22 @@ namespace senc::utils
 		);
 
 		return msg ? std::string(msg) : "";
+	}
+
+	bool Socket::underlying_has_data(Underlying sock)
+	{
+		fd_set rfds{};
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
+
+		struct timeval tv{};
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+
+		int r = select(0, &rfds, nullptr, nullptr, &tv);
+		if (r < 0)
+			throw SocketException("Failed to recieve", get_last_sock_err());
+		return r != 0; // true if data is available
 	}
 
 	const SocketInitializer Socket::SOCKET_INITIALIZER;

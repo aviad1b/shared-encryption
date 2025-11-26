@@ -483,6 +483,8 @@ namespace senc::utils
 
 		static std::string get_last_sock_err();
 
+		static bool underlying_has_data(Underlying sock);
+
 	private:
 		static const SocketInitializer SOCKET_INITIALIZER;
 		Buffer _buffer; // for leftover data
