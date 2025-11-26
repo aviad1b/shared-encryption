@@ -435,6 +435,14 @@ namespace senc::utils
 			std::is_fundamental_v<T> || std::is_enum_v<T>)
 		void recv_connected_value(T& out);
 
+		/**
+		 * @brief Recieves values through (a connected) socket, using the fitting method for each.
+		 * @param out Reference to store read values to.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <TupleLike Tpl, std::size_t chunkSize = 32>
+		void recv_connected_values(Tpl& values);
+
 	protected:
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;

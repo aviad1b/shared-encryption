@@ -114,6 +114,18 @@ namespace senc::utils
 			recv_connected_exact(out.size());
 	}
 
+	template <TupleLike Tpl, std::size_t chunkSize = 32>
+	inline void Socket::recv_connected_values(Tpl& values)
+	{
+		std::apply(
+			[=](auto&... args)
+			{
+				(recv_connected_value<std::remove_cvref_t<decltype(args)>, chunkSize>(args), ...);
+			},
+			values
+		);
+	}
+
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::close()
 	{
