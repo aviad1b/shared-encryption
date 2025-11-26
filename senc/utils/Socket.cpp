@@ -165,7 +165,7 @@ namespace senc::utils
 		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
-		return count;
+		return count + leftoverBytes;
 	}
 
 	Socket::Socket(Underlying sock, bool isConnected)
