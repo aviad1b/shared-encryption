@@ -182,23 +182,23 @@ namespace senc
 		const auto& [c3a, c3b] = c3;
 
 		// send size dividers
-		std::initializer_list<bigint_size_t> bigint_sizes = {
+		std::initializer_list<bigint_size_t> bigintSizes = {
 			static_cast<std::uint64_t>(c1.x().MinEncodedSize()),
 			static_cast<std::uint64_t>(c1.y().MinEncodedSize()),
 			static_cast<std::uint64_t>(c2.x().MinEncodedSize()),
 			static_cast<std::uint64_t>(c2.y().MinEncodedSize())
 		};
-		std::initializer_list<buffer_size_t> buffer_sizes = {
+		std::initializer_list<buffer_size_t> bufferSizes = {
 			static_cast<std::uint64_t>(c3a.size()),
 			static_cast<std::uint64_t>(c3b.size())
 		};
-		for (auto size : bigint_sizes)
+		for (auto size : bigintSizes)
 			sock.send_connected_value(size);
-		for (auto size : buffer_sizes)
+		for (auto size : bufferSizes)
 			sock.send_connected_value(size);
 
 		// send actual data
-		utils::Buffer buff(std::max(std::max(bigint_sizes), std::max(buffer_sizes)));
+		utils::Buffer buff(std::max(std::max(bigintSizes), std::max(bufferSizes)));
 
 		c1.x().Encode(buff.data(), c1.x().MinEncodedSize());
 		sock.send_connected(buff.data(), c1.x().MinEncodedSize());
