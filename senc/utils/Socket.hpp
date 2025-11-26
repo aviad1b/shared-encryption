@@ -336,7 +336,7 @@ namespace senc::utils
 		 */
 		template <typename T>
 		requires std::is_fundamental_v<T> || std::is_enum_v<T>
-		void send_connected_value(T value);
+		void send_connected_primitive(T value);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
