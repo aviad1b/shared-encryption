@@ -330,6 +330,15 @@ namespace senc::utils
 		void send_connected_str(const Str& data);
 
 		/**
+		 * @brief Sends a simple value through (a connected) socket.
+		 * @param value Value to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires std::is_fundamental_v<T> || std::is_enum_v<T>
+		void send_connected_value(T value);
+
+		/**
 		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.

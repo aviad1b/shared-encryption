@@ -25,6 +25,13 @@ namespace senc::utils
 		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
 	}
 
+	template <typename T>
+	requires std::is_fundamental_v<T> || std::is_enum_v<T>
+	inline void Socket::send_connected_value(T value)
+	{
+		send_connected(&value, sizeof(value));
+	}
+
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());
