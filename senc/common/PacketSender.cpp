@@ -51,4 +51,10 @@ namespace senc
 		value.Encode(buff.data(), buff.size());
 		sock.send_connected(buff);
 	}
+
+	void PacketSender::send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem)
+	{
+		send_big_int(sock, elem.x());
+		send_big_int(sock, elem.y());
+	}
 }
