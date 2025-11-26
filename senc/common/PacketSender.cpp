@@ -43,6 +43,25 @@ namespace senc
 	{
 	}
 
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
+	{
+		sock.send_connected_value(packet.owners_threshold);
+		sock.send_connected_value(packet.reg_members_threshold);
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.owners.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.reg_members.size()));
+		for (const auto& reg_member : packet.reg_members)
+			sock.send_connected_value(reg_member);
+		for (const auto& owner : packet.owners)
+			sock.send_connected_value(owner);
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
+	{
+		sock.send_connected_value(packet.user_set_id);
+		send_ecgroup_elem(sock, packet.pub_key1);
+		send_ecgroup_elem(sock, packet.pub_key2);
+	}
+
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
 		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
@@ -52,9 +71,9 @@ namespace senc
 		sock.send_connected(buff);
 	}
 
-	void PacketSender::send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem)
+	void PacketSender::send_pub_key(utils::Socket& sock, const PubKey& pubKey)
 	{
-		send_big_int(sock, elem.x());
-		send_big_int(sock, elem.y());
+		send_big_int(sock, pubKey.x());
+		send_big_int(sock, pubKey.y());
 	}
 }

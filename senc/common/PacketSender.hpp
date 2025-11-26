@@ -54,6 +54,6 @@ namespace senc
 	private:
 		static void send_big_int(utils::Socket& sock, const utils::BigInt& value);
 
-		static void send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem);
+		static void send_pub_key(utils::Socket& sock, const PubKey& pubKey);
 	};
 }
