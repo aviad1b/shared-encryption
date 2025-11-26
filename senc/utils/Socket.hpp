@@ -339,6 +339,16 @@ namespace senc::utils
 		void send_connected_primitive(T value);
 
 		/**
+		 * @brief Sends a value through (a connected) socket, using the fitting method.
+		 * @param value Value to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires (std::same_as<T, Buffer> || StringType<T> ||
+			std::is_fundamental_v<T> || std::is_enum_v<T>)
+		void send_connected_value(const T& value);
+
+		/**
 		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
