@@ -154,4 +154,10 @@ namespace senc
 
 		sock.send_connected_value(c3);
 	}
+
+	void PacketSender::send_decryption_part(utils::Socket& sock, const DecryptionPart& part)
+	{
+		send_big_int(sock, part.x());
+		send_big_int(sock, part.y());
+	}
 }

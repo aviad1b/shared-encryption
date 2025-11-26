@@ -58,5 +58,6 @@ namespace senc
 		static void send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard);
 
 		static void send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext);
+		static void send_decryption_part(utils::Socket& sock, const DecryptionPart& part);
 	};
 }
