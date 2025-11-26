@@ -3,6 +3,8 @@ add_library(senc_common
 	"packets.hpp"
 	"PacketSender.hpp"
 	"PacketSender.cpp"
+	"PacketReceiver.hpp"
+	"PacketReceiver_impl.hpp"
 )
 
 target_link_libraries(senc_common PRIVATE senc_utils)
