@@ -10,5 +10,11 @@
 
 namespace senc
 {
-
+	template <>
+	inline pkt::ErrorResponse PacketReceiver::recv_response<pkt::ErrorResponse>(utils::Socket& sock)
+	{
+		pkt::ErrorResponse res{};
+		sock.recv_connected_value(res.msg);
+		return res;
+	}
 }
