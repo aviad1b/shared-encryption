@@ -45,10 +45,10 @@ namespace senc
 
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
 	{
-		sock.send_connected_value(packet.owners_threshold);
-		sock.send_connected_value(packet.reg_members_threshold);
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.owners.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.reg_members.size()));
+		sock.send_connected_value(static_cast<member_count_t>(packet.owners_threshold));
+		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members_threshold));
+		sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
+		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
 			sock.send_connected_value(owner);
 		for (const auto& reg_member : packet.reg_members)
@@ -70,7 +70,7 @@ namespace senc
 
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
 	{
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.user_sets_ids.size()));
+		sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
 		for (const auto& user_set_id : packet.user_sets_ids)
 			sock.send_connected_value(user_set_id);
 	}
@@ -82,8 +82,8 @@ namespace senc
 
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetMembersResponse& packet)
 	{
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.owners.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.reg_members.size()));
+		sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
+		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
 			sock.send_connected_value(owner);
 		for (const auto& reg_member : packet.reg_members)
@@ -108,11 +108,11 @@ namespace senc
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::UpdateResponse& packet)
 	{
 		// send vector lengths
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.added_as_owner.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.added_as_reg_member.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.on_lookup.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.to_decrypt.size()));
-		sock.send_connected_value(static_cast<std::uint8_t>(packet.finished_decryptions.size()));
+		sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_owner.size()));
+		sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_reg_member.size()));
+		sock.send_connected_value(static_cast<lookup_count_t>(packet.on_lookup.size()));
+		sock.send_connected_value(static_cast<pending_count_t>(packet.to_decrypt.size()));
+		sock.send_connected_value(static_cast<res_count_t>(packet.finished_decryptions.size()));
 
 		// send added_as_owner records
 		for (const auto& record : packet.added_as_owner)
@@ -157,7 +157,7 @@ namespace senc
 
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
-		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
+		sock.send_connected_value(static_cast<bigint_size_t>(value.MinEncodedSize()));
 
 		utils::Buffer buff(value.MinEncodedSize());
 		value.Encode(buff.data(), buff.size());
@@ -182,19 +182,23 @@ namespace senc
 		const auto& [c3a, c3b] = c3;
 
 		// send size dividers
-		std::initializer_list<std::uint64_t> sizes = {
+		std::initializer_list<bigint_size_t> bigint_sizes = {
 			static_cast<std::uint64_t>(c1.x().MinEncodedSize()),
 			static_cast<std::uint64_t>(c1.y().MinEncodedSize()),
 			static_cast<std::uint64_t>(c2.x().MinEncodedSize()),
-			static_cast<std::uint64_t>(c2.y().MinEncodedSize()),
+			static_cast<std::uint64_t>(c2.y().MinEncodedSize())
+		};
+		std::initializer_list<buffer_size_t> buffer_sizes = {
 			static_cast<std::uint64_t>(c3a.size()),
 			static_cast<std::uint64_t>(c3b.size())
 		};
-		for (std::uint64_t size : sizes)
+		for (auto size : bigint_sizes)
+			sock.send_connected_value(size);
+		for (auto size : buffer_sizes)
 			sock.send_connected_value(size);
 
 		// send actual data
-		utils::Buffer buff(std::max(sizes));
+		utils::Buffer buff(std::max(std::max(bigint_sizes), std::max(buffer_sizes)));
 
 		c1.x().Encode(buff.data(), c1.x().MinEncodedSize());
 		sock.send_connected(buff.data(), c1.x().MinEncodedSize());
@@ -236,15 +240,15 @@ namespace senc
 	{
 		sock.send_connected_value(record.op_id);
 		send_ciphertext(sock, record.ciphertext);
-		sock.send_connected_value(static_cast<std::uint32_t>(record.shards_ids.size()));
+		sock.send_connected_value(static_cast<member_count_t>(record.shards_ids.size()));
 		for (const auto& shardID : record.shards_ids)
 			sock.send_connected_value(shardID);
 	}
 
 	void PacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record)
 	{
-		sock.send_connected_value(static_cast<std::uint32_t>(record.parts1.size()));
-		sock.send_connected_value(static_cast<std::uint32_t>(record.parts2.size()));
+		sock.send_connected_value(static_cast<member_count_t>(record.parts1.size()));
+		sock.send_connected_value(static_cast<member_count_t>(record.parts2.size()));
 		sock.send_connected_value(record.op_id);
 		sock.send_connected_value(record.user_set_id);
 		for (const auto& part : record.parts1)
