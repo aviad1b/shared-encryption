@@ -53,29 +53,40 @@ TEST(SocketTests, TestUDP)
 }
 
 /**
- * @brief Tests basic TCP send and recieve.
+ * @brief Prepares local TCP connection for test.
  */
-TEST(SocketTests, TestTCP)
+static std::tuple<TcpSocket<IPv4>, TcpSocket<IPv4>> prepare_tcp()
 {
-	const Buffer sendData { byte(1), byte(2), byte(3) };
-	TcpSocket<IPv4> listen_sock, send_sock;
+	TcpSocket<IPv4> listenSock, sendSock;
 	std::promise<TcpSocket<IPv4>> p;
 	std::future<TcpSocket<IPv4>> f = p.get_future();
 
-	listen_sock.bind(4350);
-	listen_sock.listen();
+	listenSock.bind(4350);
+	listenSock.listen();
 
 	std::jthread t(
-		[&listen_sock, &p]()
+		[&listenSock, &p]()
 		{
-			try { p.set_value(listen_sock.accept()); }
+			try { p.set_value(listenSock.accept()); }
 			catch (...) { p.set_exception(std::current_exception()); }
 		}
 	);
 
-	send_sock.connect("127.0.0.1", 4350);
+	sendSock.connect("127.0.0.1", 4350);
 
-	TcpSocket<IPv4> recv_sock = f.get();
+	TcpSocket<IPv4> recvSock = f.get();
+
+	return { std::move(sendSock), std::move(recvSock) };
+}
+
+/**
+ * @brief Tests basic TCP send and recieve.
+ */
+TEST(SocketTests, TestTCP)
+{
+	auto [send_sock, recv_sock] = prepare_tcp();
+	
+	const Buffer sendData { byte(1), byte(2), byte(3) };
 
 	send_sock.send_connected(sendData);
 	auto recvData = recv_sock.recv_connected(sendData.size());
@@ -87,24 +98,7 @@ TEST(SocketTests, TestTCP)
  */
 TEST(SocketTests, TestStrTCP)
 {
-	TcpSocket<IPv4> listen_sock, send_sock;
-	std::promise<TcpSocket<IPv4>> p;
-	std::future<TcpSocket<IPv4>> f = p.get_future();
-
-	listen_sock.bind(4350);
-	listen_sock.listen();
-
-	std::jthread t(
-		[&listen_sock, &p]()
-		{
-			try { p.set_value(listen_sock.accept()); }
-			catch (...) { p.set_exception(std::current_exception()); }
-		}
-	);
-
-	send_sock.connect("127.0.0.1", 4350);
-
-	TcpSocket<IPv4> recv_sock = f.get();
+	auto [send_sock, recv_sock] = prepare_tcp();
 
 	const std::string send_str = "abcd";
 	const Buffer send_bytes = { 1, 2, 3 };
@@ -134,24 +128,7 @@ TEST(SocketTests, TestStrTCP)
 
 TEST(SocketTests, TestExactTCP)
 {
-	TcpSocket<IPv4> listen_sock, send_sock;
-	std::promise<TcpSocket<IPv4>> p;
-	std::future<TcpSocket<IPv4>> f = p.get_future();
-
-	listen_sock.bind(4350);
-	listen_sock.listen();
-
-	std::jthread t(
-		[&listen_sock, &p]()
-		{
-			try { p.set_value(listen_sock.accept()); }
-			catch (...) { p.set_exception(std::current_exception()); }
-		}
-	);
-
-	send_sock.connect("127.0.0.1", 4350);
-
-	TcpSocket<IPv4> recv_sock = f.get();
+	auto [send_sock, recv_sock] = prepare_tcp();
 
 	const Buffer five = { 1, 2, 3, 4, 5 };
 	const Buffer four = { 1, 2, 3, 4 };
