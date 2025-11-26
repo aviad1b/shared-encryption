@@ -13,6 +13,7 @@
 #include <string>
 
 #include "aliases.hpp"
+#include "sizes.hpp"
 
 namespace senc::pkt
 {
@@ -182,10 +183,10 @@ namespace senc::pkt
 		std::vector<std::string> owners;
 
 		/// Threshold for number of non-owners required for decryption.
-		std::uint8_t reg_members_threshold;
+		member_count_t reg_members_threshold;
 
 		/// Threshold for number of owners required for decryption.
-		std::uint8_t owners_threshold;
+		member_count_t owners_threshold;
 	};
 
 	/**
