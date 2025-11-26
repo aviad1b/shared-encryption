@@ -345,7 +345,8 @@ namespace senc::utils
 		 */
 		template <typename T>
 		requires (HasByteData<T> || StringType<T> ||
-			std::is_fundamental_v<T> || std::is_enum_v<T>)
+			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			TupleLike<T>)
 		void send_connected_value(const T& value);
 
 		/**
