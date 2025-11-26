@@ -49,10 +49,10 @@ namespace senc
 		sock.send_connected_value(packet.reg_members_threshold);
 		sock.send_connected_value(static_cast<std::uint8_t>(packet.owners.size()));
 		sock.send_connected_value(static_cast<std::uint8_t>(packet.reg_members.size()));
-		for (const auto& reg_member : packet.reg_members)
-			sock.send_connected_value(reg_member);
 		for (const auto& owner : packet.owners)
 			sock.send_connected_value(owner);
+		for (const auto& reg_member : packet.reg_members)
+			sock.send_connected_value(reg_member);
 	}
 
 	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
