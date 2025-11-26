@@ -158,11 +158,11 @@ namespace senc::utils
 	std::size_t Socket::recv_connected_into(void* out, std::size_t maxsize)
 	{
 		// if has leftover data, consider connected and output leftover data first
-		std::size_t newOutStart = out_leftover_data(out, maxsize);
-		if (!(newOutStart > 0 || is_connected()))
+		std::size_t leftoverBytes = out_leftover_data(out, maxsize);
+		if (!(leftoverBytes > 0 || is_connected()))
 			throw SocketException("Failed to recieve", "Socket is not connected");
 
-		const int count = ::recv(this->_sock, (char*)out + newOutStart, (int)(maxsize - newOutStart), 0);
+		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
 			throw SocketException("Failed to recieve", get_last_sock_err());
 		return count;
