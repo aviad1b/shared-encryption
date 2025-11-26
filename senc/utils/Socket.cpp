@@ -168,6 +168,18 @@ namespace senc::utils
 		return count + leftoverBytes;
 	}
 
+	void Socket::recv_connected_exact_into(void* out, std::size_t size)
+	{
+		std::size_t bytesRead = 0;
+		while (bytesRead < size)
+		{
+			bytesRead += recv_connected_into(
+				reinterpret_cast<byte*>(out) + bytesRead,
+				size - bytesRead
+			);
+		}
+	}
+
 	Socket::Socket(Underlying sock, bool isConnected)
 		: _sock(sock), _isConnected(isConnected)
 	{

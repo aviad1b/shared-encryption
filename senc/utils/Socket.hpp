@@ -348,6 +348,14 @@ namespace senc::utils
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
+		 * @param out Address to read received data into.
+		 * @param size Exact amount of bytes to recieve.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		void recv_connected_exact_into(void* out, std::size_t size);
+
+		/**
+		 * @brief Recieves binary data through (a connected) socket.
 		 * @param out An object holding mutable byte data to read received data into.
 		 * @return Amount of bytes read.
 		 * @throw senc::utils::SocketException On failure.
