@@ -131,3 +131,34 @@ TEST(SocketTests, TestStrTCP)
 	EXPECT_EQ(send_wstr, recv_wstr);
 	EXPECT_EQ(send_bytes, recv_bytes);
 }
+
+TEST(SocketTests, TestExactTCP)
+{
+	TcpSocket<IPv4> listen_sock, send_sock;
+	std::promise<TcpSocket<IPv4>> p;
+	std::future<TcpSocket<IPv4>> f = p.get_future();
+
+	listen_sock.bind(4350);
+	listen_sock.listen();
+
+	std::jthread t(
+		[&listen_sock, &p]()
+		{
+			try { p.set_value(listen_sock.accept()); }
+			catch (...) { p.set_exception(std::current_exception()); }
+		}
+	);
+
+	send_sock.connect("127.0.0.1", 4350);
+
+	TcpSocket<IPv4> recv_sock = f.get();
+
+	const Buffer five = { 1, 2, 3, 4, 5 };
+	const Buffer four = { 1, 2, 3, 4 };
+	const Buffer last = { 5 };
+	send_sock.send_connected(five);
+	auto recv_four = recv_sock.recv_connected_exact(4);
+	EXPECT_EQ(recv_four, four);
+	auto recv_last = recv_sock.recv_connected(100);
+	EXPECT_EQ(recv_last, last);
+}
