@@ -59,5 +59,10 @@ namespace senc
 
 		static void send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext);
 		static void send_decryption_part(utils::Socket& sock, const DecryptionPart& part);
+
+		static void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsOwnerRecord& record);
+		static void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsMemberRecord& record);
+		static void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::ToDecryptRecord& record);
+		static void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
 	};
 }
