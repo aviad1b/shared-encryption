@@ -80,7 +80,7 @@ TEST_P(ThresholdEncTest, ThresholdEnc)
 INSTANTIATE_TEST_CASE_P(ThresholdEnc, ThresholdEncTest, testing::Values(
 	// Arbitrary values, exactly above threshold
 	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 5, 4, 6, 5 },
-	ThresholdEncTestParams{ Buffer{0xFF, 0xFF, 0xFF}, 4, 5, 5, 6 }, 
+	ThresholdEncTestParams{ Buffer{0xFF, 0xFF, 0xFF}, 4, 5, 5, 6 },
 
 	// Trivial case: One shard required
 	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 0, 0, 1, 1 }, // one shard given
