@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../utils/Socket.hpp"
 #include "packets.hpp"
 
 namespace senc
@@ -18,10 +19,10 @@ namespace senc
 		PacketReceiver() = delete;
 
 		template <pkt::Request T>
-		static inline T recv_request() { static_assert(false, "Unhandled request detected"); }
+		static inline T recv_request(utils::Socket& sock) { static_assert(false, "Unhandled request detected"); }
 
 		template <pkt::Response T>
-		static inline T recv_response() { static_assert(false, "Unhandled response detected"); }
+		static inline T recv_response(utils::Socket& sock) { static_assert(false, "Unhandled response detected"); }
 	};
 }
 
