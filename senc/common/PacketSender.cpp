@@ -10,40 +10,40 @@
 
 namespace senc
 {
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::ErrorResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::ErrorResponse& packet)
 	{
 		sock.send_connected_value(packet.msg);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::SignupRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::SignupRequest& packet)
 	{
 		sock.send_connected_value(packet.username);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::SignupResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::SignupResponse& packet)
 	{
 		sock.send_connected_value(packet.status);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::LoginRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::LoginRequest& packet)
 	{
 		sock.send_connected_value(packet.username);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::LoginResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::LoginResponse& packet)
 	{
 		sock.send_connected_value(packet.status);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::LogoutRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::LogoutRequest& packet)
 	{
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::LogoutResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::LogoutResponse& packet)
 	{
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
 	{
 		sock.send_connected_value(static_cast<member_count_t>(packet.owners_threshold));
 		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members_threshold));
@@ -55,7 +55,7 @@ namespace senc
 			sock.send_connected_value(reg_member);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
 	{
 		sock.send_connected_value(packet.user_set_id);
 		send_pub_key(sock, packet.pub_key1);
@@ -64,23 +64,23 @@ namespace senc
 		send_priv_key_shard(sock, packet.owner_priv_key2_shard);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
 	{
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
 	{
 		sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
 		for (const auto& user_set_id : packet.user_sets_ids)
 			sock.send_connected_value(user_set_id);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetMembersRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::GetMembersRequest& packet)
 	{
 		sock.send_connected_value(packet.user_set_id);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetMembersResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::GetMembersResponse& packet)
 	{
 		sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
 		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
@@ -90,22 +90,22 @@ namespace senc
 			sock.send_connected_value(reg_member);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::DecryptRequest& packet)
 	{
 		sock.send_connected_value(packet.user_set_id);
 		send_ciphertext(sock, packet.ciphertext);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::DecryptResponse& packet)
 	{
 		sock.send_connected_value(packet.op_id);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::UpdateRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::UpdateRequest& packet)
 	{
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::UpdateResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::UpdateResponse& packet)
 	{
 		// send vector lengths
 		sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_owner.size()));
@@ -135,23 +135,23 @@ namespace senc
 			send_update_record(sock, record);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet)
 	{
 		sock.send_connected_value(packet.op_id);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet)
 	{
 		sock.send_connected_value(packet.status);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet)
+	void PacketSender::send_request(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet)
 	{
 		sock.send_connected_value(packet.op_id);
 		send_decryption_part(sock, packet.decryption_part);
 	}
 
-	void PacketSender::send_packet(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet)
+	void PacketSender::send_response(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet)
 	{
 	}
 
