@@ -10,5 +10,8 @@
 
 namespace senc
 {
-
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::ErrorResponse& packet)
+	{
+		sock.send_connected_value(packet.msg);
+	}
 }
