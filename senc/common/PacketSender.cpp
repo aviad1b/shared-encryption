@@ -14,4 +14,14 @@ namespace senc
 	{
 		sock.send_connected_value(packet.msg);
 	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::SignupRequest& packet)
+	{
+		sock.send_connected_value(packet.username);
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::SignupResponse& packet)
+	{
+		sock.send_connected_value(packet.status);
+	}
 }
