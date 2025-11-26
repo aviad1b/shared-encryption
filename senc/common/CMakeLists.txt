@@ -1,7 +1,8 @@
 add_library(senc_common
 	"aliases.hpp"
 	"packets.hpp"
-	"common.cpp"
+	"PacketSender.hpp"
+	"PacketSender.cpp"
 )
 
 target_link_libraries(senc_common PRIVATE senc_utils)
