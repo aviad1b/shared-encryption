@@ -76,4 +76,10 @@ namespace senc
 		send_big_int(sock, pubKey.x());
 		send_big_int(sock, pubKey.y());
 	}
+
+	void PacketSender::send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard)
+	{
+		sock.send_connected_value(shard.first);
+		send_big_int(sock, static_cast<const utils::BigInt&>(shard.second));
+	}
 }
