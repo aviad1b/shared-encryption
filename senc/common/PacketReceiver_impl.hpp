@@ -33,4 +33,20 @@ namespace senc
 		sock.recv_connected_value(res.status);
 		return res;
 	}
+
+	template <>
+	inline pkt::LoginRequest PacketReceiver::recv_request<pkt::LoginRequest>(utils::Socket& sock)
+	{
+		pkt::LoginRequest req{};
+		sock.recv_connected_value(req.username);
+		return req;
+	}
+
+	template <>
+	inline pkt::LoginResponse PacketReceiver::recv_response<pkt::LoginResponse>(utils::Socket& sock)
+	{
+		pkt::LoginResponse res{};
+		sock.recv_connected_value(res.status);
+		return res;
+	}
 }
