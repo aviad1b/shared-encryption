@@ -322,6 +322,11 @@ namespace senc::pkt
 	 */
 	struct UpdateRequest : RequestTag { };
 
+	struct UpdateRecordTag { };
+
+	template <typename Self>
+	concept UpdateRecord = std::derived_from<Self, UpdateRecordTag>;
+
 	/**
 	 * @struct UpdateResponse
 	 * @brief Contains server-side updates regarding membership and decryptions.
@@ -332,7 +337,7 @@ namespace senc::pkt
 		 * @struct AddedAsMemberRecord
 		 * @brief Record indicating user has been added as a member to a user set.
 		 */
-		struct AddedAsMemberRecord
+		struct AddedAsMemberRecord : UpdateRecordTag
 		{
 			/// User set ID.
 			UserSetID user_set_id;
@@ -373,7 +378,7 @@ namespace senc::pkt
 		 * @struct ToDecryptRecord
 		 * @brief Record for pending decryption requiring decryption parts from user.
 		 */
-		struct ToDecryptRecord
+		struct ToDecryptRecord : UpdateRecordTag
 		{
 			/// ID of decryption operation to participate in.
 			OperationID op_id;
@@ -393,7 +398,7 @@ namespace senc::pkt
 		 * @struct FinishedDecryptionsRecord
 		 * @brief Completed decryptions requested by requester.
 		 */
-		struct FinishedDecryptionsRecord
+		struct FinishedDecryptionsRecord : UpdateRecordTag
 		{
 			/// Decryption operation ID.
 			OperationID op_id;
