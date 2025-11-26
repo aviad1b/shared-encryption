@@ -52,7 +52,7 @@ namespace senc::utils
 	inline void Socket::send_connected_values(const Tpl& values)
 	{
 		std::apply(
-			[=](auto&... args) { (send_connected_value(args), ...); },
+			[this](auto&... args) { (send_connected_value(args), ...); },
 			values
 		);
 	}
