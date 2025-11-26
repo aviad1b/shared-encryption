@@ -117,7 +117,7 @@ namespace senc::utils
 		else if constexpr (TupleLike<T>)
 			recv_connected_values<T, chunkSize>(out);
 		else
-			recv_connected_exact(out.size());
+			recv_connected_exact_into(out);
 	}
 
 	template <TupleLike Tpl, std::size_t chunkSize>
