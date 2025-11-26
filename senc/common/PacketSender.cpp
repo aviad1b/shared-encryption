@@ -64,6 +64,17 @@ namespace senc
 		send_priv_key_shard(sock, packet.owner_priv_key2_shard);
 	}
 
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
+	{
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
+	{
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.user_sets_ids.size()));
+		for (const auto& user_set_id : packet.user_sets_ids)
+			sock.send_connected_value(user_set_id);
+	}
+
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
 		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
