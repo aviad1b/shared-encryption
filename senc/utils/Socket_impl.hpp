@@ -120,7 +120,7 @@ namespace senc::utils
 			recv_connected_exact(out.size());
 	}
 
-	template <TupleLike Tpl, std::size_t chunkSize = 32>
+	template <TupleLike Tpl, std::size_t chunkSize>
 	inline void Socket::recv_connected_values(Tpl& values)
 	{
 		std::apply(
