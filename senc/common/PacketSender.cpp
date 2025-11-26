@@ -34,4 +34,12 @@ namespace senc
 	{
 		sock.send_connected_value(packet.status);
 	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::LogoutRequest& packet)
+	{
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::LogoutResponse& packet)
+	{
+	}
 }
