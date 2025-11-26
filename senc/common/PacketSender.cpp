@@ -75,6 +75,21 @@ namespace senc
 			sock.send_connected_value(user_set_id);
 	}
 
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetMembersRequest& packet)
+	{
+		sock.send_connected_value(packet.user_set_id);
+	}
+
+	void PacketSender::send_packet(utils::Socket& sock, const pkt::GetMembersResponse& packet)
+	{
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.owners.size()));
+		sock.send_connected_value(static_cast<std::uint8_t>(packet.reg_members.size()));
+		for (const auto& owner : packet.owners)
+			sock.send_connected_value(owner);
+		for (const auto& reg_member : packet.reg_members)
+			sock.send_connected_value(reg_member);
+	}
+
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
 	{
 		sock.send_connected_value(static_cast<std::uint64_t>(value.MinEncodedSize()));
