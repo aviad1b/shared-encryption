@@ -57,6 +57,11 @@ namespace senc::pkt
 	};
 
 
+	struct RequestTag { };
+
+	struct ResponseTag { };
+
+
 	// =================================================================
 	// General control packets
 	// =================================================================
@@ -65,7 +70,7 @@ namespace senc::pkt
 	 * @struct ErrorResponse
 	 * @brief Server error response packet.
 	 */
-	struct ErrorResponse
+	struct ErrorResponse : ResponseTag
 	{
 		/// Error message from server.
 		std::string msg;
@@ -82,7 +87,7 @@ namespace senc::pkt
 	 * @struct SignupRequest
 	 * @brief Request to register a new username.
 	 */
-	struct SignupRequest
+	struct SignupRequest : RequestTag
 	{
 		/// Desired username.
 		std::string username;
@@ -92,7 +97,7 @@ namespace senc::pkt
 	 * @struct SignupResponse
 	 * @brief Result of a signup operation.
 	 */
-	struct SignupResponse
+	struct SignupResponse : ResponseTag
 	{
 		/**
 		 * @enum Status
@@ -118,7 +123,7 @@ namespace senc::pkt
 	 * @struct LoginRequest
 	 * @brief Request to log in with a given username.
 	 */
-	struct LoginRequest
+	struct LoginRequest : RequestTag
 	{
 		/// Username to log in as.
 		std::string username;
@@ -128,7 +133,7 @@ namespace senc::pkt
 	 * @struct LoginResponse
 	 * @brief Result of a login operation.
 	 */
-	struct LoginResponse
+	struct LoginResponse : ResponseTag
 	{
 		/**
 		 * @enum Status
@@ -155,13 +160,13 @@ namespace senc::pkt
 	 * @struct LogoutRequest
 	 * @brief Request to log out of the system.
 	 */
-	struct LogoutRequest { };
+	struct LogoutRequest : RequestTag { };
 
 	/**
 	 * @struct LogoutResponse
 	 * @brief Acknowledgement of logout.
 	 */
-	struct LogoutResponse { };
+	struct LogoutResponse : ResponseTag { };
 
 
 	// =================================================================
@@ -174,7 +179,7 @@ namespace senc::pkt
 	 * @struct MakeUserSetRequest
 	 * @brief Request to create a new user set with thresholds and members.
 	 */
-	struct MakeUserSetRequest
+	struct MakeUserSetRequest : RequestTag
 	{
 		/// Usernames to include as non-owner members.
 		std::vector<std::string> reg_members;
@@ -193,7 +198,7 @@ namespace senc::pkt
 	 * @struct MakeUserSetResponse
 	 * @brief Response containing the new user set details.
 	 */
-	struct MakeUserSetResponse
+	struct MakeUserSetResponse : ResponseTag
 	{
 		/// ID of created user set.
 		UserSetID user_set_id;
@@ -222,13 +227,13 @@ namespace senc::pkt
 	 * @struct GetUserSetsRequest
 	 * @brief Request to retrieve user sets owned by requester.
 	 */
-	struct GetUserSetsRequest { };
+	struct GetUserSetsRequest : RequestTag { };
 
 	/**
 	 * @struct GetUserSetsResponse
 	 * @brief Response listing user sets owned by requester.
 	 */
-	struct GetUserSetsResponse
+	struct GetUserSetsResponse : ResponseTag
 	{
 		/// IDs of user sets the requester owns.
 		std::vector<UserSetID> user_sets_ids;
@@ -246,7 +251,7 @@ namespace senc::pkt
 	 * @struct GetMembersRequest
 	 * @brief Request to retrieve all members of a user set.
 	 */
-	struct GetMembersRequest
+	struct GetMembersRequest : RequestTag
 	{
 		/// ID of the user set to get members of.
 		UserSetID user_set_id;
@@ -256,7 +261,7 @@ namespace senc::pkt
 	 * @struct GetMembersResponse
 	 * @brief List of members (owners and non-owners) in the requested user set.
 	 */
-	struct GetMembersResponse
+	struct GetMembersResponse : ResponseTag
 	{
 		/// Non-owner member usernames.
 		std::vector<std::string> reg_members;
@@ -278,7 +283,7 @@ namespace senc::pkt
 	 * @struct DecryptRequest
 	 * @brief Request to decrypt a ciphertext under a specific user set.
 	 */
-	struct DecryptRequest
+	struct DecryptRequest : RequestTag
 	{
 		/// ID of the user set to decrypt under.
 		UserSetID user_set_id;
@@ -291,7 +296,7 @@ namespace senc::pkt
 	 * @struct DecryptResponse
 	 * @brief Response containing operation ID for later retrieval.
 	 */
-	struct DecryptResponse
+	struct DecryptResponse : ResponseTag
 	{
 		/// Decryption operation ID assigned by server.
 		OperationID op_id;
@@ -309,13 +314,13 @@ namespace senc::pkt
 	 * @struct UpdateRequest
 	 * @brief Request server to run an update iteration.
 	 */
-	struct UpdateRequest { };
+	struct UpdateRequest : RequestTag { };
 
 	/**
 	 * @struct UpdateResponse
 	 * @brief Contains server-side updates regarding membership and decryptions.
 	 */
-	struct UpdateResponse
+	struct UpdateResponse : ResponseTag
 	{
 		/**
 		 * @struct AddedAsMemberRecord
@@ -415,7 +420,7 @@ namespace senc::pkt
 	 * @struct DecryptParticipateRequest
 	 * @brief Request to participate in a decryption operation for which requester was under lookup.
 	 */
-	struct DecryptParticipateRequest
+	struct DecryptParticipateRequest : RequestTag
 	{
 		/// Operation ID.
 		OperationID op_id;
@@ -425,7 +430,7 @@ namespace senc::pkt
 	 * @struct DecryptParticipateResponse
 	 * @brief Server response indicating if requester's participation is required.
 	 */
-	struct DecryptParticipateResponse
+	struct DecryptParticipateResponse : ResponseTag
 	{
 		/**
 		 * @enum Status
@@ -453,7 +458,7 @@ namespace senc::pkt
 	 * @struct SendDecryptionPartRequest
 	 * @brief Request containing a decryption contribution from the client.
 	 */
-	struct SendDecryptionPartRequest
+	struct SendDecryptionPartRequest : RequestTag
 	{
 		/// Operation ID for which the part is submitted.
 		OperationID op_id;
@@ -466,6 +471,6 @@ namespace senc::pkt
 	 * @struct SendDecryptionPartResponse
 	 * @brief Acknowledgement of submitted decryption part.
 	 */
-	struct SendDecryptionPartResponse { };
+	struct SendDecryptionPartResponse : ResponseTag { };
 
 }
