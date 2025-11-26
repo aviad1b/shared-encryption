@@ -364,6 +364,14 @@ namespace senc::utils
 		std::size_t recv_connected_into(HasMutableByteData auto& out);
 
 		/**
+		 * @brief Recieves binary data through (a connected) socket.
+		 * @param out An object holding mutable byte data to read received data into.
+		 * @throw senc::utils::SocketException On failure.
+		 * @note Reads *exactly* `out.size()` bytes.
+		 */
+		void recv_connected_exact_into(HasMutableByteData auto& out);
+
+		/**
 		 * @brief Recieves string data through (a connected) socket.
 		 * @tparam Str String data type to recieve (same as one sent on other end).
 		 * @return Read string data.

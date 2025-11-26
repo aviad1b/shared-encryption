@@ -30,6 +30,11 @@ namespace senc::utils
 		return recv_connected_into(out.data(), out.size());
 	}
 
+	inline void Socket::recv_connected_exact_into(HasMutableByteData auto& out)
+	{
+		return recv_connected_exact_into(out.data(), out.size());
+	}
+
 	template <StringType Str, std::size_t chunkSize>
 	inline Str Socket::recv_connected_str()
 	{
