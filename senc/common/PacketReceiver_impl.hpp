@@ -49,4 +49,16 @@ namespace senc
 		sock.recv_connected_value(res.status);
 		return res;
 	}
+
+	template <>
+	inline pkt::LogoutRequest PacketReceiver::recv_request<pkt::LogoutRequest>(utils::Socket& sock)
+	{
+		return pkt::LogoutRequest{};
+	}
+
+	template <>
+	inline pkt::LogoutResponse PacketReceiver::recv_response<pkt::LogoutResponse>(utils::Socket& sock)
+	{
+		return pkt::LogoutResponse{};
+	}
 }
