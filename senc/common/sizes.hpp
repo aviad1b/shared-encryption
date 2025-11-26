@@ -77,4 +77,15 @@ namespace senc
 	 * @brief Maximum size (in bytes) for a `BigInt` instance.
 	 */
 	constexpr std::size_t MAX_BIGINT_SIZE = std::numeric_limits<bigint_size_t>::max();
+
+	/**
+	 * @typedef senc::buffer_size_t
+	 * @brief Fundamental used for sending/recving buffer sizes.
+	 */
+	using buffer_size_t = std::uint64_t;
+
+	/**
+	 * @brief Maximum buffer size that can be sent in a packet (the size itself).
+	 */
+	constexpr std::size_t MAX_BUFFER_SIZE = std::numeric_limits<buffer_size_t>::max();
 }
