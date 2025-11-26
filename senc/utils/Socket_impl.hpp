@@ -124,7 +124,7 @@ namespace senc::utils
 	inline void Socket::recv_connected_values(Tpl& values)
 	{
 		std::apply(
-			[=](auto&... args)
+			[this](auto&... args)
 			{
 				(recv_connected_value<std::remove_cvref_t<decltype(args)>, chunkSize>(args), ...);
 			},
