@@ -118,4 +118,16 @@ TEST(SocketTests, TestStrTCP)
 
 	EXPECT_EQ(send_str, recv_str);
 	EXPECT_EQ(send_bytes, recv_bytes);
+
+	const std::wstring send_wstr = L"abcd";
+	send_sock.send_connected_str(send_wstr);
+	send_sock.send_connected(send_bytes);
+
+	// recieve string with three chars at a time, causing the beggining of next input to be leftover
+	auto recv_wstr = recv_sock.recv_connected_str<std::wstring, 3>();
+
+	recv_bytes = recv_sock.recv_connected(3);
+
+	EXPECT_EQ(send_wstr, recv_wstr);
+	EXPECT_EQ(send_bytes, recv_bytes);
 }
