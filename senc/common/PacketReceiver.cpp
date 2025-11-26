@@ -15,4 +15,23 @@ namespace senc
 		utils::Buffer buff = sock.recv_connected_exact(size);
 		out.Decode(buff.data(), buff.size());
 	}
+
+	void PacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)
+	{
+		utils::BigInt x, y;
+		recv_big_int(sock, x);
+		recv_big_int(sock, y);
+
+		out = PubKey(std::move(x), std::move(y)); // TODO: Add c'tor with moved values to ECGroup
+	}
+
+	void PacketReceiver::recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out)
+	{
+		sock.recv_connected_value(out.first);
+		
+		// converting second from BigInt
+		utils::BigInt second;
+		recv_big_int(sock, second);
+		out.second = second;
+	}
 }
