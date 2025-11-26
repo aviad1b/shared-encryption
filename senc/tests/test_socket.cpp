@@ -84,12 +84,12 @@ static std::tuple<TcpSocket<IPv4>, TcpSocket<IPv4>> prepare_tcp()
  */
 TEST(SocketTests, TestTCP)
 {
-	auto [send_sock, recv_sock] = prepare_tcp();
+	auto [sendSock, recvSock] = prepare_tcp();
 	
 	const Buffer sendData { byte(1), byte(2), byte(3) };
 
-	send_sock.send_connected(sendData);
-	auto recvData = recv_sock.recv_connected(sendData.size());
+	sendSock.send_connected(sendData);
+	auto recvData = recvSock.recv_connected(sendData.size());
 	EXPECT_EQ(sendData, recvData);
 }
 
@@ -98,44 +98,44 @@ TEST(SocketTests, TestTCP)
  */
 TEST(SocketTests, TestStrTCP)
 {
-	auto [send_sock, recv_sock] = prepare_tcp();
+	auto [sendSock, recvSock] = prepare_tcp();
 
-	const std::string send_str = "abcd";
-	const Buffer send_bytes = { 1, 2, 3 };
-	send_sock.send_connected_str(send_str);
-	send_sock.send_connected(send_bytes);
-
-	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recv_str = recv_sock.recv_connected_str<std::string, 3>();
-
-	auto recv_bytes = recv_sock.recv_connected(3);
-
-	EXPECT_EQ(send_str, recv_str);
-	EXPECT_EQ(send_bytes, recv_bytes);
-
-	const std::wstring send_wstr = L"abcd";
-	send_sock.send_connected_str(send_wstr);
-	send_sock.send_connected(send_bytes);
+	const std::string sendStr = "abcd";
+	const Buffer sendBytes = { 1, 2, 3 };
+	sendSock.send_connected_str(sendStr);
+	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recv_wstr = recv_sock.recv_connected_str<std::wstring, 3>();
+	auto recv_str = recvSock.recv_connected_str<std::string, 3>();
 
-	recv_bytes = recv_sock.recv_connected(3);
+	auto recv_bytes = recvSock.recv_connected(3);
 
-	EXPECT_EQ(send_wstr, recv_wstr);
-	EXPECT_EQ(send_bytes, recv_bytes);
+	EXPECT_EQ(sendStr, recv_str);
+	EXPECT_EQ(sendBytes, recv_bytes);
+
+	const std::wstring sendWStr = L"abcd";
+	sendSock.send_connected_str(sendWStr);
+	sendSock.send_connected(sendBytes);
+
+	// recieve string with three chars at a time, causing the beggining of next input to be leftover
+	auto recv_wstr = recvSock.recv_connected_str<std::wstring, 3>();
+
+	recv_bytes = recvSock.recv_connected(3);
+
+	EXPECT_EQ(sendWStr, recv_wstr);
+	EXPECT_EQ(sendBytes, recv_bytes);
 }
 
 TEST(SocketTests, TestExactTCP)
 {
-	auto [send_sock, recv_sock] = prepare_tcp();
+	auto [sendSock, recvSock] = prepare_tcp();
 
 	const Buffer five = { 1, 2, 3, 4, 5 };
 	const Buffer four = { 1, 2, 3, 4 };
 	const Buffer last = { 5 };
-	send_sock.send_connected(five);
-	auto recv_four = recv_sock.recv_connected_exact(4);
+	sendSock.send_connected(five);
+	auto recv_four = recvSock.recv_connected_exact(4);
 	EXPECT_EQ(recv_four, four);
-	auto recv_last = recv_sock.recv_connected(100);
+	auto recv_last = recvSock.recv_connected(100);
 	EXPECT_EQ(recv_last, last);
 }
