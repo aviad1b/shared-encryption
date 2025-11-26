@@ -14,9 +14,19 @@
 #include <ostream>
 #include <string>
 #include <ranges>
+#include <tuple>
 
 namespace senc::utils
 {
+	/**
+	 * @concept senc::utils::TupleLike
+	 * @brief Checks for a tuple-like typename.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept TupleLike = requires { typename std::tuple_size<Self>::type; } &&
+		(std::tuple_size_v<Self> >= 0);
+
 	/**
 	 * @concept senc::utils::StdHashable
 	 * @brief Checks for a typename that can be hashed using `std::hash`.

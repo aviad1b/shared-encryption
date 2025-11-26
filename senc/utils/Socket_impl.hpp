@@ -25,6 +25,38 @@ namespace senc::utils
 		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
 	}
 
+	template <typename T>
+	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
+	inline void Socket::send_connected_primitive(T value)
+	{
+		send_connected(&value, sizeof(value));
+	}
+
+	template <typename T>
+	requires (HasByteData<T> || StringType<T> ||
+			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			TupleLike<T>)
+	inline void Socket::send_connected_value(const T& value)
+	{
+		if constexpr (StringType<T>)
+			send_connected_str(value);
+		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
+			send_connected_primitive(value);
+		else if constexpr (TupleLike<T>)
+			send_connected_values(value);
+		else
+			send_connected(value);
+	}
+
+	template <TupleLike Tpl>
+	inline void Socket::send_connected_values(const Tpl& values)
+	{
+		std::apply(
+			[this](auto&... args) { (send_connected_value(args), ...); },
+			values
+		);
+	}
+
 	inline std::size_t Socket::recv_connected_into(HasMutableByteData auto& out)
 	{
 		return recv_connected_into(out.data(), out.size());
@@ -61,6 +93,43 @@ namespace senc::utils
 		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
 
 		return res;
+	}
+
+	template <typename T>
+	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
+	inline T Socket::recv_connected_primitive()
+	{
+		T res{};
+		recv_connected_exact_into(&res, sizeof(T));
+		return res;
+	}
+
+	template <typename T, std::size_t chunkSize>
+	requires (HasMutableByteData<T> || StringType<T> || 
+			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			TupleLike<T>)
+	inline void Socket::recv_connected_value(T& out)
+	{
+		if constexpr (StringType<T>)
+			out = recv_connected_str<T, chunkSize>();
+		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
+			out = recv_connected_primitive<T>();
+		else if constexpr (TupleLike<T>)
+			recv_connected_values<T, chunkSize>(out);
+		else
+			recv_connected_exact_into(out);
+	}
+
+	template <TupleLike Tpl, std::size_t chunkSize>
+	inline void Socket::recv_connected_values(Tpl& values)
+	{
+		std::apply(
+			[this](auto&... args)
+			{
+				(recv_connected_value<std::remove_cvref_t<decltype(args)>, chunkSize>(args), ...);
+			},
+			values
+		);
 	}
 
 	template <IPType IP>

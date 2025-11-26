@@ -139,3 +139,15 @@ TEST(SocketTests, TestExactTCP)
 	auto recv_last = recvSock.recv_connected(100);
 	EXPECT_EQ(recv_last, last);
 }
+
+TEST(SocketTests, TestTupleTCP)
+{
+	auto [sendSock, recvSock] = prepare_tcp();
+	auto sendTpl = std::make_tuple(5, Buffer{1, 2, 3}, std::string("hello"));
+	auto recvTpl = std::make_tuple(0, Buffer(3, byte(0)), std::string());
+
+	sendSock.send_connected_value(sendTpl);
+	recvSock.recv_connected_value(recvTpl);
+
+	EXPECT_EQ(sendTpl, recvTpl);
+}

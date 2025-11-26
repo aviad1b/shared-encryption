@@ -330,6 +330,34 @@ namespace senc::utils
 		void send_connected_str(const Str& data);
 
 		/**
+		 * @brief Sends a simple value through (a connected) socket.
+		 * @param value Value to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
+		void send_connected_primitive(T value);
+
+		/**
+		 * @brief Sends a value through (a connected) socket, using the fitting method.
+		 * @param value Value to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires (HasByteData<T> || StringType<T> ||
+			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			TupleLike<T>)
+		void send_connected_value(const T& value);
+
+		/**
+		 * @brief Sends values through (a connected) socket, using the fitting method for each.
+		 * @param values Values to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <TupleLike Tpl>
+		void send_connected_values(const Tpl& values);
+
+		/**
 		 * @brief Recieves binary data through (a connected) socket.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
@@ -387,6 +415,35 @@ namespace senc::utils
 		 */
 		template <StringType Str = std::string, std::size_t chunkSize = 32>
 		Str recv_connected_str();
+
+		/**
+		 * @brief Recieves simple value through (a connected) socket.
+		 * @tparam T Value type (fundamental or enum).
+		 * @return Read value.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <typename T>
+		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
+		T recv_connected_primitive();
+
+		/**
+		 * @brief Recieves value through (a connected) socket, using the fitting method.
+		 * @tparam T Value type.
+		 * @param out Reference to store read value to.
+		 */
+		template <typename T, std::size_t chunkSize = 32>
+		requires (HasMutableByteData<T> || StringType<T> || 
+			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			TupleLike<T>)
+		void recv_connected_value(T& out);
+
+		/**
+		 * @brief Recieves values through (a connected) socket, using the fitting method for each.
+		 * @param out Reference to store read values to.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <TupleLike Tpl, std::size_t chunkSize = 32>
+		void recv_connected_values(Tpl& values);
 
 	protected:
 		using Underlying = SOCKET;
