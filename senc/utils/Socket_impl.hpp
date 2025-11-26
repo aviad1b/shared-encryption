@@ -72,7 +72,7 @@ namespace senc::utils
 
 	template <typename T>
 	requires std::is_fundamental_v<T> || std::is_enum_v<T>
-	inline T Socket::recv_connected_value()
+	inline T Socket::recv_connected_primitive()
 	{
 		T res{};
 		recv_connected_exact_into(&res, sizeof(T));
