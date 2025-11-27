@@ -95,4 +95,21 @@ namespace senc
 		recv_priv_key_shard(sock, res.owner_priv_key1_shard);
 		recv_priv_key_shard(sock, res.owner_priv_key2_shard);
 	}
+
+	template <>
+	pkt::GetUserSetsRequest PacketReceiver::recv_request<pkt::GetUserSetsRequest>(utils::Socket& sock)
+	{
+		(void)sock;
+		return pkt::GetUserSetsRequest{};
+	}
+
+	template <>
+	pkt::GetUserSetsResponse PacketReceiver::recv_response<pkt::GetUserSetsResponse>(utils::Socket& sock)
+	{
+		pkt::GetUserSetsResponse res{};
+		auto usersetsCount = sock.recv_connected_primitive<userset_count_t>();
+		res.user_sets_ids.resize(usersetsCount);
+		for (auto& userSetID : res.user_sets_ids)
+			sock.recv_connected_value(userSetID);
+	}
 }
