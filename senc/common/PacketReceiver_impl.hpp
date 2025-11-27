@@ -83,6 +83,8 @@ namespace senc
 
 		for (auto& regMember : req.reg_members)
 			sock.recv_connected_value(regMember);
+
+		return req;
 	}
 
 	template <>
@@ -94,6 +96,7 @@ namespace senc
 		recv_pub_key(sock, res.pub_key2);
 		recv_priv_key_shard(sock, res.owner_priv_key1_shard);
 		recv_priv_key_shard(sock, res.owner_priv_key2_shard);
+		return res;
 	}
 
 	template <>
@@ -111,6 +114,7 @@ namespace senc
 		res.user_sets_ids.resize(usersetsCount);
 		for (auto& userSetID : res.user_sets_ids)
 			sock.recv_connected_value(userSetID);
+		return res;
 	}
 
 	template <>
@@ -133,6 +137,7 @@ namespace senc
 			sock.recv_connected_value(owner);
 		for (auto& regMember : res.reg_members)
 			sock.recv_connected_value(regMember);
+		return res;
 	}
 
 	template <>
