@@ -38,6 +38,8 @@ namespace senc::utils
 		return IDENTITY;
 	}
 
+	ECGroup::ECGroup() : Self(true) { } // isIdentity = true
+
 	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }
 

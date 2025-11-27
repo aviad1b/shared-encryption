@@ -49,6 +49,11 @@ namespace senc::utils
 		static Self identity();
 
 		/**
+		 * @brief Constructs group identity element.
+		 */
+		ECGroup();
+
+		/**
 		 * @brief Constructs a non-identity group element from given x and y values on the curve.
 		 * @param x
 		 * @param y
