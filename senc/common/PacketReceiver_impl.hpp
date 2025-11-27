@@ -156,4 +156,51 @@ namespace senc
 		sock.recv_connected_value(res.op_id);
 		return res;
 	}
+
+	template <>
+	pkt::UpdateRequest PacketReceiver::recv_request<pkt::UpdateRequest>(utils::Socket& sock)
+	{
+		(void)sock;
+		return pkt::UpdateRequest{};
+	}
+
+	template <>
+	pkt::UpdateResponse PacketReceiver::recv_response<pkt::UpdateResponse>(utils::Socket& sock)
+	{
+		pkt::UpdateResponse res{};
+
+		// recv vector lengths
+		auto addedAsOwnerCount = sock.recv_connected_primitive<userset_count_t>();
+		auto addedAsRegMemberCount = sock.recv_connected_primitive<userset_count_t>();
+		auto onLookupCount = sock.recv_connected_primitive<lookup_count_t>();
+		auto toDecryptCount = sock.recv_connected_primitive<pending_count_t>();
+		auto finishedDecryptionsCount = sock.recv_connected_primitive<res_count_t>();
+
+		// recv added_as_owner records
+		res.added_as_owner.resize(addedAsOwnerCount);
+		for (auto& record : res.added_as_owner)
+			recv_update_record(sock, record);
+
+		// recv added_as_reg_member records
+		res.added_as_reg_member.resize(addedAsRegMemberCount);
+		for (auto& record : res.added_as_reg_member)
+			recv_update_record(sock, record);
+
+		// recv on_lookup records
+		res.on_lookup.resize(onLookupCount);
+		for (auto& record : res.on_lookup)
+			sock.recv_connected_value(record);
+
+		// recv to_decrypt records
+		res.to_decrypt.resize(toDecryptCount);
+		for (auto& record : res.to_decrypt)
+			recv_update_record(sock, record);
+
+		// recv finished_decryptions records
+		res.finished_decryptions.resize(finishedDecryptionsCount);
+		for (auto& record : res.finished_decryptions)
+			recv_update_record(sock, record);
+
+		return res;
+	}
 }
