@@ -77,4 +77,49 @@ namespace senc
 
 		out = DecryptionPart(std::move(x), std::move(y));
 	}
+
+	void PacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out)
+	{
+		recv_update_record(
+			sock,
+			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out)
+		);
+		recv_priv_key_shard(sock, out.priv_key2_shard);
+	}
+
+	void PacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsMemberRecord& out)
+	{
+		sock.recv_connected_value(out.user_set_id);
+		recv_pub_key(sock, out.pub_key1);
+		recv_pub_key(sock, out.pub_key2);
+		recv_priv_key_shard(sock, out.priv_key1_shard);
+	}
+
+	void PacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::ToDecryptRecord& out)
+	{
+		sock.recv_connected_value(out.op_id);
+		recv_ciphertext(sock, out.ciphertext);
+		
+		auto shardsIDsCount = sock.recv_connected_primitive<member_count_t>();
+		out.shards_ids.resize(shardsIDsCount);
+		for (auto& shardID : out.shards_ids)
+			sock.recv_connected_value(shardID);
+	}
+
+	void PacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out)
+	{
+		// recv sizes
+		auto parts1Count = sock.recv_connected_primitive<member_count_t>();
+		auto parts2Count = sock.recv_connected_primitive<member_count_t>();
+		sock.recv_connected_value(out.op_id);
+		sock.recv_connected_value(out.user_set_id);
+
+		// recv parts
+		out.parts1.resize(parts1Count);
+		for (auto& part : out.parts1)
+			recv_decryption_part(sock, part);
+		out.parts2.resize(parts2Count);
+		for (auto& part : out.parts2)
+			recv_decryption_part(sock, part);
+	}
 }
