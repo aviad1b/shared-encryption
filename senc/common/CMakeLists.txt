@@ -1,10 +1,10 @@
 add_library(senc_common
 	"aliases.hpp"
 	"packets.hpp"
-	"PacketSender.hpp"
-	"PacketSender.cpp"
-	"PacketReceiver.hpp"
-	"PacketReceiver.cpp"
+	"InlinePacketSender.hpp"
+	"InlinePacketSender.cpp"
+	"InlinePacketReceiver.hpp"
+	"InlinePacketReceiver.cpp"
 )
 
 target_link_libraries(senc_common PRIVATE senc_utils)

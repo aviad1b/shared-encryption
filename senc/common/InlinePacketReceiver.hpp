@@ -13,10 +13,10 @@
 
 namespace senc
 {
-	class PacketReceiver
+	class InlinePacketReceiver
 	{
 	public:
-		PacketReceiver() = delete;
+		InlinePacketReceiver() = delete;
 
 		template <typename T>
 		static inline T recv_request(utils::Socket& sock)

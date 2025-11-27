@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   PacketSender.hpp
- * \brief  Header of PacketSender class.
+ * \file   InlinePacketSender.hpp
+ * \brief  Header of InlinePacketSender class.
  * 
  * \author aviad1b
  * \date   November 2025, Kislev 5786
@@ -14,10 +14,10 @@
 
 namespace senc
 {
-	class PacketSender
+	class InlinePacketSender
 	{
 	public:
-		PacketSender() = delete;
+		InlinePacketSender() = delete;
 
 		static void send_response(utils::Socket& sock, const pkt::ErrorResponse& packet);
 
