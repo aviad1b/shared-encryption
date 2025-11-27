@@ -16,6 +16,7 @@ add_executable(senc_tests
 target_link_libraries(senc_tests PRIVATE
     GTest::gtest_main
     senc_utils
+    senc_common
 )
 
 enable_testing()
