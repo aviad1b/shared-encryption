@@ -112,4 +112,26 @@ namespace senc
 		for (auto& userSetID : res.user_sets_ids)
 			sock.recv_connected_value(userSetID);
 	}
+
+	template <>
+	pkt::GetMembersRequest PacketReceiver::recv_request<pkt::GetMembersRequest>(utils::Socket& sock)
+	{
+		pkt::GetMembersRequest req{};
+		sock.recv_connected_value(req.user_set_id);
+		return req;
+	}
+
+	template <>
+	pkt::GetMembersResponse PacketReceiver::recv_response<pkt::GetMembersResponse>(utils::Socket& sock)
+	{
+		pkt::GetMembersResponse res{};
+		auto ownersCount = sock.recv_connected_primitive<member_count_t>();
+		res.owners.resize(ownersCount);
+		auto regMembersCount = sock.recv_connected_primitive<member_count_t>();
+		res.reg_members.resize(regMembersCount);
+		for (auto& owner : res.owners)
+			sock.recv_connected_value(owner);
+		for (auto& regMember : res.reg_members)
+			sock.recv_connected_value(regMember);
+	}
 }
