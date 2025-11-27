@@ -12,44 +12,44 @@
 
 namespace senc
 {
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::ErrorResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::ErrorResponse& out)
 	{
 		sock.recv_connected_value(out.msg);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::SignupRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::SignupRequest& out)
 	{
 		sock.recv_connected_value(out.username);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::SignupResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::SignupResponse& out)
 	{
 		sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::LoginRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::LoginRequest& out)
 	{
 		sock.recv_connected_value(out.username);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::LoginResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::LoginResponse& out)
 	{
 		sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::LogoutRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::LogoutRequest& out)
 	{
 		(void)sock;
 		(void)out;
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::LogoutResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::LogoutResponse& out)
 	{
 		(void)sock;
 		(void)out;
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::MakeUserSetRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::MakeUserSetRequest& out)
 	{
 		sock.recv_connected_value(out.owners_threshold);
 		sock.recv_connected_value(out.reg_members_threshold);
@@ -67,7 +67,7 @@ namespace senc
 			sock.recv_connected_value(regMember);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::MakeUserSetResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::MakeUserSetResponse& out)
 	{
 		sock.recv_connected_value(out.user_set_id);
 		recv_pub_key(sock, out.pub_key1);
@@ -76,13 +76,13 @@ namespace senc
 		recv_priv_key_shard(sock, out.owner_priv_key2_shard);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::GetUserSetsRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::GetUserSetsRequest& out)
 	{
 		(void)sock;
 		(void)out;
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::GetUserSetsResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::GetUserSetsResponse& out)
 	{
 		auto usersetsCount = sock.recv_connected_primitive<userset_count_t>();
 		out.user_sets_ids.resize(usersetsCount);
@@ -90,12 +90,12 @@ namespace senc
 			sock.recv_connected_value(userSetID);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::GetMembersRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::GetMembersRequest& out)
 	{
 		sock.recv_connected_value(out.user_set_id);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::GetMembersResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::GetMembersResponse& out)
 	{
 		auto ownersCount = sock.recv_connected_primitive<member_count_t>();
 		out.owners.resize(ownersCount);
@@ -107,24 +107,24 @@ namespace senc
 			sock.recv_connected_value(regMember);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::DecryptRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::DecryptRequest& out)
 	{
 		sock.recv_connected_value(out.user_set_id);
 		recv_ciphertext(sock, out.ciphertext);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::DecryptResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::DecryptResponse& out)
 	{
 		sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::UpdateRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::UpdateRequest& out)
 	{
 		(void)sock;
 		(void)out;
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::UpdateResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::UpdateResponse& out)
 	{
 		// recv vector lengths
 		auto addedAsOwnerCount = sock.recv_connected_primitive<userset_count_t>();
@@ -159,23 +159,23 @@ namespace senc
 			recv_update_record(sock, record);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::DecryptParticipateRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::DecryptParticipateRequest& out)
 	{
 		sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::DecryptParticipateResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::DecryptParticipateResponse& out)
 	{
 		sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketReceiver::recv_request(utils::Socket& sock, pkt::SendDecryptionPartRequest& out)
+	void InlinePacketReceiver::recv_request_into(utils::Socket& sock, pkt::SendDecryptionPartRequest& out)
 	{
 		sock.recv_connected_value(out.op_id);
 		recv_decryption_part(sock, out.decryption_part);
 	}
 
-	void InlinePacketReceiver::recv_response(utils::Socket& sock, pkt::SendDecryptionPartResponse& out)
+	void InlinePacketReceiver::recv_response_into(utils::Socket& sock, pkt::SendDecryptionPartResponse& out)
 	{
 		(void)sock;
 		(void)out;
