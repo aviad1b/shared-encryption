@@ -53,12 +53,14 @@ namespace senc
 	template <>
 	inline pkt::LogoutRequest PacketReceiver::recv_request<pkt::LogoutRequest>(utils::Socket& sock)
 	{
+		(void)sock;
 		return pkt::LogoutRequest{};
 	}
 
 	template <>
 	inline pkt::LogoutResponse PacketReceiver::recv_response<pkt::LogoutResponse>(utils::Socket& sock)
 	{
+		(void)sock;
 		return pkt::LogoutResponse{};
 	}
 }

@@ -37,10 +37,14 @@ namespace senc
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::LogoutRequest& packet)
 	{
+		(void)sock;
+		(void)packet;
 	}
 
 	void PacketSender::send_response(utils::Socket& sock, const pkt::LogoutResponse& packet)
 	{
+		(void)sock;
+		(void)packet;
 	}
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
@@ -66,6 +70,8 @@ namespace senc
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
 	{
+		(void)sock;
+		(void)packet;
 	}
 
 	void PacketSender::send_response(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
@@ -103,6 +109,8 @@ namespace senc
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::UpdateRequest& packet)
 	{
+		(void)sock;
+		(void)packet;
 	}
 
 	void PacketSender::send_response(utils::Socket& sock, const pkt::UpdateResponse& packet)
@@ -153,6 +161,8 @@ namespace senc
 
 	void PacketSender::send_response(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet)
 	{
+		(void)sock;
+		(void)packet;
 	}
 
 	void PacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
