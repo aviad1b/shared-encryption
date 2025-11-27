@@ -16,10 +16,8 @@ namespace senc
 	class InlinePacketReceiver
 	{
 	public:
-		InlinePacketReceiver() = delete;
-
 		template <typename T>
-		static inline T recv_request(utils::Socket& sock)
+		inline T recv_request(utils::Socket& sock)
 		{
 			T req{};
 			recv_request(sock, req);
@@ -27,7 +25,7 @@ namespace senc
 		}
 
 		template <typename T>
-		static inline T recv_response(utils::Socket& sock)
+		inline T recv_response(utils::Socket& sock)
 		{
 			T resp{};
 			recv_response(sock, resp);

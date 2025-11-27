@@ -18,14 +18,16 @@ using senc::InlinePacketSender;
 TEST(TestCommon, ErrorResponse)
 {
 	auto [client, server] = prepare_tcp();
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
 
 	pkt::ErrorResponse sendRes{ "this is an error message..." };
 
-	InlinePacketSender::send_request(client, pkt::LogoutRequest{});
-	InlinePacketReceiver::recv_request<pkt::LogoutRequest>(server);
+	sender.send_request(client, pkt::LogoutRequest{});
+	receiver.recv_request<pkt::LogoutRequest>(server);
 
-	InlinePacketSender::send_response(server, sendRes);
-	auto recvRes = InlinePacketReceiver::recv_response<pkt::ErrorResponse>(client);
+	sender.send_response(server, sendRes);
+	auto recvRes = receiver.recv_response<pkt::ErrorResponse>(client);
 
 	EXPECT_EQ(sendRes, recvRes);
 }
