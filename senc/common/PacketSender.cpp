@@ -77,8 +77,8 @@ namespace senc
 	void PacketSender::send_response(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
 	{
 		sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
-		for (const auto& user_set_id : packet.user_sets_ids)
-			sock.send_connected_value(user_set_id);
+		for (const auto& userSetID : packet.user_sets_ids)
+			sock.send_connected_value(userSetID);
 	}
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::GetMembersRequest& packet)
