@@ -203,4 +203,22 @@ namespace senc
 
 		return res;
 	}
+
+	template <>
+	pkt::DecryptParticipateRequest
+		PacketReceiver::recv_request<pkt::DecryptParticipateRequest>(utils::Socket& sock)
+	{
+		pkt::DecryptParticipateRequest req{};
+		sock.recv_connected_value(req.op_id);
+		return req;
+	}
+
+	template <>
+	pkt::DecryptParticipateResponse
+		PacketReceiver::recv_response<pkt::DecryptParticipateResponse>(utils::Socket& sock)
+	{
+		pkt::DecryptParticipateResponse res{};
+		sock.recv_connected_value(res.status);
+		return res;
+	}
 }
