@@ -125,7 +125,7 @@ namespace senc::utils
 
 		template <bool isConst, std::ranges::input_range ...Ranges>
 		inline ZipViewIterator<isConst, Ranges...>::ZipViewIterator(RangesTuple& ranges, bool isEnd)
-			: _ranges(ranges)
+			: _ranges(&ranges)
 		{
 			if (!isEnd)
 			{
@@ -164,8 +164,8 @@ namespace senc::utils
 			std::apply([](auto&... its) { (++its, ...); }, this->_its);
 
 			// if any iterator reached end state, move `this` to end state
-			if (any_end(this->_ranges, this->_its, std::make_index_sequence<sizeof...(Ranges)>{}))
-				*this = Self(this->_ranges, true);
+			if (any_end(*this->_ranges, this->_its, std::make_index_sequence<sizeof...(Ranges)>{}))
+				*this = Self(*this->_ranges, true);
 			
 			return *this;
 		}

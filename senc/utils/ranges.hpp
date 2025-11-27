@@ -208,7 +208,7 @@ namespace senc::utils
 			bool operator==(const Self& other) const noexcept;
 
 		private:
-			RangesTuple& _ranges;
+			RangesTuple* _ranges;
 			ItsTuple _its;
 
 			template <std::size_t... I>
