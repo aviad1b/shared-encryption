@@ -49,8 +49,8 @@ namespace senc
 
 	void PacketSender::send_request(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
 	{
-		sock.send_connected_value(static_cast<member_count_t>(packet.owners_threshold));
-		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members_threshold));
+		sock.send_connected_value(packet.owners_threshold);
+		sock.send_connected_value(packet.reg_members_threshold);
 		sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
 		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
