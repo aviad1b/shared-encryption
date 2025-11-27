@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   PacketReceiver.hpp
- * \brief  Header of PacketSender class.
+ * \file   InlinePacketReceiver.hpp
+ * \brief  Header of InlinePacketSender class.
  * 
  * \author aviad1b
  * \date   November 2025, Kislev 5786

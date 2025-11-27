@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   PacketReceiver.cpp
- * \brief  Implementation of PacketReceiver class.
+ * \file   InlinePacketReceiver.cpp
+ * \brief  Implementation of InlinePacketReceiver class.
  * 
  * \author aviad1b
  * \date   November 2025, Kislev 5786
