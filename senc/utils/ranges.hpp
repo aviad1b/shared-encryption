@@ -211,6 +211,7 @@ namespace senc::utils
 			RangesTuple& _ranges;
 			ItsTuple _its;
 
+			template <std::size_t... I>
 			static bool any_end(const RangesTuple& rngTpl, const ItsTuple& iterTpl, std::index_sequence<I...>)
 			{
 				return (... || (std::get<I>(iterTpl) == std::ranges::end(std::get<I>(rngTpl))));
