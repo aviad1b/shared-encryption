@@ -170,6 +170,21 @@ namespace senc::utils
 			return *this;
 		}
 
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline ZipViewIterator<isConst, Ranges...>::Self
+			ZipViewIterator<isConst, Ranges...>::operator++(int)
+		{
+			Self res = *this;
+			++(*this);
+			return res;
+		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline bool ZipViewIterator<isConst, Ranges...>::operator==(const Self& other) const
+		{
+			return this->_its == other._its;
+		}
+
 		template <std::ranges::input_range... Ranges>
 		inline ZipView<Ranges...>::ZipView(Ranges&&... ranges)
 			: _ranges(std::forward<Ranges>(ranges)...) { }
