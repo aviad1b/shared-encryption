@@ -221,4 +221,22 @@ namespace senc
 		sock.recv_connected_value(res.status);
 		return res;
 	}
+
+	template <>
+	pkt::SendDecryptionPartRequest
+		PacketReceiver::recv_request<pkt::SendDecryptionPartRequest>(utils::Socket& sock)
+	{
+		pkt::SendDecryptionPartRequest req{};
+		sock.recv_connected_value(req.op_id);
+		recv_decryption_part(sock, req.decryption_part);
+		return req;
+	}
+
+	template <>
+	pkt::SendDecryptionPartResponse
+		PacketReceiver::recv_response<pkt::SendDecryptionPartResponse>(utils::Socket& sock)
+	{
+		(void)sock;
+		return pkt::SendDecryptionPartResponse{};
+	}
 }
