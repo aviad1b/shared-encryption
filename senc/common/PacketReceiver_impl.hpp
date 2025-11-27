@@ -63,4 +63,36 @@ namespace senc
 		(void)sock;
 		return pkt::LogoutResponse{};
 	}
+
+	template <>
+	inline pkt::MakeUserSetRequest PacketReceiver::recv_request<pkt::MakeUserSetRequest>(utils::Socket& sock)
+	{
+		pkt::MakeUserSetRequest req{};
+
+		sock.recv_connected_value(req.owners_threshold);
+		sock.recv_connected_value(req.reg_members_threshold);
+
+		auto ownersCount = sock.recv_connected_primitive<member_count_t>();
+		req.owners.resize(ownersCount);
+
+		auto regMembersCount = sock.recv_connected_primitive<member_count_t>();
+		req.reg_members.resize(regMembersCount);
+
+		for (auto& owner : req.owners)
+			sock.recv_connected_value(owner);
+
+		for (auto& regMember : req.reg_members)
+			sock.recv_connected_value(regMember);
+	}
+
+	template <>
+	pkt::MakeUserSetResponse PacketReceiver::recv_response<pkt::MakeUserSetResponse>(utils::Socket& sock)
+	{
+		pkt::MakeUserSetResponse res{};
+		sock.recv_connected_value(res.user_set_id);
+		recv_pub_key(sock, res.pub_key1);
+		recv_pub_key(sock, res.pub_key2);
+		recv_priv_key_shard(sock, res.owner_priv_key1_shard);
+		recv_priv_key_shard(sock, res.owner_priv_key2_shard);
+	}
 }
