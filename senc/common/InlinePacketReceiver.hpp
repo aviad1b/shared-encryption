@@ -8,61 +8,44 @@
 
 #pragma once
 
-#include "../utils/Socket.hpp"
-#include "packets.hpp"
+#include "PacketReceiver.hpp"
 
 namespace senc
 {
-	class InlinePacketReceiver
+	class InlinePacketReceiver : public PacketReceiver
 	{
 	public:
-		template <typename T>
-		inline T recv_request(utils::Socket& sock)
-		{
-			T req{};
-			recv_request(sock, req);
-			return req;
-		}
+		void recv_response(utils::Socket& sock, pkt::ErrorResponse& out) override;
 
-		template <typename T>
-		inline T recv_response(utils::Socket& sock)
-		{
-			T resp{};
-			recv_response(sock, resp);
-			return resp;
-		}
+		void recv_request(utils::Socket& sock, pkt::SignupRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::SignupResponse& out) override;
 
-		void recv_response(utils::Socket& sock, pkt::ErrorResponse& out);
+		void recv_request(utils::Socket& sock, pkt::LoginRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::LoginResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::SignupRequest& out);
-		void recv_response(utils::Socket& sock, pkt::SignupResponse& out);
+		void recv_request(utils::Socket& sock, pkt::LogoutRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::LogoutResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::LoginRequest& out);
-		void recv_response(utils::Socket& sock, pkt::LoginResponse& out);
+		void recv_request(utils::Socket& sock, pkt::MakeUserSetRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::MakeUserSetResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::LogoutRequest& out);
-		void recv_response(utils::Socket& sock, pkt::LogoutResponse& out);
+		void recv_request(utils::Socket& sock, pkt::GetUserSetsRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::GetUserSetsResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::MakeUserSetRequest& out);
-		void recv_response(utils::Socket& sock, pkt::MakeUserSetResponse& out);
+		void recv_request(utils::Socket& sock, pkt::GetMembersRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::GetMembersResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::GetUserSetsRequest& out);
-		void recv_response(utils::Socket& sock, pkt::GetUserSetsResponse& out);
+		void recv_request(utils::Socket& sock, pkt::DecryptRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::DecryptResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::GetMembersRequest& out);
-		void recv_response(utils::Socket& sock, pkt::GetMembersResponse& out);
+		void recv_request(utils::Socket& sock, pkt::UpdateRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::UpdateResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::DecryptRequest& out);
-		void recv_response(utils::Socket& sock, pkt::DecryptResponse& out);
+		void recv_request(utils::Socket& sock, pkt::DecryptParticipateRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::DecryptParticipateResponse& out) override;
 
-		void recv_request(utils::Socket& sock, pkt::UpdateRequest& out);
-		void recv_response(utils::Socket& sock, pkt::UpdateResponse& out);
-
-		void recv_request(utils::Socket& sock, pkt::DecryptParticipateRequest& out);
-		void recv_response(utils::Socket& sock, pkt::DecryptParticipateResponse& out);
-
-		void recv_request(utils::Socket& sock, pkt::SendDecryptionPartRequest& out);
-		void recv_response(utils::Socket& sock, pkt::SendDecryptionPartResponse& out);
+		void recv_request(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) override;
+		void recv_response(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
 
 	private:
 		static void recv_big_int(utils::Socket& sock, utils::BigInt& out);

@@ -1,6 +1,8 @@
 add_library(senc_common
 	"aliases.hpp"
 	"packets.hpp"
+	"PacketSender.hpp"
+	"PacketReceiver.hpp"
 	"InlinePacketSender.hpp"
 	"InlinePacketSender.cpp"
 	"InlinePacketReceiver.hpp"

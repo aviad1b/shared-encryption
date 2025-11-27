@@ -8,46 +8,44 @@
 
 #pragma once
 
-#include "../utils/ECGroup.hpp"
-#include "../utils/Socket.hpp"
-#include "packets.hpp"
+#include "PacketSender.hpp"
 
 namespace senc
 {
-	class InlinePacketSender
+	class InlinePacketSender : public PacketSender
 	{
 	public:
-		void send_response(utils::Socket& sock, const pkt::ErrorResponse& packet);
+		void send_response(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::SignupRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::SignupResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::SignupRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::SignupResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::LoginRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::LoginResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::LoginRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::LoginResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::LogoutRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::LogoutResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::LogoutRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::LogoutResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::MakeUserSetRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::MakeUserSetResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::MakeUserSetRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::MakeUserSetResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::GetUserSetsRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::GetUserSetsResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::GetUserSetsRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::GetUserSetsResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::GetMembersRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::GetMembersResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::GetMembersRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::GetMembersResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::DecryptRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::DecryptResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::DecryptRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::DecryptResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::UpdateRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::UpdateResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::UpdateRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::UpdateResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet) override;
 
-		void send_request(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet);
-		void send_response(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet);
+		void send_request(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet) override;
+		void send_response(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) override;
 
 	private:
 		void send_big_int(utils::Socket& sock, const utils::BigInt& value);
