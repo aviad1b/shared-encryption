@@ -55,8 +55,8 @@ namespace senc
 		sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
 			sock.send_connected_value(owner);
-		for (const auto& reg_member : packet.reg_members)
-			sock.send_connected_value(reg_member);
+		for (const auto& regMember : packet.reg_members)
+			sock.send_connected_value(regMember);
 	}
 
 	void PacketSender::send_response(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
