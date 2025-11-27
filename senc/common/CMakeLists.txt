@@ -4,7 +4,6 @@ add_library(senc_common
 	"PacketSender.hpp"
 	"PacketSender.cpp"
 	"PacketReceiver.hpp"
-	"PacketReceiver_impl.hpp"
 	"PacketReceiver.cpp"
 )
 

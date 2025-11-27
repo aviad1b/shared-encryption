@@ -19,10 +19,52 @@ namespace senc
 		PacketReceiver() = delete;
 
 		template <pkt::Request T>
-		static inline T recv_request(utils::Socket& sock) { static_assert(false, "Unhandled request detected"); }
+		static inline T recv_request(utils::Socket& sock)
+		{
+			T req{};
+			recv_request(sock, req);
+			return req;
+		}
 
 		template <pkt::Response T>
-		static inline T recv_response(utils::Socket& sock) { static_assert(false, "Unhandled response detected"); }
+		static inline T recv_response(utils::Socket& sock)
+		{
+			T resp{};
+			recv_response(sock, resp);
+			return resp;
+		}
+
+		void recv_response(utils::Socket& sock, pkt::ErrorResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::SignupRequest& out);
+		void recv_response(utils::Socket& sock, pkt::SignupResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::LoginRequest& out);
+		void recv_response(utils::Socket& sock, pkt::LoginResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::LogoutRequest& out);
+		void recv_response(utils::Socket& sock, pkt::LogoutResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::MakeUserSetRequest& out);
+		void recv_response(utils::Socket& sock, pkt::MakeUserSetResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::GetUserSetsRequest& out);
+		void recv_response(utils::Socket& sock, pkt::GetUserSetsResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::GetMembersRequest& out);
+		void recv_response(utils::Socket& sock, pkt::GetMembersResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::DecryptRequest& out);
+		void recv_response(utils::Socket& sock, pkt::DecryptResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::UpdateRequest& out);
+		void recv_response(utils::Socket& sock, pkt::UpdateResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::DecryptParticipateRequest& out);
+		void recv_response(utils::Socket& sock, pkt::DecryptParticipateResponse& out);
+
+		void recv_request(utils::Socket& sock, pkt::SendDecryptionPartRequest& out);
+		void recv_response(utils::Socket& sock, pkt::SendDecryptionPartResponse& out);
 
 	private:
 		static void recv_big_int(utils::Socket& sock, utils::BigInt& out);

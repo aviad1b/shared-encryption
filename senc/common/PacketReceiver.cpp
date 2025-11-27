@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   PacketReceiver.cpp
- * \brief  Non-template implementation of PacketReceiver class.
+ * \brief  Implementation of PacketReceiver class.
  * 
  * \author aviad1b
  * \date   November 2025, Kislev 5786
@@ -12,6 +12,175 @@
 
 namespace senc
 {
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::ErrorResponse& out)
+	{
+		sock.recv_connected_value(out.msg);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::SignupRequest& out)
+	{
+		sock.recv_connected_value(out.username);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::SignupResponse& out)
+	{
+		sock.recv_connected_value(out.status);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::LoginRequest& out)
+	{
+		sock.recv_connected_value(out.username);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::LoginResponse& out)
+	{
+		sock.recv_connected_value(out.status);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::LogoutRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::LogoutResponse& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::MakeUserSetRequest& out)
+	{
+		sock.recv_connected_value(out.owners_threshold);
+		sock.recv_connected_value(out.reg_members_threshold);
+
+		auto ownersCount = sock.recv_connected_primitive<member_count_t>();
+		out.owners.resize(ownersCount);
+
+		auto regMembersCount = sock.recv_connected_primitive<member_count_t>();
+		out.reg_members.resize(regMembersCount);
+
+		for (auto& owner : out.owners)
+			sock.recv_connected_value(owner);
+
+		for (auto& regMember : out.reg_members)
+			sock.recv_connected_value(regMember);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::MakeUserSetResponse& out)
+	{
+		sock.recv_connected_value(out.user_set_id);
+		recv_pub_key(sock, out.pub_key1);
+		recv_pub_key(sock, out.pub_key2);
+		recv_priv_key_shard(sock, out.owner_priv_key1_shard);
+		recv_priv_key_shard(sock, out.owner_priv_key2_shard);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::GetUserSetsRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::GetUserSetsResponse& out)
+	{
+		auto usersetsCount = sock.recv_connected_primitive<userset_count_t>();
+		out.user_sets_ids.resize(usersetsCount);
+		for (auto& userSetID : out.user_sets_ids)
+			sock.recv_connected_value(userSetID);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::GetMembersRequest& out)
+	{
+		sock.recv_connected_value(out.user_set_id);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::GetMembersResponse& out)
+	{
+		auto ownersCount = sock.recv_connected_primitive<member_count_t>();
+		out.owners.resize(ownersCount);
+		auto regMembersCount = sock.recv_connected_primitive<member_count_t>();
+		out.reg_members.resize(regMembersCount);
+		for (auto& owner : out.owners)
+			sock.recv_connected_value(owner);
+		for (auto& regMember : out.reg_members)
+			sock.recv_connected_value(regMember);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::DecryptRequest& out)
+	{
+		sock.recv_connected_value(out.user_set_id);
+		recv_ciphertext(sock, out.ciphertext);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::DecryptResponse& out)
+	{
+		sock.recv_connected_value(out.op_id);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::UpdateRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::UpdateResponse& out)
+	{
+		// recv vector lengths
+		auto addedAsOwnerCount = sock.recv_connected_primitive<userset_count_t>();
+		auto addedAsRegMemberCount = sock.recv_connected_primitive<userset_count_t>();
+		auto onLookupCount = sock.recv_connected_primitive<lookup_count_t>();
+		auto toDecryptCount = sock.recv_connected_primitive<pending_count_t>();
+		auto finishedDecryptionsCount = sock.recv_connected_primitive<res_count_t>();
+
+		// recv added_as_owner records
+		out.added_as_owner.resize(addedAsOwnerCount);
+		for (auto& record : out.added_as_owner)
+			recv_update_record(sock, record);
+
+		// recv added_as_reg_member records
+		out.added_as_reg_member.resize(addedAsRegMemberCount);
+		for (auto& record : out.added_as_reg_member)
+			recv_update_record(sock, record);
+
+		// recv on_lookup records
+		out.on_lookup.resize(onLookupCount);
+		for (auto& record : out.on_lookup)
+			sock.recv_connected_value(record);
+
+		// recv to_decrypt records
+		out.to_decrypt.resize(toDecryptCount);
+		for (auto& record : out.to_decrypt)
+			recv_update_record(sock, record);
+
+		// recv finished_decryptions records
+		out.finished_decryptions.resize(finishedDecryptionsCount);
+		for (auto& record : out.finished_decryptions)
+			recv_update_record(sock, record);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::DecryptParticipateRequest& out)
+	{
+		sock.recv_connected_value(out.op_id);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::DecryptParticipateResponse& out)
+	{
+		sock.recv_connected_value(out.status);
+	}
+
+	void PacketReceiver::recv_request(utils::Socket& sock, pkt::SendDecryptionPartRequest& out)
+	{
+		sock.recv_connected_value(out.op_id);
+		recv_decryption_part(sock, out.decryption_part);
+	}
+
+	void PacketReceiver::recv_response(utils::Socket& sock, pkt::SendDecryptionPartResponse& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
 	void PacketReceiver::recv_big_int(utils::Socket& sock, utils::BigInt& out)
 	{
 		const bigint_size_t size = sock.recv_connected_primitive<bigint_size_t>();
