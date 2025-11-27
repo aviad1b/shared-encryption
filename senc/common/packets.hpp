@@ -296,6 +296,8 @@ namespace senc::pkt
 
 		/// Ciphertext to decrypt.
 		Ciphertext ciphertext;
+
+		DecryptRequest() : user_set_id(), ciphertext() {}
 	};
 
 	/**

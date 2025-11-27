@@ -134,4 +134,21 @@ namespace senc
 		for (auto& regMember : res.reg_members)
 			sock.recv_connected_value(regMember);
 	}
+
+	template <>
+	pkt::DecryptRequest PacketReceiver::recv_request<pkt::DecryptRequest>(utils::Socket& sock)
+	{
+		pkt::DecryptRequest req{};
+		sock.recv_connected_value(req.user_set_id);
+		recv_ciphertext(sock, req.ciphertext);
+		return req;
+	}
+
+	template <>
+	pkt::DecryptResponse PacketReceiver::recv_response<pkt::DecryptResponse>(utils::Socket& sock)
+	{
+		pkt::DecryptResponse res{};
+		sock.recv_connected_value(res.op_id);
+		return res;
+	}
 }
