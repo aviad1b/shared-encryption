@@ -6,7 +6,7 @@
  * \date   November 2025, Kislev 5786
  *********************************************************************/
 
-#include "PacketReceiver.hpp"
+#include "InlinePacketReceiver.hpp"
 
 #include "../utils/ranges.hpp"
 
