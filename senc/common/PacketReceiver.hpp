@@ -81,5 +81,3 @@ namespace senc
 		static void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out);
 	};
 }
-
-#include "PacketReceiver_impl.hpp"
