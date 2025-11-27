@@ -68,4 +68,13 @@ namespace senc
 		c3b.resize(c3bSize);
 		sock.recv_connected_exact_into(c3b);
 	}
+
+	void PacketReceiver::recv_decryption_part(utils::Socket& sock, DecryptionPart& out)
+	{
+		utils::BigInt x, y;
+		recv_big_int(sock, x);
+		recv_big_int(sock, y);
+
+		out = DecryptionPart(std::move(x), std::move(y));
+	}
 }
