@@ -78,6 +78,8 @@ namespace senc::pkt
 	 */
 	struct ErrorResponse : ResponseTag
 	{
+		bool operator==(const ErrorResponse&) const = default;
+
 		/// Error message from server.
 		std::string msg;
 	};
@@ -95,6 +97,8 @@ namespace senc::pkt
 	 */
 	struct SignupRequest : RequestTag
 	{
+		bool operator==(const SignupRequest&) const = default;
+
 		/// Desired username.
 		std::string username;
 	};
@@ -105,6 +109,8 @@ namespace senc::pkt
 	 */
 	struct SignupResponse : ResponseTag
 	{
+		bool operator==(const SignupResponse&) const = default;
+
 		/**
 		 * @enum Status
 		 * @brief Signup result code.
@@ -131,6 +137,8 @@ namespace senc::pkt
 	 */
 	struct LoginRequest : RequestTag
 	{
+		bool operator==(const LoginRequest&) const = default;
+
 		/// Username to log in as.
 		std::string username;
 	};
@@ -141,6 +149,8 @@ namespace senc::pkt
 	 */
 	struct LoginResponse : ResponseTag
 	{
+		bool operator==(const LoginResponse&) const = default;
+
 		/**
 		 * @enum Status
 		 * @brief Login result code.
@@ -166,13 +176,19 @@ namespace senc::pkt
 	 * @struct LogoutRequest
 	 * @brief Request to log out of the system.
 	 */
-	struct LogoutRequest : RequestTag { };
+	struct LogoutRequest : RequestTag
+	{
+		bool operator==(const LogoutRequest&) const = default;
+	};
 
 	/**
 	 * @struct LogoutResponse
 	 * @brief Acknowledgement of logout.
 	 */
-	struct LogoutResponse : ResponseTag { };
+	struct LogoutResponse : ResponseTag
+	{
+		bool operator==(const LogoutResponse&) const = default;
+	};
 
 
 	// =================================================================
@@ -187,6 +203,8 @@ namespace senc::pkt
 	 */
 	struct MakeUserSetRequest : RequestTag
 	{
+		bool operator==(const MakeUserSetRequest&) const = default;
+
 		/// Usernames to include as non-owner members.
 		std::vector<std::string> reg_members;
 
@@ -206,6 +224,8 @@ namespace senc::pkt
 	 */
 	struct MakeUserSetResponse : ResponseTag
 	{
+		bool operator==(const MakeUserSetResponse&) const = default;
+
 		/// ID of created user set.
 		UserSetID user_set_id;
 
@@ -233,7 +253,10 @@ namespace senc::pkt
 	 * @struct GetUserSetsRequest
 	 * @brief Request to retrieve user sets owned by requester.
 	 */
-	struct GetUserSetsRequest : RequestTag { };
+	struct GetUserSetsRequest : RequestTag
+	{
+		bool operator==(const GetUserSetsRequest&) const = default;
+	};
 
 	/**
 	 * @struct GetUserSetsResponse
@@ -241,6 +264,8 @@ namespace senc::pkt
 	 */
 	struct GetUserSetsResponse : ResponseTag
 	{
+		bool operator==(const GetUserSetsResponse&) const = default;
+
 		/// IDs of user sets the requester owns.
 		std::vector<UserSetID> user_sets_ids;
 	};
@@ -259,6 +284,8 @@ namespace senc::pkt
 	 */
 	struct GetMembersRequest : RequestTag
 	{
+		bool operator==(const GetMembersRequest&) const = default;
+
 		/// ID of the user set to get members of.
 		UserSetID user_set_id;
 	};
@@ -269,6 +296,8 @@ namespace senc::pkt
 	 */
 	struct GetMembersResponse : ResponseTag
 	{
+		bool operator==(const GetMembersResponse&) const = default;
+
 		/// Non-owner member usernames.
 		std::vector<std::string> reg_members;
 
@@ -291,6 +320,8 @@ namespace senc::pkt
 	 */
 	struct DecryptRequest : RequestTag
 	{
+		bool operator==(const DecryptRequest&) const = default;
+
 		/// ID of the user set to decrypt under.
 		UserSetID user_set_id;
 
@@ -306,6 +337,8 @@ namespace senc::pkt
 	 */
 	struct DecryptResponse : ResponseTag
 	{
+		bool operator==(const DecryptResponse&) const = default;
+
 		/// Decryption operation ID assigned by server.
 		OperationID op_id;
 	};
@@ -322,7 +355,10 @@ namespace senc::pkt
 	 * @struct UpdateRequest
 	 * @brief Request server to run an update iteration.
 	 */
-	struct UpdateRequest : RequestTag { };
+	struct UpdateRequest : RequestTag
+	{
+		bool operator==(const UpdateRequest&) const = default;
+	};
 
 	struct UpdateRecordTag { };
 
@@ -341,6 +377,8 @@ namespace senc::pkt
 		 */
 		struct AddedAsMemberRecord : UpdateRecordTag
 		{
+			bool operator==(const AddedAsMemberRecord&) const = default;
+
 			/// User set ID.
 			UserSetID user_set_id;
 
@@ -364,6 +402,8 @@ namespace senc::pkt
 		 */
 		struct AddedAsOwnerRecord : AddedAsMemberRecord
 		{
+			bool operator==(const AddedAsOwnerRecord&) const = default;
+
 			/// Private key shard for second layer (owner layer) decryption.
 			PrivKeyShard priv_key2_shard;
 		};
@@ -382,6 +422,8 @@ namespace senc::pkt
 		 */
 		struct ToDecryptRecord : UpdateRecordTag
 		{
+			bool operator==(const ToDecryptRecord&) const = default;
+
 			/// ID of decryption operation to participate in.
 			OperationID op_id;
 
@@ -402,6 +444,8 @@ namespace senc::pkt
 		 */
 		struct FinishedDecryptionsRecord : UpdateRecordTag
 		{
+			bool operator==(const FinishedDecryptionsRecord&) const = default;
+
 			/// Decryption operation ID.
 			OperationID op_id;
 
@@ -435,6 +479,8 @@ namespace senc::pkt
 	 */
 	struct DecryptParticipateRequest : RequestTag
 	{
+		bool operator==(const DecryptParticipateRequest&) const = default;
+
 		/// Operation ID.
 		OperationID op_id;
 	};
@@ -445,6 +491,8 @@ namespace senc::pkt
 	 */
 	struct DecryptParticipateResponse : ResponseTag
 	{
+		bool operator==(const DecryptParticipateResponse&) const = default;
+
 		/**
 		 * @enum Status
 		 * @brief Participation status code.
@@ -473,6 +521,8 @@ namespace senc::pkt
 	 */
 	struct SendDecryptionPartRequest : RequestTag
 	{
+		bool operator==(const SendDecryptionPartRequest&) const = default;
+
 		/// Operation ID for which the part is submitted.
 		OperationID op_id;
 
@@ -484,6 +534,8 @@ namespace senc::pkt
 	 * @struct SendDecryptionPartResponse
 	 * @brief Acknowledgement of submitted decryption part.
 	 */
-	struct SendDecryptionPartResponse : ResponseTag { };
-
+	struct SendDecryptionPartResponse : ResponseTag
+	{
+		bool operator==(const SendDecryptionPartResponse&) const = default;
+	};
 }
