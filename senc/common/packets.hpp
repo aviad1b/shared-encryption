@@ -57,17 +57,6 @@ namespace senc::pkt
 	};
 
 
-	struct RequestTag { };
-
-	template <typename Self>
-	concept Request = std::derived_from<Self, RequestTag>;
-
-	struct ResponseTag { };
-
-	template <typename Self>
-	concept Response = std::derived_from<Self, ResponseTag>;
-
-
 	// =================================================================
 	// General control packets
 	// =================================================================
@@ -76,7 +65,7 @@ namespace senc::pkt
 	 * @struct ErrorResponse
 	 * @brief Server error response packet.
 	 */
-	struct ErrorResponse : ResponseTag
+	struct ErrorResponse
 	{
 		bool operator==(const ErrorResponse&) const = default;
 
@@ -95,7 +84,7 @@ namespace senc::pkt
 	 * @struct SignupRequest
 	 * @brief Request to register a new username.
 	 */
-	struct SignupRequest : RequestTag
+	struct SignupRequest
 	{
 		bool operator==(const SignupRequest&) const = default;
 
@@ -107,7 +96,7 @@ namespace senc::pkt
 	 * @struct SignupResponse
 	 * @brief Result of a signup operation.
 	 */
-	struct SignupResponse : ResponseTag
+	struct SignupResponse
 	{
 		bool operator==(const SignupResponse&) const = default;
 
@@ -135,7 +124,7 @@ namespace senc::pkt
 	 * @struct LoginRequest
 	 * @brief Request to log in with a given username.
 	 */
-	struct LoginRequest : RequestTag
+	struct LoginRequest
 	{
 		bool operator==(const LoginRequest&) const = default;
 
@@ -147,7 +136,7 @@ namespace senc::pkt
 	 * @struct LoginResponse
 	 * @brief Result of a login operation.
 	 */
-	struct LoginResponse : ResponseTag
+	struct LoginResponse
 	{
 		bool operator==(const LoginResponse&) const = default;
 
@@ -176,7 +165,7 @@ namespace senc::pkt
 	 * @struct LogoutRequest
 	 * @brief Request to log out of the system.
 	 */
-	struct LogoutRequest : RequestTag
+	struct LogoutRequest
 	{
 		bool operator==(const LogoutRequest&) const = default;
 	};
@@ -185,7 +174,7 @@ namespace senc::pkt
 	 * @struct LogoutResponse
 	 * @brief Acknowledgement of logout.
 	 */
-	struct LogoutResponse : ResponseTag
+	struct LogoutResponse
 	{
 		bool operator==(const LogoutResponse&) const = default;
 	};
@@ -201,7 +190,7 @@ namespace senc::pkt
 	 * @struct MakeUserSetRequest
 	 * @brief Request to create a new user set with thresholds and members.
 	 */
-	struct MakeUserSetRequest : RequestTag
+	struct MakeUserSetRequest
 	{
 		bool operator==(const MakeUserSetRequest&) const = default;
 
@@ -222,7 +211,7 @@ namespace senc::pkt
 	 * @struct MakeUserSetResponse
 	 * @brief Response containing the new user set details.
 	 */
-	struct MakeUserSetResponse : ResponseTag
+	struct MakeUserSetResponse
 	{
 		bool operator==(const MakeUserSetResponse&) const = default;
 
@@ -253,7 +242,7 @@ namespace senc::pkt
 	 * @struct GetUserSetsRequest
 	 * @brief Request to retrieve user sets owned by requester.
 	 */
-	struct GetUserSetsRequest : RequestTag
+	struct GetUserSetsRequest
 	{
 		bool operator==(const GetUserSetsRequest&) const = default;
 	};
@@ -262,7 +251,7 @@ namespace senc::pkt
 	 * @struct GetUserSetsResponse
 	 * @brief Response listing user sets owned by requester.
 	 */
-	struct GetUserSetsResponse : ResponseTag
+	struct GetUserSetsResponse
 	{
 		bool operator==(const GetUserSetsResponse&) const = default;
 
@@ -282,7 +271,7 @@ namespace senc::pkt
 	 * @struct GetMembersRequest
 	 * @brief Request to retrieve all members of a user set.
 	 */
-	struct GetMembersRequest : RequestTag
+	struct GetMembersRequest
 	{
 		bool operator==(const GetMembersRequest&) const = default;
 
@@ -294,7 +283,7 @@ namespace senc::pkt
 	 * @struct GetMembersResponse
 	 * @brief List of members (owners and non-owners) in the requested user set.
 	 */
-	struct GetMembersResponse : ResponseTag
+	struct GetMembersResponse
 	{
 		bool operator==(const GetMembersResponse&) const = default;
 
@@ -318,7 +307,7 @@ namespace senc::pkt
 	 * @struct DecryptRequest
 	 * @brief Request to decrypt a ciphertext under a specific user set.
 	 */
-	struct DecryptRequest : RequestTag
+	struct DecryptRequest
 	{
 		bool operator==(const DecryptRequest&) const = default;
 
@@ -335,7 +324,7 @@ namespace senc::pkt
 	 * @struct DecryptResponse
 	 * @brief Response containing operation ID for later retrieval.
 	 */
-	struct DecryptResponse : ResponseTag
+	struct DecryptResponse
 	{
 		bool operator==(const DecryptResponse&) const = default;
 
@@ -355,27 +344,22 @@ namespace senc::pkt
 	 * @struct UpdateRequest
 	 * @brief Request server to run an update iteration.
 	 */
-	struct UpdateRequest : RequestTag
+	struct UpdateRequest
 	{
 		bool operator==(const UpdateRequest&) const = default;
 	};
-
-	struct UpdateRecordTag { };
-
-	template <typename Self>
-	concept UpdateRecord = std::derived_from<Self, UpdateRecordTag>;
 
 	/**
 	 * @struct UpdateResponse
 	 * @brief Contains server-side updates regarding membership and decryptions.
 	 */
-	struct UpdateResponse : ResponseTag
+	struct UpdateResponse
 	{
 		/**
 		 * @struct AddedAsMemberRecord
 		 * @brief Record indicating user has been added as a member to a user set.
 		 */
-		struct AddedAsMemberRecord : UpdateRecordTag
+		struct AddedAsMemberRecord
 		{
 			bool operator==(const AddedAsMemberRecord&) const = default;
 
@@ -420,7 +404,7 @@ namespace senc::pkt
 		 * @struct ToDecryptRecord
 		 * @brief Record for pending decryption requiring decryption parts from user.
 		 */
-		struct ToDecryptRecord : UpdateRecordTag
+		struct ToDecryptRecord
 		{
 			bool operator==(const ToDecryptRecord&) const = default;
 
@@ -442,7 +426,7 @@ namespace senc::pkt
 		 * @struct FinishedDecryptionsRecord
 		 * @brief Completed decryptions requested by requester.
 		 */
-		struct FinishedDecryptionsRecord : UpdateRecordTag
+		struct FinishedDecryptionsRecord
 		{
 			bool operator==(const FinishedDecryptionsRecord&) const = default;
 
@@ -477,7 +461,7 @@ namespace senc::pkt
 	 * @struct DecryptParticipateRequest
 	 * @brief Request to participate in a decryption operation for which requester was under lookup.
 	 */
-	struct DecryptParticipateRequest : RequestTag
+	struct DecryptParticipateRequest
 	{
 		bool operator==(const DecryptParticipateRequest&) const = default;
 
@@ -489,7 +473,7 @@ namespace senc::pkt
 	 * @struct DecryptParticipateResponse
 	 * @brief Server response indicating if requester's participation is required.
 	 */
-	struct DecryptParticipateResponse : ResponseTag
+	struct DecryptParticipateResponse
 	{
 		bool operator==(const DecryptParticipateResponse&) const = default;
 
@@ -519,7 +503,7 @@ namespace senc::pkt
 	 * @struct SendDecryptionPartRequest
 	 * @brief Request containing a decryption contribution from the client.
 	 */
-	struct SendDecryptionPartRequest : RequestTag
+	struct SendDecryptionPartRequest
 	{
 		bool operator==(const SendDecryptionPartRequest&) const = default;
 
@@ -534,7 +518,7 @@ namespace senc::pkt
 	 * @struct SendDecryptionPartResponse
 	 * @brief Acknowledgement of submitted decryption part.
 	 */
-	struct SendDecryptionPartResponse : ResponseTag
+	struct SendDecryptionPartResponse
 	{
 		bool operator==(const SendDecryptionPartResponse&) const = default;
 	};

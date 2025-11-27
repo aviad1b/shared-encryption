@@ -18,7 +18,7 @@ namespace senc
 	public:
 		PacketReceiver() = delete;
 
-		template <pkt::Request T>
+		template <typename T>
 		static inline T recv_request(utils::Socket& sock)
 		{
 			T req{};
@@ -26,7 +26,7 @@ namespace senc
 			return req;
 		}
 
-		template <pkt::Response T>
+		template <typename T>
 		static inline T recv_response(utils::Socket& sock)
 		{
 			T resp{};
