@@ -205,7 +205,7 @@ namespace senc::utils
 
 			Self operator++(int);
 
-			bool operator==(const Self& other) const noexcept;
+			bool operator==(const Self& other) const;
 
 		private:
 			RangesTuple* _ranges;
