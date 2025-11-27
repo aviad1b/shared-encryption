@@ -56,7 +56,7 @@ namespace senc
 
 		// bigints: use a one-size-fits-each buffer
 		utils::Buffer buff(*std::max_element(bigintSizes.begin(), bigintSizes.end()));
-		for (auto& [bigintValue, bigintSize] : utils::views::zip(bigintValues, bigintSizes))
+		for (auto [bigintValue, bigintSize] : utils::views::zip(bigintValues, bigintSizes))
 		{
 			sock.recv_connected_exact_into(buff.data(), bigintSize);
 			bigintValue.Encode(buff.data(), bigintSize);
