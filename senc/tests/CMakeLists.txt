@@ -8,11 +8,15 @@ add_executable(senc_tests
     "test_enc.cpp"
     "test_shamir.cpp"
     "test_threshold_enc.cpp"
+    "test_common.cpp"
+    "tests_utils.hpp"
+    "tests_utils.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
     GTest::gtest_main
     senc_utils
+    senc_common
 )
 
 enable_testing()

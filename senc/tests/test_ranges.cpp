@@ -12,6 +12,7 @@
 #include "../utils/ranges.hpp"
 
 using senc::utils::views::enumerate;
+using senc::utils::views::zip;
 using senc::utils::product;
 using senc::utils::sum;
 
@@ -72,3 +73,16 @@ INSTANTIATE_TEST_CASE_P(Ranges, RangeEnumerateTest, testing::Values(
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
 ));
+
+TEST(Ranges, ZipTest)
+{
+	std::vector<int> x{1, 2, 3, 4, 5};
+	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
+
+	for (const auto& [i, ab] : zip(x, y) | enumerate)
+	{
+		const auto& [a, b] = ab;
+		EXPECT_EQ(a, x[i]);
+		EXPECT_EQ(b, y[i]);
+	}
+}

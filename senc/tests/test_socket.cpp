@@ -7,9 +7,8 @@
  *********************************************************************/
 
 #include <gtest/gtest.h>
-#include <thread>
-#include <future>
 #include "../utils/Socket.hpp"
+#include "tests_utils.hpp"
 
 using senc::utils::UdpSocket;
 using senc::utils::TcpSocket;
@@ -50,33 +49,6 @@ TEST(SocketTests, TestUDP)
 
 	auto recvData = sock1.recv_from(sendData.size()).data;
 	EXPECT_EQ(sendData, recvData);
-}
-
-/**
- * @brief Prepares local TCP connection for test.
- */
-static std::tuple<TcpSocket<IPv4>, TcpSocket<IPv4>> prepare_tcp()
-{
-	TcpSocket<IPv4> listenSock, sendSock;
-	std::promise<TcpSocket<IPv4>> p;
-	std::future<TcpSocket<IPv4>> f = p.get_future();
-
-	listenSock.bind(4350);
-	listenSock.listen();
-
-	std::jthread t(
-		[&listenSock, &p]()
-		{
-			try { p.set_value(listenSock.accept()); }
-			catch (...) { p.set_exception(std::current_exception()); }
-		}
-	);
-
-	sendSock.connect("127.0.0.1", 4350);
-
-	TcpSocket<IPv4> recvSock = f.get();
-
-	return { std::move(sendSock), std::move(recvSock) };
 }
 
 /**

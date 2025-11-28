@@ -165,6 +165,128 @@ namespace senc::utils
 		 */
 		inline constexpr ranges::EnumerateFn enumerate;
 	}
+
+	namespace ranges
+	{
+		/**
+		 * @class senc::utils::ranges::ZipViewIterator
+		 * @brief Iterator type of `senc::utils::ranges::ZipView`.
+		 * @tparam isConst Whether iterator is over constants or not.
+		 * @tparam Ranges Wrapped ranges types.
+		 */
+		template <bool isConst, std::ranges::input_range... Ranges>
+		class ZipViewIterator
+		{
+		public:
+			using Self = ZipViewIterator<isConst, Ranges...>;
+			using RangesTuple = std::tuple<Ranges...>;
+			using ItsTuple = std::tuple<std::ranges::iterator_t<std::conditional_t<isConst, const Ranges, Ranges>>...>;
+
+			using value_type = std::tuple<std::ranges::range_reference_t<Ranges>...>;
+			using difference_type = std::ptrdiff_t;
+			using iterator_category = std::input_iterator_tag;
+			using iterator_concept = std::input_iterator_tag;
+
+			ZipViewIterator() = default;
+
+			ZipViewIterator(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			ZipViewIterator(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit ZipViewIterator(RangesTuple& ranges, bool isEnd = false);
+
+			value_type operator*() const;
+
+			Self& operator++();
+
+			Self operator++(int);
+
+			bool operator==(const Self& other) const;
+
+		private:
+			RangesTuple* _ranges;
+			ItsTuple _its;
+
+			template <std::size_t... I>
+			static bool any_end(const RangesTuple& rngTpl, const ItsTuple& iterTpl, std::index_sequence<I...>)
+			{
+				return (... || (std::get<I>(iterTpl) == std::ranges::end(std::get<I>(rngTpl))));
+			}
+		};
+
+		/**
+		 * @class senc::utils::ranges::ZipView
+		 * @brief View range allowing simultanious iteration.
+		 * @tparam Ranges Wrapped ranges types.
+		 */
+		template <std::ranges::input_range... Ranges>
+		class ZipView : public std::ranges::view_interface<ZipView<Ranges...>>
+		{
+		public:
+			using Self = ZipView<Ranges...>;
+			using RangesTuple = std::tuple<Ranges...>;
+
+			using iterator = ZipViewIterator<false, Ranges...>;
+			using const_iterator = ZipViewIterator<true, Ranges...>;
+
+			ZipView() = default;
+
+			ZipView(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			ZipView(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit ZipView(Ranges&&... ranges);
+
+			iterator begin();
+
+			iterator end();
+
+			const_iterator begin() const;
+
+			const_iterator end() const;
+
+		private:
+			RangesTuple _ranges;
+		};
+
+		// if given ranges, construct with an all view
+		template <std::ranges::range... Ranges>
+		ZipView(Ranges&&...) -> ZipView<std::views::all_t<Ranges>...>;
+
+		/**
+		 * @class senc::utils::ranges::ZipFn
+		 * @brief Closure type for `senc::utils::ranges::ZipView`.
+		 */
+		class ZipFn
+		{
+		public:
+			using Self = ZipFn;
+
+			ZipFn() noexcept = default;
+
+			template <std::ranges::range... Ranges>
+			constexpr auto operator()(Ranges&&... ranges) const
+			{
+				return ZipView(std::forward<Ranges>(ranges)...);
+			}
+		};
+	}
+
+	namespace views
+	{
+		/**
+		 * @brief Zip view instance.
+		 */
+		inline constexpr ranges::ZipFn zip;
+	}
 }
 
 #include "ranges_impl.hpp"

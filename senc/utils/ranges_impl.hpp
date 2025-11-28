@@ -122,5 +122,95 @@ namespace senc::utils
 			return iterator(std::ranges::end(this->_wrappedView), 0);
 			// `0` is a dummy index here, since `operator==` will discard it
 		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline ZipViewIterator<isConst, Ranges...>::ZipViewIterator(RangesTuple& ranges, bool isEnd)
+			: _ranges(&ranges)
+		{
+			if (!isEnd)
+			{
+				// if not end, take begin iterator of all
+				// (assuming only directly-retrieved iterators are begin and end, for simplicity)
+				this->_its = std::apply(
+					[](auto&... its) { return std::tuple{ std::ranges::begin(its)... }; },
+					ranges
+				);
+			}
+			else
+			{
+				// if end, take end iteraor of all
+				this->_its = std::apply(
+					[](auto&... its) { return std::tuple{ std::ranges::end(its)... }; },
+					ranges
+				);
+			}
+		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline ZipViewIterator<isConst, Ranges...>::value_type
+			ZipViewIterator<isConst, Ranges...>::operator*() const
+		{
+			return std::apply(
+				[](auto&... its) { return value_type(*its...); },
+				this->_its
+			);
+		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline ZipViewIterator<isConst, Ranges...>::Self&
+			ZipViewIterator<isConst, Ranges...>::operator++()
+		{
+			// increment all iterators
+			std::apply([](auto&... its) { (++its, ...); }, this->_its);
+
+			// if any iterator reached end state, move `this` to end state
+			if (any_end(*this->_ranges, this->_its, std::make_index_sequence<sizeof...(Ranges)>{}))
+				*this = Self(*this->_ranges, true);
+			
+			return *this;
+		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline ZipViewIterator<isConst, Ranges...>::Self
+			ZipViewIterator<isConst, Ranges...>::operator++(int)
+		{
+			Self res = *this;
+			++(*this);
+			return res;
+		}
+
+		template <bool isConst, std::ranges::input_range ...Ranges>
+		inline bool ZipViewIterator<isConst, Ranges...>::operator==(const Self& other) const
+		{
+			return this->_its == other._its;
+		}
+
+		template <std::ranges::input_range... Ranges>
+		inline ZipView<Ranges...>::ZipView(Ranges&&... ranges)
+			: _ranges(std::forward<Ranges>(ranges)...) { }
+
+		template <std::ranges::input_range... Ranges>
+		inline ZipView<Ranges...>::iterator ZipView<Ranges...>::begin()
+		{
+			return iterator(this->_ranges);
+		}
+
+		template <std::ranges::input_range... Ranges>
+		inline ZipView<Ranges...>::iterator ZipView<Ranges...>::end()
+		{
+			return iterator(this->_ranges, true); // isEnd = true
+		}
+
+		template <std::ranges::input_range... Ranges>
+		inline ZipView<Ranges...>::const_iterator ZipView<Ranges...>::begin() const
+		{
+			return const_iterator(this->_ranges);
+		}
+
+		template <std::ranges::input_range... Ranges>
+		inline ZipView<Ranges...>::const_iterator ZipView<Ranges...>::end() const
+		{
+			return const_iterator(this->_ranges, true); // isEnd = true
+		}
 	}
 }

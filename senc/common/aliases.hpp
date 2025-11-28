@@ -32,6 +32,7 @@ namespace senc
 
 	using PrivKeyShard = typename Shamir::Shard;
 	using PrivKeyShardID = typename Shamir::ShardID;
+	using PrivKeyShardValue = typename Shamir::ShardValue;
 
 	using DecryptionPart = typename Shamir::Part;
 
