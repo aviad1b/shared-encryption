@@ -14,6 +14,7 @@
 namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
+using senc::utils::ECGroup;
 
 template <typename Request, typename Response>
 void cycle_flow(const Request& req, const Response& resp)
@@ -61,6 +62,26 @@ TEST(CommonTests, LogoutCycleTest)
 {
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
+
+	cycle_flow(req, resp);
+}
+
+TEST(CommonTests, MakeUserSetCycleTest)
+{
+	pkt::MakeUserSetRequest req{
+		{ "a", "b", "c" },
+		{ "o1", "o2", },
+		2,
+		1
+	};
+
+	pkt::MakeUserSetResponse resp{
+		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+		ECGroup::identity().pow(435),
+		ECGroup::identity().pow(256),
+		{ 1, 435 },
+		{ 2, 256 }
+	};
 
 	cycle_flow(req, resp);
 }
