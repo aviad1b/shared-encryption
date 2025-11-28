@@ -67,6 +67,7 @@ namespace senc::pkt
 	 */
 	struct ErrorResponse
 	{
+		static constexpr auto CODE = Code::ErrorResponse;
 		bool operator==(const ErrorResponse&) const = default;
 
 		/// Error message from server.
@@ -86,6 +87,7 @@ namespace senc::pkt
 	 */
 	struct SignupRequest
 	{
+		static constexpr auto CODE = Code::SignupRequest;
 		bool operator==(const SignupRequest&) const = default;
 
 		/// Desired username.
@@ -98,6 +100,7 @@ namespace senc::pkt
 	 */
 	struct SignupResponse
 	{
+		static constexpr auto CODE = Code::SignupResponse;
 		bool operator==(const SignupResponse&) const = default;
 
 		/**
@@ -126,6 +129,7 @@ namespace senc::pkt
 	 */
 	struct LoginRequest
 	{
+		static constexpr auto CODE = Code::LoginRequest;
 		bool operator==(const LoginRequest&) const = default;
 
 		/// Username to log in as.
@@ -138,6 +142,7 @@ namespace senc::pkt
 	 */
 	struct LoginResponse
 	{
+		static constexpr auto CODE = Code::LoginResponse;
 		bool operator==(const LoginResponse&) const = default;
 
 		/**
@@ -167,6 +172,7 @@ namespace senc::pkt
 	 */
 	struct LogoutRequest
 	{
+		static constexpr auto CODE = Code::LogoutRequest;
 		bool operator==(const LogoutRequest&) const = default;
 	};
 
@@ -176,6 +182,7 @@ namespace senc::pkt
 	 */
 	struct LogoutResponse
 	{
+		static constexpr auto CODE = Code::LogoutResponse;
 		bool operator==(const LogoutResponse&) const = default;
 	};
 
@@ -192,6 +199,7 @@ namespace senc::pkt
 	 */
 	struct MakeUserSetRequest
 	{
+		static constexpr auto CODE = Code::MakeUserSetRequest;
 		bool operator==(const MakeUserSetRequest&) const = default;
 
 		/// Usernames to include as non-owner members.
@@ -213,6 +221,7 @@ namespace senc::pkt
 	 */
 	struct MakeUserSetResponse
 	{
+		static constexpr auto CODE = Code::MakeUserSetResponse;
 		bool operator==(const MakeUserSetResponse&) const = default;
 
 		/// ID of created user set.
@@ -244,6 +253,7 @@ namespace senc::pkt
 	 */
 	struct GetUserSetsRequest
 	{
+		static constexpr auto CODE = Code::GetUserSetsRequest;
 		bool operator==(const GetUserSetsRequest&) const = default;
 	};
 
@@ -253,6 +263,7 @@ namespace senc::pkt
 	 */
 	struct GetUserSetsResponse
 	{
+		static constexpr auto CODE = Code::GetUserSetsResponse;
 		bool operator==(const GetUserSetsResponse&) const = default;
 
 		/// IDs of user sets the requester owns.
@@ -273,6 +284,7 @@ namespace senc::pkt
 	 */
 	struct GetMembersRequest
 	{
+		static constexpr auto CODE = Code::GetMembersRequest;
 		bool operator==(const GetMembersRequest&) const = default;
 
 		/// ID of the user set to get members of.
@@ -285,6 +297,7 @@ namespace senc::pkt
 	 */
 	struct GetMembersResponse
 	{
+		static constexpr auto CODE = Code::GetMembersResponse;
 		bool operator==(const GetMembersResponse&) const = default;
 
 		/// Non-owner member usernames.
@@ -309,6 +322,7 @@ namespace senc::pkt
 	 */
 	struct DecryptRequest
 	{
+		static constexpr auto CODE = Code::DecryptRequest;
 		bool operator==(const DecryptRequest&) const = default;
 
 		/// ID of the user set to decrypt under.
@@ -326,6 +340,7 @@ namespace senc::pkt
 	 */
 	struct DecryptResponse
 	{
+		static constexpr auto CODE = Code::DecryptResponse;
 		bool operator==(const DecryptResponse&) const = default;
 
 		/// Decryption operation ID assigned by server.
@@ -346,6 +361,7 @@ namespace senc::pkt
 	 */
 	struct UpdateRequest
 	{
+		static constexpr auto CODE = Code::UpdateRequest;
 		bool operator==(const UpdateRequest&) const = default;
 	};
 
@@ -355,6 +371,8 @@ namespace senc::pkt
 	 */
 	struct UpdateResponse
 	{
+		static constexpr auto CODE = Code::UpdateResponse;
+
 		/**
 		 * @struct AddedAsMemberRecord
 		 * @brief Record indicating user has been added as a member to a user set.
@@ -463,6 +481,7 @@ namespace senc::pkt
 	 */
 	struct DecryptParticipateRequest
 	{
+		static constexpr auto CODE = Code::DecryptParticipateRequest;
 		bool operator==(const DecryptParticipateRequest&) const = default;
 
 		/// Operation ID.
@@ -475,6 +494,7 @@ namespace senc::pkt
 	 */
 	struct DecryptParticipateResponse
 	{
+		static constexpr auto CODE = Code::DecryptParticipateResponse;
 		bool operator==(const DecryptParticipateResponse&) const = default;
 
 		/**
@@ -505,6 +525,7 @@ namespace senc::pkt
 	 */
 	struct SendDecryptionPartRequest
 	{
+		static constexpr auto CODE = Code::SendDecryptionPartRequest;
 		bool operator==(const SendDecryptionPartRequest&) const = default;
 
 		/// Operation ID for which the part is submitted.
@@ -520,6 +541,7 @@ namespace senc::pkt
 	 */
 	struct SendDecryptionPartResponse
 	{
+		static constexpr auto CODE = Code::SendDecryptionPartResponse;
 		bool operator==(const SendDecryptionPartResponse&) const = default;
 	};
 }
