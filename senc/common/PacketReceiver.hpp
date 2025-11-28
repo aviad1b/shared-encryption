@@ -115,12 +115,14 @@ namespace senc
 		{
 			std::optional<utils::VariantOrSingular<Ts...>> ret;
 			const auto code = sock.recv_connected_primitive<pkt::Code>();
-			(( // repeat for each type in Ts
-				Ts::CODE == code ? ( // if type's CODE is same as code
-					ret.emplace(recv_packet_data<kind, Ts>(sock)),
-					true
-				) : false // end if type's CODE is same as code
-			)...); // end repeat for each type in Ts
+
+			// for every type in Ts, check if its `CODE` is `code`, if so, set ret:
+			([this, &sock, &ret, code]
+			{
+				if (Ts::CODE == code)
+					ret.emplace(recv_packet_data<kind, Ts>(sock));
+			}() || ...);
+
 			return ret;
 		}
 	};
