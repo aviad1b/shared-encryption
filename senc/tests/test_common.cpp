@@ -103,7 +103,10 @@ TEST(CommonTests, GetUserSetsCycleTest)
 TEST(CommonTests, GetMembersCycleTest)
 {
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
-	pkt::GetMembersResponse resp{ { "a", "asfg", "user" } };
+	pkt::GetMembersResponse resp{
+		{ "a", "asfg", "user" },
+		{ "o1", "o2" }
+	};
 
 	cycle_flow(req, resp);
 }
