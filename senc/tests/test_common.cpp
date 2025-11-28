@@ -110,3 +110,21 @@ TEST(CommonTests, GetMembersCycleTest)
 
 	cycle_flow(req, resp);
 }
+
+TEST(CommonTests, DecryptCycleTest)
+{
+	pkt::DecryptRequest req{
+		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+		{
+			ECGroup::identity().pow(435),
+			ECGroup::identity().pow(256),
+			{
+				CryptoPP::SecByteBlock{},
+				{ 5, 6, 7, 8, 9 }
+			}
+		}
+	};
+	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
+
+	cycle_flow(req, resp);
+}
