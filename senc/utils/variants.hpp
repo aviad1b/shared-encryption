@@ -18,7 +18,7 @@ namespace senc::utils
 		struct variant_or_singular { using type = std::variant<Ts...>; };
 
 		template <typename T>
-		struct variant_or_singular<T> { using type = T };
+		struct variant_or_singular<T> { using type = T; };
 	}
 
 	/**
