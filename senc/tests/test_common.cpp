@@ -15,7 +15,7 @@ namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
 
-TEST(CommonTests, ErrorResponse)
+TEST(CommonTests, ErrorResponseTest)
 {
 	auto [client, server] = prepare_tcp();
 	InlinePacketReceiver receiver;
