@@ -85,3 +85,17 @@ TEST(CommonTests, MakeUserSetCycleTest)
 
 	cycle_flow(req, resp);
 }
+
+TEST(CommonTests, GetUserSetsCycleTest)
+{
+	pkt::GetUserSetsRequest req{};
+	pkt::GetUserSetsResponse resp{
+		{
+			"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+			"c7379469-4294-40b4-850c-fe665717d1ba",
+			"57641e16-e02a-473b-8204-a809a9c435df"
+		}
+	};
+
+	cycle_flow(req, resp);
+}
