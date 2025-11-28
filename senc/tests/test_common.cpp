@@ -47,7 +47,7 @@ TEST(CommonTests, SignupCycleTest)
 	EXPECT_TRUE(recvReq.has_value());
 	EXPECT_EQ(recvReq.value(), sendReq);
 
-	sender.send_request(server, sendRes);
+	sender.send_response(server, sendRes);
 	auto recvRes = receiver.recv_response<pkt::SignupResponse>(client);
 	EXPECT_TRUE(recvRes.has_value());
 	EXPECT_EQ(recvRes.value(), sendRes);
