@@ -119,7 +119,7 @@ namespace senc
 			// for every type in Ts, check if its `CODE` is `code`, if so, set ret:
 			([this, &sock, &ret, code]
 			{
-				if (Ts::CODE == code)
+				if (!ret.has_value() && Ts::CODE == code) // only check code if didn't get packet already
 					ret.emplace(recv_packet_data<kind, Ts>(sock));
 			}() || ...);
 
