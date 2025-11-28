@@ -15,6 +15,9 @@ namespace senc
 	class InlinePacketReceiver : public PacketReceiver
 	{
 	public:
+		using Self = InlinePacketReceiver;
+		using Base = PacketReceiver;
+
 		void recv_response_into(utils::Socket& sock, pkt::ErrorResponse& out) override;
 
 		void recv_request_into(utils::Socket& sock, pkt::SignupRequest& out) override;

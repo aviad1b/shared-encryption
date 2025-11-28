@@ -16,6 +16,8 @@ namespace senc
 	class PacketSender
 	{
 	public:
+		using Self = PacketSender;
+
 		virtual ~PacketSender() { }
 
 		virtual void send_response(utils::Socket& sock, const pkt::ErrorResponse& packet) = 0;

@@ -16,6 +16,8 @@ namespace senc
 	class PacketReceiver
 	{
 	public:
+		using Self = PacketReceiver;
+
 		virtual ~PacketReceiver() { }
 
 		virtual void recv_response_into(utils::Socket& sock, pkt::ErrorResponse& out) = 0;

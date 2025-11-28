@@ -15,6 +15,9 @@ namespace senc
 	class InlinePacketSender : public PacketSender
 	{
 	public:
+		using Self = InlinePacketSender;
+		using Base = PacketSender;
+
 		void send_response(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
 
 		void send_request(utils::Socket& sock, const pkt::SignupRequest& packet) override;
