@@ -78,24 +78,24 @@ TEST(SocketTests, TestStrTCP)
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recv_str = recvSock.recv_connected_str<std::string, 3>();
+	auto recvStr = recvSock.recv_connected_str<std::string, 3>();
 
-	auto recv_bytes = recvSock.recv_connected(3);
+	auto recvBytes = recvSock.recv_connected(3);
 
-	EXPECT_EQ(sendStr, recv_str);
-	EXPECT_EQ(sendBytes, recv_bytes);
+	EXPECT_EQ(sendStr, recvStr);
+	EXPECT_EQ(sendBytes, recvBytes);
 
 	const std::wstring sendWStr = L"abcd";
 	sendSock.send_connected_str(sendWStr);
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recv_wstr = recvSock.recv_connected_str<std::wstring, 3>();
+	auto recvWStr = recvSock.recv_connected_str<std::wstring, 3>();
 
-	recv_bytes = recvSock.recv_connected(3);
+	recvBytes = recvSock.recv_connected(3);
 
-	EXPECT_EQ(sendWStr, recv_wstr);
-	EXPECT_EQ(sendBytes, recv_bytes);
+	EXPECT_EQ(sendWStr, recvWStr);
+	EXPECT_EQ(sendBytes, recvBytes);
 }
 
 TEST(SocketTests, TestExactTCP)
@@ -106,10 +106,10 @@ TEST(SocketTests, TestExactTCP)
 	const Buffer four = { 1, 2, 3, 4 };
 	const Buffer last = { 5 };
 	sendSock.send_connected(five);
-	auto recv_four = recvSock.recv_connected_exact(4);
-	EXPECT_EQ(recv_four, four);
-	auto recv_last = recvSock.recv_connected(100);
-	EXPECT_EQ(recv_last, last);
+	auto recvFour = recvSock.recv_connected_exact(4);
+	EXPECT_EQ(recvFour, four);
+	auto recvLast = recvSock.recv_connected(100);
+	EXPECT_EQ(recvLast, last);
 }
 
 TEST(SocketTests, TestTupleTCP)
