@@ -331,7 +331,10 @@ namespace senc::pkt
 		/// Ciphertext to decrypt.
 		Ciphertext ciphertext;
 
-		DecryptRequest() : user_set_id(), ciphertext() {}
+		DecryptRequest() : user_set_id(), ciphertext() { }
+		DecryptRequest(UserSetID&& userSetID, Ciphertext&& ciphertext)
+			: user_set_id(std::forward<UserSetID>(userSetID)),
+			  ciphertext(std::forward<Ciphertext>(ciphertext)) { }
 	};
 
 	/**
