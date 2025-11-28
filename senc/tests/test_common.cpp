@@ -15,60 +15,44 @@ namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
 
-TEST(CommonTests, ErrorResponseTest)
+template <typename Request, typename Response>
+void cycle_flow(const Request& req, const Response& resp)
 {
 	auto [client, server] = prepare_tcp();
 	InlinePacketReceiver receiver;
 	InlinePacketSender sender;
 
-	pkt::ErrorResponse sendRes{ "this is an error message..." };
+	sender.send_request(client, req);
+	auto reqGot = receiver.recv_request<Request>(server);
+	EXPECT_TRUE(reqGot.has_value());
+	EXPECT_EQ(reqGot.value(), req);
 
-	sender.send_request(client, pkt::LogoutRequest{});
-	receiver.recv_request<pkt::LogoutRequest>(server);
+	sender.send_response(server, resp);
+	auto respGot = receiver.recv_response<Response>(client);
+	EXPECT_TRUE(respGot.has_value());
+	EXPECT_EQ(respGot.value(), resp);
+}
 
-	sender.send_response(server, sendRes);
-	auto recvRes = receiver.recv_response<pkt::ErrorResponse>(client);
+TEST(CommonTests, ErrorResponseTest)
+{
+	pkt::LogoutRequest req{};
+	pkt::ErrorResponse resp{ "this is an error message..." };
 
-	EXPECT_TRUE(recvRes.has_value());
-	EXPECT_EQ(sendRes, recvRes.value());
+	cycle_flow(req, resp);
 }
 
 TEST(CommonTests, SignupCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+	pkt::SignupRequest req{ "username" };
+	pkt::SignupResponse resp{ pkt::SignupResponse::Status::Success };
 
-	pkt::SignupRequest sendReq{ "username" };
-	pkt::SignupResponse sendRes{ pkt::SignupResponse::Status::Success };
-
-	sender.send_request(client, sendReq);
-	auto recvReq = receiver.recv_request<pkt::SignupRequest>(server);
-	EXPECT_TRUE(recvReq.has_value());
-	EXPECT_EQ(recvReq.value(), sendReq);
-
-	sender.send_response(server, sendRes);
-	auto recvRes = receiver.recv_response<pkt::SignupResponse>(client);
-	EXPECT_TRUE(recvRes.has_value());
-	EXPECT_EQ(recvRes.value(), sendRes);
+	cycle_flow(req, resp);
 }
 
 TEST(CommonTests, LoginCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+	pkt::LoginRequest req{ "username" };
+	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
 
-	pkt::LoginRequest sendReq{ "username" };
-	pkt::LoginResponse sendRes{ pkt::LoginResponse::Status::BadUsername };
-
-	sender.send_request(client, sendReq);
-	auto recvReq = receiver.recv_request<pkt::LoginRequest>(server);
-	EXPECT_TRUE(recvReq.has_value());
-	EXPECT_EQ(recvReq.value(), sendReq);
-
-	sender.send_response(server, sendRes);
-	auto recvRes = receiver.recv_response<pkt::LoginResponse>(client);
-	EXPECT_TRUE(recvRes.has_value());
-	EXPECT_EQ(recvRes.value(), sendRes);
+	cycle_flow(req, resp);
 }
