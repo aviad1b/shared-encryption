@@ -2,6 +2,7 @@
 	"bytes.hpp"
 	"bytes_impl.hpp"
 	"concepts.hpp"
+	"variants.hpp"
 	"ranges.hpp"
 	"ranges_impl.hpp"
 	"math.hpp"
