@@ -216,3 +216,13 @@ TEST(CommonTests, DecryptParticipateCycleTest)
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
 	cycle_flow(req, resp);
 }
+
+TEST(CommonTests, SendDecryptionPartCycleTest)
+{
+	pkt::SendDecryptionPartRequest req{
+		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
+		ECGroup::identity().pow(435)
+	};
+	pkt::SendDecryptionPartResponse resp{};
+	cycle_flow(req, resp);
+}
