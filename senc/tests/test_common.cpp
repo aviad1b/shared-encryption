@@ -63,12 +63,12 @@ TEST(CommonTests, LoginCycleTest)
 	pkt::LoginResponse sendRes{ pkt::LoginResponse::Status::BadUsername };
 
 	sender.send_request(client, sendReq);
-	auto recvReq = receiver.recv_request<pkt::SignupRequest>(server);
+	auto recvReq = receiver.recv_request<pkt::LoginRequest>(server);
 	EXPECT_TRUE(recvReq.has_value());
 	EXPECT_EQ(recvReq.value(), sendReq);
 
 	sender.send_response(server, sendRes);
-	auto recvRes = receiver.recv_response<pkt::SignupResponse>(client);
+	auto recvRes = receiver.recv_response<pkt::LoginResponse>(client);
 	EXPECT_TRUE(recvRes.has_value());
 	EXPECT_EQ(recvRes.value(), sendRes);
 }
