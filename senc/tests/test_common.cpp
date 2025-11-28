@@ -23,10 +23,10 @@ TEST(TestCommon, ErrorResponse)
 
 	pkt::ErrorResponse sendRes{ "this is an error message..." };
 
-	sender.send_request_data(client, pkt::LogoutRequest{});
+	sender.send_request(client, pkt::LogoutRequest{});
 	receiver.recv_request<pkt::LogoutRequest>(server);
 
-	sender.send_response_data(server, sendRes);
+	sender.send_response(server, sendRes);
 	auto recvRes = receiver.recv_response<pkt::ErrorResponse>(client);
 
 	EXPECT_EQ(sendRes, recvRes);

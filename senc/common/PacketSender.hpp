@@ -20,6 +20,30 @@ namespace senc
 
 		virtual ~PacketSender() { }
 
+		/**
+		 * @brief Sends given request with fitting code.
+		 * @param sock Socket to send through.
+		 * @param packet Packet to send.
+		 */
+		template <typename T>
+		inline void send_request(utils::Socket& sock, const T& packet)
+		{
+			sock.send_connected_primitive(T::CODE);
+			send_request_data(sock, packet);
+		}
+
+		/**
+		 * @brief Sends given response with fitting code.
+		 * @param sock Socket to send through.
+		 * @param packet Packet to send.
+		 */
+		template <typename T>
+		inline void send_response(utils::Socket& sock, const T& packet)
+		{
+			sock.send_connected_primitive(T::CODE);
+			send_response_data(sock, packet);
+		}
+
 		virtual void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) = 0;
 
 		virtual void send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet) = 0;
