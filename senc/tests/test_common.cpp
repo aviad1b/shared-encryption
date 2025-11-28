@@ -56,3 +56,11 @@ TEST(CommonTests, LoginCycleTest)
 
 	cycle_flow(req, resp);
 }
+
+TEST(CommonTests, LogoutCycleTest)
+{
+	pkt::LogoutRequest req{};
+	pkt::LogoutResponse resp{};
+
+	cycle_flow(req, resp);
+}
