@@ -44,7 +44,7 @@ TEST(CommonTests, ErrorResponseTest)
 TEST(CommonTests, SignupCycleTest)
 {
 	pkt::SignupRequest req{ "username" };
-	pkt::SignupResponse resp{ pkt::SignupResponse::Status::Success };
+	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
 
 	cycle_flow(req, resp);
 }
