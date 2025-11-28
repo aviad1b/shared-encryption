@@ -372,6 +372,7 @@ namespace senc::pkt
 	struct UpdateResponse
 	{
 		static constexpr auto CODE = Code::UpdateResponse;
+		bool operator==(const UpdateResponse&) const = default;
 
 		/**
 		 * @struct AddedAsMemberRecord
