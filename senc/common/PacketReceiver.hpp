@@ -20,43 +20,43 @@ namespace senc
 
 		virtual ~PacketReceiver() { }
 
-		virtual void recv_response_into(utils::Socket& sock, pkt::ErrorResponse& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::SignupRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::SignupResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::SignupRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::SignupResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::LoginRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::LoginResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::LoginRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::LoginResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::LogoutRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::LogoutResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::MakeUserSetRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::MakeUserSetResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::GetUserSetsRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::GetUserSetsResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::GetMembersRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::GetMembersResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::GetMembersRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::GetMembersResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::DecryptRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::DecryptResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::UpdateRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::UpdateResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::DecryptParticipateRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::DecryptParticipateResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptParticipateRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptParticipateResponse& out) = 0;
 
-		virtual void recv_request_into(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) = 0;
-		virtual void recv_response_into(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) = 0;
+		virtual void recv_request_data(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) = 0;
+		virtual void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) = 0;
 
 		template <typename T>
 		inline T recv_request(utils::Socket& sock)
 		{
 			T req{};
-			this->recv_request_into(sock, req);
+			this->recv_request_data(sock, req);
 			return req;
 		}
 
@@ -64,7 +64,7 @@ namespace senc
 		inline T recv_response(utils::Socket& sock)
 		{
 			T resp{};
-			this->recv_response_into(sock, resp);
+			this->recv_response_data(sock, resp);
 			return resp;
 		}
 	};
