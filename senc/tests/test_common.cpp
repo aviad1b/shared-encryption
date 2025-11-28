@@ -29,6 +29,6 @@ TEST(TestCommon, ErrorResponse)
 	sender.send_response(server, sendRes);
 	auto recvRes = receiver.recv_response<pkt::ErrorResponse>(client);
 
-	EXPECT_TRUE(recvRes.has_value())
+	EXPECT_TRUE(recvRes.has_value());
 	EXPECT_EQ(sendRes, recvRes.value());
 }
