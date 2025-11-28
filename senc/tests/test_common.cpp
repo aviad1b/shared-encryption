@@ -32,3 +32,23 @@ TEST(CommonTests, ErrorResponseTest)
 	EXPECT_TRUE(recvRes.has_value());
 	EXPECT_EQ(sendRes, recvRes.value());
 }
+
+TEST(CommonTests, SignupCycleTest)
+{
+	auto [client, server] = prepare_tcp();
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
+
+	pkt::SignupRequest sendReq{ "username" };
+	pkt::SignupResponse sendRes{ pkt::SignupResponse::Status::Success };
+
+	sender.send_request(client, sendReq);
+	auto recvReq = receiver.recv_request<pkt::SignupRequest>(server);
+	EXPECT_TRUE(recvReq.has_value());
+	EXPECT_EQ(recvReq.value(), sendReq);
+
+	sender.send_request(server, sendRes);
+	auto recvRes = receiver.recv_response<pkt::SignupResponse>(client);
+	EXPECT_TRUE(recvRes.has_value());
+	EXPECT_EQ(recvRes.value(), sendRes);
+}
