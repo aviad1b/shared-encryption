@@ -209,3 +209,10 @@ TEST(CommonTests, UpdateCycleTest)
 
 	cycle_flow(req, resp);
 }
+
+TEST(CommonTests, DecryptParticipateCycleTest)
+{
+	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
+	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
+	cycle_flow(req, resp);
+}
