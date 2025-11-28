@@ -152,13 +152,15 @@ TEST(CommonTests, UpdateCycleTest)
 				"57641e16-e02a-473b-8204-a809a9c435df",
 				ECGroup::identity().pow(111),
 				ECGroup::identity().pow(222),
-				senc::PrivKeyShard{ 3, 333 }
+				senc::PrivKeyShard{ 3, 333 },
+				senc::PrivKeyShard{ 13, 131313 }
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
 				ECGroup::identity().pow(444),
 				ECGroup::identity().pow(555),
-				senc::PrivKeyShard{ 4, 666 }
+				senc::PrivKeyShard{ 4, 666 },
+				senc::PrivKeyShard{ 14, 161616 }
 			}
 		},
 		{
