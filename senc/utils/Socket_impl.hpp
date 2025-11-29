@@ -41,6 +41,7 @@ namespace senc::utils
 	template <typename T>
 	requires (HasByteData<T> || StringType<T> ||
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			HasToBytes<T> ||
 			TupleLike<T>)
 	inline void Socket::send_connected_value(const T& value)
 	{
@@ -50,6 +51,8 @@ namespace senc::utils
 			send_connected_primitive(value);
 		else if constexpr (TupleLike<T>)
 			send_connected_values(value);
+		else if constexpr (HasToBytes<T>)
+			send_connected_object(value);
 		else
 			send_connected(value);
 	}
