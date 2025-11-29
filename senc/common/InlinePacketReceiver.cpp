@@ -208,11 +208,7 @@ namespace senc
 
 	void InlinePacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)
 	{
-		utils::BigInt x, y;
-		recv_big_int(sock, x);
-		recv_big_int(sock, y);
-
-		out = PubKey(std::move(x), std::move(y)); // TODO: Add c'tor with moved values to ECGroup
+		recv_ecgroup_elem(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out)

@@ -194,8 +194,7 @@ namespace senc
 
 	void InlinePacketSender::send_pub_key(utils::Socket& sock, const PubKey& pubKey)
 	{
-		send_big_int(sock, pubKey.x());
-		send_big_int(sock, pubKey.y());
+		send_ecgroup_elem(sock, pubKey);
 	}
 
 	void InlinePacketSender::send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard)
