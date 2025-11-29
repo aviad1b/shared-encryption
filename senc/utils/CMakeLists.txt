@@ -34,6 +34,8 @@
 	"enc/ECHKDF2L.cpp"
 	"Shamir.hpp"
 	"Shamir_impl.hpp"
+	"uuid.hpp"
+	"uuid.cpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
