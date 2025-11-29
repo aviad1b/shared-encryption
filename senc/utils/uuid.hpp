@@ -61,6 +61,16 @@ namespace senc::utils
 		 * @param value String representation of UUID value.
 		 */
 		UUID(const std::string& value);
+
+		/**
+		 * @brief Copy constructor of UUID.
+		 */
+		UUID(const Self&) = default;
+
+		/**
+		 * @brief Copy assignment operator of UUID.
+		 */
+		Self& operator=(const Self&) = default;
 		
 		/**
 		 * @brief Generates a (random) UUID.
