@@ -22,7 +22,7 @@ namespace senc::utils
 
 	UUID::Self UUID::generate()
 	{
-		::UUID uuid{};
+		Underlying uuid{};
 		UuidCreate(&uuid);
 		return Self(uuid);
 	}
@@ -31,8 +31,8 @@ namespace senc::utils
 	{
 		RPC_STATUS status = RPC_S_OK;
 		return static_cast<bool>(UuidEqual(
-			const_cast<::UUID*>(&this->_value),
-			const_cast<::UUID*>(&other._value),
+			const_cast<Underlying*>(&this->_value),
+			const_cast<Underlying*>(&other._value),
 			&status
 		));
 	}
@@ -69,7 +69,7 @@ namespace senc::utils
 	{
 		// parsing from bytes using RFC-4122
 
-		::UUID value{};
+		Underlying value{};
 
 		value.Data1 = (static_cast<std::uint32_t>(bytes[0]) << 24) |
 			(static_cast<uint32_t>(bytes[1]) << 16) |
@@ -86,7 +86,7 @@ namespace senc::utils
 			value.Data4[i] = bytes[8 + i];
 	}
 
-	UUID::UUID(const ::UUID& value) : _value(value)
+	UUID::UUID(const Underlying& value) : _value(value)
 	{
 		char* str = nullptr;
 		if (RPC_S_OUT_OF_MEMORY == UuidToStringA(&value, (RPC_CSTR*)&str))

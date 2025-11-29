@@ -51,6 +51,7 @@ namespace senc::utils
 	{
 	public:
 		using Self = UUID;
+		using Underlying = ::UUID;
 
 		/**
 		 * @brief Constructs a zero-value UUID.
@@ -115,9 +116,9 @@ namespace senc::utils
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 
 	private:
-		::UUID _value{};
+		Underlying _value{};
 		std::string _str;
 
-		UUID(const ::UUID& value);
+		UUID(const Underlying& value);
 	};
 }
