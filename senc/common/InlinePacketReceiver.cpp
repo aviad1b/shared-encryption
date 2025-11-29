@@ -181,11 +181,19 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketReceiver::recv_big_int(utils::Socket& sock, utils::BigInt& out)
+	bool InlinePacketReceiver::recv_big_int(utils::Socket& sock, utils::BigInt& out)
 	{
 		const bigint_size_t size = sock.recv_connected_primitive<bigint_size_t>();
+		if (!size)
+			return false; // nullopt recv'd
 		utils::Buffer buff = sock.recv_connected_exact(size);
 		out.Decode(buff.data(), buff.size());
+		return true; // value recv'd
+	}
+
+	void InlinePacketReceiver::recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out)
+	{
+
 	}
 
 	void InlinePacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)

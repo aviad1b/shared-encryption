@@ -165,13 +165,31 @@ namespace senc
 		(void)packet;
 	}
 
-	void InlinePacketSender::send_big_int(utils::Socket& sock, const utils::BigInt& value)
+	void InlinePacketSender::send_big_int(utils::Socket& sock, const std::optional<utils::BigInt>& value)
 	{
-		sock.send_connected_value(static_cast<bigint_size_t>(value.MinEncodedSize()));
+		if (!value.has_value())
+		{
+			sock.send_connected_value(static_cast<bigint_size_t>(0));
+			return;
+		}
+		
+		sock.send_connected_value(static_cast<bigint_size_t>(value->MinEncodedSize()));
 
-		utils::Buffer buff(value.MinEncodedSize());
-		value.Encode(buff.data(), buff.size());
+		utils::Buffer buff(value->MinEncodedSize());
+		value->Encode(buff.data(), buff.size());
 		sock.send_connected(buff);
+	}
+
+	void InlinePacketSender::send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem)
+	{
+		// if x is sent as nullopt then elem is identity (and y isn't sent)
+		if (elem.is_identity())
+		{
+			send_big_int(sock, std::nullopt);
+			return;
+		}
+		send_big_int(sock, elem.x());
+		send_big_int(sock, elem.y());
 	}
 
 	void InlinePacketSender::send_pub_key(utils::Socket& sock, const PubKey& pubKey)

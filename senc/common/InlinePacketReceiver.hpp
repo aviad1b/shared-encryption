@@ -9,6 +9,7 @@
 #pragma once
 
 #include "PacketReceiver.hpp"
+#include <optional>
 
 namespace senc
 {
@@ -51,7 +52,8 @@ namespace senc
 		void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
 
 	private:
-		static void recv_big_int(utils::Socket& sock, utils::BigInt& out);
+		static bool recv_big_int(utils::Socket& sock, utils::BigInt& out);
+		static void recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out);
 
 		static void recv_pub_key(utils::Socket& sock, PubKey& out);
 		static void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);
