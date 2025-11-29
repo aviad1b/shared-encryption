@@ -11,9 +11,41 @@
 #include <ostream>
 #include <string>
 #include <rpc.h>
+#include "Exception.hpp"
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::UUIDException
+	 * @brief Type of exceptions thrown on UUID related errors.
+	 */
+	class UUIDException : public Exception
+	{
+	public:
+		using Self = UUIDException;
+		using Base = Exception;
+
+		UUIDException(const std::string& msg) : Base(msg) {}
+
+		UUIDException(std::string&& msg) : Base(std::move(msg)) {}
+
+		UUIDException(const std::string& msg, const std::string& info) : Base(msg, info) {}
+
+		UUIDException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
+
+		UUIDException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UUIDException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+	};
+
+	/**
+	 * @class senc::utils::UUID
+	 * @brief Represents a unique ID (UUID).
+	 */
 	class UUID
 	{
 	public:
