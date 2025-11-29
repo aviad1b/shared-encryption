@@ -226,26 +226,12 @@ namespace senc
 		auto& [c1, c2, c3] = out;
 		auto& [c3a, c3b] = c3;
 
-		// recv size dividers
-		std::array<utils::BigInt, 4> bigintValues{};
-		std::array<bigint_size_t, 4> bigintSizes{};
-		buffer_size_t c3aSize = 0, c3bSize = 0;
-		for (auto& size : bigintSizes)
-			sock.recv_connected_value(size);
-		sock.recv_connected_value(c3aSize);
-		sock.recv_connected_value(c3bSize);
-
-		// recv actual data:
-
-		// bigints: use a one-size-fits-each buffer
-		utils::Buffer buff(*std::max_element(bigintSizes.begin(), bigintSizes.end()));
-		for (auto [bigintValue, bigintSize] : utils::views::zip(bigintValues, bigintSizes))
-		{
-			sock.recv_connected_exact_into(buff.data(), bigintSize);
-			bigintValue.Encode(buff.data(), bigintSize);
-		}
+		recv_ecgroup_elem(sock, c1);
+		recv_ecgroup_elem(sock, c2);
 
 		// c3: reserve space then read directly from socket
+		auto c3aSize = sock.recv_connected_primitive<buffer_size_t>();
+		auto c3bSize = sock.recv_connected_primitive<buffer_size_t>();
 		c3a.resize(c3aSize);
 		sock.recv_connected_exact_into(c3a);
 		c3b.resize(c3bSize);

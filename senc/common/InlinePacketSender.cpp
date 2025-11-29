@@ -208,35 +208,11 @@ namespace senc
 		const auto& [c1, c2, c3] = ciphertext;
 		const auto& [c3a, c3b] = c3;
 
-		// send size dividers
-		std::initializer_list<bigint_size_t> bigintSizes = {
-			static_cast<std::uint64_t>(c1.x().MinEncodedSize()),
-			static_cast<std::uint64_t>(c1.y().MinEncodedSize()),
-			static_cast<std::uint64_t>(c2.x().MinEncodedSize()),
-			static_cast<std::uint64_t>(c2.y().MinEncodedSize())
-		};
-		std::initializer_list<buffer_size_t> bufferSizes = {
-			static_cast<std::uint64_t>(c3a.size()),
-			static_cast<std::uint64_t>(c3b.size())
-		};
-		for (auto size : bigintSizes)
-			sock.send_connected_value(size);
-		for (auto size : bufferSizes)
-			sock.send_connected_value(size);
-
-		// send actual data
-		utils::Buffer buff(std::max(std::max(bigintSizes), std::max(bufferSizes)));
-
-		c1.x().Encode(buff.data(), c1.x().MinEncodedSize());
-		sock.send_connected(buff.data(), c1.x().MinEncodedSize());
-		c1.y().Encode(buff.data(), c1.y().MinEncodedSize());
-		sock.send_connected(buff.data(), c1.y().MinEncodedSize());
-
-		c2.x().Encode(buff.data(), c2.x().MinEncodedSize());
-		sock.send_connected(buff.data(), c2.x().MinEncodedSize());
-		c2.y().Encode(buff.data(), c2.y().MinEncodedSize());
-		sock.send_connected(buff.data(), c2.y().MinEncodedSize());
-
+		send_ecgroup_elem(sock, c1);
+		send_ecgroup_elem(sock, c2);
+		
+		sock.send_connected_value(static_cast<buffer_size_t>(c3a.size()));
+		sock.send_connected_value(static_cast<buffer_size_t>(c3b.size()));
 		sock.send_connected_value(c3);
 	}
 
