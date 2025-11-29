@@ -339,6 +339,15 @@ namespace senc::utils
 		void send_connected_primitive(T value);
 
 		/**
+		 * @brief Sends an object instance throught (a connected) socket.
+		 * @tparam Obj Object type, must have a `to_bytes` method.
+		 * @param obj Object instance to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <HasToBytes Obj>
+		void send_connected_object(const Obj& obj);
+
+		/**
 		 * @brief Sends a value through (a connected) socket, using the fitting method.
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.

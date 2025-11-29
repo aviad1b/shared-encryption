@@ -32,6 +32,12 @@ namespace senc::utils
 		send_connected(&value, sizeof(value));
 	}
 
+	template <HasToBytes Obj>
+	inline void Socket::send_connected_object(const Obj& obj)
+	{
+		send_connected(obj.to_bytes());
+	}
+
 	template <typename T>
 	requires (HasByteData<T> || StringType<T> ||
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
