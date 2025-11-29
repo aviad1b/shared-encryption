@@ -12,6 +12,7 @@
 #include <string>
 #include <rpc.h>
 #include "Exception.hpp"
+#include "bytes.hpp"
 
 namespace senc::utils
 {
@@ -90,6 +91,25 @@ namespace senc::utils
 		 * @return String representation of UUID.
 		 */
 		const std::string& to_string() const noexcept;
+
+		/**
+		 * @brief Gets size of byte-serialized UUID.
+		 * @return Size of byte-serialized UUID.
+		 */
+		constexpr std::size_t bytes_size() const { return 16; }
+
+		/**
+		 * @brief Serializes UUID into bytes.
+		 * @return Serialized UUID.
+		 */
+		Buffer to_bytes() const;
+
+		/**
+		 * @brief Deserializes UUID from bytes.
+		 * @param bytes Bytes to deserialize UUID from.
+		 * @return Deserialized UUID.
+		 */
+		static Self from_bytes(const Buffer& bytes);
 
 
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
