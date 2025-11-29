@@ -75,14 +75,27 @@ namespace senc::utils
 		C chunk[chunkSize] = {0};
 		const C* pNullChrInChunk = nullptr;
 		const C* chunkEnd = chunk + chunkSize;
+		bool lastChunk = false;
 		Str res{};
 
 		// while nullchr not found in chunk
-		do
+		while (!lastChunk)
 		{
+			// get current chunk
 			recv_connected_into(chunk, chunkSize * sizeof(C));
-			res += chunk;
-		} while (chunkEnd == (pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr)));
+
+			// look for null termination
+			pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr);
+
+			// if has null termination, this is the last chunk
+			lastChunk = (chunkEnd != pNullChrInChunk);
+
+			// if last chunk, append until null-terination; else, append all
+			if (lastChunk)
+				res += chunk;
+			else
+				res.append(chunk, chunkSize);
+		}
 
 		// res now has string, with `pNullChrInChunk` pointing to null termination
 		// extra bytes are after null termination
