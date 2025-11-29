@@ -52,18 +52,18 @@ namespace senc
 		void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
 
 	private:
-		static bool recv_big_int(utils::Socket& sock, utils::BigInt& out);
-		static void recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out);
+		bool recv_big_int(utils::Socket& sock, utils::BigInt& out);
+		void recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out);
 
-		static void recv_pub_key(utils::Socket& sock, PubKey& out);
-		static void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);
+		void recv_pub_key(utils::Socket& sock, PubKey& out);
+		void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);
 
-		static void recv_ciphertext(utils::Socket& sock, Ciphertext& out);
-		static void recv_decryption_part(utils::Socket& sock, DecryptionPart& out);
+		void recv_ciphertext(utils::Socket& sock, Ciphertext& out);
+		void recv_decryption_part(utils::Socket& sock, DecryptionPart& out);
 
-		static void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out);
-		static void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsMemberRecord& out);
-		static void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::ToDecryptRecord& out);
-		static void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out);
+		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out);
+		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsMemberRecord& out);
+		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::ToDecryptRecord& out);
+		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out);
 	};
 }
