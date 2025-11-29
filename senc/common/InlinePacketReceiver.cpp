@@ -193,7 +193,17 @@ namespace senc
 
 	void InlinePacketReceiver::recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out)
 	{
+		utils::BigInt x, y;
 
+		// if x is sent as nullopt then elem is identity (and y isn't sent)
+		if (!recv_big_int(sock, x))
+		{
+			out = utils::ECGroup::identity();
+			return;
+		}
+		recv_big_int(sock, y);
+
+		out = PubKey(std::move(x), std::move(y)); // TODO: Add c'tor with moved values to ECGroup
 	}
 
 	void InlinePacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)
