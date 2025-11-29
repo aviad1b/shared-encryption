@@ -84,6 +84,8 @@ namespace senc::utils
 
 		for (std::size_t i = 0; i < 8; i++)
 			value.Data4[i] = bytes[8 + i];
+
+		return Self(value);
 	}
 
 	UUID::UUID(const Underlying& value) : _value(value)
