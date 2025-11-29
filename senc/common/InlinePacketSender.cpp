@@ -242,8 +242,7 @@ namespace senc
 
 	void InlinePacketSender::send_decryption_part(utils::Socket& sock, const DecryptionPart& part)
 	{
-		send_big_int(sock, part.x());
-		send_big_int(sock, part.y());
+		send_ecgroup_elem(sock, part);
 	}
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsOwnerRecord& record)

@@ -254,11 +254,7 @@ namespace senc
 
 	void InlinePacketReceiver::recv_decryption_part(utils::Socket& sock, DecryptionPart& out)
 	{
-		utils::BigInt x, y;
-		recv_big_int(sock, x);
-		recv_big_int(sock, y);
-
-		out = DecryptionPart(std::move(x), std::move(y));
+		recv_ecgroup_elem(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out)
