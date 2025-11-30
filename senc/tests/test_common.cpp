@@ -302,3 +302,45 @@ TEST(CommonTests, MultipleCyclesTest)
 	send_decryption_part_cycle(client, server);
 	logout_cycle(client, server);
 }
+
+TEST(CommonTests, LoginWithErrorsCycleTest)
+{
+	auto [client, server] = prepare_tcp();
+
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
+
+	pkt::LoginRequest req{ "username" };
+	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::ErrorResponse errResp{ "Some error message" };
+	pkt::LogoutResponse logoutResp{};
+
+	sender.send_request(client, req);
+	auto reqGot1 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot1.has_value());
+	EXPECT_EQ(reqGot1.value(), req);
+
+	sender.send_response(server, errResp);
+	auto respGot1 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_TRUE(respGot1.has_value());
+	EXPECT_EQ(respGot1.value(), errResp);
+
+	sender.send_request(client, req);
+	auto reqGot2 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot2.has_value());
+	EXPECT_EQ(reqGot2.value(), req);
+
+	sender.send_response(server, logoutResp);
+	auto respGot2 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_FALSE(respGot2.has_value());
+
+	sender.send_request(client, req);
+	auto reqGot3 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot3.has_value());
+	EXPECT_EQ(reqGot3.value(), req);
+
+	sender.send_response(server, loginResp);
+	auto respGot3 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_TRUE(respGot3.has_value());
+	EXPECT_EQ(respGot3.value(), loginResp);
+}
