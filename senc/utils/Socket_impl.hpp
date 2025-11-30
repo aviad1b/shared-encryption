@@ -126,6 +126,13 @@ namespace senc::utils
 		return res;
 	}
 
+	template <HasFromBytes T>
+	requires HasFixedBytesSize<T>
+	inline T Socket::recv_connected_obj()
+	{
+		return T::from_bytes(recv_connected_exact(T::bytes_size()))
+	}
+
 	template <typename T, std::size_t chunkSize>
 	requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||

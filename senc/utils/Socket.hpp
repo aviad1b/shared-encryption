@@ -437,6 +437,16 @@ namespace senc::utils
 		T recv_connected_primitive();
 
 		/**
+		 * @brief Receives an object instance through (a connected) socket.
+		 * @tparam Obj Object type, must have a `from_bytes` and a `bytes_size` method.
+		 * @return Read object instance.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <HasFromBytes T>
+		requires HasFixedBytesSize<T>
+		T recv_connected_obj();
+
+		/**
 		 * @brief Recieves value through (a connected) socket, using the fitting method.
 		 * @tparam T Value type.
 		 * @param out Reference to store read value to.
