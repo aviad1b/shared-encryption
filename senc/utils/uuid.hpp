@@ -10,6 +10,7 @@
 
 #include <ostream>
 #include <string>
+#include <array>
 #include <rpc.h>
 #include "Exception.hpp"
 #include "bytes.hpp"
@@ -106,31 +107,32 @@ namespace senc::utils
 		const std::string& to_string() const noexcept;
 
 		/**
-		 * @brief Gets size of byte-serialized UUID.
-		 * @return Size of byte-serialized UUID.
+		 * @brief Gets (byte) size of UUID value.
+		 * @return Size of UUID value.
 		 */
-		static constexpr std::size_t bytes_size() { return 16; }
+		constexpr std::size_t size() const { return 16; }
 
 		/**
-		 * @brief Serializes UUID into bytes.
-		 * @return Serialized UUID.
+		 * @brief Gets pointer to byte data of UUID.
+		 * @return Pointer to byte data of UUID.
 		 */
-		Buffer to_bytes() const;
+		byte* data();
 
 		/**
-		 * @brief Deserializes UUID from bytes.
-		 * @param bytes Bytes to deserialize UUID from.
-		 * @return Deserialized UUID.
+		 * @brief Gets pointer to byte data of UUID.
+		 * @return Pointer to byte data of UUID.
 		 */
-		static Self from_bytes(const Buffer& bytes);
+		const byte* data() const;
 
 
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 
 	private:
-		Underlying _value{};
+		std::array<byte, 16> _bytes{};
 		std::string _str;
 
 		UUID(const Underlying& value);
+
+		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
 	};
 }
