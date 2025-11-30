@@ -64,8 +64,8 @@ namespace senc
 		sock.send_connected_value(packet.user_set_id);
 		send_pub_key(sock, packet.pub_key1);
 		send_pub_key(sock, packet.pub_key2);
-		send_priv_key_shard(sock, packet.owner_priv_key1_shard);
-		send_priv_key_shard(sock, packet.owner_priv_key2_shard);
+		send_priv_key_shard(sock, packet.priv_key1_shard);
+		send_priv_key_shard(sock, packet.priv_key2_shard);
 	}
 
 	void InlinePacketSender::send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
