@@ -97,7 +97,7 @@ namespace senc::utils
 		 * @brief Gets size of byte-serialized UUID.
 		 * @return Size of byte-serialized UUID.
 		 */
-		constexpr std::size_t bytes_size() const { return 16; }
+		static constexpr std::size_t bytes_size() { return 16; }
 
 		/**
 		 * @brief Serializes UUID into bytes.
