@@ -236,7 +236,7 @@ namespace senc::pkt
 		/// Private key shard for first layer (non-owner layer).
 		PrivKeyShard priv_key1_shard;
 
-		/// Private key shard for second layer (non-owner layer).
+		/// Private key shard for second layer (owner layer).
 		PrivKeyShard priv_key2_shard;
 	};
 
