@@ -286,3 +286,19 @@ TEST(CommonTests, SendDecryptionPartCycleTest)
 	auto [client, server] = prepare_tcp();
 	send_decryption_part_cycle(client, server);
 }
+
+TEST(CommonTests, MultipleCyclesTest)
+{
+	auto [client, server] = prepare_tcp();
+	error_cycle(client, server);
+	signup_cycle(client, server);
+	login_cycle(client, server);
+	make_user_set_cycle(client, server);
+	get_user_sets_cycle(client, server);
+	get_members_cycle(client, server);
+	decrypt_cycle(client, server);
+	update_cycle(client, server);
+	decrypt_participate_cycle(client, server);
+	send_decryption_part_cycle(client, server);
+	logout_cycle(client, server);
+}
