@@ -27,17 +27,6 @@ namespace senc::utils
 		(std::tuple_size_v<Self> >= 0);
 
 	/**
-	 * @concept senc::utils::StdHashable
-	 * @brief Checks for a typename that can be hashed using `std::hash`.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept StdHashable = requires(const Self self)
-	{
-		{ std::declval<std::hash<Self>>()(self) } -> std::convertible_to<std::size_t>;
-	};
-
-	/**
 	 * @concept senc::utils::InputIterator
 	 * @brief Looks for a typename that is an input iterator for a given element type.
 	 * @tparam Self Examined typename.
