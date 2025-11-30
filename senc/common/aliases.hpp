@@ -11,6 +11,7 @@
 #include "../utils/enc/AES1L.hpp"
 #include "../utils/ECGroup.hpp"
 #include "../utils/Shamir.hpp"
+#include "../utils/uuid.hpp"
 #include <string>
 
 namespace senc
@@ -36,6 +37,6 @@ namespace senc
 
 	using DecryptionPart = typename Shamir::Part;
 
-	using UserSetID = std::string;
-	using OperationID = std::string;
+	using UserSetID = utils::UUID;
+	using OperationID = utils::UUID;
 }
