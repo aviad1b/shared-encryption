@@ -34,50 +34,60 @@ void cycle_flow(Socket& client, Socket& server, const Request& req, const Respon
 	EXPECT_EQ(respGot.value(), resp);
 }
 
+static void error_cycle(Socket& client, Socket& server)
+{
+	pkt::LogoutRequest req{};
+	pkt::ErrorResponse resp{ "this is an error message..." };
+	cycle_flow(client, server, req, resp);
+}
+
 TEST(CommonTests, ErrorResponseTest)
 {
 	auto [client, server] = prepare_tcp();
+	error_cycle(client, server);
+}
 
-	pkt::LogoutRequest req{};
-	pkt::ErrorResponse resp{ "this is an error message..." };
-
+static void signup_cycle(Socket& client, Socket& server)
+{
+	pkt::SignupRequest req{ "username" };
+	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, SignupCycleTest)
 {
 	auto [client, server] = prepare_tcp();
+	signup_cycle(client, server);
+}
 
-	pkt::SignupRequest req{ "username" };
-	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
-
+static void login_cycle(Socket& client, Socket& server)
+{
+	pkt::LoginRequest req{ "username" };
+	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, LoginCycleTest)
 {
 	auto [client, server] = prepare_tcp();
+	login_cycle(client, server);
+}
 
-	pkt::LoginRequest req{ "username" };
-	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
-
+static void logout_cycle(Socket& client, Socket& server)
+{
+	pkt::LogoutRequest req{};
+	pkt::LogoutResponse resp{};
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, LogoutCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-
-	pkt::LogoutRequest req{};
-	pkt::LogoutResponse resp{};
-
-	cycle_flow(client, server, req, resp);
+	logout_cycle(client, server);
 }
 
-TEST(CommonTests, MakeUserSetCycleTest)
+static void make_user_set_cycle(Socket& client, Socket& server)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
 		{ "o1", "o2", },
@@ -96,10 +106,14 @@ TEST(CommonTests, MakeUserSetCycleTest)
 	cycle_flow(client, server, req, resp);
 }
 
-TEST(CommonTests, GetUserSetsCycleTest)
+TEST(CommonTests, MakeUserSetCycleTest)
 {
 	auto [client, server] = prepare_tcp();
+	make_user_set_cycle(client, server);
+}
 
+static void get_user_sets_cycle(Socket& client, Socket& server)
+{
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
 		{
@@ -108,27 +122,33 @@ TEST(CommonTests, GetUserSetsCycleTest)
 			"57641e16-e02a-473b-8204-a809a9c435df"
 		}
 	};
+	cycle_flow(client, server, req, resp);
+}
 
+TEST(CommonTests, GetUserSetsCycleTest)
+{
+	auto [client, server] = prepare_tcp();
+	get_user_sets_cycle(client, server);
+}
+
+static void get_members_cycle(Socket& client, Socket& server)
+{
+	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
+	pkt::GetMembersResponse resp{
+		{ "a", "asfg", "user" },
+		{ "o1", "o2" }
+	};
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, GetMembersCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-
-	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
-	pkt::GetMembersResponse resp{
-		{ "a", "asfg", "user" },
-		{ "o1", "o2" }
-	};
-
-	cycle_flow(client, server, req, resp);
+	get_members_cycle(client, server);
 }
 
-TEST(CommonTests, DecryptCycleTest)
+static void decrypt_cycle(Socket& client, Socket& server)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
 		{
@@ -141,14 +161,17 @@ TEST(CommonTests, DecryptCycleTest)
 		}
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
-
 	cycle_flow(client, server, req, resp);
 }
 
-TEST(CommonTests, UpdateCycleTest)
+TEST(CommonTests, DecryptCycleTest)
 {
 	auto [client, server] = prepare_tcp();
+	decrypt_cycle(client, server);
+}
 
+static void update_cycle(Socket& client, Socket& server)
+{
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
 		{
@@ -226,29 +249,40 @@ TEST(CommonTests, UpdateCycleTest)
 			}
 		}
 	};
+	cycle_flow(client, server, req, resp);
+}
 
+TEST(CommonTests, UpdateCycleTest)
+{
+	auto [client, server] = prepare_tcp();
+	update_cycle(client, server);
+}
+
+static void decrypt_participate_cycle(Socket& client, Socket& server)
+{
+	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
+	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, DecryptParticipateCycleTest)
 {
 	auto [client, server] = prepare_tcp();
+	decrypt_participate_cycle(client, server);
+}
 
-	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
-	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
-
+static void send_decryption_part_cycle(Socket& client, Socket& server)
+{
+	pkt::SendDecryptionPartRequest req{
+		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
+		ECGroup::identity().pow(435)
+	};
+	pkt::SendDecryptionPartResponse resp{};
 	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, SendDecryptionPartCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-
-	pkt::SendDecryptionPartRequest req{
-		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
-		ECGroup::identity().pow(435)
-	};
-	pkt::SendDecryptionPartResponse resp{};
-
-	cycle_flow(client, server, req, resp);
+	send_decryption_part_cycle(client, server);
 }
