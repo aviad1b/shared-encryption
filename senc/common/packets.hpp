@@ -234,10 +234,10 @@ namespace senc::pkt
 		PubKey pub_key2;
 
 		/// Private key shard for first layer (non-owner layer).
-		PrivKeyShard owner_priv_key1_shard;
+		PrivKeyShard priv_key1_shard;
 
 		/// Private key shard for second layer (non-owner layer).
-		PrivKeyShard owner_priv_key2_shard;
+		PrivKeyShard priv_key2_shard;
 	};
 
 

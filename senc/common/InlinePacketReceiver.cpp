@@ -72,8 +72,8 @@ namespace senc
 		sock.recv_connected_value(out.user_set_id);
 		recv_pub_key(sock, out.pub_key1);
 		recv_pub_key(sock, out.pub_key2);
-		recv_priv_key_shard(sock, out.owner_priv_key1_shard);
-		recv_priv_key_shard(sock, out.owner_priv_key2_shard);
+		recv_priv_key_shard(sock, out.priv_key1_shard);
+		recv_priv_key_shard(sock, out.priv_key2_shard);
 	}
 
 	void InlinePacketReceiver::recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out)
