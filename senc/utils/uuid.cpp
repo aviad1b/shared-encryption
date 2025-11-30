@@ -14,9 +14,13 @@ namespace senc::utils
 {
 	UUID::UUID() : _str("00000000-0000-0000-0000-000000000000") { }
 
-	UUID::UUID(const std::string& value) : _str(value)
+	UUID::UUID(const char* value) : Self(std::string(value)) { }
+
+	UUID::UUID(const std::string& value) : Self(std::string(value)) { }
+
+	UUID::UUID(std::string&& value) : _str(std::move(value))
 	{
-		if (RPC_S_INVALID_STRING_UUID == UuidFromStringA((RPC_CSTR)value.c_str(), &_value))
+		if (RPC_S_INVALID_STRING_UUID == UuidFromStringA((RPC_CSTR)_str.c_str(), &_value))
 			throw UUIDException("Bad UUID", value);
 	}
 

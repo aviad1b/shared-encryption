@@ -62,7 +62,19 @@ namespace senc::utils
 		 * @brief Constructs a UUID from a given string representation.
 		 * @param value String representation of UUID value.
 		 */
+		UUID(const char* value);
+
+		/**
+		 * @brief Constructs a UUID from a given string representation.
+		 * @param value String representation of UUID value.
+		 */
 		UUID(const std::string& value);
+
+		/**
+		 * @brief Constructs a UUID from a given (moved) string representation.
+		 * @param value String representation of UUID value (moved).
+		 */
+		UUID(std::string&& value);
 
 		/**
 		 * @brief Copy constructor of UUID.
