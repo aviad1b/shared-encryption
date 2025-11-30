@@ -44,35 +44,14 @@ namespace senc::utils
 		return this->_str;
 	}
 
-	Buffer UUID::to_bytes() const
+	byte* UUID::data()
 	{
-		return Buffer(
-			this->_bytes.data(),
-			this->_bytes.data() + this->_bytes.size()
-		);
+		return this->_bytes.data();
 	}
 
-	UUID::Self UUID::from_bytes(const Buffer& bytes)
+	const byte* UUID::data() const
 	{
-		// parsing from bytes using RFC-4122
-
-		Underlying value{};
-
-		value.Data1 = (static_cast<std::uint32_t>(bytes[0]) << 24) |
-			(static_cast<uint32_t>(bytes[1]) << 16) |
-			(static_cast<uint32_t>(bytes[2]) << 8) |
-			(static_cast<uint32_t>(bytes[3]));
-
-		value.Data2 = (static_cast<uint16_t>(bytes[4]) << 8) |
-			(static_cast<uint16_t>(bytes[5]));
-
-		value.Data3 = (static_cast<uint16_t>(bytes[6]) << 8) |
-			(static_cast<uint16_t>(bytes[7]));
-
-		for (std::size_t i = 0; i < 8; i++)
-			value.Data4[i] = bytes[8 + i];
-
-		return Self(value);
+		return this->_bytes.data();
 	}
 
 	UUID::UUID(const Underlying& value)
