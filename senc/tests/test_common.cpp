@@ -15,11 +15,11 @@ namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
 using senc::utils::ECGroup;
+using senc::utils::Socket;
 
 template <typename Request, typename Response>
-void cycle_flow(const Request& req, const Response& resp)
+void cycle_flow(Socket& client, Socket& server, const Request& req, const Response& resp)
 {
-	auto [client, server] = prepare_tcp();
 	InlinePacketReceiver receiver;
 	InlinePacketSender sender;
 
@@ -36,38 +36,48 @@ void cycle_flow(const Request& req, const Response& resp)
 
 TEST(CommonTests, ErrorResponseTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::LogoutRequest req{};
 	pkt::ErrorResponse resp{ "this is an error message..." };
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, SignupCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::SignupRequest req{ "username" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, LoginCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::LoginRequest req{ "username" };
 	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, LogoutCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, MakeUserSetCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
 		{ "o1", "o2", },
@@ -83,11 +93,13 @@ TEST(CommonTests, MakeUserSetCycleTest)
 		senc::PrivKeyShard{ 2, 256 }
 	};
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, GetUserSetsCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
 		{
@@ -97,22 +109,26 @@ TEST(CommonTests, GetUserSetsCycleTest)
 		}
 	};
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, GetMembersCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
 	pkt::GetMembersResponse resp{
 		{ "a", "asfg", "user" },
 		{ "o1", "o2" }
 	};
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, DecryptCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
 		{
@@ -126,11 +142,13 @@ TEST(CommonTests, DecryptCycleTest)
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, UpdateCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
 		{
@@ -209,22 +227,28 @@ TEST(CommonTests, UpdateCycleTest)
 		}
 	};
 
-	cycle_flow(req, resp);
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, DecryptParticipateCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
-	cycle_flow(req, resp);
+
+	cycle_flow(client, server, req, resp);
 }
 
 TEST(CommonTests, SendDecryptionPartCycleTest)
 {
+	auto [client, server] = prepare_tcp();
+
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
 		ECGroup::identity().pow(435)
 	};
 	pkt::SendDecryptionPartResponse resp{};
-	cycle_flow(req, resp);
+
+	cycle_flow(client, server, req, resp);
 }
