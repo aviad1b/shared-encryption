@@ -125,6 +125,16 @@ namespace senc::utils
 		{ self(std::declval<Args>()...) } -> RetConvertible<Ret>;
 	};
 
+	/**
+	 * @concept senc::utils::Equaler
+	 * @brief Checks for a typename which can be used to equality-check two instances of a given type.
+	 * @tparam Self Examined typename.
+	 * @tparam Value Typename to compare instances of using `Self`.
+	 * @tparam Other Typename to equality-check `Value` to, defaults to `Value`.
+	 */
+	template <typename Self, typename Value, typename Other = Value>
+	concept Equaler = ConstCallable<Self, bool, const Value&, const Other&>;
+
 	template <typename Self>
 	concept Copyable = requires(Self a, const Self b)
 	{
