@@ -16,6 +16,7 @@
 #include "ModInt.hpp"
 #include "Group.hpp"
 #include "poly.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
