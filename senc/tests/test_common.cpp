@@ -346,3 +346,31 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
 	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
 }
+
+TEST(CommonTests, TestRequestVariant)
+{
+	auto [client, server] = prepare_tcp();
+
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
+
+	pkt::SignupRequest signupReq{ "username" };
+	pkt::LoginRequest loginReq{ "AAAAAAAA" };
+	pkt::LogoutRequest logoutReq{};
+
+	sender.send_request(client, signupReq);
+	auto reqGot1 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot1.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::SignupRequest>(*reqGot1));
+	EXPECT_EQ(std::get<pkt::SignupRequest>(*reqGot1), signupReq);
+
+	sender.send_request(client, loginReq);
+	auto reqGot2 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot2.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::LoginRequest>(*reqGot2));
+	EXPECT_EQ(std::get<pkt::LoginRequest>(*reqGot2), loginReq);
+
+	sender.send_request(client, logoutReq);
+	auto reqGot3 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_FALSE(reqGot3.has_value());
+}
