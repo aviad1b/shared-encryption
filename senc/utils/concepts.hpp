@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <unordered_set>
 #include <concepts>
 #include <iterator>
 #include <ostream>
