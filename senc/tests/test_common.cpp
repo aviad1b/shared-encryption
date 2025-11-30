@@ -323,7 +323,8 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 	sender.send_response(server, errResp);
 	auto respGot1 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
 	EXPECT_TRUE(respGot1.has_value());
-	EXPECT_EQ(respGot1.value(), errResp);
+	EXPECT_TRUE(std::holds_alternative<pkt::ErrorResponse>(*respGot1));
+	EXPECT_EQ(std::get<pkt::ErrorResponse>(*respGot1), errResp);
 
 	sender.send_request(client, req);
 	auto reqGot2 = receiver.recv_request<pkt::LoginRequest>(server);
@@ -342,5 +343,6 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 	sender.send_response(server, loginResp);
 	auto respGot3 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
 	EXPECT_TRUE(respGot3.has_value());
-	EXPECT_EQ(respGot3.value(), loginResp);
+	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
+	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
 }
