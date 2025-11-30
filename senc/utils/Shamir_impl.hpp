@@ -8,9 +8,8 @@
 
 #include "Shamir.hpp"
 
-#include <unordered_set>
-
 #include "ranges.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
@@ -30,7 +29,7 @@ namespace senc::utils
 	inline std::vector<typename ShamirUtils<S, SID>::Shard> 
 		ShamirUtils<S, SID>::make_shards(const Poly& poly, R&& shardsIDs)
 	{
-		std::unordered_set<SID> usedIDs;
+		HashSet<SID> usedIDs;
 		std::vector<Shard> res;
 		for (const SID& shardID : shardsIDs)
 		{
@@ -48,7 +47,7 @@ namespace senc::utils
 		std::size_t i, const std::vector<SID>& shardsIDs)
 	{
 		// TODO: This check may lower performance, is it REALLY necessary?
-		std::unordered_set<SID> shardsIDsSet;
+		HashSet<SID> shardsIDsSet;
 		for (const SID& shardID : shardsIDs)
 		{
 			if (!shardID)
@@ -136,7 +135,7 @@ namespace senc::utils
 		const auto& [xi, yi] = privKeyShard;
 
 		// TODO: Code duplication?
-		std::unordered_set<SID> privKeyShardsIDsSet;
+		HashSet<SID> privKeyShardsIDsSet;
 		std::optional<std::size_t> i;
 		for (const auto& [idx, shardID] : privKeyShardsIDs | views::enumerate)
 		{
