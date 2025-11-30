@@ -14,6 +14,8 @@ namespace senc::utils
 {
 	UUID::UUID() : _str("00000000-0000-0000-0000-000000000000") { }
 
+	UUID::UUID(const char* value) : Self(std::string(value)) { }
+
 	UUID::UUID(const std::string& value) : Self(std::string(value)) { }
 
 	UUID::UUID(std::string&& value) : _str(std::move(value))
