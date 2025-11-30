@@ -14,6 +14,7 @@
 #include <rpc.h>
 #include "Exception.hpp"
 #include "bytes.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
@@ -105,6 +106,12 @@ namespace senc::utils
 		 * @return String representation of UUID.
 		 */
 		const std::string& to_string() const noexcept;
+
+		/**
+		 * @brief Hashes UUID value.
+		 * @return UUID hash.
+		 */
+		std::size_t hash() const noexcept;
 
 		/**
 		 * @brief Gets (byte) size of UUID value.
