@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <unordered_set>
 #include <concepts>
 #include <iterator>
 #include <ostream>
@@ -26,17 +25,6 @@ namespace senc::utils
 	template <typename Self>
 	concept TupleLike = requires { typename std::tuple_size<Self>::type; } &&
 		(std::tuple_size_v<Self> >= 0);
-
-	/**
-	 * @concept senc::utils::StdHashable
-	 * @brief Checks for a typename that can be hashed using `std::hash`.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept StdHashable = requires(const Self self)
-	{
-		{ std::declval<std::hash<Self>>()(self) } -> std::convertible_to<std::size_t>;
-	};
 
 	/**
 	 * @concept senc::utils::InputIterator
@@ -124,6 +112,16 @@ namespace senc::utils
 	{
 		{ self(std::declval<Args>()...) } -> RetConvertible<Ret>;
 	};
+
+	/**
+	 * @concept senc::utils::Equaler
+	 * @brief Checks for a typename which can be used to equality-check two instances of a given type.
+	 * @tparam Self Examined typename.
+	 * @tparam Value Typename to compare instances of using `Self`.
+	 * @tparam Other Typename to equality-check `Value` to, defaults to `Value`.
+	 */
+	template <typename Self, typename Value, typename Other = Value>
+	concept Equaler = ConstCallable<Self, bool, const Value&, const Other&>;
 
 	template <typename Self>
 	concept Copyable = requires(Self a, const Self b)

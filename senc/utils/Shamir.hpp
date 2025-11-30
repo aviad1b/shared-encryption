@@ -16,6 +16,7 @@
 #include "ModInt.hpp"
 #include "Group.hpp"
 #include "poly.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
@@ -31,7 +32,7 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept ShamirShardID = PolyInput<Self> && StdHashable<Self> &&
+	concept ShamirShardID = PolyInput<Self> && Hashable<Self> &&
 		EqualityComparable<Self> && BoolConvertible<Self>;
 
 	/**
