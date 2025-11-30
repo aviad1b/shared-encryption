@@ -454,6 +454,7 @@ namespace senc::utils
 		template <typename T, std::size_t chunkSize = 32>
 		requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			(HasFromBytes<T> && HasFixedBytesSize<T>) ||
 			TupleLike<T>)
 		void recv_connected_value(T& out);
 

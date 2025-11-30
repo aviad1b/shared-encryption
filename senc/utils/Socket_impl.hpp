@@ -136,6 +136,7 @@ namespace senc::utils
 	template <typename T, std::size_t chunkSize>
 	requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			(HasFromBytes<T> && HasFixedBytesSize<T>) ||
 			TupleLike<T>)
 	inline void Socket::recv_connected_value(T& out)
 	{
@@ -143,6 +144,8 @@ namespace senc::utils
 			out = recv_connected_str<T, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
 			out = recv_connected_primitive<T>();
+		else if constexpr (HasFromBytes<T> && HasFixedBytesSize<T>)
+			out = recv_connected_obj<T>();
 		else if constexpr (TupleLike<T>)
 			recv_connected_values<T, chunkSize>(out);
 		else
