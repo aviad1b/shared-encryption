@@ -89,4 +89,10 @@ namespace senc::utils
 				return std::hash<T>{}(value);
 		}
 	};
+
+	template <Hashable K, typename V, Equaler<K> KeyEq = std::equal_to<K>>
+	using HashMap = std::unordered_map<K, V, Hash<K>, KeyEq>;
+
+	template <Hashable K, Equaler<K> KeyEq = std::equal_to<K>>
+	using HashSet = std::unordered_set<K, Hash<K>, KeyEq>;
 }
