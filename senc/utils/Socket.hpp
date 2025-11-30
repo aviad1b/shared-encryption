@@ -339,6 +339,15 @@ namespace senc::utils
 		void send_connected_primitive(T value);
 
 		/**
+		 * @brief Sends an object instance throught (a connected) socket.
+		 * @tparam Obj Object type, must have a `to_bytes` method.
+		 * @param obj Object instance to send.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <HasToBytes Obj>
+		void send_connected_object(const Obj& obj);
+
+		/**
 		 * @brief Sends a value through (a connected) socket, using the fitting method.
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
@@ -346,6 +355,7 @@ namespace senc::utils
 		template <typename T>
 		requires (HasByteData<T> || StringType<T> ||
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			HasToBytes<T> ||
 			TupleLike<T>)
 		void send_connected_value(const T& value);
 
@@ -427,6 +437,16 @@ namespace senc::utils
 		T recv_connected_primitive();
 
 		/**
+		 * @brief Receives an object instance through (a connected) socket.
+		 * @tparam Obj Object type, must have a `from_bytes` and a `bytes_size` method.
+		 * @return Read object instance.
+		 * @throw senc::utils::SocketException On failure.
+		 */
+		template <HasFromBytes T>
+		requires HasFixedBytesSize<T>
+		T recv_connected_obj();
+
+		/**
 		 * @brief Recieves value through (a connected) socket, using the fitting method.
 		 * @tparam T Value type.
 		 * @param out Reference to store read value to.
@@ -434,6 +454,7 @@ namespace senc::utils
 		template <typename T, std::size_t chunkSize = 32>
 		requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			(HasFromBytes<T> && HasFixedBytesSize<T>) ||
 			TupleLike<T>)
 		void recv_connected_value(T& out);
 

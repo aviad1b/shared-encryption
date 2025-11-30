@@ -32,9 +32,16 @@ namespace senc::utils
 		send_connected(&value, sizeof(value));
 	}
 
+	template <HasToBytes Obj>
+	inline void Socket::send_connected_object(const Obj& obj)
+	{
+		send_connected(obj.to_bytes());
+	}
+
 	template <typename T>
 	requires (HasByteData<T> || StringType<T> ||
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			HasToBytes<T> ||
 			TupleLike<T>)
 	inline void Socket::send_connected_value(const T& value)
 	{
@@ -42,6 +49,8 @@ namespace senc::utils
 			send_connected_str(value);
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
 			send_connected_primitive(value);
+		else if constexpr (HasToBytes<T>)
+			send_connected_object(value);
 		else if constexpr (TupleLike<T>)
 			send_connected_values(value);
 		else
@@ -117,9 +126,17 @@ namespace senc::utils
 		return res;
 	}
 
+	template <HasFromBytes T>
+	requires HasFixedBytesSize<T>
+	inline T Socket::recv_connected_obj()
+	{
+		return T::from_bytes(recv_connected_exact(T::bytes_size()));
+	}
+
 	template <typename T, std::size_t chunkSize>
 	requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
+			(HasFromBytes<T> && HasFixedBytesSize<T>) ||
 			TupleLike<T>)
 	inline void Socket::recv_connected_value(T& out)
 	{
@@ -127,6 +144,8 @@ namespace senc::utils
 			out = recv_connected_str<T, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
 			out = recv_connected_primitive<T>();
+		else if constexpr (HasFromBytes<T> && HasFixedBytesSize<T>)
+			out = recv_connected_obj<T>();
 		else if constexpr (TupleLike<T>)
 			recv_connected_values<T, chunkSize>(out);
 		else

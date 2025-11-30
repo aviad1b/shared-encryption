@@ -75,6 +75,17 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::HasFixedBytesSize
+	 * @brief Looks for a typename which has a `bytes_size` method, telling its (serialized) bytes size.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HasFixedBytesSize = requires
+	{
+		{ Self::bytes_size() } -> std::convertible_to<std::size_t>;
+	};
+
+	/**
 	 * @brief Converts a fundamental/enum value to a buffer of bytes.
 	 * @param value Value to convert to bytes.
 	 * @return Bytes representation of `value`.
