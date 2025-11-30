@@ -49,10 +49,10 @@ namespace senc::utils
 			send_connected_str(value);
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
 			send_connected_primitive(value);
-		else if constexpr (TupleLike<T>)
-			send_connected_values(value);
 		else if constexpr (HasToBytes<T>)
 			send_connected_object(value);
+		else if constexpr (TupleLike<T>)
+			send_connected_values(value);
 		else
 			send_connected(value);
 	}
