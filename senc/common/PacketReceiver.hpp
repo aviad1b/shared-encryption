@@ -120,7 +120,11 @@ namespace senc
 			([this, &sock, &ret, code]
 			{
 				if (!ret.has_value() && Ts::CODE == code) // only check code if didn't get packet already
+				{
 					ret.emplace(recv_packet_data<kind, Ts>(sock));
+					return true;
+				}
+				return false;
 			}() || ...);
 
 			return ret;

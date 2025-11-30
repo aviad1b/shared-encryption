@@ -302,3 +302,75 @@ TEST(CommonTests, MultipleCyclesTest)
 	send_decryption_part_cycle(client, server);
 	logout_cycle(client, server);
 }
+
+TEST(CommonTests, LoginWithErrorsCycleTest)
+{
+	auto [client, server] = prepare_tcp();
+
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
+
+	pkt::LoginRequest req{ "username" };
+	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::ErrorResponse errResp{ "Some error message" };
+	pkt::LogoutResponse logoutResp{};
+
+	sender.send_request(client, req);
+	auto reqGot1 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot1.has_value());
+	EXPECT_EQ(reqGot1.value(), req);
+
+	sender.send_response(server, errResp);
+	auto respGot1 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_TRUE(respGot1.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::ErrorResponse>(*respGot1));
+	EXPECT_EQ(std::get<pkt::ErrorResponse>(*respGot1), errResp);
+
+	sender.send_request(client, req);
+	auto reqGot2 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot2.has_value());
+	EXPECT_EQ(reqGot2.value(), req);
+
+	sender.send_response(server, logoutResp);
+	auto respGot2 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_FALSE(respGot2.has_value());
+
+	sender.send_request(client, req);
+	auto reqGot3 = receiver.recv_request<pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot3.has_value());
+	EXPECT_EQ(reqGot3.value(), req);
+
+	sender.send_response(server, loginResp);
+	auto respGot3 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	EXPECT_TRUE(respGot3.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
+	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
+}
+
+TEST(CommonTests, TestRequestVariant)
+{
+	auto [client, server] = prepare_tcp();
+
+	InlinePacketReceiver receiver;
+	InlinePacketSender sender;
+
+	pkt::SignupRequest signupReq{ "username" };
+	pkt::LoginRequest loginReq{ "AAAAAAAA" };
+	pkt::LogoutRequest logoutReq{};
+
+	sender.send_request(client, signupReq);
+	auto reqGot1 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot1.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::SignupRequest>(*reqGot1));
+	EXPECT_EQ(std::get<pkt::SignupRequest>(*reqGot1), signupReq);
+
+	sender.send_request(client, loginReq);
+	auto reqGot2 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_TRUE(reqGot2.has_value());
+	EXPECT_TRUE(std::holds_alternative<pkt::LoginRequest>(*reqGot2));
+	EXPECT_EQ(std::get<pkt::LoginRequest>(*reqGot2), loginReq);
+
+	sender.send_request(client, logoutReq);
+	auto reqGot3 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	EXPECT_FALSE(reqGot3.has_value());
+}
