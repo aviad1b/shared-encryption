@@ -44,6 +44,13 @@ namespace senc::utils
 		return this->_str;
 	}
 
+	std::size_t UUID::hash() const noexcept
+	{
+		return Hash<std::string_view>()(
+			std::string_view(reinterpret_cast<const char*>(data()), size())
+		);
+	}
+
 	byte* UUID::data()
 	{
 		return this->_bytes.data();
