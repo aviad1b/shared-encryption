@@ -130,7 +130,7 @@ namespace senc::utils
 	requires HasFixedBytesSize<T>
 	inline T Socket::recv_connected_obj()
 	{
-		return T::from_bytes(recv_connected_exact(T::bytes_size()))
+		return T::from_bytes(recv_connected_exact(T::bytes_size()));
 	}
 
 	template <typename T, std::size_t chunkSize>
