@@ -10,6 +10,7 @@
 
 #include <ostream>
 #include <string>
+#include <array>
 #include <rpc.h>
 #include "Exception.hpp"
 #include "bytes.hpp"
@@ -128,9 +129,11 @@ namespace senc::utils
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 
 	private:
-		Underlying _value{};
+		std::array<byte, 16> _bytes{};
 		std::string _str;
 
 		UUID(const Underlying& value);
+
+		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
 	};
 }
