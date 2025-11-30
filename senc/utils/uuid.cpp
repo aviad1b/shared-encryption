@@ -20,6 +20,12 @@ namespace senc::utils
 			throw UUIDException("Bad UUID", value);
 	}
 
+	UUID::UUID(std::string&& value) : _str(std::move(value))
+	{
+		if (RPC_S_INVALID_STRING_UUID == UuidFromStringA((RPC_CSTR)_str.c_str(), &_value))
+			throw UUIDException("Bad UUID", value);
+	}
+
 	UUID::Self UUID::generate()
 	{
 		Underlying uuid{};

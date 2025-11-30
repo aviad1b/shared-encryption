@@ -65,6 +65,12 @@ namespace senc::utils
 		UUID(const std::string& value);
 
 		/**
+		 * @brief Constructs a UUID from a given (moved) string representation.
+		 * @param value String representation of UUID value (moved).
+		 */
+		UUID(std::string&& value);
+
+		/**
 		 * @brief Copy constructor of UUID.
 		 */
 		UUID(const Self&) = default;
