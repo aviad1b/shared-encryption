@@ -61,15 +61,25 @@ namespace senc::utils
 	 * @brief Custom hasher extending `std::hash`.
 	 */
 	template <typename T>
-	class Hash
+	class Hash { };
+
+	template <StdHashable T>
+	class Hash<T>
 	{
 	public:
-		std::size_t operator()(T value) const noexcept(HashableNoExcept<T>)
+		std::size_t operator()(T value) const noexcept(StdHashableNoExcept<T>)
 		{
-			if constexpr (HasHashMethod<T>)
-				return value.hash();
-			else
-				return std::hash<T>{}(value);
+			return std::hash<T>{}(value);
+		}
+	};
+
+	template <HasHashMethod T>
+	class Hash<T>
+	{
+	public:
+		std::size_t operator()(T value) const noexcept(HasHashMethodNoExcept<T>)
+		{
+			return value.hash();
 		}
 	};
 
