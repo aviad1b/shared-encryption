@@ -14,7 +14,7 @@
 
 namespace senc::utils
 {
-	std::string senc::utils::bytes_to_base64(const Buffer& bytes)
+	std::string bytes_to_base64(const Buffer& bytes)
 	{
 		std::string res;
 		CryptoPP::StringSource(
