@@ -1,4 +1,5 @@
 add_executable (senc_server
+	"ServerException.hpp"
 	"main.cpp"
 )
 
