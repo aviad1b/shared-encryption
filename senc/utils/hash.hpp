@@ -44,37 +44,6 @@ namespace senc::utils
 		{ senc::utils::Hash<Self>{}(self) } noexcept -> ConvertibleToNoExcept<std::size_t>;
 	};
 
-	namespace sfinae
-	{
-		template <typename T>
-		struct is_hashables_tuple : std::false_type { };
-
-		template <Hashable... Ts>
-		struct is_hashables_tuple<std::tuple<Ts...>> : std::true_type { };
-
-		template <typename T>
-		struct is_hashables_tuple_noexcept : std::false_type { };
-
-		template <HashableNoExcept... Ts>
-		struct is_hashables_tuple_noexcept<std::tuple<Ts...>> : std::true_type { };
-	}
-
-	/**
-	 * @concept senc::utils::HashablesTuple
-	 * @brief Checks for tuple of `Hashable` types.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HashablesTuple = sfinae::is_hashables_tuple<Self>::value;
-
-	/**
-	 * @concept senc::utils::HashablesTuple
-	 * @brief Checks for tuple of `HashableNoExcept` types.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HashablesTupleNoExcept = sfinae::is_hashables_tuple_noexcept<Self>::value;
-
 	/**
 	 * @concept senc::utils::StdHashable
 	 * @brief Checks for a typename that can be hashed using `std::hash`.
