@@ -27,4 +27,17 @@ namespace senc::utils
 		);
 		return res;
 	}
+
+	Buffer base64_to_bytes(const std::string& base64)
+	{
+		Buffer res;
+		CryptoPP::StringSource(
+			base64,
+			true,
+			new CryptoPP::Base64Decoder(
+				new CryptoPP::VectorSink(res)
+			)
+		);
+		return res;
+	}
 }
