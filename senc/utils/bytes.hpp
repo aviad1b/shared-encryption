@@ -169,7 +169,7 @@ namespace senc::utils
 	 * @param base64 Base64 string to decode into bytes.
 	 * @return Buffer of bytes.
 	 */
-	Buffer base64_to_bytes(const std::string& base64);
+	Buffer bytes_from_base64(const std::string& base64);
 }
 
 #include "bytes_impl.hpp"

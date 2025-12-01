@@ -28,7 +28,7 @@ namespace senc::utils
 		return res;
 	}
 
-	Buffer base64_to_bytes(const std::string& base64)
+	Buffer bytes_from_base64(const std::string& base64)
 	{
 		Buffer res;
 		CryptoPP::StringSource(
