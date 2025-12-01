@@ -57,26 +57,10 @@ namespace senc::utils
 	};
 
 	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept Hashable = HasHashMethod<Self> || StdHashable<Self>;
-
-	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HashableNoExcept = HasHashMethodNoExcept<Self> || StdHashableNoExcept<Self>;
-
-	/**
 	 * @class senc::utils::Hash
 	 * @brief Custom hasher extending `std::hash`.
 	 */
-	template <Hashable T>
+	template <typename T>
 	class Hash
 	{
 	public:
@@ -87,6 +71,28 @@ namespace senc::utils
 			else
 				return std::hash<T>{}(value);
 		}
+	};
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept Hashable = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } -> ConvertibleTo<std::size_t>;
+	};
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HashableNoExcept = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } noexcept -> ConvertibleToNoExcept<std::size_t>;
 	};
 
 	template <Hashable K, typename V, Equaler<K> KeyEq = std::equal_to<K>>
