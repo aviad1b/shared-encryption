@@ -156,6 +156,20 @@ namespace senc::utils
 	{
 		{ ::senc::utils::from_bytes<Self>(bytes) } -> std::convertible_to<Self>;
 	};
+
+	/**
+	 * @brief Converts a buffer of bytes to base64 representation.
+	 * @param bytes Buffer of bytes to encode in base64.
+	 * @return Base64 string.
+	 */
+	std::string bytes_to_base64(const Buffer& bytes);
+
+	/**
+	 * @brief Converts base64 representation to a buffer of bytes.
+	 * @param base64 Base64 string to decode into bytes.
+	 * @return Buffer of bytes.
+	 */
+	Buffer base64_to_bytes(const std::string& base64);
 }
 
 #include "bytes_impl.hpp"
