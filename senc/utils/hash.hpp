@@ -15,6 +15,35 @@
 namespace senc::utils
 {
 	/**
+	 * @class senc::utils::Hash
+	 * @brief Custom hasher extending `std::hash`.
+	 */
+	template <typename T>
+	class Hash { };
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept Hashable = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } -> ConvertibleTo<std::size_t>;
+	};
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HashableNoExcept = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } noexcept -> ConvertibleToNoExcept<std::size_t>;
+	};
+
+	/**
 	 * @concept senc::utils::StdHashable
 	 * @brief Checks for a typename that can be hashed using `std::hash`.
 	 * @tparam Self Examined typename.
@@ -56,13 +85,6 @@ namespace senc::utils
 		{ self.hash() } noexcept -> ConvertibleToNoExcept<std::size_t>;
 	};
 
-	/**
-	 * @class senc::utils::Hash
-	 * @brief Custom hasher extending `std::hash`.
-	 */
-	template <typename T>
-	class Hash { };
-
 	template <StdHashable T>
 	class Hash<T>
 	{
@@ -81,28 +103,6 @@ namespace senc::utils
 		{
 			return value.hash();
 		}
-	};
-
-	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept Hashable = requires(const Self self)
-	{
-		{ senc::utils::Hash<Self>{}(self) } -> ConvertibleTo<std::size_t>;
-	};
-
-	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HashableNoExcept = requires(const Self self)
-	{
-		{ senc::utils::Hash<Self>{}(self) } noexcept -> ConvertibleToNoExcept<std::size_t>;
 	};
 
 	template <Hashable K, typename V, Equaler<K> KeyEq = std::equal_to<K>>
