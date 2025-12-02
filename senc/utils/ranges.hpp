@@ -297,7 +297,7 @@ namespace senc::utils
 		 * @tparam R1 First joined range.
 		 * @tparam R2 Second joined range.
 		 */
-		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
 		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		class ConcatViewIterator
 		{
@@ -343,7 +343,7 @@ namespace senc::utils
 		 * @tparam R1 Type of first range that is iterated over.
 		 * @tparam Rs Types of rest of ranges that are iterated over.
 		 */
-		template <std::ranges::input_range R1, std::ranges::input_range... Rs>
+		template <std::ranges::range R1, std::ranges::range... Rs>
 		class JoinView : public JoinView<R1, JoinView<Rs...>>
 		{
 		public:
@@ -363,7 +363,7 @@ namespace senc::utils
 			explicit JoinView(R1&& r1, Rs&&... rs);
 		};
 
-		template <std::ranges::input_range R1, std::ranges::input_range R2>
+		template <std::ranges::range R1, std::ranges::range R2>
 		class JoinView<R1, R2> : public std::ranges::view_interface<JoinView<R1, R2>>
 		{
 		public:
