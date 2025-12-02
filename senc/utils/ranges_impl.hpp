@@ -259,6 +259,10 @@ namespace senc::utils
 				: this->_it2 == other._it2;
 		}
 
+		template <std::ranges::input_range R1, std::ranges::input_range ...Rs>
+		inline JoinView<R1, Rs...>::JoinView(R1&& r1, Rs&&... rs)
+			: Base(std::forward<R1>(r1), JoinView<Rs...>(std::forward<Rs...>(rs...))) { }
+
 		template <std::ranges::input_range R1, std::ranges::input_range R2>
 		inline JoinView<R1, R2>::JoinView(R1&& r1, R2&& r2)
 			: _r1(std::forward<R1>(r1)), _r2(std::forward<R2>(r2)) { }

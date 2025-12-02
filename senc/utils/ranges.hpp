@@ -349,6 +349,18 @@ namespace senc::utils
 		public:
 			using Self = JoinView<R1, Rs...>;
 			using Base = JoinView<R1, JoinView<Rs...>>;
+
+			JoinView() = default;
+
+			JoinView(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			JoinView(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit JoinView(R1&& r1, Rs&&... rs);
 		};
 
 		template <std::ranges::input_range R1, std::ranges::input_range R2>
