@@ -15,7 +15,7 @@ namespace senc::server
 	OperationID ShortTermServerStorage::new_operation(const std::string& requester)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxOperations);
-		auto opid = OperationID::generate([this](const auto& x) { return _operations.contains(x); });
+		auto opid = OperationID::generate(_operations);
 		_operations.insert(std::make_pair(opid, requester));
 		return opid;
 	}
@@ -58,7 +58,7 @@ namespace senc::server
 		// insert new userset to map
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsersets);
-			setID = UserSetID::generate([this](const auto& x) { return _usersets.contains(x); });
+			setID = UserSetID::generate(_usersets);
 			_usersets.insert(std::make_pair(
 				setID,
 				UserSetInfo{
