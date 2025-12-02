@@ -33,14 +33,14 @@ namespace senc::utils
 	}
 
 	template <RandomSamplable T>
-	inline T Random<T>::sample()
+	inline T Random<T>::sample() noexcept(HasSampleMethodNoExcept<T>)
 	requires HasSampleMethod<T>
 	{
 		return T::sample();
 	}
 
 	template <RandomSamplable T>
-	inline T Random<T>::sample()
+	inline T Random<T>::sample() noexcept
 	requires std::integral<T>
 	{
 		return sample_from_range(

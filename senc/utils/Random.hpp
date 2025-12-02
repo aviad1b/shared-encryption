@@ -220,13 +220,13 @@ namespace senc::utils
 		/**
 		 * @brief Samples random instance.
 		 */
-		static T sample()
+		static T sample() noexcept(HasSampleMethodNoExcept<T>)
 		requires HasSampleMethod<T>;
 
 		/**
 		 * @brief Samples random instance.
 		 */
-		static T sample()
+		static T sample() noexcept
 		requires std::integral<T>;
 
 		/**
