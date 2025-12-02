@@ -12,6 +12,7 @@
 #include "../utils/ranges.hpp"
 
 using senc::utils::views::enumerate;
+using senc::utils::views::join;
 using senc::utils::views::zip;
 using senc::utils::product;
 using senc::utils::sum;
@@ -85,4 +86,32 @@ TEST(Ranges, ZipTest)
 		EXPECT_EQ(a, x[i]);
 		EXPECT_EQ(b, y[i]);
 	}
+}
+
+TEST(Ranges, JoinTwoTest)
+{
+	std::vector<int> x{ 1, 2, 3, 4, 5 };
+	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
+
+	std::vector<int> all;
+	all.insert(all.end(), x.begin(), x.end());
+	all.insert(all.end(), y.begin(), y.end());
+
+	for (const auto& [i, elem] : join(x, y) | enumerate)
+		EXPECT_EQ(elem, all[i]);
+}
+
+TEST(Ranges, JoinThreeTest)
+{
+	std::vector<int> x{ 1, 2, 3, 4, 5 };
+	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
+	std::array<int, 2> z{ -8, 435 };
+
+	std::vector<int> all;
+	all.insert(all.end(), x.begin(), x.end());
+	all.insert(all.end(), y.begin(), y.end());
+	all.insert(all.end(), z.begin(), z.end());
+
+	for (const auto& [i, elem] : join(x, y, z) | enumerate)
+		EXPECT_EQ(elem, all[i]);
 }

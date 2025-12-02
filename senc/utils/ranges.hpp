@@ -287,6 +287,146 @@ namespace senc::utils
 		 */
 		inline constexpr ranges::ZipFn zip;
 	}
+
+	namespace ranges
+	{
+		/**
+		 * @class senc::utils::ranges::ConcatViewIterator
+		 * @brief Iterator type of `senc::utils::ranges::JoinView` with two range inputs.
+		 * @tparam isConst Whether iterator is over constants or not.
+		 * @tparam R1 First joined range.
+		 * @tparam R2 Second joined range.
+		 */
+		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		class ConcatViewIterator
+		{
+		public:
+			using Self = ConcatViewIterator<isConst, R1, R2>;
+			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
+			using It2 = std::ranges::iterator_t<std::conditional_t<isConst, const R2, R2>>;
+
+			using value_type = std::ranges::range_reference_t<R1>;
+			using difference_type = std::ptrdiff_t;
+			using iterator_category = std::input_iterator_tag;
+			using iterator_concept = std::input_iterator_tag;
+
+			ConcatViewIterator() = default;
+
+			ConcatViewIterator(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			ConcatViewIterator(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit ConcatViewIterator(bool inFirst, It1 it1, It1 end1, It2 it2);
+
+			value_type operator*() const;
+
+			Self& operator++();
+
+			Self operator++(int);
+
+			bool operator==(const Self& other) const;
+
+		private:
+			bool _inFirst;
+			It1 _it1, _end1;
+			It2 _it2;
+		};
+
+		/**
+		 * @class senc::utils::ranges::JoinView
+		 * @brief View range allowing iteration over multiple ranges, one after the other.
+		 * @tparam R1 Type of first range that is iterated over.
+		 * @tparam Rs Types of rest of ranges that are iterated over.
+		 */
+		template <std::ranges::range R1, std::ranges::range... Rs>
+		class JoinView : public JoinView<R1, JoinView<Rs...>>
+		{
+		public:
+			using Self = JoinView<R1, Rs...>;
+			using Base = JoinView<R1, JoinView<Rs...>>;
+
+			JoinView() = default;
+
+			JoinView(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			JoinView(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit JoinView(R1&& r1, Rs&&... rs);
+		};
+
+		template <std::ranges::range R1, std::ranges::range R2>
+		class JoinView<R1, R2> : public std::ranges::view_interface<JoinView<R1, R2>>
+		{
+		public:
+			using Self = JoinView<R1, R2>;
+
+			using iterator = ConcatViewIterator<false, R1, R2>;
+			using const_iterator = ConcatViewIterator<true, R1, R2>;
+
+			JoinView() = default;
+
+			JoinView(const Self&) = default;
+
+			Self& operator=(const Self&) = default;
+
+			JoinView(Self&&) = default;
+
+			Self& operator=(Self&&) = default;
+
+			explicit JoinView(R1&& r1, R2&& r2);
+
+			iterator begin();
+
+			iterator end();
+
+			const_iterator begin() const;
+
+			const_iterator end() const;
+
+		private:
+			R1 _r1;
+			R2 _r2;
+		};
+
+		// if given ranges, construct with an all view
+		template <std::ranges::range... Ranges>
+		JoinView(Ranges&&...) -> JoinView<std::views::all_t<Ranges>...>;
+
+		/**
+		 * @class senc::utils::ranges::JoinFn
+		 * @brief Closure type for `senc::utils::ranges::JoinView`.
+		 */
+		class JoinFn
+		{
+		public:
+			using Self = JoinFn;
+
+			JoinFn() noexcept = default;
+
+			template <std::ranges::range... Ranges>
+			constexpr auto operator()(Ranges&&... ranges) const
+			{
+				return JoinView(std::forward<Ranges>(ranges)...);
+			}
+		};
+	}
+
+	namespace views
+	{
+		/**
+		 * @brief Join view instance.
+		 */
+		inline constexpr ranges::JoinFn join;
+	}
 }
 
 #include "ranges_impl.hpp"
