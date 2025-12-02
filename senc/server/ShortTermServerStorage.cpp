@@ -56,13 +56,14 @@ namespace senc::server
 												  member_count_t ownersThreshold,
 												  member_count_t regMembersThreshold)
 	{
+		// lock users for entire function to prevent changes while working
+		// (e.g. we don't want member to get removed after we already checked it exists)
+		const std::lock_guard<std::mutex> usersLock(_mtxUsers);
+
 		// check if all members exist
 		for (const auto& member : utils::views::join(owners, regMembers))
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
 			if (!_users.contains(member))
 				throw ServerException("User " + member + " does not exist");
-		}
 
 		UserSetID setID;
 
@@ -83,10 +84,7 @@ namespace senc::server
 
 		// insert userset's ID to each owner's owned usersets set
 		for (const auto& owner : owners)
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
 			_users.at(owner).insert(setID);
-		}
 
 		// register shard IDs for all members
 		{
