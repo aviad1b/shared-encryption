@@ -58,7 +58,7 @@ namespace senc::server
 	{
 		UserSetID setID;
 
-		// insert new userset to map
+		// generate set ID and insert new userset to map
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsersets);
 			setID = UserSetID::generate(_usersets);
