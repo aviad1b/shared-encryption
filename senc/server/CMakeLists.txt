@@ -3,6 +3,8 @@ add_executable (senc_server
 	"IServerStorage.hpp"
 	"ShortTermServerStorage.hpp"
 	"ShortTermServerStorage.cpp"
+	"Server.hpp"
+	"Server.cpp"
 	"main.cpp"
 )
 
