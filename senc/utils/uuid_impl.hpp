@@ -10,7 +10,7 @@
 
 namespace senc::utils
 {
-	UUID::Self UUID::generate(Callable<bool, const Self&> auto&& existsPred)
+	inline UUID::Self UUID::generate(Callable<bool, const Self&> auto&& existsPred)
 	{
 		Self res = generate();
 		while (existsPred(res))
