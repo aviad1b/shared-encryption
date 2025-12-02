@@ -103,6 +103,13 @@ namespace senc::utils
 		static Self generate(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
+		 * @brief Generates a (random) UUID.
+		 * @param container An object containing UUIDs, to check if already exists.
+		 * @return Generated UUID.
+		 */
+		static Self generate(const HasContainsMethod<Self> auto& container);
+
+		/**
 		 * @brief Compares this UUID to another.
 		 * @param other Other UUID to compare to.
 		 * @return `true` if `*this` is the same UUID as `other`, otherwise `false`.

@@ -17,4 +17,9 @@ namespace senc::utils
 			res = generate();
 		return res;
 	}
+
+	inline UUID::Self UUID::generate(const HasContainsMethod<Self> auto& container)
+	{
+		return generate([&container](const Self& self) { return container.contains(self); });
+	}
 }
