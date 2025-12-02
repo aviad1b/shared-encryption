@@ -36,7 +36,7 @@ namespace senc::server
 	struct OperationInfo
 	{
 		std::string requester;
-		bool is_completed;
+		bool is_completed = false;
 	};
 
 	/**
