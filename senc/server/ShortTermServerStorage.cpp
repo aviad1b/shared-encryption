@@ -47,4 +47,10 @@ namespace senc::server
 		if (!inserted)
 			throw ServerException("Username " + username + " already exists");
 	}
+
+	bool ShortTermServerStorage::user_exists(const std::string& username)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		return _users.contains(username);
+	}
 }
