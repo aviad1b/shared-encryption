@@ -114,6 +114,30 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::HasContainsMethod
+	 * @brief Checks for a typename with a method that checks if contains a value.
+	 * @tparam Self Examined typename.
+	 * @tparam T Value type.
+	 */
+	template <typename Self, typename T>
+	concept HasContainsMethod = requires(const Self self, const T value)
+	{
+		{ self.contains(value) } -> BoolConvertible;
+	};
+
+	/**
+	 * @concept senc::utils::HasContainsMethodNoExcept
+	 * @brief Checks for a typename with a method that checks if contains a value, without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam T Value type.
+	 */
+	template <typename Self, typename T>
+	concept HasContainsMethodNoExcept = requires(const Self self, const T value)
+	{
+		{ self.contains(value) } noexcept -> BoolConvertibleNoExcept;
+	};
+
+	/**
 	 * @concept senc::utils::Equaler
 	 * @brief Checks for a typename which can be used to equality-check two instances of a given type.
 	 * @tparam Self Examined typename.
