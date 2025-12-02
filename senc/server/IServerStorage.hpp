@@ -30,6 +30,16 @@ namespace senc::server
 	};
 
 	/**
+	 * @struct senc::server::OperationInfo
+	 * @brief Used for holding/returning information about a requested operation.
+	 */
+	struct OperationInfo
+	{
+		std::string requester;
+		bool is_completed;
+	};
+
+	/**
 	 * @interface senc::server::IServerStorage
 	 * @brief Interface of server storage.
 	 */
@@ -46,11 +56,12 @@ namespace senc::server
 		virtual OperationID new_operation(const std::string& requester) = 0;
 
 		/**
-		 * @brief Removes registered operation.
-		 * @param opid Operation ID of operation to remove its registry.
+		 * @brief Gets information about a requested operation.
+		 * @param opid Operation ID of operation to get information about.
+		 * @return Operation information.
 		 * @throw ServerException In case of error.
 		 */
-		virtual void remove_operation(const OperationID& opid) = 0;
+		virtual OperationInfo get_operation_info(const OperationID& opid) = 0;
 
 		/**
 		 * @brief Registers new user.

@@ -24,7 +24,7 @@ namespace senc::server
 
 		OperationID new_operation(const std::string& requester) override;
 
-		void remove_operation(const OperationID& opid) override;
+		OperationInfo get_operation_info(const OperationID& opid) override;
 
 		void new_user(const std::string& username) override;
 
