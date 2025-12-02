@@ -8,6 +8,8 @@
 
 #include "ShortTermServerStorage.hpp"
 
+#include "../utils/ranges.hpp"
+
 namespace senc::server
 {
 	OperationID ShortTermServerStorage::new_operation(const std::string& requester)
@@ -91,24 +93,9 @@ namespace senc::server
 
 		// register shard IDs for all members
 		{
-			// TODO: Refactor this part once views::cat and sample_any exist
 			const std::lock_guard<std::mutex> lock(_mtxShardIDs);
 			auto& usersetShardsEntry = _usersetShardIDs[setID];
-			for (const auto& member : owners)
-			{
-				// generate unique shard ID for this userset
-				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-				while (usersetShardsEntry.contains(shardID))
-					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-
-				// register shard ID
-				usersetShardsEntry.insert(shardID);
-				_shardIDs.insert(std::make_pair(
-					std::make_tuple(member, setID),
-					shardID
-				));
-			}
-			for (const auto& member : regMembers)
+			for (const auto& member : utils::views::join(owners, regMembers))
 			{
 				// generate unique shard ID for this userset
 				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
