@@ -85,7 +85,7 @@ namespace senc::utils
 	 *       equivalent to calling a void function.
 	 */
 	template <typename Self, typename T>
-	concept RetConvertible = std::same_as<T, void> || std::convertible_to<Self, T>;
+	concept RetConvertible = std::same_as<T, void> || ConvertibleTo<Self, T>;
 
 	/**
 	 * @concept senc::utils::Callable
