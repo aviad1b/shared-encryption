@@ -163,6 +163,24 @@ namespace senc::utils
 		 */
 		T operator()() noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>);
 
+		/**
+		 * @brief Samples a random value from distribution, such that doesn't match a given predicate.
+		 * @param invalidPred A predicate that the sampled value shouldn't hold.
+		 * @return Sampled value.
+		 */
+		T operator()(Callable<bool, const T> auto&& invalidPred)
+			noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T> &&
+					 CallableNoExcept<std::remove_cvref_t<decltype(invalidPred)>, bool, const T>);
+
+		/**
+		 * @brief Samples a unique random value from distribution.
+		 * @param container Object containing existing values (to check uniqueness).
+		 * @return Sampled value.
+		 */
+		T operator()(const HasContainsMethod<T> auto& container)
+			noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T> &&
+					 HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, T>);
+
 	private:
 		UnderlyingDist<T> _dist;
 		DistEngine<T>& _engine;

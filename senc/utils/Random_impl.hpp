@@ -22,6 +22,25 @@ namespace senc::utils
 		return this->_dist(this->_engine);
 	}
 
+	template <DistVal T>
+	inline T Distribution<T>::operator()(Callable<bool, const T> auto&& invalidPred)
+		noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T> &&
+				 CallableNoExcept<std::remove_cvref_t<decltype(invalidPred)>, bool, const T>)
+	{
+		T res = (*this)();
+		while (invalidPred(res))
+			res = (*this)();
+		return res;
+	}
+
+	template <DistVal T>
+	inline T Distribution<T>::operator()(const HasContainsMethod<T> auto& container)
+		noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T> &&
+				 HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, T>)
+	{
+		return (*this)([&container](const T& value) { return container.contains(value); });
+	}
+
 	template <RandomSamplable T>
 	inline Distribution<T> Random<T>::get_dist() noexcept
 	requires std::integral<T>
