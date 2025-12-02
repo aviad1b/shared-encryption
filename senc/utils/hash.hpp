@@ -113,14 +113,14 @@ namespace senc::utils
 		std::size_t operator()(const std::tuple<Ts...>& value) const
 			noexcept((HashableNoExcept<Ts> && ...))
 		{
-			return hash_impl(std::index_sequence_for<Ts...>{});
+			return hash_impl(value, std::index_sequence_for<Ts...>{});
 		}
 
 	private:
 		template <std::size_t... Is>
-		std::size_t hash_impl(std::index_sequence<Is...>) const
+		std::size_t hash_impl(const std::tuple<Ts...>& value, std::index_sequence<Is...>) const
 		{
-			return ((Hash<Ts>{}() << Is) ^ ...);
+			return ((Hash<Ts>{}(std::get<Is>(value)) << Is) ^ ...);
 		}
 	};
 
