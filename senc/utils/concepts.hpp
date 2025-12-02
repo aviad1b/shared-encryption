@@ -76,6 +76,12 @@ namespace senc::utils
 		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
 	};
 
+	template <typename Self>
+	concept BoolConvertible = ConvertibleTo<Self, bool>;
+
+	template <typename Self>
+	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
+
 	/**
 	 * @concept senc::utils::RetConvertible
 	 * @brief Looks for a typename which is equivalent to another as a return type.
@@ -209,12 +215,6 @@ namespace senc::utils
 	{
 		{ os << self } -> std::convertible_to<std::ostream&>;
 	};
-
-	template <typename Self>
-	concept BoolConvertible = ConvertibleTo<Self, bool>;
-
-	template <typename Self>
-	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
 
 	template <typename Self>
 	concept DefaultConstructibleClass = std::is_default_constructible_v<Self> &&
