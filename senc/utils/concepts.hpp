@@ -112,6 +112,20 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::CallableNoExcept
+	 * @brief Checks for a typename which is callable with given arg types for given return type,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Ret Expected return type.
+	 * @tparam Args Expected argument types.
+	 */
+	template <typename Self, typename Ret, typename... Args>
+	concept CallableNoExcept = requires
+	{
+		{ std::declval<Self>()(std::declval<Args>()...) } noexcept -> RetConvertibleNoExcept<Ret>;
+	};
+
+	/**
 	 * @concept senc::utils::Callable
 	 * @brief Checks for a typename which is const-callable with given arg types for given return type.
 	 * @tparam Self Examined typename.
@@ -122,6 +136,20 @@ namespace senc::utils
 	concept ConstCallable = requires(const Self self)
 	{
 		{ self(std::declval<Args>()...) } -> RetConvertible<Ret>;
+	};
+
+	/**
+	 * @concept senc::utils::ConstCallableNoExcept
+	 * @brief Checks for a typename which is const-callable with given arg types for given return type,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Ret Expected return type.
+	 * @tparam Args Expected argument types.
+	 */
+	template <typename Self, typename Ret, typename... Args>
+	concept ConstCallableNoExcept = requires(const Self self)
+	{
+		{ self(std::declval<Args>()...) } noexcept -> RetConvertibleNoExcept<Ret>;
 	};
 
 	/**
