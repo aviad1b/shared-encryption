@@ -76,6 +76,12 @@ namespace senc::utils
 		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
 	};
 
+	template <typename Self>
+	concept BoolConvertible = ConvertibleTo<Self, bool>;
+
+	template <typename Self>
+	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
+
 	/**
 	 * @concept senc::utils::RetConvertible
 	 * @brief Looks for a typename which is equivalent to another as a return type.
@@ -85,7 +91,18 @@ namespace senc::utils
 	 *       equivalent to calling a void function.
 	 */
 	template <typename Self, typename T>
-	concept RetConvertible = std::same_as<T, void> || std::convertible_to<Self, T>;
+	concept RetConvertible = std::same_as<T, void> || ConvertibleTo<Self, T>;
+
+	/**
+	 * @concept senc::utils::RetConvertible
+	 * @brief Looks for a typename which is equivalent to another as a return type, without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam T Equivalent-in-question type.
+	 * @note `void` is ret-convertible to any typename, since calling any function is
+	 *       equivalent to calling a void function.
+	 */
+	template <typename Self, typename T>
+	concept RetConvertibleNoExcept = std::same_as<T, void> || ConvertibleToNoExcept<Self, T>;
 
 	/**
 	 * @concept senc::utils::Callable
@@ -101,6 +118,20 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::CallableNoExcept
+	 * @brief Checks for a typename which is callable with given arg types for given return type,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Ret Expected return type.
+	 * @tparam Args Expected argument types.
+	 */
+	template <typename Self, typename Ret, typename... Args>
+	concept CallableNoExcept = requires
+	{
+		{ std::declval<Self>()(std::declval<Args>()...) } noexcept -> RetConvertibleNoExcept<Ret>;
+	};
+
+	/**
 	 * @concept senc::utils::Callable
 	 * @brief Checks for a typename which is const-callable with given arg types for given return type.
 	 * @tparam Self Examined typename.
@@ -111,6 +142,44 @@ namespace senc::utils
 	concept ConstCallable = requires(const Self self)
 	{
 		{ self(std::declval<Args>()...) } -> RetConvertible<Ret>;
+	};
+
+	/**
+	 * @concept senc::utils::ConstCallableNoExcept
+	 * @brief Checks for a typename which is const-callable with given arg types for given return type,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Ret Expected return type.
+	 * @tparam Args Expected argument types.
+	 */
+	template <typename Self, typename Ret, typename... Args>
+	concept ConstCallableNoExcept = requires(const Self self)
+	{
+		{ self(std::declval<Args>()...) } noexcept -> RetConvertibleNoExcept<Ret>;
+	};
+
+	/**
+	 * @concept senc::utils::HasContainsMethod
+	 * @brief Checks for a typename with a method that checks if contains a value.
+	 * @tparam Self Examined typename.
+	 * @tparam T Value type.
+	 */
+	template <typename Self, typename T>
+	concept HasContainsMethod = requires(const Self self, const T value)
+	{
+		{ self.contains(value) } -> BoolConvertible;
+	};
+
+	/**
+	 * @concept senc::utils::HasContainsMethodNoExcept
+	 * @brief Checks for a typename with a method that checks if contains a value, without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam T Value type.
+	 */
+	template <typename Self, typename T>
+	concept HasContainsMethodNoExcept = requires(const Self self, const T value)
+	{
+		{ self.contains(value) } noexcept -> BoolConvertibleNoExcept;
 	};
 
 	/**
@@ -146,12 +215,6 @@ namespace senc::utils
 	{
 		{ os << self } -> std::convertible_to<std::ostream&>;
 	};
-
-	template <typename Self>
-	concept BoolConvertible = ConvertibleTo<Self, bool>;
-
-	template <typename Self>
-	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
 
 	template <typename Self>
 	concept DefaultConstructibleClass = std::is_default_constructible_v<Self> &&

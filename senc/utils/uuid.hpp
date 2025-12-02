@@ -96,17 +96,20 @@ namespace senc::utils
 		static Self generate();
 
 		/**
-		 * @brief Generates a (random) UUID.
+		 * @brief Generates a unique (random) UUID.
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
 		static Self generate(Callable<bool, const Self&> auto&& existsPred)
-		{
-			Self res = generate();
-			while (existsPred(res))
-				res = generate();
-			return res;
-		}
+			noexcept(CallableNoExcept<std::remove_cvref_t<decltype(existsPred)>, bool, const Self&>);
+
+		/**
+		 * @brief Generates a unique (random) UUID.
+		 * @param container An object containing UUIDs, to check if already exists.
+		 * @return Generated UUID.
+		 */
+		static Self generate(const HasContainsMethod<Self> auto& container)
+			noexcept(HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, Self>);
 
 		/**
 		 * @brief Compares this UUID to another.
@@ -157,3 +160,5 @@ namespace senc::utils
 		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
 	};
 }
+
+#include "uuid_impl.hpp"

@@ -180,6 +180,18 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::HasSampleMethod
+	 * @brief Looks for a typename of which an instance can be sampled using a `sample` method,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HasSampleMethodNoExcept = requires
+	{
+		{ Self::sample() } noexcept -> std::same_as<Self>;
+	};
+
+	/**
 	 * @concept senc::utils::RandomSamplable.
 	 * @brief Looks for a typename that can be sampled through the `Random` class in any way.
 	 * @tparam Self Examiend typename.
@@ -197,6 +209,25 @@ namespace senc::utils
 	{
 	public:
 		Random() = delete; // prevent instancing
+
+		/**
+		 * @brief Gets a sample distribution.
+		 * @note Requires `T` to be an integer type.
+		 */
+		static Distribution<T> get_dist() noexcept
+		requires std::integral<T>;
+
+		/**
+		 * @brief Samples random instance.
+		 */
+		static T sample() noexcept(HasSampleMethodNoExcept<T>)
+		requires HasSampleMethod<T>;
+
+		/**
+		 * @brief Samples random instance.
+		 */
+		static T sample() noexcept
+		requires std::integral<T>;
 
 		/**
 		 * @brief Gets a sample distribution within a given range [min, max].
