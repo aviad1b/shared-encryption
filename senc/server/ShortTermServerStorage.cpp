@@ -64,4 +64,13 @@ namespace senc::server
 		));
 		return id;
 	}
+
+	utils::HashSet<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		const auto it = _users.find(owner);
+		if (it == _users.end())
+			throw ServerException("User " + owner + "doesn't exist");
+		return it->second;
+	}
 }
