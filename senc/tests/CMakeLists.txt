@@ -11,6 +11,7 @@ add_executable(senc_tests
     "test_common.cpp"
     "tests_utils.hpp"
     "tests_utils.cpp"
+    "test_storage.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
