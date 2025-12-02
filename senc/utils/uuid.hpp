@@ -13,6 +13,7 @@
 #include <array>
 #include <rpc.h>
 #include "Exception.hpp"
+#include "concepts.hpp"
 #include "bytes.hpp"
 #include "hash.hpp"
 
@@ -93,6 +94,19 @@ namespace senc::utils
 		 * @return Generated UUID.
 		 */
 		static Self generate();
+
+		/**
+		 * @brief Generates a (random) UUID.
+		 * @param existsPred A predicate function checking if UUID already exists.
+		 * @return Generated UUID.
+		 */
+		static Self generate(Callable<bool, const Self&> auto&& existsPred)
+		{
+			Self res = generate();
+			while (existsPred(res))
+				res = generate();
+			return res;
+		}
 
 		/**
 		 * @brief Compares this UUID to another.
