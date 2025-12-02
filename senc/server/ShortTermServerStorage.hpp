@@ -22,6 +22,8 @@ namespace senc::server
 	public:
 		using Self = ShortTermServerStorage;
 
+		ShortTermServerStorage();
+
 		OperationID new_operation(const std::string& requester) override;
 
 		OperationInfo get_operation_info(const OperationID& opid) override;
@@ -44,6 +46,8 @@ namespace senc::server
 		PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) override;
 
 	private:
+		utils::Distribution<PrivKeyShardID> _shardsDist;
+
 		// map user to owned sets
 		std::mutex _mtxUsers;
 		utils::HashMap<std::string, utils::HashSet<UserSetID>> _users;

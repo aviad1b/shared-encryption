@@ -8,12 +8,17 @@
 
 #include "ShortTermServerStorage.hpp"
 
+#include "../utils/ranges.hpp"
+
 namespace senc::server
 {
+	ShortTermServerStorage::ShortTermServerStorage()
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_dist()) { }
+
 	OperationID ShortTermServerStorage::new_operation(const std::string& requester)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxOperations);
-		auto opid = OperationID::generate([this](const auto& x) { return _operations.contains(x); });
+		auto opid = OperationID::generate(_operations);
 		_operations.insert(std::make_pair(opid, requester));
 		return opid;
 	}
@@ -51,12 +56,21 @@ namespace senc::server
 												  member_count_t ownersThreshold,
 												  member_count_t regMembersThreshold)
 	{
+		// lock users for entire function to prevent changes while working
+		// (e.g. we don't want member to get removed after we already checked it exists)
+		const std::lock_guard<std::mutex> usersLock(_mtxUsers);
+
+		// check if all members exist
+		for (const auto& member : utils::views::join(owners, regMembers))
+			if (!_users.contains(member))
+				throw ServerException("User " + member + " does not exist");
+
 		UserSetID setID;
 
-		// insert new userset to map
+		// generate set ID and insert new userset to map
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsersets);
-			setID = UserSetID::generate([this](const auto& x) { return _usersets.contains(x); });
+			setID = UserSetID::generate(_usersets);
 			_usersets.insert(std::make_pair(
 				setID,
 				UserSetInfo{
@@ -68,52 +82,18 @@ namespace senc::server
 			));
 		}
 
-		// check if all members exist
-		for (const auto& member : owners)
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			if (!_users.contains(member))
-				throw ServerException("User " + member + " does not exist");
-		}
-		for (const auto& member : regMembers)
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			if (!_users.contains(member))
-				throw ServerException("User " + member + " does not exist");
-		}
-
 		// insert userset's ID to each owner's owned usersets set
 		for (const auto& owner : owners)
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
 			_users.at(owner).insert(setID);
-		}
 
 		// register shard IDs for all members
 		{
-			// TODO: Refactor this part once views::cat and sample_any exist
 			const std::lock_guard<std::mutex> lock(_mtxShardIDs);
 			auto& usersetShardsEntry = _usersetShardIDs[setID];
-			for (const auto& member : owners)
+			for (const auto& member : utils::views::join(owners, regMembers))
 			{
-				// generate unique shard ID for this userset
-				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-				while (usersetShardsEntry.contains(shardID))
-					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-
-				// register shard ID
-				usersetShardsEntry.insert(shardID);
-				_shardIDs.insert(std::make_pair(
-					std::make_tuple(member, setID),
-					shardID
-				));
-			}
-			for (const auto& member : regMembers)
-			{
-				// generate unique shard ID for this userset
-				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-				while (usersetShardsEntry.contains(shardID))
-					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+				// generate unique, non-zero shard ID for this userset
+				auto shardID = _shardsDist([](const auto& x) { return !x; }); // if !x, then x is invalid
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);
