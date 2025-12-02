@@ -102,6 +102,8 @@ namespace senc::server
 				));
 			}
 		}
+
+		return setID;
 	}
 
 	utils::HashSet<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
