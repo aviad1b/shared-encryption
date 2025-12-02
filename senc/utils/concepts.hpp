@@ -88,6 +88,17 @@ namespace senc::utils
 	concept RetConvertible = std::same_as<T, void> || ConvertibleTo<Self, T>;
 
 	/**
+	 * @concept senc::utils::RetConvertible
+	 * @brief Looks for a typename which is equivalent to another as a return type, without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam T Equivalent-in-question type.
+	 * @note `void` is ret-convertible to any typename, since calling any function is
+	 *       equivalent to calling a void function.
+	 */
+	template <typename Self, typename T>
+	concept RetConvertibleNoExcept = std::same_as<T, void> || ConvertibleToNoExcept<Self, T>;
+
+	/**
 	 * @concept senc::utils::Callable
 	 * @brief Checks for a typename which is callable with given arg types for given return type.
 	 * @tparam Self Examined typename.
