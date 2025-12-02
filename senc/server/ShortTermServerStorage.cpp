@@ -51,18 +51,57 @@ namespace senc::server
 												  member_count_t ownersThreshold,
 												  member_count_t regMembersThreshold)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUsersets);
-		auto id = UserSetID::generate([this](const auto& x) { return _usersets.contains(x); });
-		_usersets.insert(std::make_pair(
-			id,
-			UserSetInfo{
-				owners,
-				regMembers,
-				ownersThreshold,
-				regMembersThreshold
+		UserSetID setID;
+
+		// insert new userset to map
+		{
+			const std::lock_guard<std::mutex> lock(_mtxUsersets);
+			setID = UserSetID::generate([this](const auto& x) { return _usersets.contains(x); });
+			_usersets.insert(std::make_pair(
+				setID,
+				UserSetInfo{
+					owners,
+					regMembers,
+					ownersThreshold,
+					regMembersThreshold
+				}
+			));
+		}
+
+		// register shard IDs for all members
+		{
+			// TODO: Refactor this part once views::cat and sample_any exist
+			const std::lock_guard<std::mutex> lock(_mtxShardIDs);
+			auto& usersetShardsEntry = _usersetShardIDs[setID];
+			for (const auto& member : owners)
+			{
+				// generate unique shard ID for this userset
+				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+				while (usersetShardsEntry.contains(shardID))
+					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+
+				// register shard ID
+				usersetShardsEntry.insert(shardID);
+				_shardIDs.insert(std::make_pair(
+					std::make_tuple(member, setID),
+					shardID
+				));
 			}
-		));
-		return id;
+			for (const auto& member : regMembers)
+			{
+				// generate unique shard ID for this userset
+				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+				while (usersetShardsEntry.contains(shardID))
+					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+
+				// register shard ID
+				usersetShardsEntry.insert(shardID);
+				_shardIDs.insert(std::make_pair(
+					std::make_tuple(member, setID),
+					shardID
+				));
+			}
+		}
 	}
 
 	utils::HashSet<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
