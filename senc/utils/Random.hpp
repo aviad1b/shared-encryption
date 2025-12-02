@@ -199,6 +199,18 @@ namespace senc::utils
 		Random() = delete; // prevent instancing
 
 		/**
+		 * @brief Samples random instance.
+		 */
+		static T sample()
+		requires HasSampleMethod<T>;
+
+		/**
+		 * @brief Samples random instance.
+		 */
+		static T sample()
+		requires std::integral<T>;
+
+		/**
 		 * @brief Gets a sample distribution within a given range [min, max].
 		 * @note Requires `T` to be an integer type.
 		 */

@@ -8,6 +8,8 @@
 
 #include "Random.hpp"
 
+#include <limits>
+
 namespace senc::utils
 {
 	template <DistVal T>
@@ -18,6 +20,23 @@ namespace senc::utils
 	inline T Distribution<T>::operator()() noexcept(UnderlyingDistTypeNoExcept<UnderlyingDist<T>, T>)
 	{
 		return this->_dist(this->_engine);
+	}
+
+	template <RandomSamplable T>
+	inline T Random<T>::sample()
+	requires HasSampleMethod<T>
+	{
+		return T::sample();
+	}
+
+	template <RandomSamplable T>
+	inline T Random<T>::sample()
+	requires std::integral<T>
+	{
+		return sample_from_range(
+			std::numeric_limits<T>::min(),
+			std::numeric_limits<T>::max()
+		);
 	}
 
 	template <RandomSamplable T>
