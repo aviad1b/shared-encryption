@@ -180,6 +180,18 @@ namespace senc::utils
 	};
 
 	/**
+	 * @concept senc::utils::HasSampleMethod
+	 * @brief Looks for a typename of which an instance can be sampled using a `sample` method,
+	 *		  without throwing.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HasSampleMethodNoExcept = requires
+	{
+		{ Self::sample() } noexcept -> std::same_as<Self>;
+	};
+
+	/**
 	 * @concept senc::utils::RandomSamplable.
 	 * @brief Looks for a typename that can be sampled through the `Random` class in any way.
 	 * @tparam Self Examiend typename.
