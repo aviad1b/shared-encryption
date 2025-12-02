@@ -45,4 +45,23 @@ namespace senc::server
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		return _users.contains(username);
 	}
+
+	UserSetID ShortTermServerStorage::new_userset(const utils::HashSet<std::string>& owners,
+												  const utils::HashSet<std::string>& regMembers,
+												  member_count_t ownersThreshold,
+												  member_count_t regMembersThreshold)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUsersets);
+		auto id = UserSetID::generate([this](const auto& x) { return _usersets.contains(x); });
+		_usersets.insert(std::make_pair(
+			id,
+			UserSetInfo{
+				owners,
+				regMembers,
+				ownersThreshold,
+				regMembersThreshold
+			}
+		));
+		return id;
+	}
 }
