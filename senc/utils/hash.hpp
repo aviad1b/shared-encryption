@@ -10,10 +10,40 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <tuple>
 #include "concepts.hpp"
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::Hash
+	 * @brief Custom hasher extending `std::hash`.
+	 */
+	template <typename T>
+	class Hash { };
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept Hashable = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } -> ConvertibleTo<std::size_t>;
+	};
+
+	/**
+	 * @concept senc::utils::Hashable
+	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept HashableNoExcept = requires(const Self self)
+	{
+		{ senc::utils::Hash<Self>{}(self) } noexcept -> ConvertibleToNoExcept<std::size_t>;
+	};
+
 	/**
 	 * @concept senc::utils::StdHashable
 	 * @brief Checks for a typename that can be hashed using `std::hash`.
@@ -56,36 +86,41 @@ namespace senc::utils
 		{ self.hash() } noexcept -> ConvertibleToNoExcept<std::size_t>;
 	};
 
-	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept Hashable = HasHashMethod<Self> || StdHashable<Self>;
-
-	/**
-	 * @concept senc::utils::Hashable
-	 * @brief Checks for a typename that can be hashed using `Senc::utils::Hash`, without throwing.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept HashableNoExcept = HasHashMethodNoExcept<Self> || StdHashableNoExcept<Self>;
-
-	/**
-	 * @class senc::utils::Hash
-	 * @brief Custom hasher extending `std::hash`.
-	 */
-	template <Hashable T>
-	class Hash
+	template <StdHashable T>
+	class Hash<T>
 	{
 	public:
-		std::size_t operator()(T value) const noexcept(HashableNoExcept<T>)
+		std::size_t operator()(T value) const noexcept(StdHashableNoExcept<T>)
 		{
-			if constexpr (HasHashMethod<T>)
-				return value.hash();
-			else
-				return std::hash<T>{}(value);
+			return std::hash<T>{}(value);
+		}
+	};
+
+	template <HasHashMethod T>
+	class Hash<T>
+	{
+	public:
+		std::size_t operator()(T value) const noexcept(HasHashMethodNoExcept<T>)
+		{
+			return value.hash();
+		}
+	};
+
+	template <Hashable... Ts>
+	class Hash<std::tuple<Ts...>>
+	{
+	public:
+		std::size_t operator()(const std::tuple<Ts...>& value) const
+			noexcept((HashableNoExcept<Ts> && ...))
+		{
+			return hash_impl(value, std::index_sequence_for<Ts...>{});
+		}
+
+	private:
+		template <std::size_t... Is>
+		std::size_t hash_impl(const std::tuple<Ts...>& value, std::index_sequence<Is...>) const
+		{
+			return ((Hash<Ts>{}(std::get<Is>(value)) << Is) ^ ...);
 		}
 	};
 
