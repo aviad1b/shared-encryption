@@ -68,20 +68,25 @@ namespace senc::server
 			));
 		}
 
-		// insert userset's ID to each owner's owned usersets set;
-		// check if all users exist
+		// check if all members exist
+		for (const auto& member : owners)
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			for (const auto& owner : owners)
-			{
-				const auto it = _users.find(owner);
-				if (it == _users.end())
-					throw ServerException("User " + owner + " does not exist");
-				it->second.insert(setID);
-			}
-			for (const auto& regMember : regMembers)
-				if (!_users.contains(regMember))
-					throw ServerException("User " + regMember + " does not exist");
+			if (!_users.contains(member))
+				throw ServerException("User " + member + " does not exist");
+		}
+		for (const auto& member : regMembers)
+		{
+			const std::lock_guard<std::mutex> lock(_mtxUsers);
+			if (!_users.contains(member))
+				throw ServerException("User " + member + " does not exist");
+		}
+
+		// insert userset's ID to each owner's owned usersets set
+		for (const auto& owner : owners)
+		{
+			const std::lock_guard<std::mutex> lock(_mtxUsers);
+			_users.at(owner).insert(setID);
 		}
 
 		// register shard IDs for all members
