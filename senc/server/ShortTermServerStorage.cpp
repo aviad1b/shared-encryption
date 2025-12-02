@@ -56,6 +56,14 @@ namespace senc::server
 												  member_count_t ownersThreshold,
 												  member_count_t regMembersThreshold)
 	{
+		// check if all members exist
+		for (const auto& member : utils::views::join(owners, regMembers))
+		{
+			const std::lock_guard<std::mutex> lock(_mtxUsers);
+			if (!_users.contains(member))
+				throw ServerException("User " + member + " does not exist");
+		}
+
 		UserSetID setID;
 
 		// generate set ID and insert new userset to map
@@ -71,14 +79,6 @@ namespace senc::server
 					regMembersThreshold
 				}
 			));
-		}
-
-		// check if all members exist
-		for (const auto& member : utils::views::join(owners, regMembers))
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			if (!_users.contains(member))
-				throw ServerException("User " + member + " does not exist");
 		}
 
 		// insert userset's ID to each owner's owned usersets set
