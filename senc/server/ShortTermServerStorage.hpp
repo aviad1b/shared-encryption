@@ -58,7 +58,7 @@ namespace senc::server
 
 		// map user and userset to shard ID
 		std::mutex _mtxShardIDs;
-		utils::HashSet<PrivKeyShardID> _allShardIDs;
+		utils::HashMap<UserSetID, PrivKeyShardID> _usersetShardIDs;
 		utils::HashMap<std::tuple<std::string, UserSetID>, PrivKeyShardID> _shardIDs;
 	};
 }
