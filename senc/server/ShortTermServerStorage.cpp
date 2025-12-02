@@ -25,4 +25,13 @@ namespace senc::server
 		}
 		return opid;
 	}
+
+	OperationInfo ShortTermServerStorage::get_operation_info(const OperationID& opid)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxOperations);
+		const auto it = _operations.find(opid);
+		if (it == _operations.end())
+			throw ServerException("No operation with ID " + opid.to_string());
+		return it->second;
+	}
 }
