@@ -13,6 +13,10 @@
 
 namespace senc::server
 {
+	/**
+	 * @class senc::server::ShortTermServerStorage
+	 * @brief Implementation of `IServerStorage` which uses runtime memory only.
+	 */
 	class ShortTermServerStorage : public IServerStorage
 	{
 	public:
