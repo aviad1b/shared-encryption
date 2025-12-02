@@ -106,6 +106,24 @@ namespace senc::utils
 		}
 	};
 
+	template <Hashable... Ts>
+	class Hash<std::tuple<Ts...>>
+	{
+	public:
+		std::size_t operator()(const std::tuple<Ts...>& value) const
+			noexcept((HashableNoExcept<Ts> && ...))
+		{
+			return hash_impl(std::index_sequence_for<Ts...>{});
+		}
+
+	private:
+		template <std::size_t... Is>
+		std::size_t hash_impl(std::index_sequence<Is...>)
+		{
+			return ((Hash<Ts>{}() << Is) ^ ...);
+		}
+	};
+
 	template <Hashable K, typename V, Equaler<K> KeyEq = std::equal_to<K>>
 	using HashMap = std::unordered_map<K, V, Hash<K>, KeyEq>;
 
