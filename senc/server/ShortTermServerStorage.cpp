@@ -71,13 +71,7 @@ namespace senc::server
 		}
 
 		// check if all members exist
-		for (const auto& member : owners)
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			if (!_users.contains(member))
-				throw ServerException("User " + member + " does not exist");
-		}
-		for (const auto& member : regMembers)
+		for (const auto& member : utils::views::join(owners, regMembers))
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsers);
 			if (!_users.contains(member))
