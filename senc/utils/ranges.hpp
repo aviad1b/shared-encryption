@@ -321,7 +321,7 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit ConcatViewIterator(It1 it1, It1 end1, It2 it2);
+			explicit ConcatViewIterator(bool inFirst, It1 it1, It1 end1, It2 it2);
 
 			value_type operator*() const;
 
@@ -332,6 +332,7 @@ namespace senc::utils
 			bool operator==(const Self& other) const;
 
 		private:
+			bool _inFirst;
 			It1 _it1, _end1;
 			It2 _it2;
 		};
@@ -369,7 +370,7 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit JoinView(Ranges&&... ranges);
+			explicit JoinView(R1&& r1, R2&& r2);
 
 			iterator begin();
 
