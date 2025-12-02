@@ -96,14 +96,14 @@ namespace senc::utils
 		static Self generate();
 
 		/**
-		 * @brief Generates a (random) UUID.
+		 * @brief Generates a unique (random) UUID.
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
 		static Self generate(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
-		 * @brief Generates a (random) UUID.
+		 * @brief Generates a unique (random) UUID.
 		 * @param container An object containing UUIDs, to check if already exists.
 		 * @return Generated UUID.
 		 */
