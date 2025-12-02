@@ -118,7 +118,7 @@ namespace senc::utils
 
 	private:
 		template <std::size_t... Is>
-		std::size_t hash_impl(std::index_sequence<Is...>)
+		std::size_t hash_impl(std::index_sequence<Is...>) const
 		{
 			return ((Hash<Ts>{}() << Is) ^ ...);
 		}
