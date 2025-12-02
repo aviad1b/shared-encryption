@@ -130,4 +130,10 @@ namespace senc::server
 			throw ServerException("No userset with ID " + userset.to_string());
 		return it->second;
 	}
+
+	PrivKeyShardID ShortTermServerStorage::get_shard_id(const std::string& user, const UserSetID& userset)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxShardIDs);
+		return _shardIDs.at(std::make_tuple(user, userset));
+	}
 }
