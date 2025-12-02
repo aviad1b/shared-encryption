@@ -73,4 +73,13 @@ namespace senc::server
 			throw ServerException("User " + owner + "doesn't exist");
 		return it->second;
 	}
+
+	bool ShortTermServerStorage::user_owns_userset(const std::string& user, const UserSetID& userset)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		const auto it = _users.find(user);
+		if (it == _users.end())
+			throw ServerException("User " + user + "doesn't exist");
+		return it->second.contains(userset);
+	}
 }
