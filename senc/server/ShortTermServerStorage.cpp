@@ -12,6 +12,9 @@
 
 namespace senc::server
 {
+	ShortTermServerStorage::ShortTermServerStorage()
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_dist()) { }
+
 	OperationID ShortTermServerStorage::new_operation(const std::string& requester)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxOperations);
@@ -91,10 +94,8 @@ namespace senc::server
 			auto& usersetShardsEntry = _usersetShardIDs[setID];
 			for (const auto& member : utils::views::join(owners, regMembers))
 			{
-				// generate unique shard ID for this userset
-				auto shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
-				while (usersetShardsEntry.contains(shardID))
-					shardID = utils::Random<PrivKeyShardID>::sample_below(MAX_MEMBERS + 1) + 1;
+				// generate unique, non-zero shard ID for this userset
+				auto shardID = _shardsDist([](const auto& x) { return !x; }); // if !x, then x is invalid
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);
