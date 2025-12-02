@@ -23,6 +23,16 @@ namespace senc::utils
 	}
 
 	template <RandomSamplable T>
+	inline Distribution<T> Random<T>::get_dist() noexcept
+	requires std::integral<T>
+	{
+		return get_range_dist(
+			std::numeric_limits<T>::min(),
+			std::numeric_limits<T>::max()
+		);
+	}
+
+	template <RandomSamplable T>
 	inline T Random<T>::sample()
 	requires HasSampleMethod<T>
 	{
