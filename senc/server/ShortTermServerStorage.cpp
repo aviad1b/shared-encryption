@@ -68,6 +68,13 @@ namespace senc::server
 			));
 		}
 
+		// insert userset's ID to each owner's owned usersets set;
+		{
+			const std::lock_guard<std::mutex> lock(_mtxUsers);
+			for (const auto& owner : owners)
+				_users.at(owner).insert(setID);
+		}
+
 		// register shard IDs for all members
 		{
 			// TODO: Refactor this part once views::cat and sample_any exist
