@@ -100,13 +100,7 @@ namespace senc::utils
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(Callable<bool, const Self&> auto&& existsPred)
-		{
-			Self res = generate();
-			while (existsPred(res))
-				res = generate();
-			return res;
-		}
+		static Self generate(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
 		 * @brief Compares this UUID to another.
@@ -157,3 +151,5 @@ namespace senc::utils
 		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
 	};
 }
+
+#include "uuid_impl.hpp"

@@ -38,6 +38,7 @@
 	"Shamir_impl.hpp"
 	"uuid.hpp"
 	"uuid.cpp"
+	"uuid_impl.hpp"
 )
 
 target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
