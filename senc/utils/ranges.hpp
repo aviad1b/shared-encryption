@@ -298,7 +298,7 @@ namespace senc::utils
 		 * @tparam R2 Second joined range.
 		 */
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
-			requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		class ConcatViewIterator
 		{
 		public:

@@ -214,11 +214,13 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		inline ConcatViewIterator<isConst, R1, R2>::ConcatViewIterator(
 			bool inFirst, It1 it1, It1 end1, It2 it2)
 			: _inFirst(inFirst), _it1(it1), _end1(end1), _it2(it2) { }
 
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		inline ConcatViewIterator<isConst, R1, R2>::value_type
 			ConcatViewIterator<isConst, R1, R2>::operator*() const
 		{
@@ -226,6 +228,7 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self&
 			ConcatViewIterator<isConst, R1, R2>::operator++()
 		{
@@ -237,6 +240,7 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self
 			ConcatViewIterator<isConst, R1, R2>::operator++(int)
 		{
@@ -246,6 +250,7 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range R1, std::ranges::input_range R2>
+		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		inline bool ConcatViewIterator<isConst, R1, R2>::operator==(const Self& other) const
 		{
 			if (this->_inFirst != other._inFirst)
