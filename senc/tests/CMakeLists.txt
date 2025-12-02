@@ -12,6 +12,7 @@ add_executable(senc_tests
     "tests_utils.hpp"
     "tests_utils.cpp"
     "test_storage.cpp"
+    "../server/ShortTermServerStorage.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
