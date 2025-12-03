@@ -10,6 +10,9 @@
 
 namespace senc::server
 {
+	ClientHandlerFactory::ClientHandlerFactory(IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender)
+		: _storage(storage), _receiver(receiver), _sender(sender) { }
+
 	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(utils::Socket& sock)
 	{
 		return ConnectingClientHandler(
