@@ -80,6 +80,7 @@ namespace senc::server
 		/**
 		 * @brief Registers a finished decryption operation.
 		 * @param username Username of user who initiated the operation.
+		 * @param opid Operation ID.
 		 * @param usersetID ID of userset under which decrption occured.
 		 * @param parts1 Decryption parts for first layer (moved).
 		 * @param parts2 Decryption parts for second layer (moved).
