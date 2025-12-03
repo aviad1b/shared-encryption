@@ -51,6 +51,11 @@ namespace senc::server
 
 		enum class Status { Connected, Disconnected };
 
+		/**
+		 * @brief Runs a single iteration of the client loop.
+		 */
+		Status iteration();
+
 		Status handle_request(const pkt::LogoutRequest& request);
 
 		Status handle_request(const pkt::MakeUserSetRequest& request);

@@ -23,23 +23,31 @@ namespace senc::server
 		Status status = Status::Connected;
 		while (Status::Connected == status)
 		{
-			auto req = _receiver.recv_request<
-				pkt::LogoutRequest,
-				pkt::MakeUserSetRequest,
-				pkt::GetUserSetsRequest,
-				pkt::GetMembersRequest,
-				pkt::DecryptRequest,
-				pkt::UpdateRequest,
-				pkt::DecryptParticipateRequest,
-				pkt::SendDecryptionPartRequest
-			>(_sock);
+			status = iteration();
+		}
+	}
 
-			if (!req.has_value())
-				_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
-			else status = std::visit(
+	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
+	{
+		auto req = _receiver.recv_request<
+			pkt::LogoutRequest,
+			pkt::MakeUserSetRequest,
+			pkt::GetUserSetsRequest,
+			pkt::GetMembersRequest,
+			pkt::DecryptRequest,
+			pkt::UpdateRequest,
+			pkt::DecryptParticipateRequest,
+			pkt::SendDecryptionPartRequest
+		>(_sock);
+
+		if (req.has_value())
+			return std::visit(
 				[this](const auto& r) { return handle_request(r); },
 				*req
 			);
-		}
+
+		// if reached here, bad request
+		_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
+		return Status::Connected;
 	}
 }
