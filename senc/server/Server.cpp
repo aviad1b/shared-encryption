@@ -10,6 +10,13 @@
 
 namespace senc::server
 {
+	Server::Server(utils::Port listenPort,
+				   IServerStorage& storage,
+				   PacketReceiver& receiver,
+				   PacketSender& sender)
+		: _listenPort(listenPort), _storage(storage),
+		  _receiver(receiver), _sender(sender) { }
+
 	void Server::stop()
 	{
 		if (!_isRunning)
