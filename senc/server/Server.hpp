@@ -76,5 +76,9 @@ namespace senc::server
 		 * @param sock Socket connected to client (moved).
 		 */
 		void handle_new_client(Socket sock);
+
+		void client_loop(const pkt::LoginRequest& login);
+		
+		void client_loop(const pkt::LogoutRequest& logout);
 	};
 }
