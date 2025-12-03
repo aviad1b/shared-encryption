@@ -48,5 +48,28 @@ namespace senc::server
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;
+
+		enum class Status { Error, Disconnected, Connected };
+
+		/**
+		 * @brief Handles signup request.
+		 * @param signup Request to handle.
+		 * @return Connection handle status and client's user name (if connected).
+		 */
+		std::tuple<Status, std::string> handle_request(const pkt::SignupRequest signup);
+
+		/**
+		 * @brief Handles login request.
+		 * @param login Request to handle.
+		 * @return Connection handle status and client's user name (if connected).
+		 */
+		std::tuple<Status, std::string> handle_request(const pkt::LoginRequest login);
+
+		/**
+		 * @brief Handles logout request.
+		 * @param logout Request to handle.
+		 * @return Connection handle status and client's user name (if connected).
+		 */
+		std::tuple<Status, std::string> handle_request(const pkt::LogoutRequest logout);
 	};
 }
