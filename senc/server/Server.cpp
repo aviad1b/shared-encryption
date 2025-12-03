@@ -99,6 +99,18 @@ namespace senc::server
 		return true; // client connected
 	}
 
+	bool Server::client_connect(Socket& sock, const pkt::LoginRequest& login)
+	{
+		if (!_storage.user_exists(login.username))
+		{
+			_sender.send_response(sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadUsername });
+			return false; // client needs to send request again
+		}
+
+		_sender.send_response(sock, pkt::LoginResponse{ pkt::LoginResponse::Status::Success });
+		client_loop(sock, login.username);
+	}
+
 	bool Server::client_connect(Socket& sock, const pkt::LogoutRequest& logout)
 	{
 		(void)logout;
