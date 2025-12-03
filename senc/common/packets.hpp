@@ -467,16 +467,17 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
-			/// ID of userset under which decryption occurred.
-			UserSetID user_set_id; // TODO: Is this really needed?
-
 			/// Decryption parts for first layer (non-owner layer).
 			std::vector<DecryptionPart> parts1;
 
 			/// Decryption parts for second layer (owner layer).
 			std::vector<DecryptionPart> parts2;
 
-			// TODO: Missing shards IDs for both layers...
+			// Shards IDs used in parts of first layer.
+			std::vector<PrivKeyShardID> shardsIDs1;
+
+			// Shards IDs used in parts of second layer.
+			std::vector<PrivKeyShardID> shardsIDs2;
 		};
 
 		/// Finished decryptions requested by this client.
