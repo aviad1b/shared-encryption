@@ -48,5 +48,23 @@ namespace senc::server
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;
+
+		enum class Status { Connected, Disconnected };
+
+		Status handle_request(const pkt::LogoutRequest& request);
+
+		Status handle_request(const pkt::MakeUserSetRequest& request);
+
+		Status handle_request(const pkt::GetUserSetsRequest& request);
+
+		Status handle_request(const pkt::GetMembersRequest& request);
+
+		Status handle_request(const pkt::DecryptRequest& request);
+
+		Status handle_request(const pkt::UpdateRequest& request);
+
+		Status handle_request(const pkt::DecryptParticipateRequest& request);
+
+		Status handle_request(const pkt::SendDecryptionPartRequest& request);
 	};
 }

@@ -20,6 +20,26 @@ namespace senc::server
 
 	void ConnectedClientHandler::loop()
 	{
-		// TODO: Implement
+		Status status = Status::Connected;
+		while (Status::Connected == status)
+		{
+			auto req = _receiver.recv_request<
+				pkt::LogoutRequest,
+				pkt::MakeUserSetRequest,
+				pkt::GetUserSetsRequest,
+				pkt::GetMembersRequest,
+				pkt::DecryptRequest,
+				pkt::UpdateRequest,
+				pkt::DecryptParticipateRequest,
+				pkt::SendDecryptionPartRequest
+			>(_sock);
+
+			if (!req.has_value())
+				_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
+			else status = std::visit(
+				[this](const auto& r) { return handle_request(r); },
+				*req
+			);
+		}
 	}
 }
