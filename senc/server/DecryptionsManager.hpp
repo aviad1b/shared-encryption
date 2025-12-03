@@ -46,6 +46,13 @@ namespace senc::server
 			member_count_t required_reg_members;
 			utils::HashSet<std::string> owners_found;
 			utils::HashSet<std::string> reg_members_found;
+
+			PrepareRecord(Ciphertext&& ciphertext,
+						  member_count_t requiredOwners,
+						  member_count_t requiredRegMembers)
+				: ciphertext(std::move(ciphertext)),
+				  required_owners(requiredOwners),
+				  required_reg_members(requiredRegMembers) { }
 		};
 
 		/**
