@@ -77,8 +77,8 @@ namespace senc::server
 		 */
 		void handle_new_client(Socket sock);
 
-		void client_loop(const pkt::LoginRequest& login);
+		void client_loop(Socket& sock, const pkt::LoginRequest& login);
 		
-		void client_loop(const pkt::LogoutRequest& logout);
+		void client_loop(Socket& sock, const pkt::LogoutRequest& logout);
 	};
 }

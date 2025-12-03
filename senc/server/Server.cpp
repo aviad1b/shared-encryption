@@ -77,7 +77,7 @@ namespace senc::server
 
 		// call fitting client_loop implementation based on connection request
 		std::visit(
-			[this](const auto& req) { client_loop(req); },
+			[&sock, this](const auto& req) { client_loop(sock, req); },
 			*connReq
 		);
 	}
