@@ -6,6 +6,8 @@
  * \date   November 2025, Kislev 5786
  *********************************************************************/
 
+#pragma once
+
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
