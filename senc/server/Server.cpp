@@ -67,19 +67,24 @@ namespace senc::server
 
 	void Server::handle_new_client(Socket sock)
 	{
-		// connection request: Should either be login or logout (to disconnect)
-		auto connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
-		while (!connReq.has_value())
-		{
-			_sender.send_response(sock, pkt::ErrorResponse{ "Bad request" });
-			connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
-		}
+		bool handledClient = false;
 
-		// call fitting client_loop implementation based on connection request
-		std::visit(
-			[&sock, this](const auto& req) { client_connect(sock, req); },
-			*connReq
-		);
+		while (!handledClient)
+		{
+			// connection request: Should either be login or logout (to disconnect)
+			auto connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
+			while (!connReq.has_value())
+			{
+				_sender.send_response(sock, pkt::ErrorResponse{ "Bad request" });
+				connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
+			}
+
+			// call fitting client_loop implementation based on connection request
+			handledClient = std::visit(
+				[&sock, this](const auto& req) -> bool { return client_connect(sock, req); },
+				*connReq
+			);
+		}
 	}
 
 	bool Server::client_connect(Socket& sock, const pkt::SignupRequest& signup)
