@@ -252,7 +252,6 @@ namespace senc
 		sock.send_connected_value(static_cast<member_count_t>(record.parts1.size()));
 		sock.send_connected_value(static_cast<member_count_t>(record.parts2.size()));
 		sock.send_connected_value(record.op_id);
-		sock.send_connected_value(record.user_set_id);
 		for (const auto& part : record.parts1)
 			send_decryption_part(sock, part);
 		for (const auto& part : record.parts2)

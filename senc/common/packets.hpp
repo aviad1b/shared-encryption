@@ -467,9 +467,6 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
-			/// ID of userset under which decryption occurred.
-			UserSetID user_set_id; // TODO: Is this really needed?
-
 			/// Decryption parts for first layer (non-owner layer).
 			std::vector<DecryptionPart> parts1;
 

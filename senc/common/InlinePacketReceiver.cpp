@@ -277,7 +277,6 @@ namespace senc
 		auto parts1Count = sock.recv_connected_primitive<member_count_t>();
 		auto parts2Count = sock.recv_connected_primitive<member_count_t>();
 		sock.recv_connected_value(out.op_id);
-		sock.recv_connected_value(out.user_set_id);
 
 		// recv parts
 		out.parts1.resize(parts1Count);
