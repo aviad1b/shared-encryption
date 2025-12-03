@@ -17,6 +17,19 @@ namespace senc::server
 		: _listenPort(listenPort), _storage(storage),
 		  _receiver(receiver), _sender(sender) { }
 
+	void Server::start()
+	{
+		if (_isRunning)
+			throw ServerException("Server is already running");
+		
+		Socket listenSock;
+		listenSock.bind(_listenPort);
+		listenSock.listen();
+
+		std::thread acceptThread(&Self::accept_loop, this, std::ref(listenSock));
+		acceptThread.detach();
+	}
+
 	void Server::stop()
 	{
 		if (!_isRunning)
