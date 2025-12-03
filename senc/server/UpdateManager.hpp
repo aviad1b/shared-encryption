@@ -86,6 +86,7 @@ namespace senc::server
 		 * @param parts2 Decryption parts for second layer (moved).
 		 */
 		void register_finished_decrpytion(const std::string& username,
+										  const OperationID& opid,
 										  const UserSetID& usersetID,
 										  std::vector<DecryptionPart>&& parts1,
 										  std::vector<DecryptionPart>&& parts2);
