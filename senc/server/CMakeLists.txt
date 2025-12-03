@@ -9,6 +9,8 @@ add_executable (senc_server
 	"ConnectedClientHandler.cpp"
 	"ClientHandlerFactory.hpp"
 	"ClientHandlerFactory.cpp"
+	"UpdateManager.hpp"
+	"UpdateManager.cpp"
 	"Server.hpp"
 	"Server.cpp"
 	"main.cpp"
