@@ -23,11 +23,11 @@ namespace senc::server
 		do
 		{
 			// connection request: Should either be login or logout (to disconnect)
-			auto connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
+			auto connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(_sock);
 			while (!connReq.has_value())
 			{
 				_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
-				connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(sock);
+				connReq = _receiver.recv_request<pkt::LoginRequest, pkt::LogoutRequest>(_sock);
 			}
 
 			// call fitting client_loop implementation based on connection request
