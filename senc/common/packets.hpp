@@ -473,7 +473,11 @@ namespace senc::pkt
 			/// Decryption parts for second layer (owner layer).
 			std::vector<DecryptionPart> parts2;
 
-			// TODO: Missing shards IDs for both layers...
+			// Shards IDs used in parts of first layer.
+			std::vector<PrivKeyShardID> shardsIDs1;
+
+			// Shards IDs used in parts of second layer.
+			std::vector<PrivKeyShardID> shardsIDs2;
 		};
 
 		/// Finished decryptions requested by this client.

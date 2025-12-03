@@ -239,11 +239,15 @@ static void update_cycle(Socket& client, Socket& server)
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
 				{ ECGroup::identity().pow(3), ECGroup::identity().pow(4) },
 				{ ECGroup::identity().pow(5), ECGroup::identity().pow(6) },
+				{ 1, 2 },
+				{ 3, 4 }
 			},
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
 				{ ECGroup::identity().pow(8) },
 				{ },
+				{ 5 },
+				{ }
 			}
 		}
 	};
