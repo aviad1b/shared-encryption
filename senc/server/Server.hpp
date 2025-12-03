@@ -81,8 +81,10 @@ namespace senc::server
 		 * @brief Handles new client connection with login request.
 		 * @param sock Socket connected to client.
 		 * @param login Login request sent by client.
+		 * @return `true` if finished handling client,
+		 *		   otherwise `false` (if should go back to connection stage).
 		 */
-		void client_connect(Socket& sock, const pkt::LoginRequest& login);
+		bool client_connect(Socket& sock, const pkt::LoginRequest& login);
 		
 		/**
 		 * @brief Handles new client connection with logout request.
@@ -91,6 +93,6 @@ namespace senc::server
 		 * @return `true` if finished handling client,
 		 *		   otherwise `false` (if should go back to connection stage).
 		 */
-		void client_connect(Socket& sock, const pkt::LogoutRequest& logout);
+		bool client_connect(Socket& sock, const pkt::LogoutRequest& logout);
 	};
 }

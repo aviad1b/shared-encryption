@@ -82,9 +82,10 @@ namespace senc::server
 		);
 	}
 
-	void Server::client_connect(Socket& sock, const pkt::LogoutRequest& logout)
+	bool Server::client_connect(Socket& sock, const pkt::LogoutRequest& logout)
 	{
 		(void)logout;
 		_sender.send_response(sock, pkt::LogoutResponse{});
+		return true; // finished handling client
 	}
 }
