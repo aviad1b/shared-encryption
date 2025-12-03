@@ -8,11 +8,8 @@
 
 #pragma once
 
-#include "../common/PacketReceiver.hpp"
-#include "../common/PacketSender.hpp"
-#include "../utils/Socket.hpp"
+#include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
-#include "IServerStorage.hpp"
 #include <condition_variable>
 #include <atomic>
 #include <mutex>
@@ -58,9 +55,7 @@ namespace senc::server
 	private:
 		Socket _listenSock;
 		utils::Port _listenPort;
-		IServerStorage& _storage;
-		PacketReceiver& _receiver;
-		PacketSender& _sender;
+		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;

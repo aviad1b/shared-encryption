@@ -18,8 +18,8 @@ namespace senc::server
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
 				   PacketSender& sender)
-		: _listenPort(listenPort), _storage(storage),
-		  _receiver(receiver), _sender(sender)
+		: _listenPort(listenPort),
+		  _clientHandlerFactory(storage, receiver, sender)
 	{
 		_listenSock.bind(_listenPort);
 	}
@@ -69,12 +69,7 @@ namespace senc::server
 
 	void Server::handle_new_client(Socket sock)
 	{
-		ConnectingClientHandler handler(
-			sock,
-			_storage,
-			_receiver,
-			_sender
-		);
+		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
 		auto [connected, username] = handler.connect_client();
 		if (connected)
 			client_loop(sock, username);
@@ -82,13 +77,7 @@ namespace senc::server
 
 	void Server::client_loop(Socket& sock, const std::string& username)
 	{
-		ConnectedClientHandler handler(
-			sock,
-			username,
-			_storage,
-			_receiver,
-			_sender
-		);
+		auto handler = _clientHandlerFactory.make_connected_client_handler(sock, username);
 		handler.loop();
 	}
 }
