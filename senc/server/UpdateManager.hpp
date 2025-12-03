@@ -68,10 +68,12 @@ namespace senc::server
 		/**
 		 * @brief Registers a user's participance in a decryption operation.
 		 * @param username Username of user participating in decryption.
+		 * @param opid Operation ID.
 		 * @param ciphertext Ciphertext being decrypted.
 		 * @param shardsIDs IDs of key shards used in decryption.
 		 */
 		void register_decryption_participant(const std::string& username,
+											 const OperationID& opid,
 											 const Ciphertext& ciphertext,
 											 const std::vector<PrivKeyShardID>& shardsIDs);
 
