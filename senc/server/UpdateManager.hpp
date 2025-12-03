@@ -73,7 +73,7 @@ namespace senc::server
 		 */
 		void register_decryption_participant(const std::string& username,
 											 const Ciphertext& ciphertext,
-											 const std::vector<PrivKeyShardID> shardsIDs);
+											 const std::vector<PrivKeyShardID>& shardsIDs);
 
 		/**
 		 * @brief Registers a finished decryption operation.
