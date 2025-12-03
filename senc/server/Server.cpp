@@ -94,9 +94,8 @@ namespace senc::server
 			return false; // client needs to send request again
 		}
 
-		client_loop(sock, signup.username);
-
 		_sender.send_response(sock, pkt::SignupResponse{ pkt::SignupResponse::Status::Success });
+		client_loop(sock, signup.username);
 		return true; // client connected
 	}
 
