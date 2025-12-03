@@ -13,6 +13,7 @@
 #include "../utils/Socket.hpp"
 #include "IServerStorage.hpp"
 #include <condition_variable>
+#include <atomic>
 #include <mutex>
 
 namespace senc::server
@@ -58,7 +59,7 @@ namespace senc::server
 		IServerStorage& storage;
 		PacketReceiver& receiver;
 		PacketSender& sender;
-		bool _isRunning;
+		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
