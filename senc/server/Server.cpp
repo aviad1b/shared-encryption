@@ -20,7 +20,7 @@ namespace senc::server
 	void Server::stop()
 	{
 		if (!_isRunning)
-			return;
+			throw ServerException("Server is not running");
 		_isRunning = false;
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}

@@ -11,6 +11,7 @@
 #include "../common/PacketReceiver.hpp"
 #include "../common/PacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include "ServerException.hpp"
 #include "IServerStorage.hpp"
 #include <condition_variable>
 #include <atomic>
