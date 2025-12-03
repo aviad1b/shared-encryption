@@ -53,41 +53,49 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::LogoutRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::MakeUserSetRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetUserSetsRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetMembersRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::UpdateRequest& request)
 	{
+		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptParticipateRequest& request)
 	{
+		(void)request;
 		return Status();
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::SendDecryptionPartRequest& request)
 	{
+		(void)request;
 		return Status();
 	}
 }
