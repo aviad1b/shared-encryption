@@ -50,4 +50,44 @@ namespace senc::server
 		_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
 		return Status::Connected;
 	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::LogoutRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::MakeUserSetRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetUserSetsRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetMembersRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::UpdateRequest& request)
+	{
+		return Status::Connected; // TODO: Implement
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptParticipateRequest& request)
+	{
+		return Status();
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::SendDecryptionPartRequest& request)
+	{
+		return Status();
+	}
 }
