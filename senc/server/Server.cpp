@@ -82,7 +82,13 @@ namespace senc::server
 
 	void Server::client_loop(Socket& sock, const std::string& username)
 	{
-		ConnectedClientHandler handler(sock, username);
+		ConnectedClientHandler handler(
+			sock,
+			username,
+			_storage,
+			_receiver,
+			_sender
+		);
 		handler.loop();
 	}
 }

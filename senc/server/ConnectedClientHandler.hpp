@@ -26,8 +26,16 @@ namespace senc::server
 		 * @brief Constructs a new handler for a connected client.
 		 * @param sock Socket connected to client.
 		 * @param username Connected client's username.
+		 * @param storage Implementation of `IServerStorage`.
+		 * @param receiver Implementation of `PacketReceiver`.
+		 * @param sender Implementation of `PacketSender`.
+		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(utils::Socket& sock, const std::string& username);
+		explicit ConnectedClientHandler(utils::Socket& sock,
+										const std::string& username,
+										IServerStorage& storage,
+										PacketReceiver& receiver,
+										PacketSender& sender);
 
 		/**
 		 * @brief Runs client handlign loop.
@@ -37,5 +45,8 @@ namespace senc::server
 	private:
 		utils::Socket& _sock;
 		const std::string& _username;
+		IServerStorage& _storage;
+		PacketReceiver& _receiver;
+		PacketSender& _sender;
 	};
 }

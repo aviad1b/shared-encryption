@@ -10,8 +10,13 @@
 
 namespace senc::server
 {
-	ConnectedClientHandler::ConnectedClientHandler(utils::Socket& sock, const std::string& username)
-		: _sock(sock), _username(username) { }
+	ConnectedClientHandler::ConnectedClientHandler(utils::Socket& sock,
+												   const std::string& username,
+												   IServerStorage& storage,
+												   PacketReceiver& receiver,
+												   PacketSender& sender)
+		: _sock(sock), _username(username), _storage(storage),
+		  _receiver(receiver), _sender(sender) { }
 
 	void ConnectedClientHandler::loop()
 	{
