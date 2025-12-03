@@ -75,7 +75,7 @@ namespace senc::server
 		 * @return Ciphertext of decryption with operation ID `opid`.
 		 * @throw ServerException If `opid` doesn't exist.
 		 */
-		const Ciphertext& get_ciphertext(const OperationID& opid) const;
+		const Ciphertext& get_ciphertext(const OperationID& opid);
 
 		/**
 		 * @brief Registers a decryption part provided by a member.
