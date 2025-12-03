@@ -463,6 +463,8 @@ namespace senc::pkt
 
 			/// Decryption parts for second layer (owner layer).
 			std::vector<DecryptionPart> parts2;
+
+			// TODO: Missing shards IDs for both layers...
 		};
 
 		/// Finished decryptions requested by this client.
