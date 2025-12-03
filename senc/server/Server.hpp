@@ -78,16 +78,18 @@ namespace senc::server
 		void handle_new_client(Socket sock);
 
 		/**
-		 * @brief Connects new client by login.
+		 * @brief Handles new client connection with login request.
 		 * @param sock Socket connected to client.
 		 * @param login Login request sent by client.
 		 */
 		void client_connect(Socket& sock, const pkt::LoginRequest& login);
 		
 		/**
-		 * @brief "Connects" new client by logout (sends disconnect ack).
+		 * @brief Handles new client connection with logout request.
 		 * @param sock Socket connected to client.
 		 * @param logout Logout request sent by client.
+		 * @return `true` if finished handling client,
+		 *		   otherwise `false` (if should go back to connection stage).
 		 */
 		void client_connect(Socket& sock, const pkt::LogoutRequest& logout);
 	};
