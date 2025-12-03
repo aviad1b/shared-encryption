@@ -103,5 +103,12 @@ namespace senc::server
 		 *		   otherwise `false` (if should go back to connection stage).
 		 */
 		bool client_connect(Socket& sock, const pkt::LogoutRequest& logout);
+
+		/**
+		 * @brief Handles client requests in a loop.
+		 * @param sock Socket connected to client.
+		 * @param username Client's connected username.
+		 */
+		void client_loop(Socket& sock, const std::string& username);
 	};
 }
