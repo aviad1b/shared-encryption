@@ -56,6 +56,7 @@ namespace senc::server
 		void wait();
 
 	private:
+		Socket _listenSock;
 		utils::Port _listenPort;
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
@@ -67,9 +68,8 @@ namespace senc::server
 
 		/**
 		 * @brief Accepts new clients in a loop.
-		 * @param listenSock Socket used for listening (by ref).
 		 */
-		void accept_loop(Socket& listenSock);
+		void accept_loop();
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.

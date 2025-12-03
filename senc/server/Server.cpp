@@ -15,18 +15,19 @@ namespace senc::server
 				   PacketReceiver& receiver,
 				   PacketSender& sender)
 		: _listenPort(listenPort), _storage(storage),
-		  _receiver(receiver), _sender(sender) { }
+		  _receiver(receiver), _sender(sender)
+	{
+		_listenSock.bind(_listenPort);
+	}
 
 	void Server::start()
 	{
 		if (_isRunning)
 			throw ServerException("Server is already running");
 		
-		Socket listenSock;
-		listenSock.bind(_listenPort);
-		listenSock.listen();
+		_listenSock.listen();
 
-		std::thread acceptThread(&Self::accept_loop, this, std::ref(listenSock));
+		std::thread acceptThread(&Self::accept_loop, this);
 		acceptThread.detach();
 	}
 
