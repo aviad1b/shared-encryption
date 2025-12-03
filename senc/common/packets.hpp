@@ -406,9 +406,21 @@ namespace senc::pkt
 		 * @struct AddedAsOwnerRecord
 		 * @brief Record indicating user has been added as an owner to a user set.
 		 */
-		struct AddedAsOwnerRecord : AddedAsMemberRecord
+		struct AddedAsOwnerRecord
 		{
 			bool operator==(const AddedAsOwnerRecord&) const = default;
+
+			/// User set ID.
+			UserSetID user_set_id;
+
+			/// Public key of the set for first layer (non-owner layer) encryption.
+			PubKey pub_key1;
+
+			/// Public key of the set for second layer (owner layer) encryption.
+			PubKey pub_key2;
+
+			/// Private key shard for first layer (non-owner layer) decryption.
+			PrivKeyShard priv_key1_shard;
 
 			/// Private key shard for second layer (owner layer) decryption.
 			PrivKeyShard priv_key2_shard;
