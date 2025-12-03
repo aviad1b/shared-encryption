@@ -37,6 +37,9 @@ namespace senc::server
 			std::vector<DecryptionPart> parts2;
 			std::vector<PrivKeyShardID> shardsIDs2;
 
+			CollectedRecord(member_count_t requiredOwners, member_count_t requiredRegMembers)
+				: required_owners(requiredOwners), required_reg_members(requiredRegMembers) { }
+
 			bool has_enough_parts() const;
 		};
 
