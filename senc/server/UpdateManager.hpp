@@ -25,6 +25,13 @@ namespace senc::server
 		UpdateManager() = default;
 
 		/**
+		 * @brief Retrieves updates for a specific user.
+		 * @param username Username of user to retrieve updates for.s
+		 * @return Retireved updates.
+		 */
+		pkt::UpdateResponse retrieve_updates(const std::string& username);
+
+		/**
 		 * @brief Registers that a user was added to a userset as non-owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
