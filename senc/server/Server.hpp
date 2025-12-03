@@ -69,7 +69,7 @@ namespace senc::server
 		 * @brief Accepts new clients in a loop.
 		 * @param listenSock Socket used for listening (by ref).
 		 */
-		void accept_clients(Socket& listenSock);
+		void accept_loop(Socket& listenSock);
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
