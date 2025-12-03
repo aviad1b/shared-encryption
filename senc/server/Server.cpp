@@ -9,6 +9,7 @@
 #include "Server.hpp"
 
 #include <optional>
+#include "ConnectedClientHandler.hpp"
 
 namespace senc::server
 {
@@ -121,5 +122,11 @@ namespace senc::server
 		(void)logout;
 		_sender.send_response(sock, pkt::LogoutResponse{});
 		return true; // finished handling client
+	}
+
+	void Server::client_loop(Socket& sock, const std::string& username)
+	{
+		ConnectedClientHandler handler(sock, username);
+		handler.loop();
 	}
 }
