@@ -66,6 +66,12 @@ namespace senc::server
 		std::condition_variable _cvWait;
 
 		/**
+		 * @brief Accepts new clients in a loop.
+		 * @param listenSock Socket used for listening (by ref).
+		 */
+		void accept_clients(Socket& listenSock);
+
+		/**
 		 * @brief Handles a newly connected client, until it disconnects.
 		 * @param sock Socket connected to client (moved).
 		 */
