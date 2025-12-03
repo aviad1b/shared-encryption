@@ -10,5 +10,9 @@
 
 namespace senc::server
 {
-
+	ConnectingClientHandler::ConnectingClientHandler(utils::Socket& sock,
+													 IServerStorage& storage,
+													 PacketReceiver& receiver,
+													 PacketSender& sender)
+		: _sock(sock), _storage(storage), _receiver(receiver), _sender(sender) { }
 }
