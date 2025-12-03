@@ -8,6 +8,8 @@
 
 #include "Server.hpp"
 
+#include <optional>
+
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
@@ -47,5 +49,19 @@ namespace senc::server
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
+	}
+
+	void Server::accept_loop()
+	{
+		while (_isRunning)
+		{
+			std::optional<Socket> sock;
+			try { sock = _listenSock.accept(); }
+			catch (utils::SocketException&) { continue; }
+			// silently ignores failed accepts - might be due to server stop
+
+			std::thread handleClientThread(&Self::handle_new_client, this, std::move(*sock));
+			handleClientThread.detach();
+		}
 	}
 }
