@@ -77,8 +77,18 @@ namespace senc::server
 		 */
 		void handle_new_client(Socket sock);
 
+		/**
+		 * @brief Runs client loop for connected client.
+		 * @param sock Socket connected to client.
+		 * @param login Login request sent by client on connection.
+		 */
 		void client_loop(Socket& sock, const pkt::LoginRequest& login);
 		
+		/**
+		 * @brief Runs "client loop" for disconnected client (sends ack).
+		 * @param sock Socket connected to client.
+		 * @param logout Logout request sent by client on connection.
+		 */
 		void client_loop(Socket& sock, const pkt::LogoutRequest& logout);
 	};
 }
