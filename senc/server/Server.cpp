@@ -84,6 +84,7 @@ namespace senc::server
 
 	void Server::client_loop(Socket& sock, const pkt::LogoutRequest& logout)
 	{
+		(void)logout;
 		_sender.send_response(sock, pkt::LogoutResponse{});
 	}
 }
