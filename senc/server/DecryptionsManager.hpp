@@ -70,6 +70,14 @@ namespace senc::server
 								member_count_t requiredRegMembers);
 
 		/**
+		 * @brief Gets ciphertext of operation.
+		 * @param opid Operation ID.
+		 * @return Ciphertext of decryption with operation ID `opid`.
+		 * @throw ServerException If `opid` doesn't exist.
+		 */
+		const Ciphertext& get_ciphertext(const OperationID& opid) const;
+
+		/**
 		 * @brief Registers a decryption part provided by a member.
 		 * @param opid Decryption operation ID.
 		 * @param part Part provided by member.
