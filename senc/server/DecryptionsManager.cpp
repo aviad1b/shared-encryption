@@ -83,7 +83,7 @@ namespace senc::server
 
 		// register parts
 		const std::unique_lock<std::mutex> lock(_mtxCollected);
-		auto it = _collected.emplace(opid).first;
+		auto it = _collected.find(opid);
 		auto& record = it->second;
 		auto& parts = isOwner ? record.parts2 : record.parts1;
 		auto& shardsIDs = isOwner ? record.shardsIDs2 : record.shardsIDs1;
