@@ -11,6 +11,8 @@ add_executable (senc_server
 	"ClientHandlerFactory.cpp"
 	"UpdateManager.hpp"
 	"UpdateManager.cpp"
+	"DecryptionsManager.hpp"
+	"DecryptionsManager.cpp"
 	"Server.hpp"
 	"Server.cpp"
 	"main.cpp"
