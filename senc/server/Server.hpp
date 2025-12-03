@@ -78,6 +78,15 @@ namespace senc::server
 		void handle_new_client(Socket sock);
 
 		/**
+		 * @brief Handles new client connection with signup request.
+		 * @param sock Socket connected to client.
+		 * @param login Login request sent by client.
+		 * @return `true` if finished handling client,
+		 *		   otherwise `false` (if should go back to connection stage).
+		 */
+		bool client_connect(Socket& sock, const pkt::SignupRequest& signup);
+
+		/**
 		 * @brief Handles new client connection with login request.
 		 * @param sock Socket connected to client.
 		 * @param login Login request sent by client.

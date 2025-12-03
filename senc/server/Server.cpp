@@ -82,6 +82,24 @@ namespace senc::server
 		);
 	}
 
+	bool Server::client_connect(Socket& sock, const pkt::SignupRequest& signup)
+	{
+		// TODO: This should return fitting status if user exists,
+		//       requires change in storage
+
+		try { _storage.new_user(signup.username); }
+		catch (const ServerException& e)
+		{
+			_sender.send_response(sock, pkt::ErrorResponse{ e.what() });
+			return false; // client needs to send request again
+		}
+
+		// TODO: Add client loop call here
+
+		_sender.send_response(sock, pkt::SignupResponse{ pkt::SignupResponse::Status::Success });
+		return true; // client connected
+	}
+
 	bool Server::client_connect(Socket& sock, const pkt::LogoutRequest& logout)
 	{
 		(void)logout;
