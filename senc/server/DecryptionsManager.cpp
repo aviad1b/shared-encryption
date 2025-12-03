@@ -32,6 +32,7 @@ namespace senc::server
 	{
 		const std::unique_lock<std::mutex> lock(_mtxPrep);
 		_prep.emplace(opid, PrepareRecord{
+			requester,
 			std::move(ciphertext),
 			requiredOwners,
 			requiredRegMembers
@@ -61,6 +62,7 @@ namespace senc::server
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
+				record.requester,
 				record.required_owners,
 				record.required_reg_members
 			});

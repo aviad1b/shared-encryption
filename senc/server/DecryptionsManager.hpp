@@ -30,6 +30,7 @@ namespace senc::server
 		 */
 		struct CollectedRecord
 		{
+			std::string requester;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
 			std::vector<DecryptionPart> parts1;
@@ -37,8 +38,12 @@ namespace senc::server
 			std::vector<DecryptionPart> parts2;
 			std::vector<PrivKeyShardID> shardsIDs2;
 
-			CollectedRecord(member_count_t requiredOwners, member_count_t requiredRegMembers)
-				: required_owners(requiredOwners), required_reg_members(requiredRegMembers) { }
+			CollectedRecord(const std::string& requester,
+							member_count_t requiredOwners,
+							member_count_t requiredRegMembers)
+				: requester(requester),
+				  required_owners(requiredOwners),
+				  required_reg_members(requiredRegMembers) { }
 
 			bool has_enough_parts() const;
 		};
@@ -48,16 +53,19 @@ namespace senc::server
 		 */
 		struct PrepareRecord
 		{
+			std::string requester;
 			Ciphertext ciphertext;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
 			utils::HashSet<std::string> owners_found;
 			utils::HashSet<std::string> reg_members_found;
 
-			PrepareRecord(Ciphertext&& ciphertext,
+			PrepareRecord(const std::string& requester,
+						  Ciphertext&& ciphertext,
 						  member_count_t requiredOwners,
 						  member_count_t requiredRegMembers)
-				: ciphertext(std::move(ciphertext)),
+				: requester(requester),
+				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 
