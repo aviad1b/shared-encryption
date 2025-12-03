@@ -12,6 +12,18 @@
 
 namespace senc::server
 {
+	bool DecryptionsManager::PrepareRecord::has_enough_members() const
+	{
+		return owners_found.size() >= required_owners &&
+			reg_members_found.size() >= required_reg_members;
+	}
+
+	bool DecryptionsManager::CollectedRecord::has_enough_parts() const
+	{
+		return parts2.size() >= required_owners &&
+			parts1.size() >= required_reg_members;
+	}
+
 	void DecryptionsManager::register_operation(const OperationID& opid,
 												const std::string& requester,
 												Ciphertext&& ciphertext,
@@ -26,18 +38,37 @@ namespace senc::server
 		});
 	}
 
-	const Ciphertext& DecryptionsManager::get_ciphertext(const OperationID& opid)
+	std::optional<DecryptionsManager::PrepareRecord>
+		DecryptionsManager::register_participant(const OperationID& opid,
+												 const std::string& username,
+												 bool isOwner)
 	{
-		const std::unique_lock<std::mutex> lock(_mtxPrep);
+		std::optional<PrepareRecord> res;
+
+		// register participant
+		const std::unique_lock<std::mutex> lockPrep(_mtxPrep);
 		const auto it = _prep.find(opid);
+		auto& record = it->second;
 		if (it == _prep.end())
+			throw ServerException("No operation with ID " + opid.to_string());
+		if (isOwner)
+			record.owners_found.insert(username);
+		else
+			record.reg_members_found.insert(username);
+
+		// if has enough members, move from prepare stage to collect stage
+		if (record.has_enough_members())
 		{
-			throw ServerException(
-				"Failed to retrieve ciphertext for operation " + opid.to_string(),
-				"Either ID is invalid, or operation isn't currently looking for users"
-			);
+			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
+			_collected.emplace(opid, CollectedRecord{
+				record.required_owners,
+				record.required_reg_members
+			});
+			res.emplace(std::move(record));
+			_prep.erase(it);
 		}
-		return it->second.ciphertext;
+
+		return res;
 	}
 	
 	std::optional<DecryptionsManager::CollectedRecord>
@@ -49,24 +80,19 @@ namespace senc::server
 		std::optional<CollectedRecord> res;
 
 		// register parts
-		const std::unique_lock<std::mutex> lockColl(_mtxCollected);
-		auto collRecordIt = _collected.emplace(opid).first;
-		auto& collRecord = collRecordIt->second;
-		auto& parts = isOwner ? collRecord.parts2 : collRecord.parts1;
-		auto& shardsIDs = isOwner ? collRecord.shardsIDs2 : collRecord.shardsIDs1;
+		const std::unique_lock<std::mutex> lock(_mtxCollected);
+		auto it = _collected.emplace(opid).first;
+		auto& record = it->second;
+		auto& parts = isOwner ? record.parts2 : record.parts1;
+		auto& shardsIDs = isOwner ? record.shardsIDs2 : record.shardsIDs1;
 		parts.push_back(std::move(part));
 		shardsIDs.push_back(std::move(shardID));
 
-		// if has enough parts, remove records and return collect record
-		const std::unique_lock<std::mutex> lockPrep(_mtxPrep);
-		auto prepRecordIt = _prep.find(opid);
-		const auto& prepRecord = prepRecordIt->second;
-		if (collRecord.parts1.size() >= prepRecord.required_reg_members &&
-			collRecord.parts2.size() >= prepRecord.required_owners)
+		// if has enough parts, remove record and return collect record
+		if (record.has_enough_parts())
 		{
-			res.emplace(std::move(collRecord));
-			_collected.erase(collRecordIt);
-			_prep.erase(prepRecordIt);
+			res.emplace(std::move(record));
+			_collected.erase(it);
 		}
 
 		return res;

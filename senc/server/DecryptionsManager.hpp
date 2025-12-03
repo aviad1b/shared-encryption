@@ -30,10 +30,14 @@ namespace senc::server
 		 */
 		struct CollectedRecord
 		{
+			member_count_t required_owners;
+			member_count_t required_reg_members;
 			std::vector<DecryptionPart> parts1;
 			std::vector<PrivKeyShardID> shardsIDs1;
 			std::vector<DecryptionPart> parts2;
 			std::vector<PrivKeyShardID> shardsIDs2;
+
+			bool has_enough_parts() const;
 		};
 
 		/**
@@ -53,6 +57,8 @@ namespace senc::server
 				: ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
+
+			bool has_enough_members() const;
 		};
 
 		/**
@@ -70,12 +76,15 @@ namespace senc::server
 								member_count_t requiredRegMembers);
 
 		/**
-		 * @brief Gets ciphertext of operation.
+		 * @brief Registers a client that is willing to aprticipate in an operation.
 		 * @param opid Operation ID.
-		 * @return Ciphertext of decryption with operation ID `opid`.
-		 * @throw ServerException If `opid` doesn't exist.
+		 * @param username Participant's username.
+		 * @param isOwner Whether or not client is of an owner.
+		 * @return Record of prepared operation if has enough members, `std::nullopt` otherwise.
 		 */
-		const Ciphertext& get_ciphertext(const OperationID& opid);
+		std::optional<PrepareRecord> register_participant(const OperationID& opid,
+														  const std::string& username,
+														  bool isOwner);
 
 		/**
 		 * @brief Registers a decryption part provided by a member.
