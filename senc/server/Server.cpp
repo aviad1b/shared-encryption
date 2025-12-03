@@ -77,12 +77,12 @@ namespace senc::server
 
 		// call fitting client_loop implementation based on connection request
 		std::visit(
-			[&sock, this](const auto& req) { client_loop(sock, req); },
+			[&sock, this](const auto& req) { client_connect(sock, req); },
 			*connReq
 		);
 	}
 
-	void Server::client_loop(Socket& sock, const pkt::LogoutRequest& logout)
+	void Server::client_connect(Socket& sock, const pkt::LogoutRequest& logout)
 	{
 		(void)logout;
 		_sender.send_response(sock, pkt::LogoutResponse{});
