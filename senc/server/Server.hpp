@@ -12,6 +12,8 @@
 #include "../common/PacketSender.hpp"
 #include "../utils/Socket.hpp"
 #include "IServerStorage.hpp"
+#include <condition_variable>
+#include <mutex>
 
 namespace senc::server
 {
@@ -57,6 +59,9 @@ namespace senc::server
 		PacketReceiver& receiver;
 		PacketSender& sender;
 		bool _isRunning;
+
+		std::mutex _mtxWait;
+		std::condition_variable _cvWait;
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
