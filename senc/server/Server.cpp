@@ -36,6 +36,9 @@ namespace senc::server
 		if (!_isRunning)
 			throw ServerException("Server is not running");
 		_isRunning = false;
+
+		_listenSock.close(); // forces stop of any hanging accepts
+
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
