@@ -56,9 +56,9 @@ namespace senc::server
 
 	private:
 		utils::Port _listenPort;
-		IServerStorage& storage;
-		PacketReceiver& receiver;
-		PacketSender& sender;
+		IServerStorage& _storage;
+		PacketReceiver& _receiver;
+		PacketSender& _sender;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
