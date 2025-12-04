@@ -15,6 +15,7 @@
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
+				   Schema& schema,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
 				   PacketSender& sender,

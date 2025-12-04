@@ -27,6 +27,7 @@ namespace senc::server
 	public:
 		/**
 		 * @brief Constructs a new client handler factory.
+		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
@@ -34,7 +35,8 @@ namespace senc::server
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
-		explicit ClientHandlerFactory(IServerStorage& storage,
+		explicit ClientHandlerFactory(Schema& schema,
+									  IServerStorage& storage,
 									  PacketReceiver& receiver,
 									  PacketSender& sender,
 									  UpdateManager& updateManager,
@@ -55,6 +57,7 @@ namespace senc::server
 		ConnectedClientHandler make_connected_client_handler(utils::Socket& sock, const std::string& username);
 
 	private:
+		Schema& _schema;
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;

@@ -28,6 +28,7 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
+		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
@@ -36,6 +37,7 @@ namespace senc::server
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
+						Schema& schema,
 						IServerStorage& storage,
 						PacketReceiver& receiver,
 						PacketSender& sender,
