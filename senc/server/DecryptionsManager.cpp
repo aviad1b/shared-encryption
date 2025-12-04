@@ -26,6 +26,7 @@ namespace senc::server
 
 	void DecryptionsManager::register_operation(const OperationID& opid,
 												const std::string& requester,
+												const UserSetID& usersetID,
 												Ciphertext&& ciphertext,
 												member_count_t requiredOwners,
 												member_count_t requiredRegMembers)
@@ -33,6 +34,7 @@ namespace senc::server
 		const std::unique_lock<std::mutex> lock(_mtxPrep);
 		_prep.emplace(opid, PrepareRecord{
 			requester,
+			usersetID,
 			std::move(ciphertext),
 			requiredOwners,
 			requiredRegMembers
@@ -63,6 +65,7 @@ namespace senc::server
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
 				record.requester,
+				record.userset_id,
 				record.required_owners,
 				record.required_reg_members
 			});

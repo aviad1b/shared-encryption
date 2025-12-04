@@ -31,6 +31,7 @@ namespace senc::server
 		struct CollectedRecord
 		{
 			std::string requester;
+			UserSetID userset_id;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
 			std::vector<DecryptionPart> parts1;
@@ -39,9 +40,11 @@ namespace senc::server
 			std::vector<PrivKeyShardID> shardsIDs2;
 
 			CollectedRecord(const std::string& requester,
+							const UserSetID& usersetID,
 							member_count_t requiredOwners,
 							member_count_t requiredRegMembers)
 				: requester(requester),
+				  userset_id(usersetID),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 
@@ -54,6 +57,7 @@ namespace senc::server
 		struct PrepareRecord
 		{
 			std::string requester;
+			UserSetID userset_id;
 			Ciphertext ciphertext;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
@@ -61,10 +65,12 @@ namespace senc::server
 			utils::HashSet<std::string> reg_members_found;
 
 			PrepareRecord(const std::string& requester,
+						  const UserSetID& usersetID,
 						  Ciphertext&& ciphertext,
 						  member_count_t requiredOwners,
 						  member_count_t requiredRegMembers)
 				: requester(requester),
+				  userset_id(usersetID),
 				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
@@ -76,12 +82,14 @@ namespace senc::server
 		 * @brief Registers a new decryption operation.
 		 * @param opid Operation ID.
 		 * @param requester Username of requesting user.
+		 * @param usersetID ID of userset under which decryption is performed.
 		 * @param ciphertext Ciphertext being decrypted (moved).
 		 * @param requiredOwners Amount of owners required for performing the decryption.
 		 * @param requiredRegMembers Amount of non-owner members required for performing the decryption.
 		 */
 		void register_operation(const OperationID& opid,
 								const std::string& requester,
+								const UserSetID& usersetID,
 								Ciphertext&& ciphertext,
 								member_count_t requiredOwners,
 								member_count_t requiredRegMembers);
