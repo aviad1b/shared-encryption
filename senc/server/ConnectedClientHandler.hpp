@@ -85,7 +85,7 @@ namespace senc::server
 		 * @return Operation ID of initiated decryption operation.
 		 */
 		OperationID initiate_decryption(const UserSetID& usersetID,
-										const Ciphertext& ciphertext);
+										Ciphertext&& ciphertext);
 
 		/**
 		 * @brief Runs a single iteration of the client loop.
