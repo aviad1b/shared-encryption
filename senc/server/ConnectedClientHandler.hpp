@@ -94,6 +94,12 @@ namespace senc::server
 		void continue_operation(const DecryptionsManager::PrepareRecord& opPrepRecord);
 
 		/**
+		 * @brief Completes operation after collection stage.
+		 * @param opCollRecord Collection record of operation from decryptions manager.
+		 */
+		void finish_operation(const DecryptionsManager::CollectedRecord& opCollRecord);
+
+		/**
 		 * @brief Runs a single iteration of the client loop.
 		 */
 		Status iteration();
