@@ -89,7 +89,26 @@ namespace senc::server
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetUserSetsRequest& request)
 	{
 		(void)request;
-		return Status::Connected; // TODO: Implement
+
+		utils::HashSet<UserSetID> usersets;
+		try { usersets = _storage.get_usersets(_username); }
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to fetch usersets: ") + e.what()
+			});
+		}
+
+		pkt::GetUserSetsResponse response{};
+		response.user_sets_ids.insert(
+			response.user_sets_ids.end(),
+			usersets.begin(), usersets.end()
+		);
+		// TODO: Sort?
+
+		_sender.send_response(_sock, response);
+
+		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetMembersRequest& request)
