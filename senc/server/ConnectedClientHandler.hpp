@@ -60,6 +60,20 @@ namespace senc::server
 		enum class Status { Connected, Disconnected };
 
 		/**
+		 * @brief Creates a new userset.
+		 * @param owners Usernames of userset's owners.
+		 * @param regMembers Usernames of userset's non-owner members.
+		 * @param ownersThreshold Decryption threshold for owners layer.
+		 * @param regMembersThreshold Decryption threshold for non-owners layer.
+		 * @return ID of userset.
+		 * @throw ServerException In case of error.
+		 */
+		UserSetID make_userset(const utils::HashSet<std::string>& owners,
+							   const utils::HashSet<std::string>& regMembers,
+							   member_count_t ownersThreshold,
+							   member_count_t regMembersThreshold);
+
+		/**
 		 * @brief Runs a single iteration of the client loop.
 		 */
 		Status iteration();
