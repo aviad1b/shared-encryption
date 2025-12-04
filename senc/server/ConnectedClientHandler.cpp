@@ -97,6 +97,7 @@ namespace senc::server
 			_sender.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch usersets: ") + e.what()
 			});
+			return Status::Connected;
 		}
 
 		pkt::GetUserSetsResponse response{};
