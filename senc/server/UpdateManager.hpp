@@ -83,11 +83,15 @@ namespace senc::server
 		 * @param opid Operation ID.
 		 * @param parts1 Decryption parts for first layer (moved).
 		 * @param parts2 Decryption parts for second layer (moved).
+		 * @param shardsIDs1 Shards IDs used in first layer (moved).
+		 * @param shardsIDs2 Shards IDs used in second layer (moved).
 		 */
 		void register_finished_decrpytion(const std::string& username,
 										  const OperationID& opid,
 										  std::vector<DecryptionPart>&& parts1,
-										  std::vector<DecryptionPart>&& parts2);
+										  std::vector<DecryptionPart>&& parts2,
+										  std::vector<PrivKeyShardID>&& shardsIDs1,
+										  std::vector<PrivKeyShardID>&& shardsIDs2);
 
 	private:
 		// maps username to updates prepared so far

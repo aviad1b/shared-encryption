@@ -62,11 +62,14 @@ namespace senc::server
 	void UpdateManager::register_finished_decrpytion(const std::string& username,
 													 const OperationID& opid,
 													 std::vector<DecryptionPart>&& parts1,
-													 std::vector<DecryptionPart>&& parts2)
+													 std::vector<DecryptionPart>&& parts2,
+													 std::vector<PrivKeyShardID>&& shardsIDs1,
+													 std::vector<PrivKeyShardID>&& shardsIDs2)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].finished_decryptions.emplace_back(
-			opid, std::move(parts1), std::move(parts2)
+			opid, std::move(parts1), std::move(parts2),
+			std::move(shardsIDs1), std::move(shardsIDs2)
 		);
 	}
 }
