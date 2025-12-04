@@ -109,4 +109,23 @@ namespace senc::server
 
 		return res;
 	}
+
+	const UserSetID DecryptionsManager::get_operation_userset(const OperationID& opid)
+	{
+		{
+			std::unique_lock<std::mutex> lockPrep(_mtxPrep);
+			const auto itPrep = _prep.find(opid);
+			if (itPrep != _prep.end())
+				return itPrep->second.userset_id;
+		}
+
+		{
+			std::unique_lock<std::mutex> lockColl(_mtxCollected);
+			const auto itColl = _collected.find(opid);
+			if (itColl != _collected.end())
+				return itColl->second.userset_id;
+		}
+
+		throw ServerException("No operation with ID " + opid.to_string());
+	}
 }

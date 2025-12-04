@@ -117,6 +117,13 @@ namespace senc::server
 													 PrivKeyShardID&& shardID,
 													 bool isOwner);
 
+		/**
+		 * @brief Gets userset of operation.
+		 * @param opid Operation ID.
+		 * @return ID of userset under which operation is performed.
+		 */
+		const UserSetID get_operation_userset(const OperationID& opid);
+
 	private:
 		utils::HashMap<OperationID, PrepareRecord> _prep;
 		std::mutex _mtxPrep;
