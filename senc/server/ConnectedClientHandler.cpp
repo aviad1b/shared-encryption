@@ -217,7 +217,40 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::SendDecryptionPartRequest& request)
 	{
-		(void)request;
-		return Status();
+		std::optional<DecryptionsManager::CollectedRecord> opCollRecord;
+
+		try
+		{
+			auto userset = _decryptionsManager.get_operation_userset(request.op_id);
+			auto shardID = _storage.get_shard_id(_username, userset);
+
+			opCollRecord = _decryptionsManager.register_part(
+				request.op_id,
+				std::move(request.decryption_part),
+				std::move(shardID),
+				_storage.get_usersets(_username).contains(
+					userset
+				) // TODO: once again, storage should probably have a separate method for this purpose...
+			);
+		}
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to fetch operation: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		// if decryptions manager returned collection record, finalize operation
+		if (opCollRecord.has_value())
+		{
+			try { finish_operation(*opCollRecord); }
+			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
+		}
+
+		// finally, send ack
+		_sender.send_response(_sock, pkt::SendDecryptionPartResponse{});
+
+		return Status::Connected;
 	}
 }
