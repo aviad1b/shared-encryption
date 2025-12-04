@@ -88,6 +88,12 @@ namespace senc::server
 										Ciphertext&& ciphertext);
 
 		/**
+		 * @brief Moves operation from preperation stage to collecting stage.
+		 * @param opPrepRecord Preperation record of operation from decryptions manager.
+		 */
+		void continue_operation(const DecryptionsManager::PrepareRecord& opPrepRecord);
+
+		/**
 		 * @brief Runs a single iteration of the client loop.
 		 */
 		Status iteration();
