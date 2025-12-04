@@ -196,7 +196,7 @@ namespace senc::server
 		{
 			_sender.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch operation: ") + e.what()
-				});
+			});
 			return Status::Connected;
 		}
 
