@@ -30,12 +30,16 @@ namespace senc::server
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
+		 * @param updateManager Instance of `UpdateManager`.
+		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
 						IServerStorage& storage,
 						PacketReceiver& receiver,
-						PacketSender& sender);
+						PacketSender& sender,
+						UpdateManager& updateManager,
+						DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Starts the server (without waiting).

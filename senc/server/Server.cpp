@@ -17,9 +17,11 @@ namespace senc::server
 	Server::Server(utils::Port listenPort,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
-				   PacketSender& sender)
+				   PacketSender& sender,
+				   UpdateManager& updateManager,
+				   DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort),
-		  _clientHandlerFactory(storage, receiver, sender)
+		  _clientHandlerFactory(storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}

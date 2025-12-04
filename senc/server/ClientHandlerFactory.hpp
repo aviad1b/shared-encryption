@@ -13,6 +13,8 @@
 #include "../common/PacketReceiver.hpp"
 #include "../common/PacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include "DecryptionsManager.hpp"
+#include "UpdateManager.hpp"
 #include "IServerStorage.hpp"
 
 namespace senc::server
@@ -28,11 +30,15 @@ namespace senc::server
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
+		 * @param updateManager Instance of `UpdateManager`.
+		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit ClientHandlerFactory(IServerStorage& storage,
 									  PacketReceiver& receiver,
-									  PacketSender& sender);
+									  PacketSender& sender,
+									  UpdateManager& updateManager,
+									  DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
@@ -52,5 +58,7 @@ namespace senc::server
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;
+		UpdateManager& _updateManager;
+		DecryptionsManager& _decryptionsManager;
 	};
 }
