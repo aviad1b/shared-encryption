@@ -79,6 +79,15 @@ namespace senc::server
 											  member_count_t regMembersThreshold);
 
 		/**
+		 * @brief Initiates a decryption operation.
+		 * @param usersetID ID of userset under which decryption should be computed.
+		 * @param ciphertext Ciphertext to decrypt.
+		 * @return Operation ID of initiated decryption operation.
+		 */
+		OperationID initiate_decryption(const UserSetID& usersetID,
+										const Ciphertext& ciphertext);
+
+		/**
 		 * @brief Runs a single iteration of the client loop.
 		 */
 		Status iteration();
