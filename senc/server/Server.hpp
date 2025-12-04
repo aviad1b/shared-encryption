@@ -27,6 +27,7 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new server instance.
+		 * @param listenPort Port for server to listen on.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
