@@ -160,8 +160,19 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UpdateRequest& request)
 	{
-		(void)request;
-		return Status::Connected; // TODO: Implement
+		pkt::UpdateResponse response{};
+
+		try { response = _updateManager.retrieve_updates(_username); }
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to fetch updates: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		_sender.send_response(_sock, response);
+		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
