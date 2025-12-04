@@ -57,7 +57,8 @@ namespace senc::server
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::LogoutRequest& request)
 	{
 		(void)request;
-		return Status::Connected; // TODO: Implement
+		_sender.send_response(_sock, pkt::LogoutResponse{});
+		return Status::Disconnected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::MakeUserSetRequest& request)
