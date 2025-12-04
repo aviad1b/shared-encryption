@@ -177,8 +177,42 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
 	{
-		(void)request;
-		return Status();
+		std::optional<DecryptionsManager::PrepareRecord> opPrepRecord;
+
+		try
+		{
+			// TODO: Requirement check should be done here, 
+			// currently not supported by manager for simplicity
+			// (see pkt::DecryptParticipateResponse::Status)
+			opPrepRecord = _decryptionsManager.register_participant(
+				request.op_id,
+				_username,
+				_storage.get_usersets(_username).contains(
+					_decryptionsManager.get_operation_userset(request.op_id)
+				) // TODO: storage should probably have a separate method for this purpose...
+			);
+		}
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to fetch operation: ") + e.what()
+				});
+			return Status::Connected;
+		}
+
+		// if decryptions manager returned a prep record, continue to collection stage
+		if (opPrepRecord.has_value())
+		{
+			try { continue_operation(*opPrepRecord); }
+			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
+		}
+
+		// finally, send ack (ask client to send decryption part next (in fitting update))
+		_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+			pkt::DecryptParticipateResponse::Status::SendPart
+		});
+
+		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::SendDecryptionPartRequest& request)
