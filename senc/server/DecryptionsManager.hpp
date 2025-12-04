@@ -124,5 +124,8 @@ namespace senc::server
 
 		utils::HashMap<OperationID, CollectedRecord> _collected;
 		std::mutex _mtxCollected;
+
+		utils::HashSet<OperationID> _allOpIDs;
+		std::mutex _mtxAllOpIDs;
 	};
 }

@@ -31,14 +31,20 @@ namespace senc::server
 												member_count_t requiredOwners,
 												member_count_t requiredRegMembers)
 	{
-		const std::unique_lock<std::mutex> lock(_mtxPrep);
-		_prep.emplace(opid, PrepareRecord{
-			requester,
-			usersetID,
-			std::move(ciphertext),
-			requiredOwners,
-			requiredRegMembers
-		});
+		{
+			const std::unique_lock<std::mutex> lock(_mtxAllOpIDs);
+			_allOpIDs.insert(opid);
+		}
+		{
+			const std::unique_lock<std::mutex> lock(_mtxPrep);
+			_prep.emplace(opid, PrepareRecord{
+				requester,
+				usersetID,
+				std::move(ciphertext),
+				requiredOwners,
+				requiredRegMembers
+				});
+		}
 	}
 
 	std::optional<DecryptionsManager::PrepareRecord>
