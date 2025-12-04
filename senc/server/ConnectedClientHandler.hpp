@@ -68,8 +68,8 @@ namespace senc::server
 		 * @return ID of userset.
 		 * @throw ServerException In case of error.
 		 */
-		UserSetID make_userset(const utils::HashSet<std::string>& owners,
-							   const utils::HashSet<std::string>& regMembers,
+		UserSetID make_userset(const std::vector<std::string>& owners,
+							   const std::vector<std::string>& regMembers,
 							   member_count_t ownersThreshold,
 							   member_count_t regMembersThreshold);
 
