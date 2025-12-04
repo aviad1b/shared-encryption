@@ -24,12 +24,12 @@ namespace senc::server
 			parts1.size() >= required_reg_members;
 	}
 
-	void DecryptionsManager::register_operation(const OperationID& opid,
-												const std::string& requester,
-												const UserSetID& usersetID,
-												Ciphertext&& ciphertext,
-												member_count_t requiredOwners,
-												member_count_t requiredRegMembers)
+	void DecryptionsManager::register_new_operation(const OperationID& opid,
+													const std::string& requester,
+													const UserSetID& usersetID,
+													Ciphertext&& ciphertext,
+													member_count_t requiredOwners,
+													member_count_t requiredRegMembers)
 	{
 		{
 			const std::unique_lock<std::mutex> lock(_mtxAllOpIDs);

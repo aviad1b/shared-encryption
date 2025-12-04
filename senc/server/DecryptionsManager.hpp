@@ -87,12 +87,12 @@ namespace senc::server
 		 * @param requiredOwners Amount of owners required for performing the decryption.
 		 * @param requiredRegMembers Amount of non-owner members required for performing the decryption.
 		 */
-		void register_operation(const OperationID& opid,
-								const std::string& requester,
-								const UserSetID& usersetID,
-								Ciphertext&& ciphertext,
-								member_count_t requiredOwners,
-								member_count_t requiredRegMembers);
+		void register_new_operation(const OperationID& opid,
+									const std::string& requester,
+									const UserSetID& usersetID,
+									Ciphertext&& ciphertext,
+									member_count_t requiredOwners,
+									member_count_t requiredRegMembers);
 
 		/**
 		 * @brief Registers a client that is willing to aprticipate in an operation.
