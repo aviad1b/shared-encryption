@@ -49,21 +49,6 @@ namespace senc::server
 		virtual ~IServerStorage() { }
 
 		/**
-		 * @brief Registers a new decryption operation.
-		 * @param requester Username of requesting user.
-		 * @throw ServerException In case of error.
-		 */
-		virtual OperationID new_operation(const std::string& requester) = 0;
-
-		/**
-		 * @brief Gets information about a requested operation.
-		 * @param opid Operation ID of operation to get information about.
-		 * @return Operation information.
-		 * @throw ServerException In case of error.
-		 */
-		virtual OperationInfo get_operation_info(const OperationID& opid) = 0;
-
-		/**
 		 * @brief Registers new user.
 		 * @param username Username for user.
 		 * @throw ServerException In case of error.

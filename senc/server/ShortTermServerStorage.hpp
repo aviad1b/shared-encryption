@@ -24,10 +24,6 @@ namespace senc::server
 
 		ShortTermServerStorage();
 
-		OperationID new_operation(const std::string& requester) override;
-
-		OperationInfo get_operation_info(const OperationID& opid) override;
-
 		void new_user(const std::string& username) override;
 
 		bool user_exists(const std::string& username) override;
