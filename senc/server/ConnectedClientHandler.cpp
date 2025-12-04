@@ -143,8 +143,19 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptRequest& request)
 	{
-		(void)request;
-		return Status::Connected; // TODO: Implement
+		OperationID opid{};
+
+		try { opid = initiate_decryption(request.user_set_id, std::move(request.ciphertext)); }
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to initiate decryption operation: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		_sender.send_response(_sock, pkt::DecryptResponse{ opid });
+		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UpdateRequest& request)
