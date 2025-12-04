@@ -11,8 +11,10 @@
 #include "../common/PacketReceiver.hpp"
 #include "../common/PacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include "DecryptionsManager.hpp"
 #include "ServerException.hpp"
 #include "IServerStorage.hpp"
+#include "UpdateManager.hpp"
 
 namespace senc::server
 {
@@ -29,13 +31,17 @@ namespace senc::server
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
+		 * @param updateManager Instance of `UpdateManager`.
+		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit ConnectedClientHandler(utils::Socket& sock,
 										const std::string& username,
 										IServerStorage& storage,
 										PacketReceiver& receiver,
-										PacketSender& sender);
+										PacketSender& sender,
+										UpdateManager& updateManager,
+										DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Runs client handlign loop.
@@ -48,6 +54,8 @@ namespace senc::server
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;
+		UpdateManager& _updateManager;
+		DecryptionsManager& _decryptionsManager;
 
 		enum class Status { Connected, Disconnected };
 

@@ -35,7 +35,9 @@ namespace senc::server
 			username,
 			_storage,
 			_receiver,
-			_sender
+			_sender,
+			_updateManager,
+			_decryptionsManager
 		);
 	}
 }

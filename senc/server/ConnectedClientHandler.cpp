@@ -14,9 +14,12 @@ namespace senc::server
 												   const std::string& username,
 												   IServerStorage& storage,
 												   PacketReceiver& receiver,
-												   PacketSender& sender)
+												   PacketSender& sender,
+												   UpdateManager& updateManager,
+												   DecryptionsManager& decryptionsManager)
 		: _sock(sock), _username(username), _storage(storage),
-		  _receiver(receiver), _sender(sender) { }
+		  _receiver(receiver), _sender(sender),
+		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
 	void ConnectedClientHandler::loop()
 	{
