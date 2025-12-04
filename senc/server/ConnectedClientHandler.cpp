@@ -65,8 +65,25 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::MakeUserSetRequest& request)
 	{
-		(void)request;
-		return Status::Connected; // TODO: Implement
+		pkt::MakeUserSetResponse response{};
+		try
+		{
+			response = make_userset(
+				_username,
+				request.owners, request.reg_members,
+				request.owners_threshold, request.reg_members_threshold
+			);
+		}
+		catch (const ServerException& e)
+		{
+			_sender.send_response(_sock, pkt::ErrorResponse{
+				std::string("Failed to create userset: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		_sender.send_response(_sock, response);
+		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetUserSetsRequest& request)
