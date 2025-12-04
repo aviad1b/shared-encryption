@@ -15,23 +15,6 @@ namespace senc::server
 	ShortTermServerStorage::ShortTermServerStorage()
 		: _shardsDist(utils::Random<PrivKeyShardID>::get_dist()) { }
 
-	OperationID ShortTermServerStorage::new_operation(const std::string& requester)
-	{
-		const std::lock_guard<std::mutex> lock(_mtxOperations);
-		auto opid = OperationID::generate(_operations);
-		_operations.insert(std::make_pair(opid, requester));
-		return opid;
-	}
-
-	OperationInfo ShortTermServerStorage::get_operation_info(const OperationID& opid)
-	{
-		const std::lock_guard<std::mutex> lock(_mtxOperations);
-		const auto it = _operations.find(opid);
-		if (it == _operations.end())
-			throw ServerException("No operation with ID " + opid.to_string());
-		return it->second;
-	}
-
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
 		bool inserted = false;
