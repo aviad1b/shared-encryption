@@ -51,6 +51,7 @@ namespace senc::server
 		void loop();
 
 	private:
+		utils::Distribution<PrivKeyShardID> _distShardID;
 		utils::Socket& _sock;
 		const std::string& _username;
 		Schema& _schema;
