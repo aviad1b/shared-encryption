@@ -80,19 +80,18 @@ namespace senc::server
 
 		/**
 		 * @brief Registers a new decryption operation.
-		 * @param opid Operation ID.
 		 * @param requester Username of requesting user.
 		 * @param usersetID ID of userset under which decryption is performed.
 		 * @param ciphertext Ciphertext being decrypted (moved).
 		 * @param requiredOwners Amount of owners required for performing the decryption.
 		 * @param requiredRegMembers Amount of non-owner members required for performing the decryption.
+		 * @return Operation ID.
 		 */
-		void register_new_operation(const OperationID& opid,
-									const std::string& requester,
-									const UserSetID& usersetID,
-									Ciphertext&& ciphertext,
-									member_count_t requiredOwners,
-									member_count_t requiredRegMembers);
+		OperationID register_new_operation(const std::string& requester,
+										   const UserSetID& usersetID,
+										   Ciphertext&& ciphertext,
+										   member_count_t requiredOwners,
+										   member_count_t requiredRegMembers);
 
 		/**
 		 * @brief Registers a client that is willing to aprticipate in an operation.
