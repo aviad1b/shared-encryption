@@ -34,6 +34,7 @@ namespace senc::server
 		return ConnectedClientHandler(
 			sock,
 			username,
+			_schema,
 			_storage,
 			_receiver,
 			_sender,

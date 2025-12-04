@@ -12,12 +12,14 @@ namespace senc::server
 {
 	ConnectedClientHandler::ConnectedClientHandler(utils::Socket& sock,
 												   const std::string& username,
+												   Schema& schema,
 												   IServerStorage& storage,
 												   PacketReceiver& receiver,
 												   PacketSender& sender,
 												   UpdateManager& updateManager,
 												   DecryptionsManager& decryptionsManager)
-		: _sock(sock), _username(username), _storage(storage),
+		: _sock(sock), _username(username),
+		  _schema(schema), _storage(storage),
 		  _receiver(receiver), _sender(sender),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 

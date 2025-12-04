@@ -28,6 +28,7 @@ namespace senc::server
 		 * @brief Constructs a new handler for a connected client.
 		 * @param sock Socket connected to client.
 		 * @param username Connected client's username.
+		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
 		 * @param sender Implementation of `PacketSender`.
@@ -37,6 +38,7 @@ namespace senc::server
 		 */
 		explicit ConnectedClientHandler(utils::Socket& sock,
 										const std::string& username,
+										Schema& schema,
 										IServerStorage& storage,
 										PacketReceiver& receiver,
 										PacketSender& sender,
@@ -51,6 +53,7 @@ namespace senc::server
 	private:
 		utils::Socket& _sock;
 		const std::string& _username;
+		Schema& _schema;
 		IServerStorage& _storage;
 		PacketReceiver& _receiver;
 		PacketSender& _sender;
