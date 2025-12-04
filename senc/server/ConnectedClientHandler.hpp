@@ -92,20 +92,23 @@ namespace senc::server
 		 */
 		Status iteration();
 
-		Status handle_request(const pkt::LogoutRequest& request);
+		// NOTE: All handle_request methods accept non-const request for
+		//       efficiency (being able to move fields out of the requests)
 
-		Status handle_request(const pkt::MakeUserSetRequest& request);
+		Status handle_request(pkt::LogoutRequest& request);
 
-		Status handle_request(const pkt::GetUserSetsRequest& request);
+		Status handle_request(pkt::MakeUserSetRequest& request);
 
-		Status handle_request(const pkt::GetMembersRequest& request);
+		Status handle_request(pkt::GetUserSetsRequest& request);
 
-		Status handle_request(const pkt::DecryptRequest& request);
+		Status handle_request(pkt::GetMembersRequest& request);
 
-		Status handle_request(const pkt::UpdateRequest& request);
+		Status handle_request(pkt::DecryptRequest& request);
 
-		Status handle_request(const pkt::DecryptParticipateRequest& request);
+		Status handle_request(pkt::UpdateRequest& request);
 
-		Status handle_request(const pkt::SendDecryptionPartRequest& request);
+		Status handle_request(pkt::DecryptParticipateRequest& request);
+
+		Status handle_request(pkt::SendDecryptionPartRequest& request);
 	};
 }

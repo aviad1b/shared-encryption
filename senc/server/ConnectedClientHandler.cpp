@@ -47,7 +47,7 @@ namespace senc::server
 
 		if (req.has_value())
 			return std::visit(
-				[this](const auto& r) { return handle_request(r); },
+				[this](auto& r) { return handle_request(r); },
 				*req
 			);
 
@@ -56,14 +56,14 @@ namespace senc::server
 		return Status::Connected;
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::LogoutRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::LogoutRequest& request)
 	{
 		(void)request;
 		_sender.send_response(_sock, pkt::LogoutResponse{});
 		return Status::Disconnected;
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::MakeUserSetRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::MakeUserSetRequest& request)
 	{
 		pkt::MakeUserSetResponse response{};
 		try
@@ -86,7 +86,7 @@ namespace senc::server
 		return Status::Connected;
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetUserSetsRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::GetUserSetsRequest& request)
 	{
 		(void)request;
 
@@ -112,7 +112,7 @@ namespace senc::server
 		return Status::Connected;
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::GetMembersRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::GetMembersRequest& request)
 	{
 		UserSetInfo info{};
 		try { info = _storage.get_userset_info(request.user_set_id); }
@@ -141,25 +141,25 @@ namespace senc::server
 		return Status::Connected;
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptRequest& request)
 	{
 		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::UpdateRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UpdateRequest& request)
 	{
 		(void)request;
 		return Status::Connected; // TODO: Implement
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::DecryptParticipateRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
 	{
 		(void)request;
 		return Status();
 	}
 
-	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(const pkt::SendDecryptionPartRequest& request)
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::SendDecryptionPartRequest& request)
 	{
 		(void)request;
 		return Status();
