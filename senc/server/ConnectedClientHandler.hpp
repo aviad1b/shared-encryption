@@ -98,9 +98,11 @@ namespace senc::server
 
 		/**
 		 * @brief Informed initiator that operation is complete.
+		 * @param opid Operation ID.
 		 * @param opCollRecord Collection record of operation from decryptions manager.
 		 */
-		void finish_operation(const DecryptionsManager::CollectedRecord& opCollRecord);
+		void finish_operation(const OperationID& opid,
+							  const DecryptionsManager::CollectedRecord& opCollRecord);
 
 		/**
 		 * @brief Runs a single iteration of the client loop.
