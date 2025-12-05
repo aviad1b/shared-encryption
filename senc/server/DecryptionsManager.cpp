@@ -46,6 +46,7 @@ namespace senc::server
 				requiredRegMembers
 				});
 		}
+		return opid;
 	}
 
 	std::optional<DecryptionsManager::PrepareRecord>
