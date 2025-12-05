@@ -24,12 +24,12 @@ using Socket = senc::utils::TcpSocket<senc::utils::IPv4>;
 struct ServerTestParams
 {
 	Port port;
-	Schema schema;
+	std::unique_ptr<Schema> schema;
 	std::unique_ptr<IServerStorage> storage;
 	std::unique_ptr<PacketReceiver> receiver;
 	std::unique_ptr<PacketSender> sender;
-	UpdateManager updateManager;
-	DecryptionsManager decryptionsManager;
+	std::unique_ptr<UpdateManager> updateManager;
+	std::unique_ptr<DecryptionsManager> decryptionsManager;
 };
 
 class ServerTest : public testing::TestWithParam<ServerTestParams>
@@ -39,15 +39,15 @@ protected:
 
 	void SetUp() override
 	{
-		const auto& params = GetParam();
+		auto& params = GetParam();
 		server = std::make_unique<Server>(
 			params.port,
-			params.schema,
+			*params.schema,
 			*params.storage,
 			*params.receiver,
 			*params.sender,
-			params.updateManager,
-			params.decryptionsManager
+			*params.updateManager,
+			*params.decryptionsManager
 		);
 		server->start();
 	}
