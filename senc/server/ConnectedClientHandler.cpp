@@ -117,6 +117,25 @@ namespace senc::server
 		return opid;
 	}
 
+	void ConnectedClientHandler::continue_operation(const OperationID& opid,
+													const DecryptionsManager::PrepareRecord& opPrepRecord)
+	{
+		auto members = utils::views::join(opPrepRecord.owners_found, opPrepRecord.reg_members_found);
+
+		// get shards IDs of all members
+		std::vector<PrivKeyShardID> shardsIDs;
+		for (const auto& member : members)
+			shardsIDs.push_back(_storage.get_shard_id(member, opPrepRecord.userset_id));
+
+		// for each member, make an update of ciphertext to decrypt
+		for (const auto& member : members)
+			_updateManager.register_decryption_participated(
+				member, opid,
+				opPrepRecord.ciphertext,
+				shardsIDs
+			);
+	}
+
 	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
 		auto req = _receiver.recv_request<
