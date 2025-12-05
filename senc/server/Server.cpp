@@ -22,7 +22,7 @@ namespace senc::server
 				   UpdateManager& updateManager,
 				   DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort),
-		  _clientHandlerFactory(storage, receiver, sender, updateManager, decryptionsManager)
+		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
