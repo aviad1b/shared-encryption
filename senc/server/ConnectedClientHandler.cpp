@@ -279,6 +279,7 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UpdateRequest& request)
 	{
+		(void)request;
 		pkt::UpdateResponse response{};
 
 		try { response = _updateManager.retrieve_updates(_username); }
