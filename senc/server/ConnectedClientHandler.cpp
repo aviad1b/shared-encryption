@@ -98,6 +98,24 @@ namespace senc::server
 		return res;
 	}
 
+	OperationID ConnectedClientHandler::initiate_decryption(const UserSetID& usersetID, Ciphertext&& ciphertext)
+	{
+		// get thresholds
+		// TODO: Should probably have separate function for this...
+		auto info = _storage.get_userset_info(usersetID);
+		const member_count_t requiredOwners = info.owners_threshold;
+		const member_count_t requiredRegMembers = info.reg_members_threshold;
+
+		auto opid = _decryptionsManager.register_new_operation(
+			_username, usersetID,
+			std::move(ciphertext),
+			requiredOwners,
+			requiredRegMembers
+		);
+
+		return opid;
+	}
+
 	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
 		auto req = _receiver.recv_request<
