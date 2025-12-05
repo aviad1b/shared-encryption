@@ -44,10 +44,13 @@ namespace senc::server
 
 		utils::HashSet<std::string> setRegMembers(regMembers.begin(), regMembers.end());
 		utils::HashSet<std::string> setOwners(owners.begin(), owners.end());
+		auto itCreator = setOwners.insert(creator).first; // to pass creator as an owner as well for storage
 
 		res.user_set_id = _storage.new_userset(
 			setOwners, setRegMembers, ownersThreshold, regMembersThreshold
 		);
+
+		setOwners.erase(itCreator); // remove creator from owners set for the rest of this function
 
 		// generate keys, and shards for each member
 		PrivKey privKey1{}, privKey2{};
