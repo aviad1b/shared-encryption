@@ -12,7 +12,14 @@ add_executable(senc_tests
     "tests_utils.hpp"
     "tests_utils.cpp"
     "test_storage.cpp"
+    "test_server.cpp"
+    "../server/ClientHandlerFactory.cpp"
+    "../server/ConnectedClientHandler.cpp"
+    "../server/ConnectingClientHandler.cpp"
+    "../server/DecryptionsManager.cpp"
+    "../server/Server.cpp"
     "../server/ShortTermServerStorage.cpp"
+    "../server/UpdateManager.cpp"
 )
 
 target_link_libraries(senc_tests PRIVATE
