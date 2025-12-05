@@ -288,7 +288,7 @@ namespace senc::server
 		// if decryptions manager returned a prep record, continue to collection stage
 		if (opPrepRecord.has_value())
 		{
-			try { continue_operation(*opPrepRecord); }
+			try { continue_operation(request.op_id, *opPrepRecord); }
 			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
 		}
 

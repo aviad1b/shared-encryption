@@ -90,9 +90,11 @@ namespace senc::server
 
 		/**
 		 * @brief Informs participants that operation went from preperation stage to collection stage.
+		 * @param opid Operation ID.
 		 * @param opPrepRecord Preperation record of operation from decryptions manager.
 		 */
-		void continue_operation(const DecryptionsManager::PrepareRecord& opPrepRecord);
+		void continue_operation(const OperationID& opid,
+								const DecryptionsManager::PrepareRecord& opPrepRecord);
 
 		/**
 		 * @brief Informed initiator that operation is complete.
