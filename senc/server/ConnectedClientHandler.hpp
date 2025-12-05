@@ -89,13 +89,13 @@ namespace senc::server
 										Ciphertext&& ciphertext);
 
 		/**
-		 * @brief Moves operation from preperation stage to collection stage.
+		 * @brief Informs participants that operation went from preperation stage to collection stage.
 		 * @param opPrepRecord Preperation record of operation from decryptions manager.
 		 */
 		void continue_operation(const DecryptionsManager::PrepareRecord& opPrepRecord);
 
 		/**
-		 * @brief Completes operation after collection stage.
+		 * @brief Informed initiator that operation is complete.
 		 * @param opCollRecord Collection record of operation from decryptions manager.
 		 */
 		void finish_operation(const DecryptionsManager::CollectedRecord& opCollRecord);
