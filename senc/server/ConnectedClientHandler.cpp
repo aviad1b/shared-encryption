@@ -42,8 +42,8 @@ namespace senc::server
 	{
 		pkt::MakeUserSetResponse res{};
 
-		utils::HashSet<std::string> setOwners(owners.begin(), owners.end());
 		utils::HashSet<std::string> setRegMembers(regMembers.begin(), regMembers.end());
+		utils::HashSet<std::string> setOwners(owners.begin(), owners.end());
 
 		res.user_set_id = _storage.new_userset(
 			setOwners, setRegMembers, ownersThreshold, regMembersThreshold
