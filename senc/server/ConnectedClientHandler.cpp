@@ -136,6 +136,18 @@ namespace senc::server
 			);
 	}
 
+	void ConnectedClientHandler::finish_operation(const OperationID& opid,
+												  DecryptionsManager::CollectedRecord&& opCollRecord)
+	{
+		_updateManager.register_finished_decrpytion(
+			_username, opid,
+			std::move(opCollRecord.parts1),
+			std::move(opCollRecord.parts2),
+			std::move(opCollRecord.shardsIDs1),
+			std::move(opCollRecord.shardsIDs2)
+		);
+	}
+
 	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
 		auto req = _receiver.recv_request<
