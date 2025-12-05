@@ -33,6 +33,71 @@ namespace senc::server
 		}
 	}
 
+	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
+		const std::string& creator,
+		const std::vector<std::string>& owners,
+		const std::vector<std::string>& regMembers,
+		member_count_t ownersThreshold,
+		member_count_t regMembersThreshold)
+	{
+		pkt::MakeUserSetResponse res{};
+
+		utils::HashSet<std::string> setOwners(owners.begin(), owners.end());
+		utils::HashSet<std::string> setRegMembers(regMembers.begin(), regMembers.end());
+
+		res.user_set_id = _storage.new_userset(
+			setOwners, setRegMembers, ownersThreshold, regMembersThreshold
+		);
+
+		// generate keys, and shards for each member
+		PrivKey privKey1{}, privKey2{};
+		std::tie(res.pub_key1, privKey1) = _schema.keygen();
+		std::tie(res.pub_key2, privKey2) = _schema.keygen();
+
+		auto poly1 = Shamir::sample_poly(privKey1, regMembersThreshold);
+		auto poly2 = Shamir::sample_poly(privKey2, ownersThreshold);
+
+		// generate unique shard IDs
+		utils::HashSet<PrivKeyShardID> regMembersShardsIDs;
+		utils::HashSet<PrivKeyShardID> ownersShardsIDs;
+		PrivKeyShardID creatorShardID{};
+		auto idExists = [creatorShardID, regMembersShardsIDs, ownersShardsIDs](const auto& x)
+		{
+			return creatorShardID == x ||
+				regMembersShardsIDs.contains(x) ||
+				ownersShardsIDs.contains(x);
+		};
+		creatorShardID = _distShardID(idExists);
+		for (member_count_t i = 0; i < regMembers.size(); ++i)
+			regMembersShardsIDs.insert(_distShardID(idExists));
+		for (member_count_t i = 0; i < owners.size(); ++i)
+			ownersShardsIDs.insert(_distShardID(idExists));
+
+		// make private key shards for all members
+		res.priv_key1_shard = Shamir::make_shard(poly1, creatorShardID);
+		res.priv_key2_shard = Shamir::make_shard(poly2, creatorShardID);
+		auto ownersShards1 = Shamir::make_shards(poly1, ownersShardsIDs);
+		auto ownersShards2 = Shamir::make_shards(poly2, ownersShardsIDs);
+		auto regMembersShards = Shamir::make_shards(poly1, regMembersShardsIDs);
+
+		// for all non-creator members, register update for userset
+		// TODO: Should shards be moved here?
+		for (const auto& [owner, shard1, shard2] : utils::views::zip(setOwners, ownersShards1, ownersShards2))
+			_updateManager.register_owner(
+				owner, res.user_set_id,
+				res.pub_key1, res.pub_key2,
+				shard1, shard2
+			);
+		for (const auto& [regMember, shard] : utils::views::zip(setRegMembers, regMembersShards))
+			_updateManager.register_reg_member(
+				regMember, res.user_set_id,
+				res.pub_key1, res.pub_key2,
+				shard
+			);
+
+		return res;
+	}
+
 	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
 		auto req = _receiver.recv_request<
