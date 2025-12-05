@@ -22,33 +22,44 @@ using senc::Schema;
 
 using Socket = senc::utils::TcpSocket<senc::utils::IPv4>;
 
+// factory function types for creating member implementations
+using StorageFactory = std::function<std::unique_ptr<IServerStorage>()>;
+using ReceiverFactory = std::function<std::unique_ptr<PacketReceiver>()>;
+using SenderFactory = std::function<std::unique_ptr<PacketSender>()>;
+
 struct ServerTestParams
 {
 	Port port;
-	std::unique_ptr<Schema> schema;
-	std::unique_ptr<IServerStorage> storage;
-	std::unique_ptr<PacketReceiver> receiver;
-	std::unique_ptr<PacketSender> sender;
-	std::unique_ptr<UpdateManager> updateManager;
-	std::unique_ptr<DecryptionsManager> decryptionsManager;
+	StorageFactory storageFactory;
+	ReceiverFactory receiverFactory;
+	SenderFactory senderFactory;
 };
 
 class ServerTest : public testing::TestWithParam<ServerTestParams>
 {
 protected:
+	Schema schema;
+	UpdateManager updateManager;
+	DecryptionsManager decryptionsManager;
+	std::unique_ptr<IServerStorage> storage;
+	std::unique_ptr<PacketReceiver> receiver;
+	std::unique_ptr<PacketSender> sender;
 	std::unique_ptr<Server> server;
 
 	void SetUp() override
 	{
 		auto& params = GetParam();
+		storage = params.storageFactory();
+		receiver = params.receiverFactory();
+		sender = params.senderFactory();
 		server = std::make_unique<Server>(
 			params.port,
-			*params.schema,
-			*params.storage,
-			*params.receiver,
-			*params.sender,
-			*params.updateManager,
-			*params.decryptionsManager
+			schema,
+			*storage,
+			*receiver,
+			*sender,
+			updateManager,
+			decryptionsManager
 		);
 		server->start();
 	}
@@ -62,8 +73,8 @@ protected:
 	template <typename Response>
 	auto post(senc::utils::Socket& sock, const auto& request) const
 	{
-		GetParam().sender->send_request(sock, request);
-		return GetParam().receiver->recv_response<Response>(sock);
+		sender->send_request(sock, request);
+		return receiver->recv_response<Response>(sock);
 	}
 };
 
@@ -77,6 +88,6 @@ TEST_P(ServerTest, SignupAndGetUsers)
 	auto r2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya" });
 	EXPECT_TRUE(r2.has_value() && r2->status == pkt::SignupResponse::Status::Success);
 
-	EXPECT_TRUE(GetParam().storage->user_exists("avi"));
-	EXPECT_TRUE(GetParam().storage->user_exists("batya"));
+	EXPECT_TRUE(storage->user_exists("avi"));
+	EXPECT_TRUE(storage->user_exists("batya"));
 }
