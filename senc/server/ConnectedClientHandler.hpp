@@ -102,7 +102,7 @@ namespace senc::server
 		 * @param opCollRecord Collection record of operation from decryptions manager.
 		 */
 		void finish_operation(const OperationID& opid,
-							  const DecryptionsManager::CollectedRecord& opCollRecord);
+							  DecryptionsManager::CollectedRecord&& opCollRecord);
 
 		/**
 		 * @brief Runs a single iteration of the client loop.

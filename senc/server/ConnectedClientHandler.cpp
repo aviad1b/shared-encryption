@@ -348,7 +348,7 @@ namespace senc::server
 		// if decryptions manager returned collection record, finalize operation
 		if (opCollRecord.has_value())
 		{
-			try { finish_operation(request.op_id, *opCollRecord); }
+			try { finish_operation(request.op_id, std::move(*opCollRecord)); }
 			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
 		}
 
