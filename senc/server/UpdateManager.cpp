@@ -18,27 +18,27 @@ namespace senc::server
 
 	void UpdateManager::register_reg_member(const std::string& username,
 											const UserSetID& usersetID,
-											PubKey&& pubKey1, PubKey&& pubKey2,
-											PrivKeyShard&& privKeyShard)
+											const PubKey& pubKey1, const PubKey& pubKey2,
+											const PrivKeyShard& privKeyShard)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_reg_member.emplace_back(
 			usersetID,
-			std::move(pubKey1), std::move(pubKey2),
-			std::move(privKeyShard)
+			pubKey1, pubKey2,
+			privKeyShard
 		);
 	}
 
 	void UpdateManager::register_owner(const std::string& username,
 									   const UserSetID& usersetID,
-									   PubKey&& pubKey1, PubKey&& pubKey2,
-									   PrivKeyShard&& privKeyShard1, PrivKeyShard&& privKeyShard2)
+									   const PubKey& pubKey1, const PubKey& pubKey2,
+									   const PrivKeyShard& privKeyShard1, const PrivKeyShard& privKeyShard2)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
-			std::move(pubKey1), std::move(pubKey2),
-			std::move(privKeyShard1), std::move(privKeyShard2)
+			pubKey1, pubKey2,
+			privKeyShard1, privKeyShard2
 		);
 	}
 

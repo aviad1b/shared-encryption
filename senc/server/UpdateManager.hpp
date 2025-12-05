@@ -35,28 +35,28 @@ namespace senc::server
 		 * @brief Registers that a user was added to a userset as non-owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
-		 * @param pubKey1 First public key used in this user userset for encryption (moved).
-		 * @param pubKey2 Second public key used in this user userset for encryption (moved).
-		 * @param privKeyShard User's private key shard in userset (moved).
+		 * @param pubKey1 First public key used in this user userset for encryption.
+		 * @param pubKey2 Second public key used in this user userset for encryption.
+		 * @param privKeyShard User's private key shard in userset.
 		 */
 		void register_reg_member(const std::string& username,
 								 const UserSetID& usersetID,
-								 PubKey&& pubKey1, PubKey&& pubKey2,
-								 PrivKeyShard&& privKeyShard);
+								 const PubKey& pubKey1, const PubKey& pubKey2,
+								 const PrivKeyShard& privKeyShard);
 
 		/**
 		 * @brief Registers that a user was added to a userset as owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
-		 * @param pubKey1 First public key used in this user userset for encryption (moved).
-		 * @param pubKey2 Second public key used in this user userset for encryption (moved).
-		 * @param privKeyShard1 User's private key shard in userset for layer1 (moved).
-		 * @param privKeyShard2 User's private key shard in userset for layer2 (moved).
+		 * @param pubKey1 First public key used in this user userset for encryption.
+		 * @param pubKey2 Second public key used in this user userset for encryption.
+		 * @param privKeyShard1 User's private key shard in userset for layer1.
+		 * @param privKeyShard2 User's private key shard in userset for layer2.
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
-							PubKey&& pubKey1, PubKey&& pubKey2,
-							PrivKeyShard&& privKeyShard1, PrivKeyShard&& privKeyShard2);
+							const PubKey& pubKey1, const PubKey& pubKey2,
+							const PrivKeyShard& privKeyShard1, const PrivKeyShard& privKeyShard2);
 
 		/**
 		 * @brief Registers user to look for in order to perform a decryption operation.
