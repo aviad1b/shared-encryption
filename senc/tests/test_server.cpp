@@ -7,6 +7,7 @@
 #include "../common/InlinePacketSender.hpp"
 #include "../server/Server.hpp"
 
+namespace pkt = senc::pkt;
 using senc::server::ShortTermServerStorage;
 using senc::server::DecryptionsManager;
 using senc::server::IServerStorage;
@@ -57,4 +58,25 @@ protected:
 		server->stop();
 		server.reset();
 	}
+
+	template <typename Response>
+	auto post(senc::utils::Socket& sock, const auto& request) const
+	{
+		GetParam().sender->send_request(sock, request);
+		return GetParam().receiver->recv_response<Response>(sock);
+	}
 };
+
+TEST_P(ServerTest, SignupAndGetUsers)
+{
+	auto avi = Socket("127.0.0.1", GetParam().port);
+	auto batya = Socket("127.0.0.1", GetParam().port);
+
+	auto r1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
+	EXPECT_TRUE(r1.has_value() && r1->status == pkt::SignupResponse::Status::Success);
+	auto r2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya" });
+	EXPECT_TRUE(r2.has_value() && r2->status == pkt::SignupResponse::Status::Success);
+
+	EXPECT_TRUE(GetParam().storage->user_exists("avi"));
+	EXPECT_TRUE(GetParam().storage->user_exists("batya"));
+}
