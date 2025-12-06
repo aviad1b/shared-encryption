@@ -31,6 +31,7 @@ namespace senc::server
 	{
 		if (_isRunning)
 			throw ServerException("Server is already running");
+		_isRunning = true;
 		
 		_listenSock.listen();
 
