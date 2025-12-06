@@ -91,3 +91,18 @@ TEST_P(ServerTest, SignupAndGetUsers)
 	EXPECT_TRUE(storage->user_exists("avi"));
 	EXPECT_TRUE(storage->user_exists("batya"));
 }
+
+// ===== Instantiation of Parameterized Tests =====
+
+INSTANTIATE_TEST_SUITE_P(
+	ServerImplementations,
+	ServerTest,
+	testing::Values(
+		ServerTestParams{
+			4435,
+			std::make_unique<ShortTermServerStorage>,
+			std::make_unique<InlinePacketReceiver>,
+			std::make_unique<InlinePacketSender>
+		}
+	)
+);
