@@ -84,18 +84,40 @@ protected:
 	}
 };
 
-TEST_P(ServerTest, SignupAndGetUsers)
+TEST_P(ServerTest, SignupAndLogin)
 {
 	auto avi = Socket("127.0.0.1", port);
 	auto batya = Socket("127.0.0.1", port);
 
-	auto r1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
-	EXPECT_TRUE(r1.has_value() && r1->status == pkt::SignupResponse::Status::Success);
-	auto r2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya" });
-	EXPECT_TRUE(r2.has_value() && r2->status == pkt::SignupResponse::Status::Success);
+	// signup
+	auto su1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
+	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
+	auto su2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya" });
+	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
 
+	// check users exist
 	EXPECT_TRUE(storage->user_exists("avi"));
 	EXPECT_TRUE(storage->user_exists("batya"));
+
+	// logout
+	auto lo1 = post<pkt::LogoutResponse>(avi, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo1.has_value());
+	auto lo2 = post<pkt::LogoutResponse>(batya, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo2.has_value());
+
+	// log back in
+	avi.connect("127.0.0.1", port);
+	batya.connect("127.0.0.1", port);
+	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi" });
+	EXPECT_TRUE(li1.has_value() && li1->status == pkt::LoginResponse::Status::Success);
+	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya" });
+	EXPECT_TRUE(li2.has_value() && li2->status == pkt::LoginResponse::Status::Success);
+
+	// logout
+	lo1 = post<pkt::LogoutResponse>(avi, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo1.has_value());
+	lo2 = post<pkt::LogoutResponse>(batya, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo2.has_value());
 }
 
 // ===== Instantiation of Parameterized Tests =====
