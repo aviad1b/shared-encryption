@@ -332,9 +332,15 @@ namespace senc::pkt
 		Ciphertext ciphertext;
 
 		DecryptRequest() : user_set_id(), ciphertext() { }
+		DecryptRequest(const UserSetID& userSetID, const Ciphertext& ciphertext)
+			: user_set_id(userSetID), ciphertext(ciphertext) { }
+		DecryptRequest(const UserSetID& userSetID, Ciphertext&& ciphertext)
+			: user_set_id(userSetID), ciphertext(std::move(ciphertext)) { }
+		DecryptRequest(UserSetID&& userSetID, const Ciphertext& ciphertext)
+			: user_set_id(std::move(userSetID)), ciphertext(ciphertext) { }
 		DecryptRequest(UserSetID&& userSetID, Ciphertext&& ciphertext)
-			: user_set_id(std::forward<UserSetID>(userSetID)),
-			  ciphertext(std::forward<Ciphertext>(ciphertext)) { }
+			: user_set_id(std::move(userSetID)),
+			  ciphertext(std::move(ciphertext)) { }
 	};
 
 	/**
