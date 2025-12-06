@@ -84,6 +84,13 @@ protected:
 	}
 };
 
+TEST_P(ServerTest, ImmediateLogout)
+{
+	auto client = Socket("127.0.0.1", port);
+	auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo.has_value());
+}
+
 TEST_P(ServerTest, SignupAndLogin)
 {
 	auto avi = Socket("127.0.0.1", port);
