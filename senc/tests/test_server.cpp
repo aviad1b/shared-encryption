@@ -102,8 +102,10 @@ TEST_P(ServerTest, SignupAndLogin)
 	// logout
 	auto lo1 = post<pkt::LogoutResponse>(avi, pkt::LogoutRequest{});
 	EXPECT_TRUE(lo1.has_value());
+	avi.close();
 	auto lo2 = post<pkt::LogoutResponse>(batya, pkt::LogoutRequest{});
 	EXPECT_TRUE(lo2.has_value());
+	batya.close();
 
 	// log back in
 	avi.connect("127.0.0.1", port);
