@@ -70,6 +70,9 @@ protected:
 	void TearDown() override
 	{
 		server->stop();
+		storage.reset();
+		receiver.reset();
+		sender.reset();
 		server.reset();
 	}
 
