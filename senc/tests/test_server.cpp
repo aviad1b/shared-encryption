@@ -127,6 +127,84 @@ TEST_P(ServerTest, SignupAndLogin)
 	EXPECT_TRUE(lo2.has_value());
 }
 
+TEST_P(ServerTest, MakeSetGetMembers)
+{
+	auto client1 = Socket("127.0.0.1", port);
+	auto client2 = Socket("127.0.0.1", port);
+	auto client3 = Socket("127.0.0.1", port);
+
+	// signup
+	const auto u1 = "avi";
+	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1 });
+	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
+	const auto u2 = "batya";
+	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2 });
+	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
+	const auto u3 = "gal";
+	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3 });
+	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
+
+	// make set
+	auto ms = post<pkt::MakeUserSetResponse>(client1, pkt::MakeUserSetRequest{
+		.reg_members = { u2 },
+		.owners = { u3 },
+		.reg_members_threshold = 1,
+		.owners_threshold = 1
+	});
+	EXPECT_TRUE(ms.has_value());
+	const auto& usersetID = ms->user_set_id;
+
+	// for each owner (u1 and u3)
+	for (auto& client : { std::ref(client1), std::ref(client3) })
+	{
+		// get sets
+		auto gs = post<pkt::GetUserSetsResponse>(client, pkt::GetUserSetsRequest{});
+		EXPECT_TRUE(gs.has_value());
+
+		// check that `usersetID` is in sets
+		EXPECT_NE(
+			std::find(
+				gs->user_sets_ids.begin(),
+				gs->user_sets_ids.end(),
+				usersetID
+			),
+			gs->user_sets_ids.end()
+		);
+
+		// get members
+		auto gm = post<pkt::GetMembersResponse>(client, pkt::GetMembersRequest{ usersetID });
+		EXPECT_TRUE(gm.has_value());
+
+		// check that u1 and u3 are owners
+		for (const auto& owner : { u1, u3 })
+			EXPECT_NE(
+				std::find(
+					gm->owners.begin(),
+					gm->owners.end(),
+					owner
+				),
+				gm->owners.end()
+			);
+
+		// check that u2 is a (regular) member
+		EXPECT_NE(
+			std::find(
+				gm->reg_members.begin(),
+				gm->reg_members.end(),
+				u2
+			),
+			gm->reg_members.end()
+		);
+	}
+
+	// logout
+	for (auto& client : { std::ref(client1), std::ref(client2), std::ref(client3) })
+	{
+		auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
+		EXPECT_TRUE(lo.has_value());
+	}
+}
+
 // ===== Instantiation of Parameterized Tests =====
 
 INSTANTIATE_TEST_SUITE_P(
