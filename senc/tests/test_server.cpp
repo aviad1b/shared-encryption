@@ -205,6 +205,28 @@ TEST_P(ServerTest, MakeSetGetMembers)
 	}
 }
 
+TEST_P(ServerTest, EmptyUpdateCycle)
+{
+	auto client = Socket("127.0.0.1", port);
+
+	// signup
+	auto su = post<pkt::SignupResponse>(client, pkt::SignupRequest{ "avi" });
+	EXPECT_TRUE(su.has_value() && su->status == pkt::SignupResponse::Status::Success);
+
+	// update
+	auto up = post<pkt::UpdateResponse>(client, pkt::UpdateRequest{});
+	EXPECT_TRUE(up.has_value());
+
+	EXPECT_TRUE(up->added_as_reg_member.empty());
+	EXPECT_TRUE(up->added_as_owner.empty());
+	EXPECT_TRUE(up->to_decrypt.empty());
+	EXPECT_TRUE(up->finished_decryptions.empty());
+
+	// logout
+	auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
+	EXPECT_TRUE(lo.has_value());
+}
+
 // ===== Instantiation of Parameterized Tests =====
 
 INSTANTIATE_TEST_SUITE_P(
