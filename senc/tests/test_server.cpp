@@ -6,6 +6,7 @@
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../server/Server.hpp"
+#include "../utils/Random.hpp"
 
 namespace pkt = senc::pkt;
 using senc::server::ShortTermServerStorage;
@@ -16,6 +17,7 @@ using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
 using senc::server::Server;
 using senc::PacketReceiver;
+using senc::utils::Random;
 using senc::PacketSender;
 using senc::utils::Port;
 using senc::Schema;
@@ -29,7 +31,6 @@ using SenderFactory = std::function<std::unique_ptr<PacketSender>()>;
 
 struct ServerTestParams
 {
-	Port port;
 	StorageFactory storageFactory;
 	ReceiverFactory receiverFactory;
 	SenderFactory senderFactory;
@@ -38,6 +39,7 @@ struct ServerTestParams
 class ServerTest : public testing::TestWithParam<ServerTestParams>
 {
 protected:
+	Port port;
 	Schema schema;
 	UpdateManager updateManager;
 	DecryptionsManager decryptionsManager;
@@ -48,12 +50,13 @@ protected:
 
 	void SetUp() override
 	{
+		port = Random<Port>::sample_from_range(49152, 65535);
 		auto& params = GetParam();
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
 		server = std::make_unique<Server>(
-			params.port,
+			port,
 			schema,
 			*storage,
 			*receiver,
@@ -80,8 +83,8 @@ protected:
 
 TEST_P(ServerTest, SignupAndGetUsers)
 {
-	auto avi = Socket("127.0.0.1", GetParam().port);
-	auto batya = Socket("127.0.0.1", GetParam().port);
+	auto avi = Socket("127.0.0.1", port);
+	auto batya = Socket("127.0.0.1", port);
 
 	auto r1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
 	EXPECT_TRUE(r1.has_value() && r1->status == pkt::SignupResponse::Status::Success);
@@ -99,7 +102,6 @@ INSTANTIATE_TEST_SUITE_P(
 	ServerTest,
 	testing::Values(
 		ServerTestParams{
-			4435,
 			std::make_unique<ShortTermServerStorage>,
 			std::make_unique<InlinePacketReceiver>,
 			std::make_unique<InlinePacketSender>
