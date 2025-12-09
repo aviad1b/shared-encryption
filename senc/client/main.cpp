@@ -87,6 +87,9 @@ const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
 	{ MainMenuOption::Exit, { "Exit", logout } }
 };
 
+InlinePacketReceiver receiver;
+InlinePacketSender sender;
+
 int main(int argc, char** argv)
 {
 	if (argc > 3)
