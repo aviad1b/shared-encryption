@@ -232,3 +232,19 @@ inline Resp post(Socket& sock, const auto& request)
 		throw Exception(std::get<pkt::ErrorResponse>(*resp).msg);
 	return std::get<Resp>(*resp);
 }
+
+ConnStatus signup(Socket& sock)
+{
+	std::string username;
+
+	cout << "Enter username: ";
+	std::getline(cin, username);
+
+	auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+	if (resp.status == pkt::SignupResponse::Status::UsernameTaken)
+		cout << "Signup failed: Username already taken." << endl;
+	else
+		cout << "Signed up successfully as \"" << username << "\"." << endl;
+
+	return ConnStatus::Connected;
+}
