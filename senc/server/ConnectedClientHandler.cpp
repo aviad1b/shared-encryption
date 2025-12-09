@@ -144,7 +144,7 @@ namespace senc::server
 												  DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
 		_updateManager.register_finished_decrpytion(
-			_username, opid,
+			opCollRecord.requester, opid,
 			std::move(opCollRecord.parts1),
 			std::move(opCollRecord.parts2),
 			std::move(opCollRecord.shardsIDs1),
