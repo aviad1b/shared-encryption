@@ -2,6 +2,8 @@
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include <functional>
+#include <map>
 
 namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
@@ -13,12 +15,40 @@ using senc::utils::Port;
 using std::string;
 using std::endl;
 using std::cout;
+using std::cin;
 
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
+
+enum class LoginMenuOption
+{
+	Signup,
+	Login,
+	Exit
+};
+
+enum class ClientStatus { Error, Connected, Disconnected };
+
+using SockFunc = std::function<ClientStatus(Socket&)>;
+
+struct OptionRecord
+{
+	std::string description;
+	SockFunc func;
+};
 
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
+ClientStatus signup(Socket& sock);
+ClientStatus login(Socket& sock);
+ClientStatus logout(Socket& sock);
+
+// maps login menu option to description and function
+const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
+	{ LoginMenuOption::Signup, { "Signup", signup } },
+	{ LoginMenuOption::Login, { "Login", login } },
+	{ LoginMenuOption::Exit, { "Exit", logout } }
+};
 
 int main(int argc, char** argv)
 {
@@ -66,7 +96,7 @@ int main(int argc, char** argv)
 void run_client(Socket& sock)
 {
 	bool connected = login_menu(sock);
-	if (!connect)
+	if (!connected)
 		return;
 
 	main_menu(sock);;
