@@ -324,20 +324,22 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	EXPECT_TRUE(up3.has_value());
 
 	//    member has one finished decrytion, check same as submitted
-	const auto& finished = up3->finished_decryptions;
+	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
-	const auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	const auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	const auto& finishedParts1 = finished.front().parts1;
-	const auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
+	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
+	auto& finishedParts1 = finished.front().parts1;
+	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
+	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
+	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
