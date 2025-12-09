@@ -125,3 +125,13 @@ TEST(Ranges, JoinFirstEmpty)
 	for (const auto& [i, elem] : join(x, y) | enumerate)
 		EXPECT_EQ(elem, all[i]);
 }
+
+TEST(Ranges, JoinSecondEmpty)
+{
+	std::vector<std::string> x{ "abc", "def" };
+	std::vector<std::string> y{};
+	std::vector<std::string> all = x;
+
+	for (const auto& [i, elem] : join(x, y) | enumerate)
+		EXPECT_EQ(elem, all[i]);
+}
