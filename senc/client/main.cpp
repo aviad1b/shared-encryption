@@ -101,3 +101,32 @@ void run_client(Socket& sock)
 
 	main_menu(sock);;
 }
+
+bool login_menu(Socket& sock)
+{
+	std::string choiceStr;
+	ClientStatus status{};
+	SockFunc func{};
+
+	do
+	{
+		cout << "Login Menu" << endl;
+		cout << "==========" << endl;
+
+		for (const auto& [opt, record] : LOGIN_OPTS)
+			cout << (int)opt << ".\t" << record.description << endl;
+		cout << endl;
+
+		cout << "Enter your choice: ";
+		std::getline(cin, choiceStr);
+		try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
+		catch (const std::exception&) { cout << "Bad choice, try again." << endl; }
+
+		try { status = func(sock); }
+		catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+
+		cout << endl;
+	} while (ClientStatus::Error == status);
+
+	return ClientStatus::Connected == status;
+}
