@@ -54,7 +54,7 @@ struct OptionRecord
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
-template <typename Resp> auto post(Socket& sock, const auto& request);
+template <typename Resp> Resp post(Socket& sock, const auto& request);
 ConnStatus signup(Socket& sock);
 ConnStatus login(Socket& sock);
 ConnStatus logout(Socket& sock);
@@ -219,7 +219,7 @@ void main_menu(Socket& sock)
  * @throw Exception If error occured.
  */
 template <typename Resp>
-Resp post(Socket& sock, const auto& request)
+inline Resp post(Socket& sock, const auto& request)
 {
 	static InlinePacketReceiver receiver;
 	static InlinePacketSender sender;
