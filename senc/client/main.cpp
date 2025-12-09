@@ -47,7 +47,7 @@ using SockFunc = std::function<ConnStatus(Socket&)>;
 
 struct OptionRecord
 {
-	std::string description;
+	string description;
 	SockFunc func;
 };
 
@@ -152,8 +152,8 @@ void run_client(Socket& sock)
  */
 bool login_menu(Socket& sock)
 {
-	std::string choiceStr;
 	ConnStatus status{};
+	string choiceStr;
 	SockFunc func{};
 
 	do
@@ -185,8 +185,8 @@ bool login_menu(Socket& sock)
  */
 void main_menu(Socket& sock)
 {
-	std::string choiceStr;
 	ConnStatus status{};
+	string choiceStr;
 	SockFunc func{};
 
 	do
@@ -235,7 +235,7 @@ inline Resp post(Socket& sock, const auto& request)
 
 ConnStatus signup(Socket& sock)
 {
-	std::string username;
+	string username;
 
 	cout << "Enter username: ";
 	std::getline(cin, username);
