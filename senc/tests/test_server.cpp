@@ -364,6 +364,144 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	}
 }
 
+TEST_P(ServerTest, DecryptFlowExtraMember)
+{
+	auto owner = Socket("127.0.0.1", port);
+	auto member = Socket("127.0.0.1", port);
+	auto extra = Socket("127.0.0.1", port);
+
+	// signup
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
+	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member" });
+	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
+	auto su3 = post<pkt::SignupResponse>(extra, pkt::SignupRequest{ "extra" });
+	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
+
+	// make set with threshold=1
+	auto ms = post<pkt::MakeUserSetResponse>(owner, pkt::MakeUserSetRequest{
+		.reg_members = { "member", "extra" },
+		.owners = { },
+		.reg_members_threshold = 1,
+		.owners_threshold = 0
+	});
+	EXPECT_TRUE(ms.has_value());
+	const auto& ownerUsersetID = ms->user_set_id;
+	const auto& ownerPubKey1 = ms->pub_key1;
+	const auto& ownerPubKey2 = ms->pub_key2;
+	const auto& ownerShard1 = ms->priv_key1_shard;
+	const auto& ownerShard2 = ms->priv_key2_shard;
+
+	// encrypt a message
+	Schema schema;
+	const std::string msgStr = "Hello There";
+	const Buffer msg(msgStr.begin(), msgStr.end());
+	auto ownerCiphertext = schema.encrypt(msg, ownerPubKey1, ownerPubKey2);
+
+	// 1) owner starts decryption
+	auto dc = post<pkt::DecryptResponse>(owner, pkt::DecryptRequest{
+		ownerUsersetID,
+		ownerCiphertext
+	});
+	EXPECT_TRUE(dc.has_value());
+	const auto& ownerOpid = dc->op_id;
+
+	// 2) member runs update to get decryption lookup request
+	auto up1 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
+	EXPECT_TRUE(up1.has_value());
+	const auto& memberSetsAddedTo = up1->added_as_reg_member;
+	const auto& memberOnLookup = up1->on_lookup;
+
+	//    member was added to one set, check same as owner's
+	EXPECT_EQ(memberSetsAddedTo.size(), 1);
+	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
+	EXPECT_EQ(memberSetsAddedTo.front().pub_key1, ownerPubKey1);
+	EXPECT_EQ(memberSetsAddedTo.front().pub_key2, ownerPubKey2);
+	const auto& memberShard = memberSetsAddedTo.front().priv_key1_shard;
+
+	//    member has one operation to participate in, check same as owner's
+	EXPECT_EQ(memberOnLookup.size(), 1);
+	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
+
+	// 3) member tells server that they're willing to participate in operation
+	auto dp = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
+		memberOnLookup.front()
+	});
+	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendPart);
+
+	// 4) member runs update to get decryption request
+	auto up2 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
+	EXPECT_TRUE(up2.has_value());
+	const auto& memberToDecrypt = up2->to_decrypt;
+
+	//    member has one part to decrypt, check same operation as owner
+	EXPECT_EQ(memberToDecrypt.size(), 1);
+	const auto& memberOpid = memberToDecrypt.front().op_id;
+	const auto& memberCiphertext = memberToDecrypt.front().ciphertext;
+	const auto& memberShardsIDs = memberToDecrypt.front().shards_ids;
+	EXPECT_EQ(memberOpid, ownerOpid);
+	EXPECT_EQ(memberCiphertext, ownerCiphertext);
+
+	// 5) member computes decryption part locally
+	auto memberPart = senc::Shamir::decrypt_get_2l<1>(
+		memberCiphertext,
+		memberShard,
+		memberShardsIDs
+	);
+	// (member knows it's not an owner, so layer 1)
+
+	// 6) member sends decryption part back
+	auto sp = post<pkt::SendDecryptionPartResponse>(member, pkt::SendDecryptionPartRequest{
+		.op_id = memberOpid,
+		.decryption_part = memberPart
+	});
+	EXPECT_TRUE(sp.has_value());
+
+	// 7) owner runs update to get finished decryption parts
+	auto up3 = post<pkt::UpdateResponse>(owner, pkt::UpdateRequest{});
+	EXPECT_TRUE(up3.has_value());
+
+	//    member has one finished decrytion, check same as submitted
+	auto& finished = up3->finished_decryptions;
+	EXPECT_EQ(finished.size(), 1);
+	EXPECT_EQ(finished.front().op_id, ownerOpid);
+	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
+	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
+	auto& finishedParts1 = finished.front().parts1;
+	auto& finishedParts2 = finished.front().parts2;
+
+	// 8) owner computes their own decryption parts
+	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
+	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
+		ownerCiphertext,
+		ownerShard1,
+		finishedShardsIDs1
+	);
+	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
+		ownerCiphertext,
+		ownerShard2,
+		finishedShardsIDs2
+	);
+
+	// 9) owner combines their parts with received parts and decrypts fully
+	std::vector<DecryptionPart> parts1 = finishedParts1;
+	parts1.push_back(ownerPart1);
+	std::vector<DecryptionPart> parts2 = finishedParts2;
+	parts2.push_back(ownerPart2);
+	auto decrypted = senc::Shamir::decrypt_join_2l(
+		ownerCiphertext, parts1, parts2
+	);
+	EXPECT_EQ(decrypted, msg);
+
+	// logout
+	for (auto& client : { std::ref(owner), std::ref(member), std::ref(extra) })
+	{
+		auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
+		EXPECT_TRUE(lo.has_value());
+	}
+}
+
 // ===== Instantiation of Parameterized Tests =====
 
 INSTANTIATE_TEST_SUITE_P(
