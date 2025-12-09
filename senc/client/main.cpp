@@ -17,6 +17,8 @@ using std::cout;
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
 void run_client(Socket& sock);
+bool login_menu(Socket& sock);
+void main_menu(Socket& sock);
 
 int main(int argc, char** argv)
 {
@@ -59,4 +61,13 @@ int main(int argc, char** argv)
 	run_client(*sock);
 
 	return 0;
+}
+
+void run_client(Socket& sock)
+{
+	bool connected = login_menu(sock);
+	if (!connect)
+		return;
+
+	main_menu(sock);;
 }
