@@ -26,9 +26,9 @@ enum class LoginMenuOption
 	Exit
 };
 
-enum class ClientStatus { Error, Connected, Disconnected };
+enum class ConnStatus { Error, Connected, Disconnected };
 
-using SockFunc = std::function<ClientStatus(Socket&)>;
+using SockFunc = std::function<ConnStatus(Socket&)>;
 
 struct OptionRecord
 {
@@ -39,9 +39,9 @@ struct OptionRecord
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
-ClientStatus signup(Socket& sock);
-ClientStatus login(Socket& sock);
-ClientStatus logout(Socket& sock);
+ConnStatus signup(Socket& sock);
+ConnStatus login(Socket& sock);
+ConnStatus logout(Socket& sock);
 
 // maps login menu option to description and function
 const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
@@ -105,7 +105,7 @@ void run_client(Socket& sock)
 bool login_menu(Socket& sock)
 {
 	std::string choiceStr;
-	ClientStatus status{};
+	ConnStatus status{};
 	SockFunc func{};
 
 	do
@@ -126,7 +126,7 @@ bool login_menu(Socket& sock)
 		catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
 
 		cout << endl;
-	} while (ClientStatus::Error == status);
+	} while (ConnStatus::Error == status);
 
-	return ClientStatus::Connected == status;
+	return ConnStatus::Connected == status;
 }
