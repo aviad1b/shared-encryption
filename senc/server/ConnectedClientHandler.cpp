@@ -123,19 +123,26 @@ namespace senc::server
 	void ConnectedClientHandler::continue_operation(const OperationID& opid,
 													const DecryptionsManager::PrepareRecord& opPrepRecord)
 	{
-		auto members = utils::views::join(opPrepRecord.owners_found, opPrepRecord.reg_members_found);
-
 		// get shards IDs of all members
-		std::vector<PrivKeyShardID> shardsIDs;
-		for (const auto& member : members)
-			shardsIDs.push_back(_storage.get_shard_id(member, opPrepRecord.userset_id));
+		std::vector<PrivKeyShardID> ownersShardsIDs;
+		std::vector<PrivKeyShardID> regMembersShardsIDs;
+		for (const auto& owner : opPrepRecord.owners_found)
+			ownersShardsIDs.push_back(_storage.get_shard_id(owner, opPrepRecord.userset_id));
+		for (const auto& regMember : opPrepRecord.reg_members_found)
+			regMembersShardsIDs.push_back(_storage.get_shard_id(regMember, opPrepRecord.userset_id));
 
 		// for each member, make an update of ciphertext to decrypt
-		for (const auto& member : members)
+		for (const auto& owner : opPrepRecord.owners_found)
 			_updateManager.register_decryption_participated(
-				member, opid,
+				owner, opid,
 				opPrepRecord.ciphertext,
-				shardsIDs
+				ownersShardsIDs
+			);
+		for (const auto& regMember : opPrepRecord.reg_members_found)
+			_updateManager.register_decryption_participated(
+				regMember, opid,
+				opPrepRecord.ciphertext,
+				regMembersShardsIDs
 			);
 	}
 
