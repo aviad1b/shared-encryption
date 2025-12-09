@@ -124,9 +124,9 @@ namespace senc::server
 													const DecryptionsManager::PrepareRecord& opPrepRecord)
 	{
 		// get shards IDs of all participants (including requester)
-		std::vector<PrivKeyShardID> ownersShardsIDs;
-		std::vector<PrivKeyShardID> regMembersShardsIDs;
-		ownersShardsIDs.push_back(_storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id));
+		const auto requesterShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
+		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterShardID };
+		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterShardID };
 		for (const auto& owner : opPrepRecord.owners_found)
 			ownersShardsIDs.push_back(_storage.get_shard_id(owner, opPrepRecord.userset_id));
 		for (const auto& regMember : opPrepRecord.reg_members_found)
