@@ -3,6 +3,18 @@ add_executable (senc_server
 	"IServerStorage.hpp"
 	"ShortTermServerStorage.hpp"
 	"ShortTermServerStorage.cpp"
+	"ConnectingClientHandler.hpp"
+	"ConnectingClientHandler.cpp"
+	"ConnectedClientHandler.hpp"
+	"ConnectedClientHandler.cpp"
+	"ClientHandlerFactory.hpp"
+	"ClientHandlerFactory.cpp"
+	"UpdateManager.hpp"
+	"UpdateManager.cpp"
+	"DecryptionsManager.hpp"
+	"DecryptionsManager.cpp"
+	"Server.hpp"
+	"Server.cpp"
 	"main.cpp"
 )
 

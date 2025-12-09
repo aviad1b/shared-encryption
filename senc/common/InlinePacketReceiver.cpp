@@ -273,11 +273,12 @@ namespace senc
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out)
 	{
+		// NOTE: Assuming each parts vector is same len as its corresponding shards IDs vector
+
 		// recv sizes
 		auto parts1Count = sock.recv_connected_primitive<member_count_t>();
 		auto parts2Count = sock.recv_connected_primitive<member_count_t>();
 		sock.recv_connected_value(out.op_id);
-		sock.recv_connected_value(out.user_set_id);
 
 		// recv parts
 		out.parts1.resize(parts1Count);
@@ -286,5 +287,13 @@ namespace senc
 		out.parts2.resize(parts2Count);
 		for (auto& part : out.parts2)
 			recv_decryption_part(sock, part);
+
+		// recv shards IDs
+		out.shardsIDs1.resize(parts1Count);
+		for (auto& shardID : out.shardsIDs1)
+			sock.recv_connected_value(shardID);
+		out.shardsIDs2.resize(parts2Count);
+		for (auto& shardID : out.shardsIDs2)
+			sock.recv_connected_value(shardID);
 	}
 }

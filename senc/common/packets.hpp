@@ -332,9 +332,15 @@ namespace senc::pkt
 		Ciphertext ciphertext;
 
 		DecryptRequest() : user_set_id(), ciphertext() { }
+		DecryptRequest(const UserSetID& userSetID, const Ciphertext& ciphertext)
+			: user_set_id(userSetID), ciphertext(ciphertext) { }
+		DecryptRequest(const UserSetID& userSetID, Ciphertext&& ciphertext)
+			: user_set_id(userSetID), ciphertext(std::move(ciphertext)) { }
+		DecryptRequest(UserSetID&& userSetID, const Ciphertext& ciphertext)
+			: user_set_id(std::move(userSetID)), ciphertext(ciphertext) { }
 		DecryptRequest(UserSetID&& userSetID, Ciphertext&& ciphertext)
-			: user_set_id(std::forward<UserSetID>(userSetID)),
-			  ciphertext(std::forward<Ciphertext>(ciphertext)) { }
+			: user_set_id(std::move(userSetID)),
+			  ciphertext(std::move(ciphertext)) { }
 	};
 
 	/**
@@ -406,9 +412,21 @@ namespace senc::pkt
 		 * @struct AddedAsOwnerRecord
 		 * @brief Record indicating user has been added as an owner to a user set.
 		 */
-		struct AddedAsOwnerRecord : AddedAsMemberRecord
+		struct AddedAsOwnerRecord
 		{
 			bool operator==(const AddedAsOwnerRecord&) const = default;
+
+			/// User set ID.
+			UserSetID user_set_id;
+
+			/// Public key of the set for first layer (non-owner layer) encryption.
+			PubKey pub_key1;
+
+			/// Public key of the set for second layer (owner layer) encryption.
+			PubKey pub_key2;
+
+			/// Private key shard for first layer (non-owner layer) decryption.
+			PrivKeyShard priv_key1_shard;
 
 			/// Private key shard for second layer (owner layer) decryption.
 			PrivKeyShard priv_key2_shard;
@@ -455,14 +473,17 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
-			/// ID of userset under which decryption occurred.
-			UserSetID user_set_id;
-
 			/// Decryption parts for first layer (non-owner layer).
 			std::vector<DecryptionPart> parts1;
 
 			/// Decryption parts for second layer (owner layer).
 			std::vector<DecryptionPart> parts2;
+
+			// Shards IDs used in parts of first layer.
+			std::vector<PrivKeyShardID> shardsIDs1;
+
+			// Shards IDs used in parts of second layer.
+			std::vector<PrivKeyShardID> shardsIDs2;
 		};
 
 		/// Finished decryptions requested by this client.

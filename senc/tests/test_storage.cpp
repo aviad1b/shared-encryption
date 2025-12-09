@@ -61,54 +61,6 @@ TEST_P(ServerStorageTest, NewUser_MultipleUsersCanBeCreated)
 	EXPECT_TRUE(storage->user_exists("gal"));
 }
 
-// ----- Operation Management Tests -----
-
-TEST_P(ServerStorageTest, NewOperation_ConsecutiveCallsReturnDifferentIDs)
-{
-	storage->new_user("avi");
-	storage->new_user("batya");
-
-	OperationID op1 = storage->new_operation("avi");
-	OperationID op2 = storage->new_operation("batya");
-
-	EXPECT_NE(op1, op2);
-}
-
-TEST_P(ServerStorageTest, GetOperationInfo_ReturnsCorrectRequester)
-{
-	storage->new_user("avi");
-
-	OperationID opid = storage->new_operation("avi");
-	OperationInfo info = storage->get_operation_info(opid);
-
-	EXPECT_EQ(info.requester, "avi");
-}
-
-TEST_P(ServerStorageTest, GetOperationInfo_NewOperationIsNotCompleted)
-{
-	storage->new_user("avi");
-
-	OperationID opid = storage->new_operation("avi");
-	OperationInfo info = storage->get_operation_info(opid);
-
-	EXPECT_FALSE(info.is_completed);
-}
-
-TEST_P(ServerStorageTest, GetOperationInfo_MultipleOperationsMaintainSeparateInfo)
-{
-	storage->new_user("avi");
-	storage->new_user("batya");
-
-	OperationID op1 = storage->new_operation("avi");
-	OperationID op2 = storage->new_operation("batya");
-
-	OperationInfo info1 = storage->get_operation_info(op1);
-	OperationInfo info2 = storage->get_operation_info(op2);
-
-	EXPECT_EQ(info1.requester, "avi");
-	EXPECT_EQ(info2.requester, "batya");
-}
-
 // ----- UserSet Management Tests -----
 
 TEST_P(ServerStorageTest, NewUserset_ReturnsValidUserSetID)
@@ -364,13 +316,6 @@ TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations
 	EXPECT_NE(aviShard, batyaShard);
 	EXPECT_NE(aviShard, galShard);
 	EXPECT_NE(batyaShard, galShard);
-
-	// create and verify operation
-	OperationID opid = storage->new_operation("avi");
-	OperationInfo opInfo = storage->get_operation_info(opid);
-
-	EXPECT_EQ(opInfo.requester, "avi");
-	EXPECT_FALSE(opInfo.is_completed);
 }
 
 TEST_P(ServerStorageTest, EdgeCase_EmptyRegularMembersList)
