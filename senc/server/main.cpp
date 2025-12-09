@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 		try { port = std::stoi(argv[1]); }
 		catch (const std::exception&)
 		{
-			std::cout << "Bad port: " << port << std::endl;
+			std::cout << "Bad port: " << argv[1] << std::endl;
 			return 1;
 		}
 	}
