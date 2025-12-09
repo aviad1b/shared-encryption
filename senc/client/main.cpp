@@ -106,6 +106,11 @@ void run_client(Socket& sock)
 	main_menu(sock);;
 }
 
+/**
+ * @brief Runs login menu untill client is connected (or disconnected).
+ * @param sock Client socket.
+ * @return `true` if client ended up connecting, `false` if ended up disconnecting.
+ */
 bool login_menu(Socket& sock)
 {
 	std::string choiceStr;
