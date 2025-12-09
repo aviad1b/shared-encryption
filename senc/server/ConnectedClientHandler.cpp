@@ -66,8 +66,8 @@ namespace senc::server
 			return _storage.get_shard_id(username, res.user_set_id);
 		};
 		auto creatorShardID = _storage.get_shard_id(creator, res.user_set_id);
-		auto ownersShardsIDs = owners | std::views::transform(getShardID);
-		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
+		auto ownersShardsIDs = setOwners | std::views::transform(getShardID);
+		auto regMembersShardsIDs = setRegMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members
 		res.priv_key1_shard = Shamir::make_shard(poly1, creatorShardID);
