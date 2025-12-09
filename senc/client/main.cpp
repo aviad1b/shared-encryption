@@ -93,6 +93,10 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+/**
+ * @brief Runs client on given socket.
+ * @param sock Client socket.
+ */
 void run_client(Socket& sock)
 {
 	bool connected = login_menu(sock);
