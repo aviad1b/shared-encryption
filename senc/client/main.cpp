@@ -26,6 +26,20 @@ enum class LoginMenuOption
 	Exit
 };
 
+enum class MainMenuOption
+{
+	MakeUserSet,
+	GetUserSets,
+	GetMembers,
+	Encrypt,
+	Decrypt,
+	Update,
+	Participate,
+	CompPart,
+	SendPart,
+	Exit
+};
+
 enum class ConnStatus { Error, Connected, Disconnected };
 
 using SockFunc = std::function<ConnStatus(Socket&)>;
@@ -42,12 +56,35 @@ void main_menu(Socket& sock);
 ConnStatus signup(Socket& sock);
 ConnStatus login(Socket& sock);
 ConnStatus logout(Socket& sock);
+ConnStatus make_userset(Socket& sock);
+ConnStatus get_usersets(Socket& sock);
+ConnStatus get_members(Socket& sock);
+ConnStatus encrypt(Socket& sock);
+ConnStatus decrypt(Socket& sock);
+ConnStatus update(Socket& sock);
+ConnStatus participate(Socket& sock);
+ConnStatus comp_part(Socket& sock);
+ConnStatus send_part(Socket& sock);
 
 // maps login menu option to description and function
 const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
 	{ LoginMenuOption::Signup, { "Signup", signup } },
 	{ LoginMenuOption::Login, { "Login", login } },
 	{ LoginMenuOption::Exit, { "Exit", logout } }
+};
+
+// maps main menu option to description and function
+const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
+	{ MainMenuOption::MakeUserSet, { "Create a new userset", make_userset } },
+	{ MainMenuOption::GetUserSets, { "Show my usersets", get_usersets } },
+	{ MainMenuOption::GetMembers, { "Show userset's memebrs", get_members } },
+	{ MainMenuOption::Encrypt, { "Encrypt a message", encrypt } },
+	{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
+	{ MainMenuOption::Update, { "Run an update cycle", update } },
+	{ MainMenuOption::Participate, { "Participate in decryption", participate } },
+	{ MainMenuOption::CompPart, { "Compute part for decryption", comp_part } },
+	{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
+	{ MainMenuOption::Exit, { "Exit", logout } }
 };
 
 int main(int argc, char** argv)
@@ -138,4 +175,35 @@ bool login_menu(Socket& sock)
 	} while (ConnStatus::Error == status);
 
 	return ConnStatus::Connected == status;
+}
+
+/**
+ * @brief Runs login menu untill client is disconnects.
+ * @param sock Client socket.
+ */
+void main_menu(Socket& sock)
+{
+	std::string choiceStr;
+	ConnStatus status{};
+	SockFunc func{};
+
+	do
+	{
+		cout << "Main Menu" << endl;
+		cout << "==========" << endl;
+
+		for (const auto& [opt, record] : MAIN_OPTS)
+			cout << (int)opt << ".\t" << record.description << endl;
+		cout << endl;
+
+		cout << "Enter your choice: ";
+		std::getline(cin, choiceStr);
+		try { func = MAIN_OPTS.at((MainMenuOption)std::stoi(choiceStr)).func; }
+		catch (const std::exception&) { cout << "Bad choice, try again." << endl; }
+
+		try { status = func(sock); }
+		catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+
+		cout << endl;
+	} while (ConnStatus::Disconnected != status);
 }
