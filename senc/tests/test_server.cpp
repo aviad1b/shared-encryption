@@ -423,6 +423,17 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	EXPECT_EQ(memberOnLookup.size(), 1);
 	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
 
+	// (extra does same, but will not participate in decryption)
+	auto upe = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
+	EXPECT_TRUE(upe.has_value());
+	const auto& extraSetsAddedTo = upe->added_as_reg_member;
+	EXPECT_EQ(extraSetsAddedTo.size(), 1);
+	EXPECT_EQ(extraSetsAddedTo.front().user_set_id, ownerUsersetID);
+	EXPECT_EQ(extraSetsAddedTo.front().pub_key1, ownerPubKey1);
+	EXPECT_EQ(extraSetsAddedTo.front().pub_key2, ownerPubKey2);
+	const auto& extraShard = extraSetsAddedTo.front().priv_key1_shard;
+	(void)extraShard; // for debugging purposes
+
 	// 3) member tells server that they're willing to participate in operation
 	auto dp = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
 		memberOnLookup.front()
