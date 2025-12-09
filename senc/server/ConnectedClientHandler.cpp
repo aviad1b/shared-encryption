@@ -96,7 +96,7 @@ namespace senc::server
 
 	OperationID ConnectedClientHandler::initiate_decryption(const UserSetID& usersetID, Ciphertext&& ciphertext)
 	{
-		auto info = _storage.get_userset_info(usersetID);		
+		auto info = _storage.get_userset_info(usersetID);
 
 		// register oepration in decryptions manager
 		auto opid = _decryptionsManager.register_new_operation(
