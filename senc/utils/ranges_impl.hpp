@@ -270,11 +270,15 @@ namespace senc::utils
 		template <std::ranges::range R1, std::ranges::range R2>
 		inline typename JoinView<R1, R2>::iterator JoinView<R1, R2>::begin()
 		{
+			const auto firstBegin = std::ranges::begin(this->_r1);
+			const auto firstEnd = std::ranges::end(this->_r1);
+			const auto secondBegin = std::ranges::begin(this->_r2);
+			const bool inFirst = (firstBegin != firstEnd); // begin is in first iff first isn't empty
 			return iterator(
-				true, // inFirst=true
-				std::ranges::begin(this->_r1),
-				std::ranges::end(this->_r1),
-				std::ranges::begin(this->_r2)
+				inFirst,
+				firstBegin,
+				firstEnd,
+				secondBegin
 			);
 		}
 
@@ -292,11 +296,15 @@ namespace senc::utils
 		template <std::ranges::range R1, std::ranges::range R2>
 		inline typename JoinView<R1, R2>::const_iterator JoinView<R1, R2>::begin() const
 		{
+			const auto firstBegin = std::ranges::begin(this->_r1);
+			const auto firstEnd = std::ranges::end(this->_r1);
+			const auto secondBegin = std::ranges::begin(this->_r2);
+			const bool inFirst = (firstBegin != firstEnd); // begin is in first iff first isn't empty
 			return const_iterator(
-				true, // inFirst=true
-				std::ranges::begin(this->_r1),
-				std::ranges::end(this->_r1),
-				std::ranges::begin(this->_r2)
+				inFirst,
+				firstBegin,
+				firstEnd,
+				secondBegin
 			);
 		}
 
