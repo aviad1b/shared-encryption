@@ -115,3 +115,13 @@ TEST(Ranges, JoinThreeTest)
 	for (const auto& [i, elem] : join(x, y, z) | enumerate)
 		EXPECT_EQ(elem, all[i]);
 }
+
+TEST(Ranges, JoinFirstEmpty)
+{
+	std::vector<std::string> x{};
+	std::vector<std::string> y{ "abc", "def" };
+	std::vector<std::string> all = y;
+
+	for (const auto& [i, elem] : join(x, y) | enumerate)
+		EXPECT_EQ(elem, all[i]);
+}
