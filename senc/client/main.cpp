@@ -8,6 +8,7 @@
 namespace pkt = senc::pkt;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
+using senc::utils::Exception;
 using senc::utils::TcpSocket;
 using senc::utils::Socket;
 using senc::utils::IPv4;
@@ -53,6 +54,7 @@ struct OptionRecord
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
+template <typename Resp> auto post(Socket& sock, const auto& request);
 ConnStatus signup(Socket& sock);
 ConnStatus login(Socket& sock);
 ConnStatus logout(Socket& sock);
@@ -86,9 +88,6 @@ const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
 	{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
 	{ MainMenuOption::Exit, { "Exit", logout } }
 };
-
-InlinePacketReceiver receiver;
-InlinePacketSender sender;
 
 int main(int argc, char** argv)
 {
@@ -209,4 +208,27 @@ void main_menu(Socket& sock)
 
 		cout << endl;
 	} while (ConnStatus::Disconnected != status);
+}
+
+/**
+ * @brief Sends request and returns retrieved response.
+ * @tparam Resp Response type.
+ * @param sock Socket to send request and receive response through.
+ * @param request Request to send.
+ * @return Received response, or `std::nullopt` if error occured.
+ * @throw Exception If error occured.
+ */
+template <typename Resp>
+Resp post(Socket& sock, const auto& request)
+{
+	static InlinePacketReceiver receiver;
+	static InlinePacketSender sender;
+
+	sender.send_request(sock, request);
+	auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
+	if (!resp.has_value())
+		throw Exception("Unexpected response received");
+	if (std::holds_alternative<pkt::ErrorResponse>(*resp))
+		throw Exception(std::get<pkt::ErrorResponse>(*resp).msg);
+	return std::get<Resp>(*resp);
 }
