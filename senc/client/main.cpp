@@ -275,3 +275,15 @@ ConnStatus login(Socket& sock)
 
 	return ConnStatus::Disconnected;
 }
+
+ConnStatus logout(Socket& sock)
+{
+	string confirm = input("Are you sure you want to leave? (y/n): ");
+	if (confirm != "y" && confirm != "Y")
+		return ConnStatus::Connected;
+
+	post<pkt::LogoutResponse>(sock, pkt::LoginRequest{});
+
+	cout << "Goodbye!" << endl;
+	return ConnStatus::Disconnected;
+}
