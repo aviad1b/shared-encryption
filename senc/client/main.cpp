@@ -415,10 +415,10 @@ namespace senc
 		cout << "Second public key:" << endl << bytes_to_base64(resp.pub_key2.to_bytes()) << endl << endl;
 
 		cout << "First private key shard: (" << resp.priv_key1_shard.first
-			 << ", " << resp.priv_key1_shard.second << ")" << endl << endl;
+			 << "," << resp.priv_key1_shard.second << ")" << endl << endl;
 
 		cout << "Second private key shard: (" << resp.priv_key2_shard.first
-			<< ", " << resp.priv_key2_shard.second << ")" << endl << endl;
+			<< "," << resp.priv_key2_shard.second << ")" << endl << endl;
 
 		return ConnStatus::Connected;
 	}
