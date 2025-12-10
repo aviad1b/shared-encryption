@@ -13,6 +13,7 @@ namespace senc
 	using utils::Exception;
 	using utils::TcpSocket;
 	using utils::Socket;
+	using utils::Buffer;
 	using utils::IPv4;
 	using utils::Port;
 	using utils::UUID;
@@ -431,6 +432,47 @@ namespace senc
 		cout << "Non-owners:" << endl;
 		for (const auto& regMember : resp.reg_members)
 			cout << regMember << endl;
+		cout << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus encrypt(Socket& sock)
+	{
+		enum class PlaintextOption { Text = 1, Binary };
+		static Schema schema;
+
+		// let user choose text message or binary message
+		cout << (int)PlaintextOption::Text << ". Encrypt text message" << endl;
+		cout << (int)PlaintextOption::Binary << ". Encrypt binary message" << endl;
+		cout << endl;
+		PlaintextOption choice = (PlaintextOption)input_num<int>("Enter your choice: ");
+		while (PlaintextOption::Text != choice && PlaintextOption::Binary != choice)
+			choice = (PlaintextOption)input_num<int>("Invalid input, try again: ");
+
+		Buffer plaintext;
+		if (PlaintextOption::Text == choice)
+		{
+			string msg = input("Enter message to encrypt (text):\n");
+			plaintext = Buffer(msg.begin(), msg.end());
+		}
+		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
+		cout << endl;
+
+		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
+		cout << endl;
+		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
+		cout << endl;
+
+		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
+		const auto& [c3a, c3b] = c3;
+		Buffer c3aBuffer(c3a.begin(), c3a.end()); // TODO: Remove once utils support all byte ranges
+
+		cout << "Encrypted message:" << endl;
+		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
+		cout << "c1:\t" << bytes_to_base64(c2.to_bytes()) << endl;
+		cout << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl;
+		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
 		cout << endl;
 
 		return ConnStatus::Connected;
