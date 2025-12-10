@@ -51,6 +51,7 @@ struct OptionRecord
 	SockFunc func;
 };
 
+string input();
 string input(const string& msg);
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
@@ -133,12 +134,17 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-string input(const string& msg)
+string input()
 {
 	string res;
-	cout << msg;
 	std::getline(cin, res);
 	return res;
+}
+
+string input(const string& msg)
+{
+	cout << msg;
+	return input();
 }
 
 /**
