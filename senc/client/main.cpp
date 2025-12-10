@@ -6,10 +6,13 @@
 #include <map>
 
 namespace pkt = senc::pkt;
+using senc::utils::bytes_from_base64;
+using senc::utils::bytes_to_base64;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
 using senc::utils::Exception;
 using senc::utils::TcpSocket;
+using senc::member_count_t;
 using senc::utils::Socket;
 using senc::utils::IPv4;
 using senc::utils::Port;
@@ -344,4 +347,39 @@ ConnStatus logout(Socket& sock)
 
 	cout << "Goodbye!" << endl;
 	return ConnStatus::Disconnected;
+}
+
+ConnStatus make_userset(Socket& sock)
+{
+	vector<string> owners = input_vec(
+		"Enter owners (usernames, each in new line, ending with empty line):\n"
+	);
+	vector<string> regMembers = input_vec(
+		"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
+	);
+	auto ownersThreshold = input_num<member_count_t>("Enter owners threshold for decryption: ");
+	auto regMembersThreshold = input_num<member_count_t>("Enter non-owner members threshold for decryption: ");
+
+	auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
+		.reg_members = std::move(regMembers),
+		.owners = std::move(owners),
+		.reg_members_threshold = regMembersThreshold,
+		.owners_threshold = ownersThreshold
+	});
+
+	cout << "Userset created successfully:" << endl << endl;
+
+	cout << "\tID: " << resp.user_set_id << endl << endl;
+
+	cout << "First public key:" << endl << bytes_to_base64(resp.pub_key1.to_bytes()) << endl << endl;
+
+	cout << "Second public key:" << endl << bytes_to_base64(resp.pub_key2.to_bytes()) << endl << endl;
+
+	cout << "First private key shard: (" << resp.priv_key1_shard.first
+		 << ", " << resp.priv_key1_shard.second << ")" << endl << endl;
+
+	cout << "Second private key shard: (" << resp.priv_key2_shard.first
+		<< ", " << resp.priv_key2_shard.second << ")" << endl << endl;
+
+	return ConnStatus::Connected;
 }
