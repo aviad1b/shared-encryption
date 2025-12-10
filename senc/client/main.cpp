@@ -13,6 +13,7 @@ using senc::utils::TcpSocket;
 using senc::utils::Socket;
 using senc::utils::IPv4;
 using senc::utils::Port;
+using std::vector;
 using std::string;
 using std::endl;
 using std::cout;
@@ -51,7 +52,16 @@ struct OptionRecord
 	SockFunc func;
 };
 
+template <typename Self>
+concept NumInputable = std::integral<Self> &&
+	(std::numeric_limits<Self>::min() > std::numeric_limits<int>::min()) &&
+	(std::numeric_limits<Self>::max() < std::numeric_limits<int>::max());
+
+string input();
 string input(const string& msg);
+vector<string> input_vec(const string& msg);
+template <NumInputable T> T input_num();
+template <NumInputable T> T input_num(const string& msg);
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
@@ -133,11 +143,28 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-string input(const string& msg)
+string input()
 {
 	string res;
-	cout << msg;
 	std::getline(cin, res);
+	return res;
+}
+
+string input(const string& msg)
+{
+	cout << msg;
+	return input();
+}
+
+vector<string> input_vec(const string& msg)
+{
+	vector<string> res;
+	string curr;
+
+	cout << msg;
+	while (!(curr = input()).empty())
+		res.push_back(curr);
+
 	return res;
 }
 
@@ -213,6 +240,37 @@ void main_menu(Socket& sock)
 
 		cout << endl;
 	} while (ConnStatus::Disconnected != status);
+}
+
+template <NumInputable T>
+inline T input_num()
+{
+	constexpr T MIN = std::numeric_limits<T>::min();
+	constexpr T MAX = std::numeric_limits<T>::max();
+	bool invalid = false;
+	int num = 0;
+
+	do
+	{
+		invalid = false;
+		string str = input();
+		try { num = std::stoi(str); }
+		catch (const std::exception&)
+		{
+			cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << endl;
+			cout << "Try again: ";
+			invalid = true;
+		}
+	} while (invalid);
+
+	return static_cast<T>(num);
+}
+
+template <NumInputable T>
+inline T input_num(const string& msg)
+{
+	cout << msg;
+	return input_num<T>();
 }
 
 /**
