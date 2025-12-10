@@ -509,6 +509,20 @@ namespace senc
 
 		return ConnStatus::Connected;
 	}
+
+	ConnStatus participate(Socket& sock)
+	{
+		auto opid = input_uuid("Enter operation ID: ");
+
+		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
+
+		if (resp.status == pkt::DecryptParticipateResponse::Status::SendPart)
+			cout << "Participance registered, be ready to send part in a future update." << endl;
+		else
+			cout << "Your participance is not needed for this operation." << endl;
+
+		return ConnStatus::Connected;
+	}
 }
 
 int main(int argc, char** argv)
