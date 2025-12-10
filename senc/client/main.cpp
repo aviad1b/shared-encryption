@@ -477,6 +477,38 @@ namespace senc
 
 		return ConnStatus::Connected;
 	}
+
+	ConnStatus decrypt(Socket& sock)
+	{
+		auto usersetID = input_uuid("Enter ID of userset to decrypt under: ");
+		cout << endl;
+
+		auto c1 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c1 (base64):\n")));
+		cout << endl;
+
+		auto c2 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c2 (base64):\n")));
+		cout << endl;
+
+		auto c3aBuffer = bytes_from_base64(input("Enter ciphertext c3a (base64):\n"));
+		cout << endl;
+
+		auto c3b = bytes_from_base64(input("Enter ciphertext c3b (base64):\n"));
+		cout << endl;
+
+		CryptoPP::SecByteBlock c3a(c3aBuffer.data(), c3aBuffer.size());
+		utils::enc::AES1L::Ciphertext c3 { c3a, c3b };
+
+		Ciphertext ciphertext = { std::move(c1), std::move(c2), std::move(c3) };
+
+		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
+			usersetID, std::move(ciphertext)
+		});
+
+		cout << "Decryption request submitted successfully." << endl;
+		cout << "Operation ID: " << resp.op_id << endl;
+
+		return ConnStatus::Connected;
+	}
 }
 
 int main(int argc, char** argv)
