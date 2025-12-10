@@ -57,8 +57,8 @@ namespace senc
 
 	template <typename Self>
 	concept NumInputable = std::integral<Self> &&
-		(std::numeric_limits<Self>::min() > std::numeric_limits<int>::min()) &&
-		(std::numeric_limits<Self>::max() < std::numeric_limits<int>::max());
+		(std::numeric_limits<Self>::min() >= std::numeric_limits<int>::min()) &&
+		(std::numeric_limits<Self>::max() <= std::numeric_limits<int>::max());
 
 	string input();
 	string input(const string& msg);
