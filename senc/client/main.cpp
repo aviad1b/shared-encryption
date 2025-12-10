@@ -68,6 +68,8 @@ namespace senc
 	template <NumInputable T> T input_num(const string& msg);
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
+	PrivKeyShard input_priv_key_shard();
+	PrivKeyShard input_priv_key_shard(const string& msg);
 	Ciphertext input_ciphertext();
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
@@ -188,6 +190,46 @@ namespace senc
 	{
 		cout << msg;
 		return input_uuid();
+	}
+
+	PrivKeyShard input_priv_key_shard()
+	{
+		bool valid = false;
+		PrivKeyShard res{};
+		do
+		{
+			string str = input();
+			auto commaIndex = str.find(',');
+			if (str.empty() || str[0] != '(' || str[str.length() - 1] != ')' || commaIndex == string::npos)
+			{
+				cout << "Invalid input, try again: ";
+				continue;
+			}
+
+			string idStr = str.substr(0, commaIndex);
+			string valStr = str.substr(commaIndex + 1);
+
+			try
+			{
+				res.first = PrivKeyShardID(std::stoi(idStr));
+				res.second = PrivKeyShardValue(std::stoi(valStr));
+			}
+			catch (const std::exception&)
+			{
+				cout << "Invalid input, try again: ";
+				continue;
+			}
+
+			valid = true; // if reached here, input is valid
+		} while (!valid);
+
+		return res;
+	}
+
+	PrivKeyShard input_priv_key_shard(const string& msg)
+	{
+		cout << msg;
+		return input_priv_key_shard();
 	}
 
 	Ciphertext input_ciphertext()
