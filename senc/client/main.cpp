@@ -254,3 +254,25 @@ ConnStatus signup(Socket& sock)
 
 	return ConnStatus::Disconnected;
 }
+
+ConnStatus login(Socket& sock)
+{
+	string username;
+
+	cout << "Enter username: ";
+	std::getline(cin, username);
+
+	auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
+	if (resp.status == pkt::LoginResponse::Status::Success)
+	{
+		cout << "Logged in successfully as \"" << username << "\"." << endl;
+		return ConnStatus::Connected;
+	}
+
+	if (resp.status == pkt::LoginResponse::Status::BadUsername)
+		cout << "Signup failed: Bad username." << endl;
+	else
+		cout << "Signup failed: Unknown error." << endl;
+
+	return ConnStatus::Disconnected;
+}
