@@ -432,6 +432,8 @@ namespace senc
 		for (const auto& regMember : resp.reg_members)
 			cout << regMember << endl;
 		cout << endl;
+
+		return ConnStatus::Connected;
 	}
 }
 
