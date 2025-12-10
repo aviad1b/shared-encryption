@@ -51,6 +51,7 @@ struct OptionRecord
 	SockFunc func;
 };
 
+string input(const string& msg);
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
@@ -132,6 +133,14 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+string input(const string& msg)
+{
+	string res;
+	cout << msg;
+	std::getline(cin, res);
+	return res;
+}
+
 /**
  * @brief Runs client on given socket.
  * @param sock Client socket.
@@ -153,7 +162,6 @@ void run_client(Socket& sock)
 bool login_menu(Socket& sock)
 {
 	ConnStatus status{};
-	string choiceStr;
 	SockFunc func{};
 
 	do
@@ -165,8 +173,7 @@ bool login_menu(Socket& sock)
 			cout << (int)opt << ".\t" << record.description << endl;
 		cout << endl;
 
-		cout << "Enter your choice: ";
-		std::getline(cin, choiceStr);
+		string choiceStr = input("Enter your choice: ");
 		try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
 		catch (const std::exception&) { cout << "Bad choice, try again." << endl; }
 
@@ -186,7 +193,6 @@ bool login_menu(Socket& sock)
 void main_menu(Socket& sock)
 {
 	ConnStatus status{};
-	string choiceStr;
 	SockFunc func{};
 
 	do
@@ -198,8 +204,7 @@ void main_menu(Socket& sock)
 			cout << (int)opt << ".\t" << record.description << endl;
 		cout << endl;
 
-		cout << "Enter your choice: ";
-		std::getline(cin, choiceStr);
+		string choiceStr = input("Enter your choice: ");
 		try { func = MAIN_OPTS.at((MainMenuOption)std::stoi(choiceStr)).func; }
 		catch (const std::exception&) { cout << "Bad choice, try again." << endl; }
 
@@ -235,10 +240,7 @@ inline Resp post(Socket& sock, const auto& request)
 
 ConnStatus signup(Socket& sock)
 {
-	string username;
-
-	cout << "Enter username: ";
-	std::getline(cin, username);
+	string username = input("Enter username: ");
 
 	auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
 	if (resp.status == pkt::SignupResponse::Status::Success)
@@ -257,10 +259,7 @@ ConnStatus signup(Socket& sock)
 
 ConnStatus login(Socket& sock)
 {
-	string username;
-
-	cout << "Enter username: ";
-	std::getline(cin, username);
+	string username = input("Enter username: ");
 
 	auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
 	if (resp.status == pkt::LoginResponse::Status::Success)
