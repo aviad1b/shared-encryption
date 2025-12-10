@@ -9,11 +9,13 @@ namespace senc
 {
 	using utils::bytes_from_base64;
 	using utils::bytes_to_base64;
+	using utils::UUIDException;
 	using utils::Exception;
 	using utils::TcpSocket;
 	using utils::Socket;
 	using utils::IPv4;
 	using utils::Port;
+	using utils::UUID;
 	using std::vector;
 	using std::string;
 	using std::endl;
@@ -63,6 +65,8 @@ namespace senc
 	vector<string> input_vec(const string& msg);
 	template <NumInputable T> T input_num();
 	template <NumInputable T> T input_num(const string& msg);
+	UUID input_uuid();
+	UUID input_uuid(const string& msg);
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -167,6 +171,21 @@ namespace senc
 			res.push_back(curr);
 
 		return res;
+	}
+
+	UUID input_uuid()
+	{
+		while (true)
+		{
+			try { return UUID(input()); }
+			catch (const UUIDException&) { cout << "Bad input, try again: "; }
+		}
+	}
+
+	UUID input_uuid(const string& msg)
+	{
+		cout << msg;
+		return input_uuid();
 	}
 
 	/**
