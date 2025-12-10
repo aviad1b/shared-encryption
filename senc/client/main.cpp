@@ -241,10 +241,16 @@ ConnStatus signup(Socket& sock)
 	std::getline(cin, username);
 
 	auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+	if (resp.status == pkt::SignupResponse::Status::Success)
+	{
+		cout << "Signed up successfully as \"" << username << "\"." << endl;
+		return ConnStatus::Connected;
+	}
+	
 	if (resp.status == pkt::SignupResponse::Status::UsernameTaken)
 		cout << "Signup failed: Username already taken." << endl;
 	else
-		cout << "Signed up successfully as \"" << username << "\"." << endl;
+		cout << "Signup failed: Unknown error." << endl;
 
-	return ConnStatus::Connected;
+	return ConnStatus::Disconnected;
 }
