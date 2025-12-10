@@ -416,6 +416,23 @@ namespace senc
 
 		return ConnStatus::Connected;
 	}
+
+	ConnStatus get_members(Socket& sock)
+	{
+		auto id = input_uuid("Enter userset ID: ");
+
+		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
+
+		cout << "Owners:" << endl;
+		for (const auto& owner : resp.owners)
+			cout << owner << endl;
+		cout << endl;
+
+		cout << "Non-owners:" << endl;
+		for (const auto& regMember : resp.reg_members)
+			cout << regMember << endl;
+		cout << endl;
+	}
 }
 
 int main(int argc, char** argv)
