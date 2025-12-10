@@ -383,3 +383,19 @@ ConnStatus make_userset(Socket& sock)
 
 	return ConnStatus::Connected;
 }
+
+ConnStatus get_usersets(Socket& sock)
+{
+	auto resp = post<pkt::GetUserSetsResponse>(sock, pkt::GetUserSetsRequest{});
+
+	if (resp.user_sets_ids.empty())
+		cout << "You do not own any usersets." << endl;
+	else
+	{
+		cout << "IDs of owned usersets:" << endl;
+		for (const auto& id : resp.user_sets_ids)
+			cout << id << endl;
+	}
+
+	return ConnStatus::Connected;
+}
