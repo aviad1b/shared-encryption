@@ -13,6 +13,7 @@ using senc::utils::TcpSocket;
 using senc::utils::Socket;
 using senc::utils::IPv4;
 using senc::utils::Port;
+using std::vector;
 using std::string;
 using std::endl;
 using std::cout;
@@ -53,6 +54,7 @@ struct OptionRecord
 
 string input();
 string input(const string& msg);
+vector<string> input_vec(const string& msg);
 void run_client(Socket& sock);
 bool login_menu(Socket& sock);
 void main_menu(Socket& sock);
@@ -145,6 +147,18 @@ string input(const string& msg)
 {
 	cout << msg;
 	return input();
+}
+
+vector<string> input_vec(const string& msg)
+{
+	vector<string> res;
+	string curr;
+
+	cout << msg;
+	while (!(curr = input()).empty())
+		res.push_back(curr);
+
+	return res;
 }
 
 /**
