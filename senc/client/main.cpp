@@ -66,6 +66,8 @@ namespace senc
 	vector<string> input_vec(const string& msg);
 	template <NumInputable T> T input_num();
 	template <NumInputable T> T input_num(const string& msg);
+	template <NumInputable T> std::optional<T> input_num(bool allowEmpty);
+	template <NumInputable T> std::optional<T> input_num(const string& msg, bool allowEmpty);
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
 	PrivKeyShard input_priv_key_shard();
@@ -329,6 +331,19 @@ namespace senc
 	template <NumInputable T>
 	inline T input_num()
 	{
+		
+	}
+
+	template <NumInputable T>
+	inline T input_num(const string& msg)
+	{
+		cout << msg;
+		return input_num<T>();
+	}
+
+	template <NumInputable T>
+	inline std::optional<T> input_num(bool allowEmpty)
+	{
 		constexpr T MIN = std::numeric_limits<T>::min();
 		constexpr T MAX = std::numeric_limits<T>::max();
 		bool invalid = false;
@@ -338,6 +353,10 @@ namespace senc
 		{
 			invalid = false;
 			string str = input();
+
+			if (allowEmpty && str.empty())
+				return std::nullopt;
+
 			try { num = std::stoi(str); }
 			catch (const std::exception&)
 			{
@@ -351,10 +370,10 @@ namespace senc
 	}
 
 	template <NumInputable T>
-	inline T input_num(const string& msg)
+	inline std::optional<T> input_num(const string& msg, bool allowEmpty)
 	{
 		cout << msg;
-		return input_num<T>();
+		return input_num<T>(allowEmpty);
 	}
 
 	/**
