@@ -68,6 +68,7 @@ namespace senc
 	template <NumInputable T> T input_num(const string& msg);
 	template <NumInputable T> std::optional<T> input_num(bool allowEmpty);
 	template <NumInputable T> std::optional<T> input_num(const string& msg, bool allowEmpty);
+	template <NumInputable T> vector<T> input_num_vec(const string& msg);
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
 	PrivKeyShard input_priv_key_shard();
@@ -374,6 +375,22 @@ namespace senc
 	{
 		cout << msg;
 		return input_num<T>(allowEmpty);
+	}
+
+	template <NumInputable T>
+	vector<T> input_num_vec(const string& msg)
+	{
+		vector<T> res;
+
+		while (true)
+		{
+			auto num = input_num<T>(true); // allowEmpty=true
+			if (!num.has_value())
+				return res;
+			res.push_back(*num);
+		}
+
+		return res;
 	}
 
 	/**
