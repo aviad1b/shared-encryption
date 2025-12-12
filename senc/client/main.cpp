@@ -29,14 +29,14 @@ namespace senc
 
 	enum class LoginMenuOption
 	{
-		Signup,
+		Signup = 1,
 		Login,
 		Exit
 	};
 
 	enum class MainMenuOption
 	{
-		MakeUserSet,
+		MakeUserSet = 1,
 		GetUserSets,
 		GetMembers,
 		Encrypt,
