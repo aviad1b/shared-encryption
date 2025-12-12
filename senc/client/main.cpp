@@ -25,6 +25,8 @@ namespace senc
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
+	enum class AllowEmpty { No, Yes };
+
 	enum class LoginMenuOption
 	{
 		Signup,
@@ -66,8 +68,8 @@ namespace senc
 	vector<string> input_vec(const string& msg);
 	template <NumInputable T> T input_num();
 	template <NumInputable T> T input_num(const string& msg);
-	template <NumInputable T> std::optional<T> input_num(bool allowEmpty);
-	template <NumInputable T> std::optional<T> input_num(const string& msg, bool allowEmpty);
+	template <NumInputable T> std::optional<T> input_num(AllowEmpty allowEmpty);
+	template <NumInputable T> std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty);
 	template <NumInputable T> vector<T> input_num_vec(const string& msg);
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
@@ -343,7 +345,7 @@ namespace senc
 	}
 
 	template <NumInputable T>
-	inline std::optional<T> input_num(bool allowEmpty)
+	inline std::optional<T> input_num(AllowEmpty allowEmpty)
 	{
 		constexpr T MIN = std::numeric_limits<T>::min();
 		constexpr T MAX = std::numeric_limits<T>::max();
@@ -355,7 +357,7 @@ namespace senc
 			invalid = false;
 			string str = input();
 
-			if (allowEmpty && str.empty())
+			if (AllowEmpty::Yes == allowEmpty && str.empty())
 				return std::nullopt;
 
 			try { num = std::stoi(str); }
@@ -371,7 +373,7 @@ namespace senc
 	}
 
 	template <NumInputable T>
-	inline std::optional<T> input_num(const string& msg, bool allowEmpty)
+	inline std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty)
 	{
 		cout << msg;
 		return input_num<T>(allowEmpty);
@@ -384,7 +386,7 @@ namespace senc
 
 		while (true)
 		{
-			auto num = input_num<T>(true); // allowEmpty=true
+			auto num = input_num<T>(AllowEmpty::Yes);
 			if (!num.has_value())
 				return res;
 			res.push_back(*num);
