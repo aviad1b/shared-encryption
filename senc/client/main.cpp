@@ -609,6 +609,32 @@ namespace senc
 
 		return ConnStatus::Connected;
 	}
+
+	ConnStatus comp_part(Socket& sock)
+	{
+		int layer = input_num<int>("Input layer (1 or 2): ");
+		while (1 != layer && 2 != layer)
+			layer = input_num<int>("Invalid input, try again: ");
+
+		Ciphertext ciphertext = input_ciphertext();
+		cout << endl;
+
+		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
+		cout << endl;
+
+		auto privKeyShardsIDs = input_num_vec<PrivKeyShardID>("Enter envolved private key shard IDs (each in new line):\n");
+		cout << endl;
+
+		DecryptionPart part{};
+		if (1 == layer)
+			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
+		else
+			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
+
+		cout << "Decryption part computes: " << part << endl;
+
+		return ConnStatus::Connected;
+	}
 }
 
 int main(int argc, char** argv)
