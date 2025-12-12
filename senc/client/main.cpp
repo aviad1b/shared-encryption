@@ -379,6 +379,8 @@ namespace senc
 	template <NumInputable T>
 	vector<T> input_num_vec(const string& msg)
 	{
+		(void)msg;
+
 		vector<T> res;
 
 		while (true)
@@ -537,6 +539,8 @@ namespace senc
 
 	ConnStatus encrypt(Socket& sock)
 	{
+		(void)sock;
+
 		enum class PlaintextOption { Text = 1, Binary };
 		static Schema schema;
 
