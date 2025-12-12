@@ -331,7 +331,7 @@ namespace senc
 	template <NumInputable T>
 	inline T input_num()
 	{
-		
+		return *input_num<T>(AllowEmpty::No);
 	}
 
 	template <NumInputable T>
