@@ -43,7 +43,6 @@ namespace senc
 		Decrypt,
 		Update,
 		Participate,
-		CompPart,
 		SendPart,
 		Exit
 	};
@@ -90,7 +89,6 @@ namespace senc
 	ConnStatus decrypt(Socket& sock);
 	ConnStatus update(Socket& sock);
 	ConnStatus participate(Socket& sock);
-	ConnStatus comp_part(Socket& sock);
 	ConnStatus send_part(Socket& sock);
 
 	// maps login menu option to description and function
@@ -109,7 +107,6 @@ namespace senc
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
 		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::CompPart, { "Compute part for decryption", comp_part } },
 		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
 		{ MainMenuOption::Exit, { "Exit", logout } }
 	};
@@ -610,7 +607,7 @@ namespace senc
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus comp_part(Socket& sock)
+	ConnStatus send_part(Socket& sock)
 	{
 		int layer = input_num<int>("Input layer (1 or 2): ");
 		while (1 != layer && 2 != layer)
@@ -633,7 +630,7 @@ namespace senc
 
 		cout << "Decryption part computes: " << part << endl;
 
-		return ConnStatus::Connected;
+		return ConnStatus::Connected; // TODO: Finish implementing
 	}
 }
 
