@@ -613,6 +613,9 @@ namespace senc
 		while (1 != layer && 2 != layer)
 			layer = input_num<int>("Invalid input, try again: ");
 
+		auto opid = input_uuid("Enter operation ID: ");
+		cout << endl;
+
 		Ciphertext ciphertext = input_ciphertext();
 		cout << endl;
 
@@ -630,7 +633,14 @@ namespace senc
 
 		cout << "Decryption part computes: " << part << endl;
 
-		return ConnStatus::Connected; // TODO: Finish implementing
+		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
+			opid,
+			std::move(part)
+		});
+
+		cout << "Part submitted successfully." << endl;
+
+		return ConnStatus::Connected;
 	}
 }
 
