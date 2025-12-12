@@ -107,7 +107,7 @@ namespace senc
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
 		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
+		{ MainMenuOption::SendPart, { "Compute & send part for decryption", send_part } },
 		{ MainMenuOption::Exit, { "Exit", logout } }
 	};
 
