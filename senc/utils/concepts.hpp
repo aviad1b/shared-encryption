@@ -11,6 +11,7 @@
 #include <concepts>
 #include <iterator>
 #include <ostream>
+#include <istream>
 #include <string>
 #include <ranges>
 #include <tuple>
@@ -223,6 +224,12 @@ namespace senc::utils
 	concept Outputable = requires(std::ostream& os, const Self self)
 	{
 		{ os << self } -> std::convertible_to<std::ostream&>;
+	};
+
+	template <typename Self>
+	concept Inputable = requires(std::istream & is, Self self)
+	{
+		{ is >> self } -> std::convertible_to<std::istream&>;
 	};
 
 	template <typename Self>
