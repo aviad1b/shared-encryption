@@ -96,6 +96,7 @@ namespace senc
 	ConnStatus send_part(Socket& sock);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
+	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
 
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
@@ -622,6 +623,22 @@ namespace senc
 				print_userset_data(i, data);
 			cout << endl;
 		}
+
+		if (!resp.on_lookup.empty())
+		{
+			cout << "IDs of operations looking for you:" << endl;
+			for (const auto& opid : resp.on_lookup)
+				cout << opid << endl;
+			cout << endl;
+		}
+
+		if (!resp.to_decrypt.empty())
+		{
+			cout << "Pending decryption operations:" << endl;
+			for (const auto& [i, data] : resp.to_decrypt | utils::views::enumerate)
+				print_to_decrypt_data(i, data);
+			cout << endl;
+		}
 	}
 
 	ConnStatus participate(Socket& sock)
@@ -691,6 +708,38 @@ namespace senc
 			cout << "Second private key shard: (" << data.priv_key2_shard.first
 				 << "," << data.priv_key2_shard.second << ")" << endl << endl;
 		cout << "==============================" << endl << endl << endl;
+	}
+
+	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data)
+	{
+		const auto& [c1, c2, c3] = data.ciphertext;
+		const auto& [c3a, c3b] = c3;
+		Buffer c3aBuffer(c3a.begin(), c3a.end());
+
+		cout << "==============================" << endl;
+
+		cout << "To-Decrypt Operation #" << (idx + 1) << ":" << endl << endl;
+
+		cout << "Operation ID: " << data.op_id << endl << endl;
+
+		cout << "Ciphertext:" << endl
+			 << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl
+			 << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl
+			 << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl
+			 << "c3b:\t" << bytes_to_base64(c3b) << endl
+			 << endl;
+
+		cout << "Involved Shards IDs: ";
+		if (!data.shards_ids.empty())
+		{
+			auto it = data.shards_ids.cbegin();
+			cout << *it;
+			for (++it; it != data.shards_ids.cend(); ++it)
+				cout << ", " << *it;
+		}
+		cout << endl << endl;
+
+		cout << "==============================" << endl;
 	}
 }
 
