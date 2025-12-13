@@ -108,6 +108,19 @@ namespace senc::utils
 		Buffer to_bytes() const;
 
 		/**
+		 * @brief Parses group element from string.
+		 * @param str String to parse.
+		 * @return Parsed group element.
+		 */
+		static Self from_string(std::string str);
+
+		/**
+		 * @brief Converts group element to string.
+		 * @return String representation of group element.
+		 */
+		std::string to_string() const;
+
+		/**
 		 * @brief Output operator for `ECGroup`.
 		 */
 		friend std::ostream& operator<<(std::ostream& os, const ECGroup& elem);

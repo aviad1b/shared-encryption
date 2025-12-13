@@ -8,6 +8,9 @@
 
 #include "ECGroup.hpp"
 
+#include <sstream>
+#include "StrParseException.hpp"
+
 namespace senc::utils
 {
 	const CryptoPP::DL_GroupParameters_EC<ECGroup::ECP> ECGroup::EC_PARAMS = 
@@ -97,11 +100,42 @@ namespace senc::utils
 		return res;
 	}
 
+	ECGroup::Self ECGroup::from_string(std::string str)
+	{
+		static const std::string PREFIX = "ECGroup(";
+		static const std::string SUFFIX = ")";
+
+		// check for prefix and suffix, then trim them off
+		if (!str.starts_with(PREFIX) || !str.ends_with(SUFFIX))
+			throw StrParseException("Invalid input", str);
+		str = str.substr(PREFIX.length());
+		str = str.substr(0, str.length() - SUFFIX.length());
+
+		// check for identity representative
+		if ("IDENTITY" == str)
+			return IDENTITY;
+
+		auto commaIdx = str.find(',');
+		if (commaIdx == std::string::npos)
+			throw StrParseException("Invalid input", str);
+
+		auto xStr = str.substr(0, commaIdx);
+		auto yStr = str.substr(commaIdx + 1);
+		return Self(BigInt(xStr.c_str()), BigInt(yStr.c_str()));
+	}
+
+	std::string ECGroup::to_string() const
+	{
+		std::stringstream s;
+		s << *this;
+		return s.str();
+	}
+
 	std::ostream& operator<<(std::ostream& os, const ECGroup& elem)
 	{
 		if (elem.is_identity())
 			return os << "ECGroup(IDENTITY)";
-		return os << "ECGroup(" << elem._point.x << ", " << elem._point.y << ")";
+		return os << "ECGroup(" << elem._point.x << "," << elem._point.y << ")";
 	}
 
 	bool ECGroup::is_identity() const
