@@ -640,6 +640,27 @@ namespace senc
 			cout << endl;
 		}
 
+		for (auto& record : resp.finished_decryptions)
+		{
+			cout << "==============================" << endl;
+			cout << "Decryption operation " << record.op_id << " is ready." << endl << endl;
+			Ciphertext ciphertext = input_ciphertext();
+			PrivKeyShard privKeyShard1 = input_priv_key_shard("Enter your private key shard for layer1: ");
+			cout << endl;
+			PrivKeyShard privKeyShard2 = input_priv_key_shard("Enter your private key shard for layer2: ");
+			cout << endl;
+			record.parts1.push_back(Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard1, record.shardsIDs1));
+			record.parts2.push_back(Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard2, record.shardsIDs2));
+			auto decrypted = Shamir::decrypt_join_2l(ciphertext, record.parts1, record.parts2);
+			string choice = input("Is this a textual message? (y/n): ");
+			cout << "Decrypted message:" << endl;
+			if (choice == "y" || choice == "Y")
+				cout << std::string(decrypted.begin(), decrypted.end()) << endl;
+			else
+				cout << utils::bytes_to_base64(decrypted) << endl;
+			cout << "==============================" << endl;
+		}
+
 		return ConnStatus::Connected;
 	}
 
