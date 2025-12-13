@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <sstream>
 #include <string>
 #include "concepts.hpp"
 
@@ -45,5 +46,39 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept StringParsable = HasFromString<Self> || Inputable<Self>;
+	concept StringParsable = HasFromString<Self> ||
+		(Inputable<Self> && std::default_initializable<Self>);
+
+	/**
+	 * @brief Converts given value to string.
+	 */
+	template <StringConvertible T>
+	std::string to_string(const T& x)
+	{
+		if constexpr (HasToString<T>)
+			return x.to_string();
+		else
+		{
+			std::stringstream s;
+			s << x;
+			return s.str();
+		}
+	}
+
+	/**
+	 * @brief Parses value of given type from string.
+	 */
+	template <StringParsable T>
+	T from_string(const std::string& str)
+	{
+		if constexpr (HasFromString<T>)
+			return T::from_string(str);
+		else
+		{
+			T res{};
+			std::stringstream s = str;
+			s >> res;
+			return res;
+		}
+	}
 }
