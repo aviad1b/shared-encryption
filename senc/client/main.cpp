@@ -7,6 +7,10 @@
 
 namespace senc
 {
+	using AddedAsMemberRecord = pkt::UpdateResponse::AddedAsMemberRecord;
+	using AddedAsOwnerRecord = pkt::UpdateResponse::AddedAsOwnerRecord;
+	using ToDecryptRecord = pkt::UpdateResponse::ToDecryptRecord;
+	using FinishedDecryptionsRecord = pkt::UpdateResponse::FinishedDecryptionsRecord;
 	using utils::bytes_from_base64;
 	using utils::bytes_to_base64;
 	using utils::UUIDException;
@@ -90,6 +94,8 @@ namespace senc
 	ConnStatus update(Socket& sock);
 	ConnStatus participate(Socket& sock);
 	ConnStatus send_part(Socket& sock);
+	void print_userset_data(size_t idx,
+							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
@@ -597,6 +603,25 @@ namespace senc
 		return ConnStatus::Connected;
 	}
 
+	ConnStatus update(Socket& sock)
+	{
+		auto resp = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+
+		if (!resp.added_as_owner.empty())
+		{
+			cout << "Added to " << resp.added_as_owner.size() << " new usersets as owner:" << endl;
+			for (const auto& [i, data] : resp.added_as_owner | utils::views::enumerate)
+				print_userset_data(i, data);
+		}
+
+		if (!resp.added_as_reg_member.empty())
+		{
+			cout << "Added to " << resp.added_as_reg_member.size() << " new usersets as non-owner:" << endl;
+			for (const auto& [i, data] : resp.added_as_reg_member | utils::views::enumerate)
+				print_userset_data(i, data);
+		}
+	}
+
 	ConnStatus participate(Socket& sock)
 	{
 		auto opid = input_uuid("Enter operation ID: ");
@@ -645,6 +670,25 @@ namespace senc
 		cout << "Part submitted successfully." << endl;
 
 		return ConnStatus::Connected;
+	}
+
+	inline void print_userset_data(size_t idx,
+								   const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data)
+	{
+		using Data = std::remove_cvref_t<decltype(data)>;
+		cout << "==============================" << endl;
+		cout << "Set #" << (i + 1) << ":" << endl << endl;
+		cout << "ID: " << data.user_set_id << endl << endl;
+		cout << "First public key:" << endl << bytes_to_base64(data.pub_key1.to_bytes()) << endl << endl;
+		cout << "Second public key:" << endl << bytes_to_base64(data.pub_key2.to_bytes()) << endl << endl;
+		cout << "First private key shard: (" << data.priv_key1_shard.first
+			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
+		cout << "First private key shard: (" << data.priv_key1_shard.first
+			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
+		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
+			cout << "Second private key shard: (" << data.priv_key2_shard.first
+				 << "," << data.priv_key2_shard.second << ")" << endl << endl;
+		cout << "==============================" << endl << endl << endl;
 	}
 }
 
