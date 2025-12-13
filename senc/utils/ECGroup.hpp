@@ -16,6 +16,7 @@
 
 #include "Random.hpp"
 #include "Group.hpp"
+#include "bytes.hpp"
 #include "math.hpp"
 
 namespace senc::utils
@@ -92,6 +93,19 @@ namespace senc::utils
 		 * @return Sampled element.
 		 */
 		static Self sample();
+
+		/**
+		 * @brief Parses group element from bytes.
+		 * @param bytes Buffer of bytes.
+		 * @return Parsed group element.
+		 */
+		static Self from_bytes(const Buffer& bytes);
+
+		/**
+		 * @brief Serializes group element to bytes.
+		 * @return Serialized group element.
+		 */
+		Buffer to_bytes() const;
 
 		/**
 		 * @brief Determines whether or not this is the identity element.
