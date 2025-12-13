@@ -6,6 +6,7 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#include "StrParseException.hpp"
 #include "ModInt.hpp"
 
 #include <sstream>
@@ -399,6 +400,32 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
+	inline ModInt<ModTraits>::Self ModInt<ModTraits>::from_string(const std::string& str)
+	{
+		std::stringstream s(str);
+		Int val{};
+		s >> val;
+		if (s.fail() || !s.eof())
+			throw StrParseException("Bad input", str);
+		return val;
+	}
+
+	template <ModTraitsType ModTraits>
+	inline std::string ModInt<ModTraits>::to_string() const
+	{
+		std::stringstream s;
+		s << *this;
+		return s.str();
+	}
+
+	template <ModTraitsType ModTraits>
+	inline std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
+	requires Outputable<typename ModInt<ModTraits>::Int>
+	{
+		return os << (typename ModInt<ModTraits>::Int)modint;
+	}
+
+	template <ModTraitsType ModTraits>
 	inline bool operator==(const typename ModInt<ModTraits>::Int& value, const ModInt<ModTraits>& modint) SENC_REQ_NOEXCEPT(
 		(EqualityComparable, typename ModInt<ModTraits>::Int)
 	)
@@ -449,12 +476,5 @@ namespace senc::utils
 	)
 	{
 		return ModInt<ModTraits>(a) / b;
-	}
-
-	template <ModTraitsType ModTraits>
-	inline std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
-	requires Outputable<typename ModInt<ModTraits>::Int>
-	{
-		return os << (typename ModInt<ModTraits>::Int)modint;
 	}
 }
