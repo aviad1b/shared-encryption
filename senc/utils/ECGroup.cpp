@@ -97,6 +97,13 @@ namespace senc::utils
 		return res;
 	}
 
+	std::ostream& operator<<(std::ostream& os, const ECGroup& elem)
+	{
+		if (elem.is_identity())
+			return os << "ECGroup(IDENTITY)";
+		return os << "ECGroup(" << elem._point.x << ", " << elem._point.y << ")";
+	}
+
 	bool ECGroup::is_identity() const
 	{
 		return this->_isIdentity;
@@ -168,13 +175,6 @@ namespace senc::utils
 			return this->inverse().pow(-exp);
 
 		return Self(EC_CURVE.Multiply(exp, this->_point));
-	}
-
-	std::ostream& operator<<(std::ostream& os, const ECGroup& elem)
-	{
-		if (elem.is_identity())
-			return os << "ECGroup(IDENTITY)";
-		return os << "ECGroup(" << elem._point.x << ", " << elem._point.y << ")";
 	}
 
 	ECGroup::ECGroup(bool isIdentity) : _isIdentity(isIdentity) { }

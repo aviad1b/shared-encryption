@@ -108,6 +108,11 @@ namespace senc::utils
 		Buffer to_bytes() const;
 
 		/**
+		 * @brief Output operator for `ECGroup`.
+		 */
+		friend std::ostream& operator<<(std::ostream& os, const ECGroup& elem);
+
+		/**
 		 * @brief Determines whether or not this is the identity element.
 		 * @return `true` if `*this` is the identity element, otherwise `false`.
 		 */
@@ -172,11 +177,6 @@ namespace senc::utils
 		 * @return Result of repeated group operation.
 		 */
 		Self pow(const BigInt& exp) const;
-
-		/**
-		 * @brief Output operator for `ECGroup`.
-		 */
-		friend std::ostream& operator<<(std::ostream& os, const ECGroup& elem);
 
 	private:
 		using ECP = CryptoPP::ECP;
