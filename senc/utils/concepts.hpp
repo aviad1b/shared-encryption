@@ -18,6 +18,15 @@
 namespace senc::utils
 {
 	/**
+	 * @concept senc::utils::OneOf
+	 * @brief Checks for a typename from a provided typename list.
+	 * @tparam Self Examined typename.
+	 * @tparam Ts Types that `Self` is expected to be one of.
+	 */
+	template <typename Self, typename... Ts>
+	concept OneOf = (std::same_as<Self, Ts> || ...);
+
+	/**
 	 * @concept senc::utils::TupleLike
 	 * @brief Checks for a tuple-like typename.
 	 * @tparam Self Examined typename.
