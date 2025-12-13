@@ -10,6 +10,8 @@
 	"math.hpp"
 	"Exception.hpp"
 	"Exception.cpp"
+	"StrParseException.hpp"
+	"StrParseException.cpp"
 	"Socket.hpp"
 	"Socket.cpp"
 	"Socket_impl.hpp"
