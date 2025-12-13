@@ -129,6 +129,13 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
+	inline std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
+	requires Outputable<typename ModInt<ModTraits>::Int>
+	{
+		return os << (typename ModInt<ModTraits>::Int)modint;
+	}
+
+	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::operator const Int&() const noexcept
 	{
 		return this->_value;
@@ -449,12 +456,5 @@ namespace senc::utils
 	)
 	{
 		return ModInt<ModTraits>(a) / b;
-	}
-
-	template <ModTraitsType ModTraits>
-	inline std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
-	requires Outputable<typename ModInt<ModTraits>::Int>
-	{
-		return os << (typename ModInt<ModTraits>::Int)modint;
 	}
 }
