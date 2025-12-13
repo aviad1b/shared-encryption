@@ -639,6 +639,8 @@ namespace senc
 				print_to_decrypt_data(i, data);
 			cout << endl;
 		}
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus participate(Socket& sock)
