@@ -612,6 +612,7 @@ namespace senc
 			cout << "Added to " << resp.added_as_owner.size() << " new usersets as owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_owner | utils::views::enumerate)
 				print_userset_data(i, data);
+			cout << endl;
 		}
 
 		if (!resp.added_as_reg_member.empty())
@@ -619,6 +620,7 @@ namespace senc
 			cout << "Added to " << resp.added_as_reg_member.size() << " new usersets as non-owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_reg_member | utils::views::enumerate)
 				print_userset_data(i, data);
+			cout << endl;
 		}
 	}
 
