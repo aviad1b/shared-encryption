@@ -570,6 +570,10 @@ namespace senc::utils
 		Int _value;
 	};
 
+	template <ModTraitsType ModTraits>
+	std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
+	requires Outputable<typename ModInt<ModTraits>::Int>;
+
 	/**
 	 * @brief Checks if a modular integer has a given value.
 	 * @param value Value to check if the modular integer has.
@@ -638,10 +642,6 @@ namespace senc::utils
 		(LowerComparable, typename ModInt<ModTraits>::Int),
 		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	);
-
-	template <ModTraitsType ModTraits>
-	std::ostream& operator<<(std::ostream& os, ModInt<ModTraits> modint)
-	requires Outputable<typename ModInt<ModTraits>::Int>;
 }
 
 #include "ModInt_impl.hpp"
