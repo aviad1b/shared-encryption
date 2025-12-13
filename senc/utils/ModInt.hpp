@@ -564,6 +564,19 @@ namespace senc::utils
 			(SelfDevisible, Exp)
 		);
 
+		/**
+		 * @brief Parses a modint value from string (numeric representative).
+		 * @param str String to parse.
+		 * @return Parsed value.
+		 */
+		static Self from_string(const std::string& str);
+
+		/**
+		 * @brief Gets string representation of modint value (numeric representative as string).
+		 * @return String representation.
+		 */
+		std::string to_string() const;
+
 	private:
 		static inline Distribution<Int> _dist = Random<Int>::get_dist_below(modulus());
 

@@ -6,6 +6,7 @@
  * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
+#include "StrParseException.hpp"
 #include "ModInt.hpp"
 
 #include <sstream>
@@ -396,6 +397,25 @@ namespace senc::utils
 	)
 	{
 		return Self(mod_pow(this->_value, exp, modulus()));
+	}
+
+	template <ModTraitsType ModTraits>
+	inline ModInt<ModTraits>::Self ModInt<ModTraits>::from_string(const std::string& str)
+	{
+		std::stringstream s(str);
+		Int val{};
+		s >> val;
+		if (s.fail() || !s.eof())
+			throw StrParseException("Bad input", str);
+		return val;
+	}
+
+	template <ModTraitsType ModTraits>
+	inline std::string ModInt<ModTraits>::to_string() const
+	{
+		std::stringstream s;
+		s << *this;
+		return s.str();
 	}
 
 	template <ModTraitsType ModTraits>
