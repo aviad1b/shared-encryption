@@ -1,6 +1,7 @@
 ﻿add_library(senc_utils
 	"bytes.hpp"
 	"bytes.cpp"
+	"strs.hpp"
 	"bytes_impl.hpp"
 	"concepts.hpp"
 	"hash.hpp"
