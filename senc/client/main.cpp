@@ -677,7 +677,7 @@ namespace senc
 	{
 		using Data = std::remove_cvref_t<decltype(data)>;
 		cout << "==============================" << endl;
-		cout << "Set #" << (i + 1) << ":" << endl << endl;
+		cout << "Set #" << (idx + 1) << ":" << endl << endl;
 		cout << "ID: " << data.user_set_id << endl << endl;
 		cout << "First public key:" << endl << bytes_to_base64(data.pub_key1.to_bytes()) << endl << endl;
 		cout << "Second public key:" << endl << bytes_to_base64(data.pub_key2.to_bytes()) << endl << endl;
