@@ -33,7 +33,7 @@ TEST(Strs, ModInt)
 TEST(Strs, ECGroup)
 {
 	EXPECT_EQ(from_string<ECGroup>(to_string(ECGroup::identity())), ECGroup::identity());
-	EXPECT_EQ(from_string<ECGroup>(to_string(ECGroup::generator)), ECGroup::generator());
+	EXPECT_EQ(from_string<ECGroup>(to_string(ECGroup::generator())), ECGroup::generator());
 	for (int i = 0; i < 100; ++i)
 	{
 		auto elem = ECGroup::sample();
