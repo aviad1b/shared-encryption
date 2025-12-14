@@ -77,13 +77,14 @@ namespace senc::server
 		auto regMembersShards = Shamir::make_shards(poly1, regMembersShardsIDs);
 
 		// for all non-creator members, register update for userset
-		for (auto& [owner, shard1, shard2] : utils::views::zip(setOwners, ownersShards1, ownersShards2))
+		// (note that the zip view provides all elements by reference wrapper)
+		for (auto [owner, shard1, shard2] : utils::views::zip(setOwners, ownersShards1, ownersShards2))
 			_updateManager.register_owner(
 				owner, res.user_set_id,
 				res.pub_key1, res.pub_key2,
 				std::move(shard1), std::move(shard2)
 			);
-		for (auto& [regMember, shard] : utils::views::zip(setRegMembers, regMembersShards))
+		for (auto [regMember, shard] : utils::views::zip(setRegMembers, regMembersShards))
 			_updateManager.register_reg_member(
 				regMember, res.user_set_id,
 				res.pub_key1, res.pub_key2,
