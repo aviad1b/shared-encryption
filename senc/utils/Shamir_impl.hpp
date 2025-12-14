@@ -124,7 +124,6 @@ namespace senc::utils
 		const G& c = std::get<layer - 1>(ciphertext);
 		const auto& [xi, yi] = privKeyShard;
 
-		// TODO: Code duplication?
 		HashSet<SID> privKeyShardsIDsSet;
 		std::optional<std::size_t> i;
 		for (const auto& [idx, shardID] : privKeyShardsIDs | views::enumerate)
