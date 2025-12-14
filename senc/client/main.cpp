@@ -260,18 +260,12 @@ namespace senc
 
 	vector<string> input_usernames()
 	{
-		vector<string> res;
-		string curr;
-		while (!(curr = input()).empty())
-			res.push_back(curr);
-
-		return res;
+		return input_vec<input_username>();
 	}
 
 	vector<string> input_usernames(const string& msg)
 	{
-		cout << msg;
-		return input_usernames();
+		return input_vec<input_username>(msg);
 	}
 
 	PrivKeyShard input_priv_key_shard()
