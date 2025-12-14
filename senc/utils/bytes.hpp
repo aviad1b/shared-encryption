@@ -166,7 +166,8 @@ namespace senc::utils
 	std::string bytes_to_base64(const HasByteData auto& bytes);
 
 	template <std::ranges::input_range R>
-	requires std::same_as<std::ranges::range_value_t<R>, byte>
+	requires (std::same_as<std::ranges::range_value_t<R>, byte> &&
+		!HasByteData<R>)
 	std::string bytes_to_base64(R&& rng);
 
 	/**
