@@ -17,6 +17,111 @@
 
 namespace senc::server
 {
+	class ServerStorageException : public ServerException
+	{
+	public:
+		using Self = ServerStorageException;
+		using Base = ServerException;
+
+		ServerStorageException(const std::string& msg) : Base(msg) {}
+
+		ServerStorageException(std::string&& msg) : Base(std::move(msg)) {}
+
+		ServerStorageException(const std::string& msg, const std::string& info) : Base(msg, info) {}
+
+		ServerStorageException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
+
+		ServerStorageException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		ServerStorageException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+	};
+
+	/**
+	 * @class senc::server::UserExistsException
+	 * @brief Type of exceptions thrown by server storage when
+	 *        trying to make user that already exists.
+	 */
+	class UserExistsException : public ServerStorageException
+	{
+	public:
+		using Self = UserExistsException;
+		using Base = ServerStorageException;
+
+		UserExistsException(const std::string& username)
+			: Base("User \"" + username + "\" already exists"), _username(username) { }
+
+		UserExistsException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UserExistsException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		const std::string& username() const { return _username; }
+
+	private:
+		std::string _username;
+	};
+
+	/**
+	 * @class senc::server::UserNotFoundException
+	 * @brief Type of exceptions thrown by server storage when user not found.
+	 */
+	class UserNotFoundException : public ServerStorageException
+	{
+	public:
+		using Self = UserNotFoundException;
+		using Base = ServerStorageException;
+
+		UserNotFoundException(const std::string& username)
+			: Base("User \"" + username + "\" not found"), _username(username) { }
+
+		UserNotFoundException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UserNotFoundException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		const std::string& username() const { return _username; }
+
+	private:
+		std::string _username;
+	};
+
+	/**
+	 * @class senc::server::UserSetNotFoundException
+	 * @brief Type of exceptions thrown by server storage when userset not found.
+	 */
+	class UserSetNotFoundException : public ServerStorageException
+	{
+	public:
+		using Self = UserSetNotFoundException;
+		using Base = ServerStorageException;
+
+		UserSetNotFoundException(const UserSetID& id)
+			: Base("Userset with ID " + id.to_string() + " not found"), _id(id) { }
+
+		UserSetNotFoundException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UserSetNotFoundException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		const UserSetID& userset_id() const { return _id; }
+
+	private:
+		UserSetID _id;
+	};
+
 	/**
 	 * @struct senc::server::UserSetInfo
 	 * @brief Used for holding/returning information about a userset.
@@ -51,7 +156,8 @@ namespace senc::server
 		/**
 		 * @brief Registers new user.
 		 * @param username Username for user.
-		 * @throw ServerException In case of error.
+		 * @throw UserExistsException If user already exists.
+		 * @throw ServerStorageException In case of other errors.
 		 */
 		virtual void new_user(const std::string& username) = 0;
 
@@ -59,7 +165,7 @@ namespace senc::server
 		 * @brief Checks if a user with a given username exists.
 		 * @param username Username to check if exists.
 		 * @return `true` if user with username `username` exists, otherwise `false`.
-		 * @throw ServerException In case of error.
+		 * @throw ServerStorageException In case of error.
 		 */
 		virtual bool user_exists(const std::string& username) = 0;
 
@@ -70,7 +176,7 @@ namespace senc::server
 		 * @param ownersThreshold Decryption threshold for owners layer.
 		 * @param regMembersThreshold Decryption threshold for non-owners layer.
 		 * @return ID of userset.
-		 * @throw ServerException In case of error.
+		 * @throw ServerStorageException In case of error.
 		 */
 		virtual UserSetID new_userset(const utils::HashSet<std::string>& owners,
 									  const utils::HashSet<std::string>& regMembers,
@@ -81,7 +187,7 @@ namespace senc::server
 		 * @brief Gets all usersets owned by a specific user.
 		 * @param owner Username of user to get usersets owned by it.
 		 * @return Set of IDs of usersets where `owner` is an owner.
-		 * @throw ServerException In case of error.
+		 * @throw ServerStorageException In case of error.
 		 */
 		virtual utils::HashSet<UserSetID> get_usersets(const std::string& owner) = 0;
 
@@ -90,7 +196,7 @@ namespace senc::server
 		 * @param user Username of user to check if owns a specific userset.
 		 * @param userset ID of userset to check if `user` owns.
 		 * @return `true` if `user` owns `userset`, otherwise `false`.
-		 * @throw ServerException In case of error.
+		 * @throw ServerStorageException In case of error.
 		 */
 		virtual bool user_owns_userset(const std::string& user, const UserSetID& userset) = 0;
 
@@ -107,7 +213,7 @@ namespace senc::server
 		 * @param user Username of user to get its shard ID.
 		 * @param userset ID of userset.
 		 * @return Shard ID of `user` under `userset`.
-		 * @throw ServerException In case of error.
+		 * @throw ServerStorageException In case of error.
 		 */
 		virtual PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) = 0;
 	};
