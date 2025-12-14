@@ -264,6 +264,54 @@ namespace senc
 		return input_vec<T, elemInput>();
 	}
 
+	template <NumInputable T, bool allowEmpty>
+	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num()
+	{
+		constexpr T MIN = std::numeric_limits<T>::min();
+		constexpr T MAX = std::numeric_limits<T>::max();
+		bool invalid = false;
+		int num = 0;
+
+		do
+		{
+			invalid = false;
+			string str = input();
+
+			if constexpr (allowEmpty)
+				if (str.empty())
+					return std::nullopt;
+
+			try { num = std::stoi(str); }
+			catch (const std::exception&)
+			{
+				cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << endl;
+				cout << "Try again: ";
+				invalid = true;
+			}
+		} while (invalid);
+
+		return static_cast<T>(num);
+	}
+
+	template <NumInputable T, bool allowEmpty>
+	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg)
+	{
+		cout << msg;
+		return input_num<T, allowEmpty>();
+	}
+
+	template <NumInputable T>
+	vector<T> input_num_vec()
+	{
+		return input_vec<T, input_num<T, true>>();
+	}
+
+	template <NumInputable T>
+	vector<T> input_num_vec(const string& msg)
+	{
+		return input_vec<T, input_num<T, true>>(msg);
+	}
+
 	UUID input_uuid()
 	{
 		while (true)
@@ -461,54 +509,6 @@ namespace senc
 
 			cout << endl;
 		} while (ConnStatus::Disconnected != status);
-	}
-
-	template <NumInputable T, bool allowEmpty>
-	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num()
-	{
-		constexpr T MIN = std::numeric_limits<T>::min();
-		constexpr T MAX = std::numeric_limits<T>::max();
-		bool invalid = false;
-		int num = 0;
-
-		do
-		{
-			invalid = false;
-			string str = input();
-
-			if constexpr (allowEmpty)
-				if (str.empty())
-					return std::nullopt;
-
-			try { num = std::stoi(str); }
-			catch (const std::exception&)
-			{
-				cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << endl;
-				cout << "Try again: ";
-				invalid = true;
-			}
-		} while (invalid);
-
-		return static_cast<T>(num);
-	}
-
-	template <NumInputable T, bool allowEmpty>
-	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg)
-	{
-		cout << msg;
-		return input_num<T, allowEmpty>();
-	}
-
-	template <NumInputable T>
-	vector<T> input_num_vec()
-	{
-		return input_vec<T, input_num<T, true>>();
-	}
-
-	template <NumInputable T>
-	vector<T> input_num_vec(const string& msg)
-	{
-		return input_vec<T, input_num<T, true>>(msg);
 	}
 
 	/**
