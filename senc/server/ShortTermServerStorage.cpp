@@ -46,7 +46,7 @@ namespace senc::server
 		// check if all members exist
 		for (const auto& member : utils::views::join(owners, regMembers))
 			if (!_users.contains(member))
-				throw ServerException("User " + member + " does not exist");
+				throw UserNotFoundException(member);
 
 		UserSetID setID;
 
@@ -95,7 +95,7 @@ namespace senc::server
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(owner);
 		if (it == _users.end())
-			throw ServerException("User " + owner + "doesn't exist");
+			throw UserNotFoundException(owner);
 		return it->second;
 	}
 
@@ -104,7 +104,7 @@ namespace senc::server
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(user);
 		if (it == _users.end())
-			throw ServerException("User " + user + "doesn't exist");
+			throw UserNotFoundException(user);
 		return it->second.contains(userset);
 	}
 
@@ -113,7 +113,7 @@ namespace senc::server
 		const std::lock_guard<std::mutex> lock(_mtxUsersets);
 		const auto it = _usersets.find(userset);
 		if (it == _usersets.end())
-			throw ServerException("No userset with ID " + userset.to_string());
+			throw UserSetNotFoundException(userset);
 		return it->second;
 	}
 
