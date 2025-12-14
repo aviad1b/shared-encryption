@@ -8,6 +8,8 @@
 
 #include "ConnectingClientHandler.hpp"
 
+#include "UserExistsException.hpp"
+
 namespace senc::server
 {
 	ConnectingClientHandler::ConnectingClientHandler(utils::Socket& sock,
@@ -51,10 +53,12 @@ namespace senc::server
 	std::tuple<ConnectingClientHandler::Status, std::string>
 		ConnectingClientHandler::handle_request(const pkt::SignupRequest signup)
 	{
-		// TODO: This should return fitting status if user exists,
-		//       requires change in storage
-
 		try { _storage.new_user(signup.username); }
+		catch (const UserExistsException& e)
+		{
+			_sender.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
+			return { Status::Error, "" };
+		}
 		catch (const ServerException& e)
 		{
 			_sender.send_response(_sock, pkt::ErrorResponse{ e.what() });
