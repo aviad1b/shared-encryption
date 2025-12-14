@@ -45,11 +45,11 @@ namespace senc::server
 	 * @brief Type of exceptions thrown by server storage when
 	 *        trying to make user that already exists.
 	 */
-	class UserExistsException : public utils::Exception
+	class UserExistsException : public ServerStorageException
 	{
 	public:
 		using Self = UserExistsException;
-		using Base = utils::Exception;
+		using Base = ServerStorageException;
 
 		UserExistsException(const std::string& msg) : Base(msg) {}
 
