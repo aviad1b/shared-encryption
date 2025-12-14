@@ -35,6 +35,8 @@ namespace senc::utils
 	}
 
 	template <std::ranges::input_range R>
+	requires (std::same_as<std::ranges::range_value_t<R>, byte> &&
+		!HasByteData<R>)
 	std::string bytes_to_base64(R&& rng)
 	{
 		return bytes_to_base64(Buffer(std::ranges::begin(rng), std::ranges::end(rng)));
