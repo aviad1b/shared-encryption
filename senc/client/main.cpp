@@ -354,7 +354,8 @@ namespace senc
 
 	string input_username(const string& msg)
 	{
-		return input(msg);
+		cout << msg;
+		return input_username();
 	}
 
 	vector<string> input_usernames()
@@ -364,7 +365,8 @@ namespace senc
 
 	vector<string> input_usernames(const string& msg)
 	{
-		return input_vec<input_username>(msg);
+		cout << msg;
+		return input_usernames();
 	}
 
 	member_count_t input_threshold()
@@ -374,7 +376,8 @@ namespace senc
 
 	member_count_t input_threshold(const string& msg)
 	{
-		return input_num<member_count_t>(msg);
+		cout << msg;
+		return input_threshold();
 	}
 
 	UserSetID input_userset_id()
@@ -384,7 +387,8 @@ namespace senc
 
 	UserSetID input_userset_id(const string& msg)
 	{
-		return input_uuid(msg);
+		cout << msg;
+		return input_userset_id();
 	}
 
 	OperationID input_operation_id()
@@ -394,7 +398,8 @@ namespace senc
 
 	OperationID input_operation_id(const string& msg)
 	{
-		return input_uuid(msg);
+		cout << msg;
+		return input_operation_id();
 	}
 
 	vector<PrivKeyShardID> input_priv_key_shard_ids()
