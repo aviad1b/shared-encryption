@@ -152,6 +152,16 @@ namespace senc
 	 */
 	void run_client(Socket& sock)
 	{
+		// first, send protocol version to server
+		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
+
+		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
+		if (!isProtocolVersionSupported)
+		{
+			cout << "Protocol version not supported by server, exiting." << endl;
+			return;
+		}
+
 		bool connected = login_menu(sock);
 		if (!connected)
 			return;
