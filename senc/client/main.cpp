@@ -67,6 +67,9 @@ namespace senc
 	string input();
 	string input(const string& msg);
 
+	bool input_yesno();
+	bool input_yesno(const string& msg);
+
 	template <std::string(*elemInput)() = input>
 	vector<string> input_vec();
 
@@ -93,13 +96,18 @@ namespace senc
 
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
+
 	string input_username();
 	string input_username(const string& msg);
+
 	vector<string> input_usernames();
 	vector<string> input_usernames(const string& msg);
+
 	PrivKeyShard input_priv_key_shard();
 	PrivKeyShard input_priv_key_shard(const string& msg);
+
 	Ciphertext input_ciphertext();
+
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -193,6 +201,20 @@ namespace senc
 	{
 		cout << msg;
 		return input();
+	}
+
+	bool input_yesno()
+	{
+		string res = input();
+		while (res != "y" && res != "Y" && res != "n" && res != "N")
+			res = input("Bad input, try again: ");
+		return (res == "y" || res == "Y");
+	}
+
+	bool input_yesno(const string& msg)
+	{
+		cout << msg;
+		return input_yesno();
 	}
 
 	template <std::string(*elemInput)()>
@@ -513,8 +535,7 @@ namespace senc
 
 	ConnStatus logout(Socket& sock)
 	{
-		string confirm = input("Are you sure you want to leave? (y/n): ");
-		if (confirm != "y" && confirm != "Y")
+		if (input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::Connected;
 
 		post<pkt::LogoutResponse>(sock, pkt::LoginRequest{});
@@ -701,9 +722,9 @@ namespace senc
 			record.parts1.push_back(Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard1, record.shardsIDs1));
 			record.parts2.push_back(Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard2, record.shardsIDs2));
 			auto decrypted = Shamir::decrypt_join_2l(ciphertext, record.parts1, record.parts2);
-			string choice = input("Is this a textual message? (y/n): ");
+			bool isText = input_yesno("Is this a textual message? (y/n): ");
 			cout << "Decrypted message:" << endl;
-			if (choice == "y" || choice == "Y")
+			if (isText)
 				cout << std::string(decrypted.begin(), decrypted.end()) << endl;
 			else
 				cout << utils::bytes_to_base64(decrypted) << endl;
