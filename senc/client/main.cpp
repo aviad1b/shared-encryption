@@ -439,16 +439,9 @@ namespace senc
 	Ciphertext input_ciphertext()
 	{
 		auto c1 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c1 (base64):\n")));
-		cout << endl;
-
 		auto c2 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c2 (base64):\n")));
-		cout << endl;
-
 		auto c3aBuffer = bytes_from_base64(input("Enter ciphertext c3a (base64):\n"));
-		cout << endl;
-
 		auto c3b = bytes_from_base64(input("Enter ciphertext c3b (base64):\n"));
-		cout << endl;
 
 		CryptoPP::SecByteBlock c3a(c3aBuffer.data(), c3aBuffer.size());
 		utils::enc::AES1L::Ciphertext c3{ c3a, c3b };
@@ -705,12 +698,8 @@ namespace senc
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
-		cout << endl;
-
 		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
-		cout << endl;
 		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
-		cout << endl;
 
 		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
 		const auto& [c3a, c3b] = c3;
@@ -728,8 +717,6 @@ namespace senc
 	ConnStatus decrypt(Socket& sock)
 	{
 		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
-		cout << endl;
-
 		Ciphertext ciphertext = input_ciphertext();
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
