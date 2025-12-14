@@ -303,9 +303,6 @@ namespace senc::server
 
 		try
 		{
-			// TODO: Requirement check should be done here, 
-			// currently not supported by manager for simplicity
-			// (see pkt::DecryptParticipateResponse::Status)
 			std::tie(opPrepRecord, isRequired) = _decryptionsManager.register_participant(
 				request.op_id,
 				_username,
