@@ -46,16 +46,6 @@ namespace senc::utils
 	inline typename ShamirUtils<S, SID>::PackedSecret ShamirUtils<S, SID>::get_lagrange_coeff(
 		std::size_t i, const std::vector<SID>& shardsIDs)
 	{
-		// TODO: This check may lower performance, is it REALLY necessary?
-		HashSet<SID> shardsIDsSet;
-		for (const SID& shardID : shardsIDs)
-		{
-			if (!shardID)
-				throw ShamirException("Invalid ID provided: Should be non-zero");
-			shardsIDsSet.insert(shardID);
-		}
-		if (shardsIDs.size() != shardsIDsSet.size())
-			throw ShamirException("Invalid IDs provided: Not unique");
 		const auto& xi = shardsIDs[i];
 		return utils::product(
 			shardsIDs |
@@ -134,7 +124,6 @@ namespace senc::utils
 		const G& c = std::get<layer - 1>(ciphertext);
 		const auto& [xi, yi] = privKeyShard;
 
-		// TODO: Code duplication?
 		HashSet<SID> privKeyShardsIDsSet;
 		std::optional<std::size_t> i;
 		for (const auto& [idx, shardID] : privKeyShardsIDs | views::enumerate)
