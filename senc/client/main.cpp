@@ -112,6 +112,9 @@ namespace senc
 	OperationID input_operation_id();
 	OperationID input_operation_id(const string& msg);
 
+	vector<PrivKeyShardID> input_priv_key_shard_ids();
+	vector<PrivKeyShardID> input_priv_key_shard_ids(const string& msg);
+
 	PrivKeyShard input_priv_key_shard();
 	PrivKeyShard input_priv_key_shard(const string& msg);
 
@@ -375,6 +378,16 @@ namespace senc
 	OperationID input_operation_id(const string& msg)
 	{
 		return input_uuid(msg);
+	}
+
+	vector<PrivKeyShardID> input_priv_key_shard_ids()
+	{
+		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>();
+	}
+
+	vector<PrivKeyShardID> input_priv_key_shard_ids(const string& msg)
+	{
+		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>(msg);
 	}
 
 	PrivKeyShard input_priv_key_shard()
@@ -801,7 +814,7 @@ namespace senc
 		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
 		cout << endl;
 
-		auto privKeyShardsIDs = input_num_vec<PrivKeyShardID>("Enter envolved private key shard IDs (each in new line):\n");
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line):\n");
 		cout << endl;
 
 		DecryptionPart part{};
