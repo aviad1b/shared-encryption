@@ -29,8 +29,6 @@ namespace senc
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
-	enum class AllowEmpty { No, Yes };
-
 	enum class LoginMenuOption
 	{
 		Signup = 1,
@@ -69,11 +67,16 @@ namespace senc
 	string input();
 	string input(const string& msg);
 	vector<string> input_vec(const string& msg);
-	template <NumInputable T> T input_num();
-	template <NumInputable T> T input_num(const string& msg);
-	template <NumInputable T> std::optional<T> input_num(AllowEmpty allowEmpty);
-	template <NumInputable T> std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty);
-	template <NumInputable T> vector<T> input_num_vec(const string& msg);
+
+	template <NumInputable T, bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<T>, T> input_num();
+
+	template <NumInputable T, bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg);
+
+	template <NumInputable T> vector<T>
+	input_num_vec(const string& msg);
+
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
 	PrivKeyShard input_priv_key_shard();
@@ -335,21 +338,8 @@ namespace senc
 		} while (ConnStatus::Disconnected != status);
 	}
 
-	template <NumInputable T>
-	inline T input_num()
-	{
-		return *input_num<T>(AllowEmpty::No);
-	}
-
-	template <NumInputable T>
-	inline T input_num(const string& msg)
-	{
-		cout << msg;
-		return input_num<T>();
-	}
-
-	template <NumInputable T>
-	inline std::optional<T> input_num(AllowEmpty allowEmpty)
+	template <NumInputable T, bool allowEmpty>
+	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num()
 	{
 		constexpr T MIN = std::numeric_limits<T>::min();
 		constexpr T MAX = std::numeric_limits<T>::max();
@@ -361,8 +351,9 @@ namespace senc
 			invalid = false;
 			string str = input();
 
-			if (AllowEmpty::Yes == allowEmpty && str.empty())
-				return std::nullopt;
+			if constexpr (allowEmpty)
+				if (str.empty())
+					return std::nullopt;
 
 			try { num = std::stoi(str); }
 			catch (const std::exception&)
@@ -376,11 +367,11 @@ namespace senc
 		return static_cast<T>(num);
 	}
 
-	template <NumInputable T>
-	inline std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty)
+	template <NumInputable T, bool allowEmpty>
+	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg)
 	{
 		cout << msg;
-		return input_num<T>(allowEmpty);
+		return input_num<T, allowEmpty>();
 	}
 
 	template <NumInputable T>
@@ -392,7 +383,7 @@ namespace senc
 
 		while (true)
 		{
-			auto num = input_num<T>(AllowEmpty::Yes);
+			auto num = input_num<T, true>();
 			if (!num.has_value())
 				return res;
 			res.push_back(*num);
