@@ -51,7 +51,8 @@ namespace senc::server
 		/**
 		 * @brief Registers new user.
 		 * @param username Username for user.
-		 * @throw ServerException In case of error.
+		 * @throw UserExistsException If user already exists.
+		 * @throw ServerException In case of other errors.
 		 */
 		virtual void new_user(const std::string& username) = 0;
 

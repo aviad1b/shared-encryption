@@ -8,6 +8,7 @@
 
 #include "ShortTermServerStorage.hpp"
 
+#include "UserExistsException.hpp"
 #include "../utils/ranges.hpp"
 
 namespace senc::server
@@ -25,7 +26,7 @@ namespace senc::server
 			)).second;
 		}
 		if (!inserted)
-			throw ServerException("Username " + username + " already exists");
+			throw UserExistsException(username);
 	}
 
 	bool ShortTermServerStorage::user_exists(const std::string& username)
