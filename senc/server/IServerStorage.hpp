@@ -51,13 +51,8 @@ namespace senc::server
 		using Self = UserExistsException;
 		using Base = ServerStorageException;
 
-		UserExistsException(const std::string& msg) : Base(msg) {}
-
-		UserExistsException(std::string&& msg) : Base(std::move(msg)) {}
-
-		UserExistsException(const std::string& msg, const std::string& info) : Base(msg, info) {}
-
-		UserExistsException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
+		UserExistsException(const std::string& username)
+			: Base("User \"" + username + "\" already exists"), _username(username) { }
 
 		UserExistsException(const Self&) = default;
 
@@ -66,6 +61,11 @@ namespace senc::server
 		UserExistsException(Self&&) = default;
 
 		Self& operator=(Self&&) = default;
+
+		const std::string& username() const { return _username; }
+
+	private:
+		std::string _username;
 	};
 
 	/**
