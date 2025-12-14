@@ -162,7 +162,7 @@ namespace senc::utils
 	 * @param bytes Buffer of bytes to encode in base64.
 	 * @return Base64 string.
 	 */
-	std::string bytes_to_base64(const Buffer& bytes);
+	std::string bytes_to_base64(const HasByteData auto& bytes);
 
 	/**
 	 * @brief Converts base64 representation to a buffer of bytes.

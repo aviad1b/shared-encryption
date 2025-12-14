@@ -62,7 +62,7 @@ namespace senc::utils
 		return T::from_bytes(bytes);
 	}
 
-	inline std::string bytes_to_base64(const Buffer& bytes)
+	inline std::string bytes_to_base64(const HasByteData auto& bytes)
 	{
 		std::string res;
 		CryptoPP::StringSource(
