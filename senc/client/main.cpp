@@ -120,6 +120,9 @@ namespace senc
 
 	Ciphertext input_ciphertext();
 
+	DecryptionPart input_decryption_part();
+	DecryptionPart input_decryption_part(const string& msg);
+
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -448,6 +451,17 @@ namespace senc
 		utils::enc::AES1L::Ciphertext c3{ c3a, c3b };
 
 		return { std::move(c1), std::move(c2), std::move(c3) };
+	}
+
+	DecryptionPart input_decryption_part()
+	{
+		return DecryptionPart::from_bytes(bytes_from_base64(input()));
+	}
+
+	DecryptionPart input_decryption_part(const string& msg)
+	{
+		cout << msg;
+		return input_decryption_part();
 	}
 
 	/**
