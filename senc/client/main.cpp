@@ -1,9 +1,10 @@
+#include <functional>
 #include <iostream>
+#include <map>
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../utils/Socket.hpp"
-#include <functional>
-#include <map>
+#include "input.hpp"
 
 namespace senc
 {
@@ -13,19 +14,16 @@ namespace senc
 	using FinishedDecryptionsRecord = pkt::UpdateResponse::FinishedDecryptionsRecord;
 	using utils::bytes_from_base64;
 	using utils::bytes_to_base64;
-	using utils::UUIDException;
 	using utils::Exception;
 	using utils::TcpSocket;
 	using utils::Socket;
 	using utils::Buffer;
 	using utils::IPv4;
 	using utils::Port;
-	using utils::UUID;
 	using std::vector;
 	using std::string;
 	using std::endl;
 	using std::cout;
-	using std::cin;
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
@@ -60,77 +58,6 @@ namespace senc
 		string description;
 		SockFunc func;
 	};
-
-	template <typename Self>
-	concept NumInputable = std::integral<Self> &&
-		(std::numeric_limits<Self>::min() >= std::numeric_limits<int>::min()) &&
-		(std::numeric_limits<Self>::max() <= std::numeric_limits<int>::max());
-
-	string input();
-	string input(const string& msg);
-
-	bool input_yesno();
-	bool input_yesno(const string& msg);
-
-	template <std::string(*elemInput)() = input>
-	vector<string> input_vec();
-
-	template <std::string(*elemInput)() = input>
-	vector<string> input_vec(const string& msg);
-
-	template <typename T, std::optional<T>(*elemInput)()>
-	vector<T> input_vec();
-
-	template <typename T, std::optional<T>(*elemInput)()>
-	vector<T> input_vec(const string& msg);
-
-	template <NumInputable T, bool allowEmpty = false>
-	std::conditional_t<allowEmpty, std::optional<T>, T> input_num();
-
-	template <NumInputable T, bool allowEmpty = false>
-	std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg);
-
-	template <NumInputable T> vector<T>
-	input_num_vec();
-
-	template <NumInputable T> vector<T>
-	input_num_vec(const string& msg);
-
-	UUID input_uuid();
-	UUID input_uuid(const string& msg);
-
-	string input_username();
-	string input_username(const string& msg);
-
-	vector<string> input_usernames();
-	vector<string> input_usernames(const string& msg);
-
-	member_count_t input_threshold();
-	member_count_t input_threshold(const string& msg);
-
-	UserSetID input_userset_id();
-	UserSetID input_userset_id(const string& msg);
-
-	OperationID input_operation_id();
-	OperationID input_operation_id(const string& msg);
-
-	vector<PrivKeyShardID> input_priv_key_shard_ids();
-	vector<PrivKeyShardID> input_priv_key_shard_ids(const string& msg);
-
-	PrivKeyShard input_priv_key_shard();
-	PrivKeyShard input_priv_key_shard(const string& msg);
-
-	Ciphertext input_ciphertext();
-
-	template <bool allowEmpty = false>
-	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part();
-
-	template <bool allowEmpty = false>
-	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart>
-		input_decryption_part(const string& msg);
-
-	vector<DecryptionPart> input_decryption_parts();
-	vector<DecryptionPart> input_decryption_parts(const string& msg);
 
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
@@ -217,280 +144,6 @@ namespace senc
 		run_client(*sock);
 
 		return 0;
-	}
-
-	string input()
-	{
-		string res;
-		std::getline(cin, res);
-		return res;
-	}
-
-	string input(const string& msg)
-	{
-		cout << msg;
-		return input();
-	}
-
-	bool input_yesno()
-	{
-		string res = input();
-		while (res != "y" && res != "Y" && res != "n" && res != "N")
-			res = input("Bad input, try again: ");
-		return (res == "y" || res == "Y");
-	}
-
-	bool input_yesno(const string& msg)
-	{
-		cout << msg;
-		return input_yesno();
-	}
-
-	template <std::string(*elemInput)()>
-	inline vector<string> input_vec()
-	{
-		vector<string> res;
-		string curr;
-
-		while (!(curr = elemInput()).empty())
-			res.push_back(curr);
-
-		return res;
-	}
-
-	template <std::string(*elemInput)()>
-	inline vector<string> input_vec(const string& msg)
-	{
-		cout << msg;
-		return input_vec<elemInput>();
-	}
-
-	template <typename T, std::optional<T>(*elemInput)()>
-	inline vector<T> input_vec()
-	{
-		vector<T> res;
-		std::optional<T> curr;
-
-		while ((curr = elemInput()).has_value())
-			res.push_back(*curr);
-
-		return res;
-	}
-
-	template <typename T, std::optional<T>(*elemInput)()>
-	inline vector<T> input_vec(const string& msg)
-	{
-		cout << msg;
-		return input_vec<T, elemInput>();
-	}
-
-	template <NumInputable T, bool allowEmpty>
-	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num()
-	{
-		constexpr T MIN = std::numeric_limits<T>::min();
-		constexpr T MAX = std::numeric_limits<T>::max();
-		bool invalid = false;
-		int num = 0;
-
-		do
-		{
-			invalid = false;
-			string str = input();
-
-			if constexpr (allowEmpty)
-				if (str.empty())
-					return std::nullopt;
-
-			try { num = std::stoi(str); }
-			catch (const std::exception&)
-			{
-				cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << endl;
-				cout << "Try again: ";
-				invalid = true;
-			}
-		} while (invalid);
-
-		return static_cast<T>(num);
-	}
-
-	template <NumInputable T, bool allowEmpty>
-	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg)
-	{
-		cout << msg;
-		return input_num<T, allowEmpty>();
-	}
-
-	template <NumInputable T>
-	vector<T> input_num_vec()
-	{
-		return input_vec<T, input_num<T, true>>();
-	}
-
-	template <NumInputable T>
-	vector<T> input_num_vec(const string& msg)
-	{
-		return input_vec<T, input_num<T, true>>(msg);
-	}
-
-	UUID input_uuid()
-	{
-		while (true)
-		{
-			try { return UUID(input()); }
-			catch (const UUIDException&) { cout << "Bad input, try again: "; }
-		}
-	}
-
-	UUID input_uuid(const string& msg)
-	{
-		cout << msg;
-		return input_uuid();
-	}
-
-	string input_username()
-	{
-		return input();
-	}
-
-	string input_username(const string& msg)
-	{
-		cout << msg;
-		return input_username();
-	}
-
-	vector<string> input_usernames()
-	{
-		return input_vec<input_username>();
-	}
-
-	vector<string> input_usernames(const string& msg)
-	{
-		cout << msg;
-		return input_usernames();
-	}
-
-	member_count_t input_threshold()
-	{
-		return input_num<member_count_t>();
-	}
-
-	member_count_t input_threshold(const string& msg)
-	{
-		cout << msg;
-		return input_threshold();
-	}
-
-	UserSetID input_userset_id()
-	{
-		return input_uuid();
-	}
-
-	UserSetID input_userset_id(const string& msg)
-	{
-		cout << msg;
-		return input_userset_id();
-	}
-
-	OperationID input_operation_id()
-	{
-		return input_uuid();
-	}
-
-	OperationID input_operation_id(const string& msg)
-	{
-		cout << msg;
-		return input_operation_id();
-	}
-
-	vector<PrivKeyShardID> input_priv_key_shard_ids()
-	{
-		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>();
-	}
-
-	vector<PrivKeyShardID> input_priv_key_shard_ids(const string& msg)
-	{
-		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>(msg);
-	}
-
-	PrivKeyShard input_priv_key_shard()
-	{
-		bool valid = false;
-		PrivKeyShard res{};
-		do
-		{
-			string str = input();
-			auto commaIndex = str.find(',');
-			if (str.empty() || str[0] != '(' || str[str.length() - 1] != ')' || commaIndex == string::npos)
-			{
-				cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			string idStr = str.substr(0, commaIndex);
-			string valStr = str.substr(commaIndex + 1);
-
-			try
-			{
-				res.first = PrivKeyShardID(std::stoi(idStr));
-				res.second = PrivKeyShardValue(std::stoi(valStr));
-			}
-			catch (const std::exception&)
-			{
-				cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			valid = true; // if reached here, input is valid
-		} while (!valid);
-
-		return res;
-	}
-
-	PrivKeyShard input_priv_key_shard(const string& msg)
-	{
-		cout << msg;
-		return input_priv_key_shard();
-	}
-
-	Ciphertext input_ciphertext()
-	{
-		auto c1 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c1 (base64):\n")));
-		auto c2 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c2 (base64):\n")));
-		auto c3aBuffer = bytes_from_base64(input("Enter ciphertext c3a (base64):\n"));
-		auto c3b = bytes_from_base64(input("Enter ciphertext c3b (base64):\n"));
-
-		CryptoPP::SecByteBlock c3a(c3aBuffer.data(), c3aBuffer.size());
-		utils::enc::AES1L::Ciphertext c3{ c3a, c3b };
-
-		return { std::move(c1), std::move(c2), std::move(c3) };
-	}
-
-	template <bool allowEmpty>
-	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part()
-	{
-		string str = input();
-		if constexpr (allowEmpty)
-			if (str.empty())
-				return std::nullopt;
-		return DecryptionPart::from_bytes(bytes_from_base64(str));
-	}
-
-	template <bool allowEmpty>
-	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart>
-		input_decryption_part(const string& msg)
-	{
-		cout << msg;
-		return input_decryption_part<allowEmpty>();
-	}
-
-	vector<DecryptionPart> input_decryption_parts()
-	{
-		return input_vec<DecryptionPart, input_decryption_part<true>>();
-	}
-
-	vector<DecryptionPart> input_decryption_parts(const string& msg)
-	{
-		return input_vec<DecryptionPart, input_decryption_part<true>>(msg);
 	}
 
 	/**
