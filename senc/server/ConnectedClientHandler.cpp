@@ -320,6 +320,15 @@ namespace senc::server
 			return Status::Connected;
 		}
 
+		// if user isn't required for decryption, return fitting status
+		if (!isRequired)
+		{
+			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+				pkt::DecryptParticipateResponse::Status::NotRequired
+			});
+			return Status::Connected;
+		}
+
 		// if decryptions manager returned a prep record, continue to collection stage
 		if (opPrepRecord.has_value())
 		{
