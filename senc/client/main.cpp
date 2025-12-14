@@ -106,6 +106,12 @@ namespace senc
 	member_count_t input_threshold();
 	member_count_t input_threshold(const string& msg);
 
+	UserSetID input_userset_id();
+	UserSetID input_userset_id(const string& msg);
+
+	OperationID input_operation_id();
+	OperationID input_operation_id(const string& msg);
+
 	PrivKeyShard input_priv_key_shard();
 	PrivKeyShard input_priv_key_shard(const string& msg);
 
@@ -301,6 +307,26 @@ namespace senc
 	member_count_t input_threshold(const string& msg)
 	{
 		return input_num<member_count_t>(msg);
+	}
+
+	UserSetID input_userset_id()
+	{
+		return input_uuid();
+	}
+
+	UserSetID input_userset_id(const string& msg)
+	{
+		input_uuid(msg);
+	}
+
+	OperationID input_operation_id()
+	{
+		return input_uuid();
+	}
+
+	OperationID input_operation_id(const string& msg)
+	{
+		return input_uuid(msg);
 	}
 
 	PrivKeyShard input_priv_key_shard()
@@ -610,7 +636,7 @@ namespace senc
 
 	ConnStatus get_members(Socket& sock)
 	{
-		auto id = input_uuid("Enter userset ID: ");
+		auto id = input_userset_id("Enter userset ID: ");
 
 		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
 
@@ -672,7 +698,7 @@ namespace senc
 
 	ConnStatus decrypt(Socket& sock)
 	{
-		auto usersetID = input_uuid("Enter ID of userset to decrypt under: ");
+		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
 		cout << endl;
 
 		Ciphertext ciphertext = input_ciphertext();
@@ -749,7 +775,7 @@ namespace senc
 
 	ConnStatus participate(Socket& sock)
 	{
-		auto opid = input_uuid("Enter operation ID: ");
+		auto opid = input_operation_id("Enter operation ID: ");
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
@@ -767,7 +793,7 @@ namespace senc
 		while (1 != layer && 2 != layer)
 			layer = input_num<int>("Invalid input, try again: ");
 
-		auto opid = input_uuid("Enter operation ID: ");
+		auto opid = input_operation_id("Enter operation ID: ");
 		cout << endl;
 
 		Ciphertext ciphertext = input_ciphertext();
