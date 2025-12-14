@@ -49,7 +49,7 @@ namespace senc::server
 		return opid;
 	}
 
-	std::optional<DecryptionsManager::PrepareRecord>
+	std::pair<std::optional<DecryptionsManager::PrepareRecord>, bool>
 		DecryptionsManager::register_participant(const OperationID& opid,
 												 const std::string& username,
 												 bool isOwner)
@@ -61,7 +61,12 @@ namespace senc::server
 		const auto it = _prep.find(opid);
 		auto& record = it->second;
 		if (it == _prep.end())
-			throw ServerException("No operation with ID " + opid.to_string());
+		{
+			if (_allOpIDs.contains(opid))
+				return { res, false }; // operation ID is valid, already has enough users (user isn't required)
+			else
+				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
+		}
 		if (isOwner)
 			record.owners_found.insert(username);
 		else
@@ -81,7 +86,7 @@ namespace senc::server
 			_prep.erase(it);
 		}
 
-		return res;
+		return { res, true };
 	}
 	
 	std::optional<DecryptionsManager::CollectedRecord>

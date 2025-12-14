@@ -299,13 +299,14 @@ namespace senc::server
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
 	{
 		std::optional<DecryptionsManager::PrepareRecord> opPrepRecord;
+		bool isRequired = false;
 
 		try
 		{
 			// TODO: Requirement check should be done here, 
 			// currently not supported by manager for simplicity
 			// (see pkt::DecryptParticipateResponse::Status)
-			opPrepRecord = _decryptionsManager.register_participant(
+			std::tie(opPrepRecord, isRequired) = _decryptionsManager.register_participant(
 				request.op_id,
 				_username,
 				_storage.user_owns_userset(_username, _decryptionsManager.get_operation_userset(request.op_id))

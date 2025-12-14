@@ -98,11 +98,12 @@ namespace senc::server
 		 * @param opid Operation ID.
 		 * @param username Participant's username.
 		 * @param isOwner Whether or not client is of an owner.
-		 * @return Record of prepared operation if has enough members, `std::nullopt` otherwise.
+		 * @return 1. Record of prepared operation if has enough members, `std::nullopt` otherwise.
+		 *		   2. `true` if user was required for decryption, otherwise `false`.
 		 */
-		std::optional<PrepareRecord> register_participant(const OperationID& opid,
-														  const std::string& username,
-														  bool isOwner);
+		std::pair<std::optional<PrepareRecord>, bool> register_participant(const OperationID& opid,
+																		   const std::string& username,
+																		   bool isOwner);
 
 		/**
 		 * @brief Registers a decryption part provided by a member.
