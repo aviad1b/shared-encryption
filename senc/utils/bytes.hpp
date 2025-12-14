@@ -11,6 +11,7 @@
 #include <cryptopp/config_int.h>
 #include <vector>
 #include <string>
+#include <ranges>
 
 #include "concepts.hpp"
 
@@ -163,6 +164,10 @@ namespace senc::utils
 	 * @return Base64 string.
 	 */
 	std::string bytes_to_base64(const HasByteData auto& bytes);
+
+	template <std::ranges::input_range R>
+	requires std::same_as<std::ranges::range_value_t<R>, byte>
+	std::string bytes_to_base64(R&& rng);
 
 	/**
 	 * @brief Converts base64 representation to a buffer of bytes.

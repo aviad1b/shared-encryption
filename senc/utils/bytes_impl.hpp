@@ -31,6 +31,12 @@ namespace senc::utils
 		return *static_cast<const T*>(bytes.data());
 	}
 
+	template <std::ranges::input_range R>
+	std::string bytes_to_base64(R&& rng)
+	{
+		return bytes_to_base64(Buffer(std::ranges::begin(rng), std::ranges::end(rng)));
+	}
+
 	template <StringType T>
 	inline Buffer to_bytes(const T& str)
 	{
