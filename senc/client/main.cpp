@@ -855,6 +855,8 @@ namespace senc
 
 	ConnStatus join_parts(Socket& sock)
 	{
+		(void)sock;
+
 		auto ciphertext = input_ciphertext();
 
 		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
