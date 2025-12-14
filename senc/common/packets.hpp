@@ -17,6 +17,8 @@
 
 namespace senc::pkt
 {
+	constexpr std::uint8_t PROTOCOL_VERSION = 1; // v1.0.0+
+
 	/**
 	 * @enum Code
 	 * @brief Packet type identifier.
