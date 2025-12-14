@@ -44,7 +44,7 @@ namespace senc::utils
 	concept PrimeOrderedGroup = Group<Self> && requires
 	{
 		{ Self::is_prime_ordered() } noexcept -> BoolConvertibleNoExcept;
-		{ std::bool_constant<Self::is_known_prime()>() }; // must be constexpr-evaluable
+		{ std::bool_constant<Self::is_prime_ordered()>() }; // must be constexpr-evaluable
 	} && Self::is_prime_ordered();
 
 	/**
