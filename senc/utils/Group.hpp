@@ -40,6 +40,13 @@ namespace senc::utils
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
 	};
 
+	template <typename Self>
+	concept PrimeOrderedGroup = Group<Self> && requires
+	{
+		{ Self::is_prime_ordered() } noexcept -> BoolConvertibleNoExcept;
+		{ std::bool_constant<Self::is_prime_ordered()>() }; // must be constexpr-evaluable
+	} && Self::is_prime_ordered();
+
 	/**
 	 * @concept senc::utils::SamplableGroup
 	 * @brief Looks for a typename which satisfies both `Group` and `HasSampleMethod`.

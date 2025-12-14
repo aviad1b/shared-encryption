@@ -201,7 +201,7 @@ namespace senc::utils
 	{
 		using Underlying = GroupOrder;
 		static GroupOrder modulus() noexcept { return G::order(); }
-		static constexpr bool is_known_prime() noexcept { return false; } // TODO: Add actual implementation once possible
+		static constexpr bool is_known_prime() noexcept { return PrimeOrderedGroup<G>; }
 	};
 
 	/**

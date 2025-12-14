@@ -31,6 +31,8 @@ namespace senc::utils
 	public:
 		using Self = ECGroup;
 
+		static constexpr bool is_prime_ordered() noexcept { return true; } // EC is always prime ordered
+
 		/**
 		 * @brief Gets group order.
 		 * @return Group order.
@@ -230,4 +232,5 @@ namespace senc::utils
 	};
 
 	static_assert(Group<ECGroup>, "senc::utils::ECGroup should satisfy senc::utils::Group");
+	static_assert(PrimeOrderedGroup<ECGroup>, "senc::utils::ECGroup should satisfy senc::utils::PrimeOrderedGroup");
 }
