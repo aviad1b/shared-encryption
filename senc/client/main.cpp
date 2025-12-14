@@ -79,6 +79,10 @@ namespace senc
 
 	UUID input_uuid();
 	UUID input_uuid(const string& msg);
+	string input_username();
+	string input_username(const string& msg);
+	vector<string> input_usernames();
+	vector<string> input_usernames(const string& msg);
 	PrivKeyShard input_priv_key_shard();
 	PrivKeyShard input_priv_key_shard(const string& msg);
 	Ciphertext input_ciphertext();
@@ -202,6 +206,32 @@ namespace senc
 	{
 		cout << msg;
 		return input_uuid();
+	}
+
+	string input_username()
+	{
+		return input();
+	}
+
+	string input_username(const string& msg)
+	{
+		return input(msg);
+	}
+
+	vector<string> input_usernames()
+	{
+		vector<string> res;
+		string curr;
+		while (!(curr = input()).empty())
+			res.push_back(curr);
+
+		return res;
+	}
+
+	vector<string> input_usernames(const string& msg)
+	{
+		cout << msg;
+		return input_usernames();
 	}
 
 	PrivKeyShard input_priv_key_shard()
@@ -417,7 +447,7 @@ namespace senc
 
 	ConnStatus signup(Socket& sock)
 	{
-		string username = input("Enter username: ");
+		string username = input_username("Enter username: ");
 
 		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
 		if (resp.status == pkt::SignupResponse::Status::Success)
@@ -436,7 +466,7 @@ namespace senc
 
 	ConnStatus login(Socket& sock)
 	{
-		string username = input("Enter username: ");
+		string username = input_username("Enter username: ");
 
 		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
 		if (resp.status == pkt::LoginResponse::Status::Success)
@@ -467,10 +497,10 @@ namespace senc
 
 	ConnStatus make_userset(Socket& sock)
 	{
-		vector<string> owners = input_vec(
+		vector<string> owners = input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line):\n"
 		);
-		vector<string> regMembers = input_vec(
+		vector<string> regMembers = input_usernames(
 			"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
 		);
 		auto ownersThreshold = input_num<member_count_t>("Enter owners threshold for decryption: ");
