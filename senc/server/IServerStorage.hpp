@@ -96,6 +96,33 @@ namespace senc::server
 	};
 
 	/**
+	 * @class senc::server::UserSetNotFoundException
+	 * @brief Type of exceptions thrown by server storage when userset not found.
+	 */
+	class UserSetNotFoundException : public ServerStorageException
+	{
+	public:
+		using Self = UserSetNotFoundException;
+		using Base = ServerStorageException;
+
+		UserSetNotFoundException(const UserSetID& id)
+			: Base("Userset with ID " + id.to_string() + " not found"), _id(id) { }
+
+		UserSetNotFoundException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UserSetNotFoundException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		const UserSetID& userset_id() const { return _id; }
+
+	private:
+		UserSetID _id;
+	};
+
+	/**
 	 * @struct senc::server::UserSetInfo
 	 * @brief Used for holding/returning information about a userset.
 	 */
