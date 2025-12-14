@@ -69,6 +69,34 @@ namespace senc::server
 	};
 
 	/**
+	 * @class senc::server::UserNotFoundException
+	 * @brief Type of exceptions thrown by server storage when user not found.
+	 */
+	class UserNotFoundException : public ServerStorageException
+	{
+	public:
+		using Self = UserNotFoundException;
+		using Base = ServerStorageException;
+
+		UserNotFoundException(const std::string& username)
+			: Base("User \"" + username + "\" already exists"), _username(username) {
+		}
+
+		UserNotFoundException(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		UserNotFoundException(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		const std::string& username() const { return _username; }
+
+	private:
+		std::string _username;
+	};
+
+	/**
 	 * @struct senc::server::UserSetInfo
 	 * @brief Used for holding/returning information about a userset.
 	 */
