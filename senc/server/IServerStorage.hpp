@@ -79,7 +79,7 @@ namespace senc::server
 		using Base = ServerStorageException;
 
 		UserNotFoundException(const std::string& username)
-			: Base("User \"" + username + "\" already exists"), _username(username) {
+			: Base("User \"" + username + "\" not found"), _username(username) {
 		}
 
 		UserNotFoundException(const Self&) = default;
