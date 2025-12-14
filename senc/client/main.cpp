@@ -67,14 +67,26 @@ namespace senc
 	string input();
 	string input(const string& msg);
 
+	template <std::string(*elemInput)() = input>
 	vector<string> input_vec();
+
+	template <std::string(*elemInput)() = input>
 	vector<string> input_vec(const string& msg);
+
+	template <typename T, std::optional<T>(*elemInput)()>
+	vector<T> input_vec();
+
+	template <typename T, std::optional<T>(*elemInput)()>
+	vector<T> input_vec(const string& msg);
 
 	template <NumInputable T, bool allowEmpty = false>
 	std::conditional_t<allowEmpty, std::optional<T>, T> input_num();
 
 	template <NumInputable T, bool allowEmpty = false>
 	std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const string& msg);
+
+	template <NumInputable T> vector<T>
+	input_num_vec();
 
 	template <NumInputable T> vector<T>
 	input_num_vec(const string& msg);
@@ -183,21 +195,42 @@ namespace senc
 		return input();
 	}
 
-	vector<string> input_vec()
+	template <std::string(*elemInput)()>
+	inline vector<string> input_vec()
 	{
 		vector<string> res;
 		string curr;
 
-		while (!(curr = input()).empty())
+		while (!(curr = elemInput()).empty())
 			res.push_back(curr);
 
 		return res;
 	}
 
-	vector<string> input_vec(const string& msg)
+	template <std::string(*elemInput)()>
+	inline vector<string> input_vec(const string& msg)
 	{
 		cout << msg;
-		return input_vec();
+		return input_vec<elemInput>();
+	}
+
+	template <typename T, std::optional<T>(*elemInput)()>
+	inline vector<T> input_vec()
+	{
+		vector<T> res;
+		std::optional<T> curr;
+
+		while ((curr = elemInput()).has_value())
+			res.push_back(*curr);
+
+		return res;
+	}
+
+	template <typename T, std::optional<T>(*elemInput)()>
+	inline vector<T> input_vec(const string& msg)
+	{
+		cout << msg;
+		return input_vec<T, elemInput>();
 	}
 
 	UUID input_uuid()
@@ -412,21 +445,15 @@ namespace senc
 	}
 
 	template <NumInputable T>
+	vector<T> input_num_vec()
+	{
+		return input_vec<T, input_num<T, true>>();
+	}
+
+	template <NumInputable T>
 	vector<T> input_num_vec(const string& msg)
 	{
-		(void)msg;
-
-		vector<T> res;
-
-		while (true)
-		{
-			auto num = input_num<T, true>();
-			if (!num.has_value())
-				return res;
-			res.push_back(*num);
-		}
-
-		return res;
+		return input_vec<T, input_num<T, true>>(msg);
 	}
 
 	/**
