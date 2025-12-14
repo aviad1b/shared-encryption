@@ -42,7 +42,7 @@ namespace senc::server
 		void register_reg_member(const std::string& username,
 								 const UserSetID& usersetID,
 								 const PubKey& pubKey1, const PubKey& pubKey2,
-								 const PrivKeyShard& privKeyShard);
+								 PrivKeyShard&& privKeyShard);
 
 		/**
 		 * @brief Registers that a user was added to a userset as owner.
@@ -50,13 +50,13 @@ namespace senc::server
 		 * @param usersetID ID of userset to which user was added.
 		 * @param pubKey1 First public key used in this user userset for encryption.
 		 * @param pubKey2 Second public key used in this user userset for encryption.
-		 * @param privKeyShard1 User's private key shard in userset for layer1.
-		 * @param privKeyShard2 User's private key shard in userset for layer2.
+		 * @param privKeyShard1 User's private key shard in userset for layer1 (moved).
+		 * @param privKeyShard2 User's private key shard in userset for layer2 (moved).
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
 							const PubKey& pubKey1, const PubKey& pubKey2,
-							const PrivKeyShard& privKeyShard1, const PrivKeyShard& privKeyShard2);
+							PrivKeyShard&& privKeyShard1, PrivKeyShard&& privKeyShard2);
 
 		/**
 		 * @brief Registers user to look for in order to perform a decryption operation.
