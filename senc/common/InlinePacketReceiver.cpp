@@ -203,7 +203,7 @@ namespace senc
 		}
 		recv_big_int(sock, y);
 
-		out = PubKey(std::move(x), std::move(y)); // TODO: Add c'tor with moved values to ECGroup
+		out = PubKey(std::move(x), std::move(y));
 	}
 
 	void InlinePacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)
