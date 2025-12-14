@@ -308,9 +308,7 @@ namespace senc::server
 			opPrepRecord = _decryptionsManager.register_participant(
 				request.op_id,
 				_username,
-				_storage.get_usersets(_username).contains(
-					_decryptionsManager.get_operation_userset(request.op_id)
-				) // TODO: storage should probably have a separate method for this purpose...
+				_storage.user_owns_userset(_username, _decryptionsManager.get_operation_userset(request.op_id))
 			);
 		}
 		catch (const ServerException& e)
@@ -349,9 +347,7 @@ namespace senc::server
 				request.op_id,
 				std::move(request.decryption_part),
 				std::move(shardID),
-				_storage.get_usersets(_username).contains(
-					userset
-				) // TODO: once again, storage should probably have a separate method for this purpose...
+				_storage.user_owns_userset(_username, userset)
 			);
 		}
 		catch (const ServerException& e)
