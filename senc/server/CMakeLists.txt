@@ -1,6 +1,5 @@
 add_executable (senc_server
 	"ServerException.hpp"
-	"UserExistsException.hpp"
 	"IServerStorage.hpp"
 	"ShortTermServerStorage.hpp"
 	"ShortTermServerStorage.cpp"

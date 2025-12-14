@@ -8,8 +8,6 @@
 
 #include "ConnectingClientHandler.hpp"
 
-#include "UserExistsException.hpp"
-
 namespace senc::server
 {
 	ConnectingClientHandler::ConnectingClientHandler(utils::Socket& sock,

@@ -8,7 +8,6 @@
 
 #include "ShortTermServerStorage.hpp"
 
-#include "UserExistsException.hpp"
 #include "../utils/ranges.hpp"
 
 namespace senc::server
