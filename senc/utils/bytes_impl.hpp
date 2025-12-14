@@ -9,6 +9,9 @@
 #include "bytes.hpp"
 
 #include <cstring>
+#include <cryptopp/filters.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/queue.h>
 
 #include "Exception.hpp"
 
