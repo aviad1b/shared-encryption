@@ -45,6 +45,7 @@ namespace senc
 		Decrypt,
 		Update,
 		Participate,
+		CompPart,
 		SendPart,
 		Exit
 	};
@@ -137,6 +138,7 @@ namespace senc
 	ConnStatus decrypt(Socket& sock);
 	ConnStatus update(Socket& sock);
 	ConnStatus participate(Socket& sock);
+	ConnStatus comp_part(Socket& sock);
 	ConnStatus send_part(Socket& sock);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
@@ -158,7 +160,8 @@ namespace senc
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
 		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::SendPart, { "Compute & send part for decryption", send_part } },
+		{ MainMenuOption::CompPart, { "Compute part for decryption", send_part } },
+		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
 		{ MainMenuOption::Exit, { "Exit", logout } }
 	};
 
@@ -813,31 +816,30 @@ namespace senc
 		return ConnStatus::Connected;
 	}
 
+	ConnStatus comp_part(Socket& sock)
+	{
+		(void)sock;
+
+		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
+		Ciphertext ciphertext = input_ciphertext();
+		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line): ");
+		cout << endl;
+		DecryptionPart part{};
+		if (isOwner)
+			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
+		else
+			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
+
+		cout << "Result decryption part: " << utils::bytes_to_base64(part.to_bytes()) << endl;
+
+		return ConnStatus::Connected;
+	}
+
 	ConnStatus send_part(Socket& sock)
 	{
-		int layer = input_num<int>("Input layer (1 or 2): ");
-		while (1 != layer && 2 != layer)
-			layer = input_num<int>("Invalid input, try again: ");
-
 		auto opid = input_operation_id("Enter operation ID: ");
-		cout << endl;
-
-		Ciphertext ciphertext = input_ciphertext();
-		cout << endl;
-
-		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
-		cout << endl;
-
-		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line):\n");
-		cout << endl;
-
-		DecryptionPart part{};
-		if (1 == layer)
-			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
-		else
-			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
-
-		cout << "Decryption part computes: " << part << endl;
+		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
 
 		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 			opid,
