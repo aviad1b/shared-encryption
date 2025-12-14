@@ -1,9 +1,10 @@
+#include <functional>
 #include <iostream>
+#include <map>
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../utils/Socket.hpp"
-#include <functional>
-#include <map>
+#include "input.hpp"
 
 namespace senc
 {
@@ -13,23 +14,18 @@ namespace senc
 	using FinishedDecryptionsRecord = pkt::UpdateResponse::FinishedDecryptionsRecord;
 	using utils::bytes_from_base64;
 	using utils::bytes_to_base64;
-	using utils::UUIDException;
 	using utils::Exception;
 	using utils::TcpSocket;
 	using utils::Socket;
 	using utils::Buffer;
 	using utils::IPv4;
 	using utils::Port;
-	using utils::UUID;
 	using std::vector;
 	using std::string;
 	using std::endl;
 	using std::cout;
-	using std::cin;
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
-
-	enum class AllowEmpty { No, Yes };
 
 	enum class LoginMenuOption
 	{
@@ -47,7 +43,9 @@ namespace senc
 		Decrypt,
 		Update,
 		Participate,
+		CompPart,
 		SendPart,
+		JoinParts,
 		Exit
 	};
 
@@ -61,24 +59,6 @@ namespace senc
 		SockFunc func;
 	};
 
-	template <typename Self>
-	concept NumInputable = std::integral<Self> &&
-		(std::numeric_limits<Self>::min() >= std::numeric_limits<int>::min()) &&
-		(std::numeric_limits<Self>::max() <= std::numeric_limits<int>::max());
-
-	string input();
-	string input(const string& msg);
-	vector<string> input_vec(const string& msg);
-	template <NumInputable T> T input_num();
-	template <NumInputable T> T input_num(const string& msg);
-	template <NumInputable T> std::optional<T> input_num(AllowEmpty allowEmpty);
-	template <NumInputable T> std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty);
-	template <NumInputable T> vector<T> input_num_vec(const string& msg);
-	UUID input_uuid();
-	UUID input_uuid(const string& msg);
-	PrivKeyShard input_priv_key_shard();
-	PrivKeyShard input_priv_key_shard(const string& msg);
-	Ciphertext input_ciphertext();
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -93,10 +73,13 @@ namespace senc
 	ConnStatus decrypt(Socket& sock);
 	ConnStatus update(Socket& sock);
 	ConnStatus participate(Socket& sock);
+	ConnStatus comp_part(Socket& sock);
 	ConnStatus send_part(Socket& sock);
+	ConnStatus join_parts(Socket& sock);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
+	void print_finished_data(size_t idx, const FinishedDecryptionsRecord& data);
 
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
@@ -114,7 +97,9 @@ namespace senc
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
 		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::SendPart, { "Compute & send part for decryption", send_part } },
+		{ MainMenuOption::CompPart, { "Compute part for decryption", send_part } },
+		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
+		{ MainMenuOption::JoinParts, { "Join decryption parts", join_parts } },
 		{ MainMenuOption::Exit, { "Exit", logout } }
 	};
 
@@ -159,106 +144,6 @@ namespace senc
 		run_client(*sock);
 
 		return 0;
-	}
-
-	string input()
-	{
-		string res;
-		std::getline(cin, res);
-		return res;
-	}
-
-	string input(const string& msg)
-	{
-		cout << msg;
-		return input();
-	}
-
-	vector<string> input_vec(const string& msg)
-	{
-		vector<string> res;
-		string curr;
-
-		cout << msg;
-		while (!(curr = input()).empty())
-			res.push_back(curr);
-
-		return res;
-	}
-
-	UUID input_uuid()
-	{
-		while (true)
-		{
-			try { return UUID(input()); }
-			catch (const UUIDException&) { cout << "Bad input, try again: "; }
-		}
-	}
-
-	UUID input_uuid(const string& msg)
-	{
-		cout << msg;
-		return input_uuid();
-	}
-
-	PrivKeyShard input_priv_key_shard()
-	{
-		bool valid = false;
-		PrivKeyShard res{};
-		do
-		{
-			string str = input();
-			auto commaIndex = str.find(',');
-			if (str.empty() || str[0] != '(' || str[str.length() - 1] != ')' || commaIndex == string::npos)
-			{
-				cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			string idStr = str.substr(0, commaIndex);
-			string valStr = str.substr(commaIndex + 1);
-
-			try
-			{
-				res.first = PrivKeyShardID(std::stoi(idStr));
-				res.second = PrivKeyShardValue(std::stoi(valStr));
-			}
-			catch (const std::exception&)
-			{
-				cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			valid = true; // if reached here, input is valid
-		} while (!valid);
-
-		return res;
-	}
-
-	PrivKeyShard input_priv_key_shard(const string& msg)
-	{
-		cout << msg;
-		return input_priv_key_shard();
-	}
-
-	Ciphertext input_ciphertext()
-	{
-		auto c1 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c1 (base64):\n")));
-		cout << endl;
-
-		auto c2 = utils::ECGroup::from_bytes(bytes_from_base64(input("Enter ciphertext c2 (base64):\n")));
-		cout << endl;
-
-		auto c3aBuffer = bytes_from_base64(input("Enter ciphertext c3a (base64):\n"));
-		cout << endl;
-
-		auto c3b = bytes_from_base64(input("Enter ciphertext c3b (base64):\n"));
-		cout << endl;
-
-		CryptoPP::SecByteBlock c3a(c3aBuffer.data(), c3aBuffer.size());
-		utils::enc::AES1L::Ciphertext c3{ c3a, c3b };
-
-		return { std::move(c1), std::move(c2), std::move(c3) };
 	}
 
 	/**
@@ -335,72 +220,6 @@ namespace senc
 		} while (ConnStatus::Disconnected != status);
 	}
 
-	template <NumInputable T>
-	inline T input_num()
-	{
-		return *input_num<T>(AllowEmpty::No);
-	}
-
-	template <NumInputable T>
-	inline T input_num(const string& msg)
-	{
-		cout << msg;
-		return input_num<T>();
-	}
-
-	template <NumInputable T>
-	inline std::optional<T> input_num(AllowEmpty allowEmpty)
-	{
-		constexpr T MIN = std::numeric_limits<T>::min();
-		constexpr T MAX = std::numeric_limits<T>::max();
-		bool invalid = false;
-		int num = 0;
-
-		do
-		{
-			invalid = false;
-			string str = input();
-
-			if (AllowEmpty::Yes == allowEmpty && str.empty())
-				return std::nullopt;
-
-			try { num = std::stoi(str); }
-			catch (const std::exception&)
-			{
-				cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << endl;
-				cout << "Try again: ";
-				invalid = true;
-			}
-		} while (invalid);
-
-		return static_cast<T>(num);
-	}
-
-	template <NumInputable T>
-	inline std::optional<T> input_num(const string& msg, AllowEmpty allowEmpty)
-	{
-		cout << msg;
-		return input_num<T>(allowEmpty);
-	}
-
-	template <NumInputable T>
-	vector<T> input_num_vec(const string& msg)
-	{
-		(void)msg;
-
-		vector<T> res;
-
-		while (true)
-		{
-			auto num = input_num<T>(AllowEmpty::Yes);
-			if (!num.has_value())
-				return res;
-			res.push_back(*num);
-		}
-
-		return res;
-	}
-
 	/**
 	 * @brief Sends request and returns retrieved response.
 	 * @tparam Resp Response type.
@@ -426,7 +245,7 @@ namespace senc
 
 	ConnStatus signup(Socket& sock)
 	{
-		string username = input("Enter username: ");
+		string username = input_username("Enter username: ");
 
 		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
 		if (resp.status == pkt::SignupResponse::Status::Success)
@@ -445,7 +264,7 @@ namespace senc
 
 	ConnStatus login(Socket& sock)
 	{
-		string username = input("Enter username: ");
+		string username = input_username("Enter username: ");
 
 		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
 		if (resp.status == pkt::LoginResponse::Status::Success)
@@ -464,8 +283,7 @@ namespace senc
 
 	ConnStatus logout(Socket& sock)
 	{
-		string confirm = input("Are you sure you want to leave? (y/n): ");
-		if (confirm != "y" && confirm != "Y")
+		if (input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::Connected;
 
 		post<pkt::LogoutResponse>(sock, pkt::LoginRequest{});
@@ -476,14 +294,14 @@ namespace senc
 
 	ConnStatus make_userset(Socket& sock)
 	{
-		vector<string> owners = input_vec(
+		vector<string> owners = input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line):\n"
 		);
-		vector<string> regMembers = input_vec(
+		vector<string> regMembers = input_usernames(
 			"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
 		);
-		auto ownersThreshold = input_num<member_count_t>("Enter owners threshold for decryption: ");
-		auto regMembersThreshold = input_num<member_count_t>("Enter non-owner members threshold for decryption: ");
+		auto ownersThreshold = input_threshold("Enter owners threshold for decryption: ");
+		auto regMembersThreshold = input_threshold("Enter non-owner members threshold for decryption: ");
 
 		auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
 			.reg_members = std::move(regMembers),
@@ -527,7 +345,7 @@ namespace senc
 
 	ConnStatus get_members(Socket& sock)
 	{
-		auto id = input_uuid("Enter userset ID: ");
+		auto id = input_userset_id("Enter userset ID: ");
 
 		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
 
@@ -566,21 +384,16 @@ namespace senc
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
-		cout << endl;
-
 		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
-		cout << endl;
 		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
-		cout << endl;
 
 		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
 		const auto& [c3a, c3b] = c3;
-		Buffer c3aBuffer(c3a.begin(), c3a.end()); // TODO: Remove once utils support all byte ranges
 
 		cout << "Encrypted message:" << endl;
 		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
 		cout << "c1:\t" << bytes_to_base64(c2.to_bytes()) << endl;
-		cout << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl;
+		cout << "c3a:\t" << bytes_to_base64(c3a) << endl;
 		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
 		cout << endl;
 
@@ -589,9 +402,7 @@ namespace senc
 
 	ConnStatus decrypt(Socket& sock)
 	{
-		auto usersetID = input_uuid("Enter ID of userset to decrypt under: ");
-		cout << endl;
-
+		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
 		Ciphertext ciphertext = input_ciphertext();
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
@@ -640,25 +451,12 @@ namespace senc
 			cout << endl;
 		}
 
-		for (auto& record : resp.finished_decryptions)
+		if (!resp.finished_decryptions.empty())
 		{
-			cout << "==============================" << endl;
-			cout << "Decryption operation " << record.op_id << " is ready." << endl << endl;
-			Ciphertext ciphertext = input_ciphertext();
-			PrivKeyShard privKeyShard1 = input_priv_key_shard("Enter your private key shard for layer1: ");
+			cout << "Finished decryption operations:" << endl;
+			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
+				print_finished_data(i, data);
 			cout << endl;
-			PrivKeyShard privKeyShard2 = input_priv_key_shard("Enter your private key shard for layer2: ");
-			cout << endl;
-			record.parts1.push_back(Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard1, record.shardsIDs1));
-			record.parts2.push_back(Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard2, record.shardsIDs2));
-			auto decrypted = Shamir::decrypt_join_2l(ciphertext, record.parts1, record.parts2);
-			string choice = input("Is this a textual message? (y/n): ");
-			cout << "Decrypted message:" << endl;
-			if (choice == "y" || choice == "Y")
-				cout << std::string(decrypted.begin(), decrypted.end()) << endl;
-			else
-				cout << utils::bytes_to_base64(decrypted) << endl;
-			cout << "==============================" << endl;
 		}
 
 		return ConnStatus::Connected;
@@ -666,7 +464,7 @@ namespace senc
 
 	ConnStatus participate(Socket& sock)
 	{
-		auto opid = input_uuid("Enter operation ID: ");
+		auto opid = input_operation_id("Enter operation ID: ");
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
@@ -678,31 +476,30 @@ namespace senc
 		return ConnStatus::Connected;
 	}
 
+	ConnStatus comp_part(Socket& sock)
+	{
+		(void)sock;
+
+		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
+		Ciphertext ciphertext = input_ciphertext();
+		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line): ");
+		cout << endl;
+		DecryptionPart part{};
+		if (isOwner)
+			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
+		else
+			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
+
+		cout << "Result decryption part: " << utils::bytes_to_base64(part.to_bytes()) << endl;
+
+		return ConnStatus::Connected;
+	}
+
 	ConnStatus send_part(Socket& sock)
 	{
-		int layer = input_num<int>("Input layer (1 or 2): ");
-		while (1 != layer && 2 != layer)
-			layer = input_num<int>("Invalid input, try again: ");
-
-		auto opid = input_uuid("Enter operation ID: ");
-		cout << endl;
-
-		Ciphertext ciphertext = input_ciphertext();
-		cout << endl;
-
-		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
-		cout << endl;
-
-		auto privKeyShardsIDs = input_num_vec<PrivKeyShardID>("Enter envolved private key shard IDs (each in new line):\n");
-		cout << endl;
-
-		DecryptionPart part{};
-		if (1 == layer)
-			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
-		else
-			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
-
-		cout << "Decryption part computes: " << part << endl;
+		auto opid = input_operation_id("Enter operation ID: ");
+		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
 
 		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 			opid,
@@ -710,6 +507,33 @@ namespace senc
 		});
 
 		cout << "Part submitted successfully." << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus join_parts(Socket& sock)
+	{
+		(void)sock;
+
+		auto ciphertext = input_ciphertext();
+
+		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
+
+		auto parts2 = input_decryption_parts("Enter layer2 decryption parts: ");
+
+		cout << endl;
+
+		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
+
+		auto isText = input_yesno("Is this a textual message? (y/n): ");
+
+		std::string msg;
+		if (isText)
+			msg = std::string(decrypted.begin(), decrypted.end());
+		else
+			msg = utils::bytes_to_base64(decrypted);
+
+		cout << "Decrypted message:" << endl << msg << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -758,6 +582,47 @@ namespace senc
 			auto it = data.shards_ids.cbegin();
 			cout << *it;
 			for (++it; it != data.shards_ids.cend(); ++it)
+				cout << ", " << *it;
+		}
+		cout << endl << endl;
+
+		cout << "==============================" << endl;
+	}
+
+	void print_finished_data(size_t idx, const FinishedDecryptionsRecord& data)
+	{
+		cout << "==============================" << endl;
+
+		cout << "Finished Operation #" << (idx + 1) << ":" << endl << endl;
+
+		cout << "Operation ID: " << data.op_id << endl << endl;
+
+		cout << "First layer decryption parts:" << endl;
+		for (const auto& part : data.parts1)
+			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+		cout << endl;
+
+		cout << "First layer involved shard IDs: ";
+		if (!data.shardsIDs1.empty())
+		{
+			auto it = data.shardsIDs1.cbegin();
+			cout << *it;
+			for (++it; it != data.shardsIDs1.cend(); ++it)
+				cout << ", " << *it;
+		}
+		cout << endl << endl;
+
+		cout << "Second layer decryption parts:" << endl;
+		for (const auto& part : data.parts1)
+			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+		cout << endl;
+
+		cout << "Second layer involved shard IDs: ";
+		if (!data.shardsIDs2.empty())
+		{
+			auto it = data.shardsIDs2.cbegin();
+			cout << *it;
+			for (++it; it != data.shardsIDs2.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
