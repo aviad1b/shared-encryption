@@ -121,8 +121,12 @@ namespace senc
 
 	Ciphertext input_ciphertext();
 
-	DecryptionPart input_decryption_part();
-	DecryptionPart input_decryption_part(const string& msg);
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part();
+
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart>
+		input_decryption_part(const string& msg);
 
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
@@ -449,15 +453,22 @@ namespace senc
 		return { std::move(c1), std::move(c2), std::move(c3) };
 	}
 
-	DecryptionPart input_decryption_part()
+	template <bool allowEmpty>
+	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part()
 	{
-		return DecryptionPart::from_bytes(bytes_from_base64(input()));
+		string str = input();
+		if constexpr (allowEmpty)
+			if (str.empty())
+				return std::nullopt;
+		return DecryptionPart::from_bytes(bytes_from_base64(str));
 	}
 
-	DecryptionPart input_decryption_part(const string& msg)
+	template <bool allowEmpty>
+	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart>
+		input_decryption_part(const string& msg)
 	{
 		cout << msg;
-		return input_decryption_part();
+		return input_decryption_part<allowEmpty>();
 	}
 
 	/**
