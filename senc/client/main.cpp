@@ -128,6 +128,9 @@ namespace senc
 	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart>
 		input_decryption_part(const string& msg);
 
+	vector<DecryptionPart> input_decryption_parts();
+	vector<DecryptionPart> input_decryption_parts(const string& msg);
+
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -469,6 +472,16 @@ namespace senc
 	{
 		cout << msg;
 		return input_decryption_part<allowEmpty>();
+	}
+
+	vector<DecryptionPart> input_decryption_parts()
+	{
+		return input_vec<DecryptionPart, input_decryption_part<true>>();
+	}
+
+	vector<DecryptionPart> input_decryption_parts(const string& msg)
+	{
+		return input_vec<DecryptionPart, input_decryption_part<true>>(msg);
 	}
 
 	/**
