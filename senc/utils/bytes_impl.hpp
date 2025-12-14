@@ -9,6 +9,9 @@
 #include "bytes.hpp"
 
 #include <cstring>
+#include <cryptopp/filters.h>
+#include <cryptopp/base64.h>
+#include <cryptopp/queue.h>
 
 #include "Exception.hpp"
 
@@ -29,6 +32,13 @@ namespace senc::utils
 		if (bytes.size() != sizeof(T))
 			throw Exception("Bad size for parse");
 		return *static_cast<const T*>(bytes.data());
+	}
+
+	template <std::ranges::input_range R>
+	requires (std::same_as<std::ranges::range_value_t<R>, byte> && !HasByteData<R>)
+	std::string bytes_to_base64(R&& rng)
+	{
+		return bytes_to_base64(Buffer(std::ranges::begin(rng), std::ranges::end(rng)));
 	}
 
 	template <StringType T>
@@ -60,5 +70,20 @@ namespace senc::utils
 	inline T from_bytes(const Buffer& bytes)
 	{
 		return T::from_bytes(bytes);
+	}
+
+	inline std::string bytes_to_base64(const HasByteData auto& bytes)
+	{
+		std::string res;
+		CryptoPP::StringSource(
+			bytes.data(),
+			bytes.size(),
+			true,
+			new CryptoPP::Base64Encoder(
+				new CryptoPP::StringSink(res),
+				false // insertLineBreaks=false
+			)
+		);
+		return res;
 	}
 }
