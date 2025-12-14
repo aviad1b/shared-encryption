@@ -684,12 +684,11 @@ namespace senc
 
 		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
 		const auto& [c3a, c3b] = c3;
-		Buffer c3aBuffer(c3a.begin(), c3a.end()); // TODO: Remove once utils support all byte ranges
 
 		cout << "Encrypted message:" << endl;
 		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
 		cout << "c1:\t" << bytes_to_base64(c2.to_bytes()) << endl;
-		cout << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl;
+		cout << "c3a:\t" << bytes_to_base64(c3a) << endl;
 		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
 		cout << endl;
 
