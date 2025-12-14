@@ -47,6 +47,7 @@ namespace senc
 		Participate,
 		CompPart,
 		SendPart,
+		JoinParts,
 		Exit
 	};
 
@@ -147,9 +148,11 @@ namespace senc
 	ConnStatus participate(Socket& sock);
 	ConnStatus comp_part(Socket& sock);
 	ConnStatus send_part(Socket& sock);
+	ConnStatus join_parts(Socket& sock);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
+	void print_finished_data(size_t idx, const FinishedDecryptionsRecord& data);
 
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
@@ -169,6 +172,7 @@ namespace senc
 		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
 		{ MainMenuOption::CompPart, { "Compute part for decryption", send_part } },
 		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
+		{ MainMenuOption::JoinParts, { "Join decryption parts", join_parts } },
 		{ MainMenuOption::Exit, { "Exit", logout } }
 	};
 
@@ -789,25 +793,12 @@ namespace senc
 			cout << endl;
 		}
 
-		for (auto& record : resp.finished_decryptions)
+		if (!resp.finished_decryptions.empty())
 		{
-			cout << "==============================" << endl;
-			cout << "Decryption operation " << record.op_id << " is ready." << endl << endl;
-			Ciphertext ciphertext = input_ciphertext();
-			PrivKeyShard privKeyShard1 = input_priv_key_shard("Enter your private key shard for layer1: ");
+			cout << "Finished decryption operations:" << endl;
+			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
+				print_finished_data(i, data);
 			cout << endl;
-			PrivKeyShard privKeyShard2 = input_priv_key_shard("Enter your private key shard for layer2: ");
-			cout << endl;
-			record.parts1.push_back(Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard1, record.shardsIDs1));
-			record.parts2.push_back(Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard2, record.shardsIDs2));
-			auto decrypted = Shamir::decrypt_join_2l(ciphertext, record.parts1, record.parts2);
-			bool isText = input_yesno("Is this a textual message? (y/n): ");
-			cout << "Decrypted message:" << endl;
-			if (isText)
-				cout << std::string(decrypted.begin(), decrypted.end()) << endl;
-			else
-				cout << utils::bytes_to_base64(decrypted) << endl;
-			cout << "==============================" << endl;
 		}
 
 		return ConnStatus::Connected;
@@ -862,6 +853,31 @@ namespace senc
 		return ConnStatus::Connected;
 	}
 
+	ConnStatus join_parts(Socket& sock)
+	{
+		auto ciphertext = input_ciphertext();
+
+		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
+
+		auto parts2 = input_decryption_parts("Enter layer2 decryption parts: ");
+
+		cout << endl;
+
+		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
+
+		auto isText = input_yesno("Is this a textual message? (y/n): ");
+
+		std::string msg;
+		if (isText)
+			msg = std::string(decrypted.begin(), decrypted.end());
+		else
+			msg = utils::bytes_to_base64(decrypted);
+
+		cout << "Decrypted message:" << endl << msg << endl;
+
+		return ConnStatus::Connected;
+	}
+
 	inline void print_userset_data(size_t idx,
 								   const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data)
 	{
@@ -906,6 +922,47 @@ namespace senc
 			auto it = data.shards_ids.cbegin();
 			cout << *it;
 			for (++it; it != data.shards_ids.cend(); ++it)
+				cout << ", " << *it;
+		}
+		cout << endl << endl;
+
+		cout << "==============================" << endl;
+	}
+
+	void print_finished_data(size_t idx, const FinishedDecryptionsRecord& data)
+	{
+		cout << "==============================" << endl;
+
+		cout << "Finished Operation #" << (idx + 1) << ":" << endl << endl;
+
+		cout << "Operation ID: " << data.op_id << endl << endl;
+
+		cout << "First layer decryption parts:" << endl;
+		for (const auto& part : data.parts1)
+			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+		cout << endl;
+
+		cout << "First layer involved shard IDs: ";
+		if (!data.shardsIDs1.empty())
+		{
+			auto it = data.shardsIDs1.cbegin();
+			cout << *it;
+			for (++it; it != data.shardsIDs1.cend(); ++it)
+				cout << ", " << *it;
+		}
+		cout << endl << endl;
+
+		cout << "Second layer decryption parts:" << endl;
+		for (const auto& part : data.parts1)
+			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+		cout << endl;
+
+		cout << "Second layer involved shard IDs: ";
+		if (!data.shardsIDs2.empty())
+		{
+			auto it = data.shardsIDs2.cbegin();
+			cout << *it;
+			for (++it; it != data.shardsIDs2.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
