@@ -169,11 +169,11 @@ namespace senc
 	{
 		if (!value.has_value())
 		{
-			sock.send_connected_value(static_cast<bigint_size_t>(0));
+			sock.send_connected_value(static_cast<utils::bigint_size_t>(0));
 			return;
 		}
 		
-		sock.send_connected_value(static_cast<bigint_size_t>(value->MinEncodedSize()));
+		sock.send_connected_value(static_cast<utils::bigint_size_t>(value->MinEncodedSize()));
 
 		utils::Buffer buff(value->MinEncodedSize());
 		value->Encode(buff.data(), buff.size());

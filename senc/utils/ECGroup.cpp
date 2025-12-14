@@ -63,19 +63,17 @@ namespace senc::utils
 
 	ECGroup::Self ECGroup::from_bytes(const Buffer& bytes)
 	{
-		// TODO: Required refactor, `bigint_size_t` is currently in common which shouldn't be used here
-
-		const uint64_t xSize = *reinterpret_cast<const uint64_t*>(
+		const bigint_size_t xSize = *reinterpret_cast<const bigint_size_t*>(
 			bytes.data()
 		);
 		if (!xSize) // if no x size, means no contents, means identity
 			return IDENTITY;
 
-		const uint64_t ySize = *reinterpret_cast<const uint64_t*>(
-			bytes.data() + sizeof(uint64_t)
+		const bigint_size_t ySize = *reinterpret_cast<const bigint_size_t*>(
+			bytes.data() + sizeof(bigint_size_t)
 		);
 
-		const byte* data = bytes.data() + (2 * sizeof(uint64_t)); // after sizes
+		const byte* data = bytes.data() + (2 * sizeof(bigint_size_t)); // after sizes
 		BigInt x, y;
 		x.Decode(data, xSize);
 		y.Decode(data + xSize, ySize);
@@ -89,9 +87,9 @@ namespace senc::utils
 			return Buffer(1, 0); // size 1, value 0
 
 		// buffer will contain x size then y size then x then y
-		Buffer res((2 * sizeof(uint64_t)) + x().MinEncodedSize() + y().MinEncodedSize());
-		uint64_t* pXSize = reinterpret_cast<uint64_t*>(res.data());
-		uint64_t* pYSize = pXSize + 1;
+		Buffer res((2 * sizeof(bigint_size_t)) + x().MinEncodedSize() + y().MinEncodedSize());
+		bigint_size_t* pXSize = reinterpret_cast<bigint_size_t*>(res.data());
+		bigint_size_t* pYSize = pXSize + 1;
 		byte* pX = reinterpret_cast<byte*>(pYSize + 1);
 		byte* pY = pX + x().MinEncodedSize();
 

@@ -9,12 +9,25 @@
 #pragma once
 
 #include <cryptopp/integer.h>
+#include <cstdint>
+#include <limits>
 #include <cmath>
 
 #include "concepts.hpp"
 
 namespace senc::utils
 {
+	/**
+	 * @typedef senc::bigint_size_t
+	 * @brief Fundamental used for storing a `BigInt` instance's size (in bytes).
+	 */
+	using bigint_size_t = std::uint64_t;
+
+	/**
+	 * @brief Maximum size (in bytes) for a `BigInt` instance.
+	 */
+	constexpr std::size_t MAX_BIGINT_SIZE = std::numeric_limits<bigint_size_t>::max();
+
 	/**
 	 * @typedef senc::utils::BigInt
 	 * @brief Type that can holds big integer values.
