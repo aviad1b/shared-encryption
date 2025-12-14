@@ -103,6 +103,9 @@ namespace senc
 	vector<string> input_usernames();
 	vector<string> input_usernames(const string& msg);
 
+	member_count_t input_threshold();
+	member_count_t input_threshold(const string& msg);
+
 	PrivKeyShard input_priv_key_shard();
 	PrivKeyShard input_priv_key_shard(const string& msg);
 
@@ -288,6 +291,16 @@ namespace senc
 	vector<string> input_usernames(const string& msg)
 	{
 		return input_vec<input_username>(msg);
+	}
+
+	member_count_t input_threshold()
+	{
+		return input_num<member_count_t>();
+	}
+
+	member_count_t input_threshold(const string& msg)
+	{
+		return input_num<member_count_t>(msg);
 	}
 
 	PrivKeyShard input_priv_key_shard()
@@ -552,8 +565,8 @@ namespace senc
 		vector<string> regMembers = input_usernames(
 			"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
 		);
-		auto ownersThreshold = input_num<member_count_t>("Enter owners threshold for decryption: ");
-		auto regMembersThreshold = input_num<member_count_t>("Enter non-owner members threshold for decryption: ");
+		auto ownersThreshold = input_threshold("Enter owners threshold for decryption: ");
+		auto regMembersThreshold = input_threshold("Enter non-owner members threshold for decryption: ");
 
 		auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
 			.reg_members = std::move(regMembers),
