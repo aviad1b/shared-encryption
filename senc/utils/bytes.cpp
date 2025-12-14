@@ -14,21 +14,6 @@
 
 namespace senc::utils
 {
-	std::string bytes_to_base64(const Buffer& bytes)
-	{
-		std::string res;
-		CryptoPP::StringSource(
-			bytes.data(),
-			bytes.size(),
-			true,
-			new CryptoPP::Base64Encoder(
-				new CryptoPP::StringSink(res),
-				false // insertLineBreaks=false
-			)
-		);
-		return res;
-	}
-
 	Buffer bytes_from_base64(const std::string& base64)
 	{
 		Buffer res;

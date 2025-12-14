@@ -61,4 +61,19 @@ namespace senc::utils
 	{
 		return T::from_bytes(bytes);
 	}
+
+	inline std::string bytes_to_base64(const Buffer& bytes)
+	{
+		std::string res;
+		CryptoPP::StringSource(
+			bytes.data(),
+			bytes.size(),
+			true,
+			new CryptoPP::Base64Encoder(
+				new CryptoPP::StringSink(res),
+				false // insertLineBreaks=false
+			)
+		);
+		return res;
+	}
 }
