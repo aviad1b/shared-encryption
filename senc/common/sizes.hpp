@@ -70,17 +70,6 @@ namespace senc
 	constexpr std::size_t MAX_RESULTS = std::numeric_limits<res_count_t>::max();
 
 	/**
-	 * @typedef senc::bigint_size_t
-	 * @brief Fundamental used for storing a `BigInt` instance's size (in bytes).
-	 */
-	using bigint_size_t = std::uint64_t;
-
-	/**
-	 * @brief Maximum size (in bytes) for a `BigInt` instance.
-	 */
-	constexpr std::size_t MAX_BIGINT_SIZE = std::numeric_limits<bigint_size_t>::max();
-
-	/**
 	 * @typedef senc::buffer_size_t
 	 * @brief Fundamental used for sending/recving buffer sizes.
 	 */

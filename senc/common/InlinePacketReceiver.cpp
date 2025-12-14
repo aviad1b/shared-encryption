@@ -183,7 +183,7 @@ namespace senc
 
 	bool InlinePacketReceiver::recv_big_int(utils::Socket& sock, utils::BigInt& out)
 	{
-		const bigint_size_t size = sock.recv_connected_primitive<bigint_size_t>();
+		const utils::bigint_size_t size = sock.recv_connected_primitive<utils::bigint_size_t>();
 		if (!size)
 			return false; // nullopt recv'd
 		utils::Buffer buff = sock.recv_connected_exact(size);
