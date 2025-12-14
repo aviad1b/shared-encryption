@@ -384,7 +384,7 @@ namespace senc
 
 	UserSetID input_userset_id(const string& msg)
 	{
-		input_uuid(msg);
+		return input_uuid(msg);
 	}
 
 	OperationID input_operation_id()
