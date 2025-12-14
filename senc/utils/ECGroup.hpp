@@ -62,6 +62,13 @@ namespace senc::utils
 		ECGroup(const BigInt& x, const BigInt& y);
 
 		/**
+		 * @brief Constructs a non-identity group element from given moved x and y values.
+		 * @param x
+		 * @param y
+		 */
+		ECGroup(BigInt&& x, BigInt&& y);
+
+		/**
 		 * @brief Copy constructor of elliptic curve group element.
 		 */
 		ECGroup(const Self&) = default;
