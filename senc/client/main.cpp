@@ -66,6 +66,8 @@ namespace senc
 
 	string input();
 	string input(const string& msg);
+
+	vector<string> input_vec();
 	vector<string> input_vec(const string& msg);
 
 	template <NumInputable T, bool allowEmpty = false>
@@ -181,16 +183,21 @@ namespace senc
 		return input();
 	}
 
-	vector<string> input_vec(const string& msg)
+	vector<string> input_vec()
 	{
 		vector<string> res;
 		string curr;
 
-		cout << msg;
 		while (!(curr = input()).empty())
 			res.push_back(curr);
 
 		return res;
+	}
+
+	vector<string> input_vec(const string& msg)
+	{
+		cout << msg;
+		return input_vec();
 	}
 
 	UUID input_uuid()
