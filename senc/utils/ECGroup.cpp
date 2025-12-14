@@ -46,6 +46,9 @@ namespace senc::utils
 	ECGroup::ECGroup(const BigInt& x, const BigInt& y)
 		: _point(x, y), _isIdentity(false) { }
 
+	ECGroup::ECGroup(BigInt&& x, BigInt&& y)
+		: _point(std::move(x), std::move(y)), _isIdentity(false) { }
+
 	ECGroup::Self ECGroup::from_scalar(const BigInt& scalar)
 	{
 		if (scalar.IsZero())
