@@ -23,7 +23,7 @@ struct RangeProductTest : testing::Test, testing::WithParamInterface<std::vector
 
 struct RangeEnumerateTest : testing::Test, testing::WithParamInterface<std::vector<int>> { };
 
-TEST_P(RangeSumTest, Ranges)
+TEST_P(RangeSumTest, ComputesCorrectly)
 {
 	const auto& elems = GetParam();
 	int sumCalc = 0;
@@ -33,13 +33,13 @@ TEST_P(RangeSumTest, Ranges)
 	EXPECT_EQ(sumRet, sumCalc);
 }
 
-INSTANTIATE_TEST_CASE_P(Ranges, RangeSumTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(SampleData, RangeSumTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
 ));
 
-TEST_P(RangeProductTest, Ranges)
+TEST_P(RangeProductTest, ComputesCorrectly)
 {
 	const auto& elems = GetParam();
 	int prodCalc = 1;
@@ -49,13 +49,13 @@ TEST_P(RangeProductTest, Ranges)
 	EXPECT_EQ(prodRet, prodCalc);
 }
 
-INSTANTIATE_TEST_CASE_P(Ranges, RangeProductTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(SampleData, RangeProductTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
 ));
 
-TEST_P(RangeEnumerateTest, Ranges)
+TEST_P(RangeEnumerateTest, ComputesCorrectly)
 {
 	const auto& elems = GetParam();
 	auto it = elems.begin();
@@ -69,13 +69,13 @@ TEST_P(RangeEnumerateTest, Ranges)
 	}
 }
 
-INSTANTIATE_TEST_CASE_P(Ranges, RangeEnumerateTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(SampleData, RangeEnumerateTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
 ));
 
-TEST(Ranges, ZipTest)
+TEST(RangeViewTests, ZipCombinesTwoRanges)
 {
 	std::vector<int> x{1, 2, 3, 4, 5};
 	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
@@ -88,7 +88,7 @@ TEST(Ranges, ZipTest)
 	}
 }
 
-TEST(Ranges, JoinTwoTest)
+TEST(RangeViewTests, JoinConcatenatesTwoRanges)
 {
 	std::vector<int> x{ 1, 2, 3, 4, 5 };
 	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
@@ -101,7 +101,7 @@ TEST(Ranges, JoinTwoTest)
 		EXPECT_EQ(elem, all[i]);
 }
 
-TEST(Ranges, JoinThreeTest)
+TEST(RangeViewTests, JoinConcatenatesThreeRanges)
 {
 	std::vector<int> x{ 1, 2, 3, 4, 5 };
 	std::array<int, 5> y{ 6, 7, 8, 9, 10 };
@@ -116,7 +116,7 @@ TEST(Ranges, JoinThreeTest)
 		EXPECT_EQ(elem, all[i]);
 }
 
-TEST(Ranges, JoinFirstEmpty)
+TEST(RangeViewTests, JoinHandlesFirstEmpty)
 {
 	std::vector<std::string> x{};
 	std::vector<std::string> y{ "abc", "def" };
@@ -126,7 +126,7 @@ TEST(Ranges, JoinFirstEmpty)
 		EXPECT_EQ(elem, all[i]);
 }
 
-TEST(Ranges, JoinSecondEmpty)
+TEST(RangeViewTests, JoinHandlesSecondEmpty)
 {
 	std::vector<std::string> x{ "abc", "def" };
 	std::vector<std::string> y{};
