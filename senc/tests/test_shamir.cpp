@@ -34,7 +34,7 @@ struct ShareIntTest : testing::Test, testing::WithParamInterface<ShareIntTestPar
 
 struct ShareModIntTest : testing::Test, testing::WithParamInterface<ShareModIntTestParams> { };
 
-TEST_P(ShareIntTest, ShareInt)
+TEST_P(ShareIntTest, SharesAndRestoresSecret)
 {
 	using Shamir = senc::utils::Shamir<int>;
 	auto dist = Random<int>::get_range_dist(-100, 100);
@@ -53,7 +53,7 @@ TEST_P(ShareIntTest, ShareInt)
 	}
 }
 
-TEST_P(ShareModIntTest, ShareModInt)
+TEST_P(ShareModIntTest, SharesAndRestoresSecret)
 {
 	using Shamir = senc::utils::Shamir<MI7>;
 	const auto& params = GetParam();
@@ -71,7 +71,7 @@ TEST_P(ShareModIntTest, ShareModInt)
 	}
 }
 
-INSTANTIATE_TEST_CASE_P(ShareInt, ShareIntTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(IntegerSharing, ShareIntTest, testing::Values(
 	// Basic valid cases
 	ShareIntTestParams{ 42, 1, 3, true },      // Simple case: 2-of-3
 	ShareIntTestParams{ 0, 1, 2, true },       // Secret is zero
@@ -100,7 +100,7 @@ INSTANTIATE_TEST_CASE_P(ShareInt, ShareIntTest, testing::Values(
 	ShareIntTestParams{ -1, 1, 2, true }       // Small negative
 ));
 
-INSTANTIATE_TEST_CASE_P(ShareModInt, ShareModIntTest, testing::Values(
+INSTANTIATE_TEST_CASE_P(ModularIntSharing, ShareModIntTest, testing::Values(
 	// Basic valid cases (secrets in range [0, 6])
 	ShareModIntTestParams{ 3, 1, 3, true },    // Simple case: 2-of-3
 	ShareModIntTestParams{ 0, 1, 2, true },    // Secret is zero
