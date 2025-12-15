@@ -19,7 +19,7 @@ using senc::utils::ModInt;
 using senc::utils::from_string;
 using senc::utils::to_string;
 
-TEST(Strs, ModInt)
+TEST(StringConversionTests, ModIntConvertsToAndFromString)
 {
 	constexpr int modulus = 7;
 	using MI = ModInt<IntegralModTraits<int, modulus, true>>;
@@ -30,7 +30,7 @@ TEST(Strs, ModInt)
 	}
 }
 
-TEST(Strs, ECGroup)
+TEST(StringConversionTests, ECGroupConvertsToAndFromString)
 {
 	EXPECT_EQ(from_string<ECGroup>(to_string(ECGroup::identity())), ECGroup::identity());
 	EXPECT_EQ(from_string<ECGroup>(to_string(ECGroup::generator())), ECGroup::generator());
