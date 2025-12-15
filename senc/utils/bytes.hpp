@@ -87,6 +87,13 @@ namespace senc::utils
 	};
 
 	/**
+	 * @brief Generates a buffer of random bytes.
+	 * @param count Amount of bytes to generate (buffer size).
+	 * @return A buffer of `count` random bytes.
+	 */
+	Buffer random_bytes(std::size_t count);
+
+	/**
 	 * @brief Converts a fundamental/enum value to a buffer of bytes.
 	 * @param value Value to convert to bytes.
 	 * @return Bytes representation of `value`.

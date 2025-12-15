@@ -12,8 +12,21 @@
 #include <cryptopp/base64.h>
 #include <cryptopp/queue.h>
 
+#include "Random.hpp"
+
 namespace senc::utils
 {
+	Buffer random_bytes(std::size_t count)
+	{
+		auto dist = Random<byte>::get_dist();
+		Buffer res(count);
+
+		for (auto& b : res)
+			b = dist();
+
+		return res;
+	}
+
 	Buffer bytes_from_base64(const std::string& base64)
 	{
 		Buffer res;
