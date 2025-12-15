@@ -93,7 +93,7 @@ protected:
 	}
 };
 
-TEST_P(ServerTest, ImmediateLogout)
+TEST_P(ServerTest, LogoutWithoutLogin)
 {
 	auto client = Socket("127.0.0.1", port);
 	exchange_protocol_version(client);
