@@ -20,7 +20,7 @@ using senc::utils::IPv6;
 /**
  * @brief Tests basic IPv4 construction.
  */
-TEST(SocketTests, TestIPv4)
+TEST(SocketTests, IPv4ConstructsFromString)
 {
 	IPv4 ip("1.2.3.4");
 	EXPECT_EQ(ip.as_str(), "1.2.3.4");
@@ -29,7 +29,7 @@ TEST(SocketTests, TestIPv4)
 /**
  * @brief Tests basic IPv6 construction.
  */
-TEST(SocketTests, TestIPv6)
+TEST(SocketTests, IPv6ConstructsFromString)
 {
 	IPv6 ip("fd30:cb0a:c87a:0157:a1b2:c3d4:e5f6:7890");
 	EXPECT_EQ(ip.as_str(), "fd30:cb0a:c87a:0157:a1b2:c3d4:e5f6:7890");
@@ -38,7 +38,7 @@ TEST(SocketTests, TestIPv6)
 /**
  * @brief Tests basic UDP send and recieve.
  */
-TEST(SocketTests, TestUDP)
+TEST(SocketTests, UdpSendsAndReceivesData)
 {
 	const Buffer sendData { byte(1), byte(2), byte(3) };
 	UdpSocket<IPv4> sock1, sock2;
@@ -54,7 +54,7 @@ TEST(SocketTests, TestUDP)
 /**
  * @brief Tests basic TCP send and recieve.
  */
-TEST(SocketTests, TestTCP)
+TEST(SocketTests, TcpSendsAndReceivesData)
 {
 	auto [sendSock, recvSock] = prepare_tcp();
 	
@@ -68,7 +68,7 @@ TEST(SocketTests, TestTCP)
 /**
  * @brief Tests send and recv of strings over TCP.
  */
-TEST(SocketTests, TestStrTCP)
+TEST(SocketTests, TcpSendsAndReceivesStrings)
 {
 	auto [sendSock, recvSock] = prepare_tcp();
 
@@ -98,7 +98,7 @@ TEST(SocketTests, TestStrTCP)
 	EXPECT_EQ(sendBytes, recvBytes);
 }
 
-TEST(SocketTests, TestExactTCP)
+TEST(SocketTests, TcpReceivesExactByteCount)
 {
 	auto [sendSock, recvSock] = prepare_tcp();
 
@@ -112,7 +112,7 @@ TEST(SocketTests, TestExactTCP)
 	EXPECT_EQ(recvLast, last);
 }
 
-TEST(SocketTests, TestTupleTCP)
+TEST(SocketTests, TcpSerializesAndDeserializesTuples)
 {
 	auto [sendSock, recvSock] = prepare_tcp();
 	auto sendTpl = std::make_tuple(Buffer{1, 2, 3}, std::string("hello"), 5);

@@ -1,7 +1,7 @@
 /*********************************************************************
  * \file   test_common.cpp
  * \brief  Contains tests for the "common" unit.
- * 
+ *
  * \author aviad1b
  * \date   November 2025, Kislev 5786
  *********************************************************************/
@@ -289,7 +289,7 @@ TEST(CommonTests, SendDecryptionPartCycleTest)
 	send_decryption_part_cycle(client, server);
 }
 
-TEST(CommonTests, MultipleCyclesTest)
+TEST(CommonTests, AllProtocolCyclesInSequence)
 {
 	auto [client, server] = prepare_tcp();
 	error_cycle(client, server);

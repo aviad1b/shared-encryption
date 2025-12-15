@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   test_server.cpp
+ * \brief  Contains tests for server.
+ * 
+ * \author aviad1b
+ * \date   December 2025, Kislev 5786
+ *********************************************************************/
+
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>
@@ -93,7 +101,7 @@ protected:
 	}
 };
 
-TEST_P(ServerTest, ImmediateLogout)
+TEST_P(ServerTest, LogoutWithoutLogin)
 {
 	auto client = Socket("127.0.0.1", port);
 	exchange_protocol_version(client);
