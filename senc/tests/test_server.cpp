@@ -785,7 +785,6 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 		auto creatorUsernames = creatorUsernamesVec | std::views::all;
 
 		auto& creatorSock = creatorSocksVec.front();
-		auto& creatorUsername = creatorUsernamesVec.front();
 
 		auto [nonCreatorOwnerSocksVec, nonCreatorOwnerUsernamesVec] = makeusers(params.owners, "owner");
 		auto nonCreatorOwnerSocks = nonCreatorOwnerSocksVec | std::views::all;
