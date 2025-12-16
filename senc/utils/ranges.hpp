@@ -306,7 +306,8 @@ namespace senc::utils
 			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
 			using It2 = std::ranges::iterator_t<std::conditional_t<isConst, const R2, R2>>;
 
-			using value_type = std::ranges::range_reference_t<R1>;
+			using value_type = std::ranges::range_value_t<R1>;
+			using reference = std::ranges::range_reference_t<R1>;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;
@@ -323,7 +324,7 @@ namespace senc::utils
 
 			explicit ConcatViewIterator(bool inFirst, It1 it1, It1 end1, It2 it2);
 
-			value_type operator*() const;
+			reference operator*() const;
 
 			Self& operator++();
 

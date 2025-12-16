@@ -221,7 +221,7 @@ namespace senc::utils
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
 		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
-		inline ConcatViewIterator<isConst, R1, R2>::value_type
+		inline typename ConcatViewIterator<isConst, R1, R2>::reference
 			ConcatViewIterator<isConst, R1, R2>::operator*() const
 		{
 			return this->_inFirst ? *this->_it1 : *this->_it2;
