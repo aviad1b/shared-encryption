@@ -149,7 +149,7 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range ...Ranges>
-		inline ZipViewIterator<isConst, Ranges...>::value_type
+		inline ZipViewIterator<isConst, Ranges...>::reference
 			ZipViewIterator<isConst, Ranges...>::operator*() const
 		{
 			return std::apply(

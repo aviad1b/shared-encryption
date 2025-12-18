@@ -183,7 +183,8 @@ namespace senc::utils
 			using RangesTuple = std::tuple<Ranges...>;
 			using ItsTuple = std::tuple<std::ranges::iterator_t<std::conditional_t<isConst, const Ranges, Ranges>>...>;
 
-			using value_type = std::tuple<std::ranges::range_reference_t<Ranges>...>;
+			using reference = std::tuple<std::ranges::range_reference_t<Ranges>...>;
+			using value_type = std::tuple<std::ranges::range_value_t<Ranges>...>;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;
@@ -200,7 +201,7 @@ namespace senc::utils
 
 			explicit ZipViewIterator(RangesTuple& ranges, bool isEnd = false);
 
-			value_type operator*() const;
+			reference operator*() const;
 
 			Self& operator++();
 
