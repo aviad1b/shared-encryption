@@ -303,6 +303,8 @@ namespace senc::utils
 		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		class ConcatViewIterator
 		{
+			friend class ConcatViewIterator<!isConst, R1, R2>;
+
 		public:
 			using Self = ConcatViewIterator<isConst, R1, R2>;
 			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
@@ -332,7 +334,8 @@ namespace senc::utils
 
 			Self operator++(int);
 
-			bool operator==(const Self& other) const;
+			template <bool otherIsConst>
+			bool operator==(const ConcatViewIterator<otherIsConst, R1, R2>& other) const;
 
 		private:
 			bool _inFirst;
