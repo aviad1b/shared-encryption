@@ -116,7 +116,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit EnumerateView(V&& wrappedView);
+			template <typename V_>
+			explicit EnumerateView(V_&& wrappedView);
 
 			iterator begin();
 
@@ -243,7 +244,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit ZipView(Ranges&&... ranges);
+			template <typename... Ranges_>
+			explicit ZipView(Ranges_&&... ranges);
 
 			iterator begin();
 
@@ -361,7 +363,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit JoinView(R1&& r1, Rs&&... rs);
+			template <typename R1_, typename... Rs_>
+			explicit JoinView(R1_&& r1, Rs_&&... rs);
 		};
 
 		template <std::ranges::range R1, std::ranges::range R2>
@@ -383,7 +386,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit JoinView(R1&& r1, R2&& r2);
+			template <typename R1_, typename R2_>
+			explicit JoinView(R1_&& r1, R2_&& r2);
 
 			iterator begin();
 

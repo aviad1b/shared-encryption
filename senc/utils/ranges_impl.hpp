@@ -108,7 +108,9 @@ namespace senc::utils
 		}
 
 		template <std::ranges::view V>
-		inline EnumerateView<V>::EnumerateView(V&& wrappedView) : _wrappedView(std::move(wrappedView)) {}
+		template <typename V_>
+		inline EnumerateView<V>::EnumerateView(V_&& wrappedView)
+			: _wrappedView(std::forward<V_>(wrappedView)) {}
 
 		template <std::ranges::view V>
 		inline EnumerateView<V>::iterator EnumerateView<V>::begin()
@@ -186,8 +188,9 @@ namespace senc::utils
 		}
 
 		template <std::ranges::input_range... Ranges>
-		inline ZipView<Ranges...>::ZipView(Ranges&&... ranges)
-			: _ranges(std::forward<Ranges>(ranges)...) { }
+		template <typename... Ranges_>
+		inline ZipView<Ranges...>::ZipView(Ranges_&&... ranges)
+			: _ranges(std::forward<Ranges_>(ranges)...) { }
 
 		template <std::ranges::input_range... Ranges>
 		inline ZipView<Ranges...>::iterator ZipView<Ranges...>::begin()
@@ -260,11 +263,13 @@ namespace senc::utils
 		}
 
 		template <std::ranges::range R1, std::ranges::range... Rs>
-		inline JoinView<R1, Rs...>::JoinView(R1&& r1, Rs&&... rs)
+		template <typename R1_, typename... Rs_>
+		inline JoinView<R1, Rs...>::JoinView(R1_&& r1, Rs_&&... rs)
 			: Base(std::forward<R1>(r1), JoinView<Rs...>(std::forward<Rs>(rs)...)) { }
 
 		template <std::ranges::range R1, std::ranges::range R2>
-		inline JoinView<R1, R2>::JoinView(R1&& r1, R2&& r2)
+		template <typename R1_, typename R2_>
+		inline JoinView<R1, R2>::JoinView(R1_&& r1, R2_&& r2)
 			: _r1(std::forward<R1>(r1)), _r2(std::forward<R2>(r2)) { }
 
 		template <std::ranges::range R1, std::ranges::range R2>
