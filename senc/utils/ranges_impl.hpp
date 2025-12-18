@@ -266,7 +266,7 @@ namespace senc::utils
 		template <std::ranges::range R1, std::ranges::range... Rs>
 		template <typename R1_, typename... Rs_>
 		inline JoinView<R1, Rs...>::JoinView(R1_&& r1, Rs_&&... rs)
-			: Base(std::forward<R1>(r1), JoinView<Rs...>(std::forward<Rs>(rs)...)) { }
+			: Base(std::forward<R1_>(r1), JoinView<Rs_...>(std::forward<Rs>(rs)...)) { }
 
 		template <std::ranges::range R1, std::ranges::range R2>
 		template <typename R1_, typename R2_>
