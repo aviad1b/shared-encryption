@@ -153,7 +153,7 @@ namespace senc::utils
 			ZipViewIterator<isConst, Ranges...>::operator*() const
 		{
 			return std::apply(
-				[](auto&... its) { return value_type(*its...); },
+				[](auto&... its) -> reference { return reference(*its...); },
 				this->_its
 			);
 		}
@@ -266,12 +266,12 @@ namespace senc::utils
 		template <std::ranges::range R1, std::ranges::range... Rs>
 		template <typename R1_, typename... Rs_>
 		inline JoinView<R1, Rs...>::JoinView(R1_&& r1, Rs_&&... rs)
-			: Base(std::forward<R1_>(r1), JoinView<Rs_...>(std::forward<Rs>(rs)...)) { }
+			: Base(std::forward<R1_>(r1), JoinView<Rs...>(std::forward<Rs_>(rs)...)) { }
 
 		template <std::ranges::range R1, std::ranges::range R2>
 		template <typename R1_, typename R2_>
 		inline JoinView<R1, R2>::JoinView(R1_&& r1, R2_&& r2)
-			: _r1(std::forward<R1>(r1)), _r2(std::forward<R2>(r2)) { }
+			: _r1(std::forward<R1_>(r1)), _r2(std::forward<R2_>(r2)) { }
 
 		template <std::ranges::range R1, std::ranges::range R2>
 		inline typename JoinView<R1, R2>::iterator JoinView<R1, R2>::begin()
