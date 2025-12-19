@@ -852,7 +852,9 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 		const auto& usersetID = ms->user_set_id;
 		const auto& pubKey1 = ms->pub_key1;
 		const auto& pubKey2 = ms->pub_key2;
+		ownerShardsIDs1.push_back(ms->priv_key1_shard.first);
 		ownerShards1.emplace_back(std::move(ms->priv_key1_shard));
+		ownerShardsIDs2.push_back(ms->priv_key2_shard.first);
 		ownerShards2.emplace_back(std::move(ms->priv_key2_shard));
 
 		// each involved member should get its own shard(s) and register to use later
