@@ -922,6 +922,9 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			auto& initiator = (0 == initiatorIndex) ? creatorSock 
 				: nonCreatorInvolvedOwnerSocks[initiatorIndex - 1];
 
+			// initiator counts as a non-owner for the decryption of layer1
+			regMemberShardsIDs.push_back(ownerShardsIDs1[initiatorIndex]);
+
 			// 1) initiator starts decryption
 			auto dc = post<pkt::DecryptResponse>(initiator, pkt::DecryptRequest{
 				usersetID, ciphertext
