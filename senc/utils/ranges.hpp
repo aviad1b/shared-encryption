@@ -368,6 +368,7 @@ namespace senc::utils
 			Self& operator=(Self&&) = default;
 
 			template <typename R1_, typename... Rs_>
+			requires (sizeof...(Rs_) > 0)
 			explicit JoinView(R1_&& r1, Rs_&&... rs);
 		};
 
@@ -405,8 +406,10 @@ namespace senc::utils
 		};
 
 		// if given ranges, construct with an all view
-		template <std::ranges::range... Ranges>
-		JoinView(Ranges&&...) -> JoinView<std::views::all_t<Ranges>...>;
+		template <std::ranges::range R1, std::ranges::range R2>
+		JoinView(R1&&, R2&&) -> JoinView<std::views::all_t<R1>, std::views::all_t<R2>>;
+		template <std::ranges::range R1, std::ranges::range... Rs>
+		JoinView(R1&&, Rs&&...) -> JoinView<std::views::all_t<R1>, std::views::all_t<Rs>...>;
 
 		/**
 		 * @class senc::utils::ranges::JoinFn

@@ -264,6 +264,7 @@ namespace senc::utils
 
 		template <std::ranges::range R1, std::ranges::range... Rs>
 		template <typename R1_, typename... Rs_>
+		requires (sizeof...(Rs_) > 0)
 		inline JoinView<R1, Rs...>::JoinView(R1_&& r1, Rs_&&... rs)
 			: Base(std::forward<R1_>(r1), JoinView<Rs...>(std::forward<Rs_>(rs)...)) { }
 
