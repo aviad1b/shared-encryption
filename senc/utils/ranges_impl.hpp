@@ -80,9 +80,9 @@ namespace senc::utils
 		) : _it(std::forward<std::ranges::iterator_t<V>>(it)), _idx(idx) { }
 
 		template <std::ranges::view V>
-		inline EnumerateViewIterator<V>::value_type EnumerateViewIterator<V>::operator*() const
+		inline auto EnumerateViewIterator<V>::operator*() const -> value_type
 		{
-			return { _idx, *_it };
+			return value_type{ _idx, *_it };
 		}
 
 		template <std::ranges::view V>
@@ -149,8 +149,7 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::input_range ...Ranges>
-		inline ZipViewIterator<isConst, Ranges...>::reference
-			ZipViewIterator<isConst, Ranges...>::operator*() const
+		inline auto ZipViewIterator<isConst, Ranges...>::operator*() const -> reference
 		{
 			return std::apply(
 				[](auto&... its) -> reference { return reference(*its...); },

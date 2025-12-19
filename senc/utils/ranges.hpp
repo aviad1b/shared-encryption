@@ -380,8 +380,6 @@ namespace senc::utils
 			using iterator = ConcatViewIterator<false, R1, R2>;
 			using const_iterator = ConcatViewIterator<true, R1, R2>;
 
-			JoinView() = default;
-
 			JoinView(const Self&) = default;
 
 			Self& operator=(const Self&) = default;
