@@ -116,7 +116,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit EnumerateView(V&& wrappedView);
+			template <typename V_>
+			explicit EnumerateView(V_&& wrappedView);
 
 			iterator begin();
 
@@ -182,7 +183,8 @@ namespace senc::utils
 			using RangesTuple = std::tuple<Ranges...>;
 			using ItsTuple = std::tuple<std::ranges::iterator_t<std::conditional_t<isConst, const Ranges, Ranges>>...>;
 
-			using value_type = std::tuple<std::ranges::range_reference_t<Ranges>...>;
+			using reference = std::tuple<std::ranges::range_reference_t<Ranges>...>;
+			using value_type = std::tuple<std::ranges::range_value_t<Ranges>...>;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;
@@ -199,7 +201,7 @@ namespace senc::utils
 
 			explicit ZipViewIterator(RangesTuple& ranges, bool isEnd = false);
 
-			value_type operator*() const;
+			reference operator*() const;
 
 			Self& operator++();
 
@@ -243,7 +245,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit ZipView(Ranges&&... ranges);
+			template <typename... Ranges_>
+			explicit ZipView(Ranges_&&... ranges);
 
 			iterator begin();
 
@@ -301,6 +304,8 @@ namespace senc::utils
 		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
 		class ConcatViewIterator
 		{
+			friend class ConcatViewIterator<!isConst, R1, R2>;
+
 		public:
 			using Self = ConcatViewIterator<isConst, R1, R2>;
 			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
@@ -330,7 +335,8 @@ namespace senc::utils
 
 			Self operator++(int);
 
-			bool operator==(const Self& other) const;
+			template <bool otherIsConst>
+			bool operator==(const ConcatViewIterator<otherIsConst, R1, R2>& other) const;
 
 		private:
 			bool _inFirst;
@@ -361,7 +367,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit JoinView(R1&& r1, Rs&&... rs);
+			template <typename R1_, typename... Rs_>
+			explicit JoinView(R1_&& r1, Rs_&&... rs);
 		};
 
 		template <std::ranges::range R1, std::ranges::range R2>
@@ -373,8 +380,6 @@ namespace senc::utils
 			using iterator = ConcatViewIterator<false, R1, R2>;
 			using const_iterator = ConcatViewIterator<true, R1, R2>;
 
-			JoinView() = default;
-
 			JoinView(const Self&) = default;
 
 			Self& operator=(const Self&) = default;
@@ -383,7 +388,8 @@ namespace senc::utils
 
 			Self& operator=(Self&&) = default;
 
-			explicit JoinView(R1&& r1, R2&& r2);
+			template <typename R1_, typename R2_>
+			explicit JoinView(R1_&& r1, R2_&& r2);
 
 			iterator begin();
 
