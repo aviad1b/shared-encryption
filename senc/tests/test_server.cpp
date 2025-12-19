@@ -778,7 +778,8 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 		// - remaining (uninvolved) owners and non-owners to fill up params
 		// - non-members
 
-		std::vector<Socket> creatorSocksVec = { Socket("127.0.0.1", port) };
+		std::vector<Socket> creatorSocksVec;
+		creatorSocksVec.emplace_back("127.0.0.1", port);
 		std::vector<std::string> creatorUsernamesVec = { "creator" };
 
 		auto creatorSocks = creatorSocksVec | std::views::all;
@@ -826,7 +827,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			exchange_protocol_version(sock);
 
 		// signup
-		for (auto& [sock, username] : zip(allSocks, allUsernames))
+		for (auto [sock, username] : zip(allSocks, allUsernames))
 		{
 			std::optional<pkt::SignupResponse> su = 
 				post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
@@ -927,7 +928,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 
 			// 2) all involved members run update to get decryption lookup request
 			//    (uninvolved members are in lookup too, just won't be used later)
-			for (auto& [i, sock] : memberSocks | enumerate)
+			for (auto [i, sock] : memberSocks | enumerate)
 			{
 				if (initiatorIndex == i)
 					continue; // initiator doesn't run update
@@ -938,7 +939,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			}
 
 			// 3) involved members tell server that they're willing to participate in operation
-			for (auto& [i, sock] : involvedSocks | enumerate)
+			for (auto [i, sock] : involvedSocks | enumerate)
 			{
 				if (initiatorIndex == i)
 					continue; // initiator doesn't request participance
@@ -960,7 +961,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			}
 
 			// 4) involved members run update to get decryption request
-			for (auto& [i, sock] : involvedOwnerSocks | enumerate)
+			for (auto [i, sock] : involvedOwnerSocks | enumerate)
 			{
 				if (initiatorIndex == i)
 					continue; // initiator doesn't run update
@@ -982,9 +983,9 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			}
 
 			// 5,6) involved memebrs compute decryption part locally and send them back
-			for (auto& [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
+			for (auto [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
 			{
-				auto& [sock, shard] = sockshard;
+				auto [sock, shard] = sockshard;
 				if (initiatorIndex == i)
 					continue; // initiator doesn't compute yet
 
@@ -1000,7 +1001,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				});
 				EXPECT_TRUE(sp.has_value());
 			}
-			for (auto& [sock, shard] : zip(involvedOwnerSocks, ownerShards2))
+			for (auto [sock, shard] : zip(involvedOwnerSocks, ownerShards2))
 			{
 				auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer2
 					ciphertext,
