@@ -763,8 +763,8 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			usernames.push_back(prefix + std::to_string(i));
 		}
 		return std::make_tuple(
-			sockets,
-			usernames
+			std::move(sockets),
+			std::move(usernames)
 		);
 	};
 
