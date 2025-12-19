@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include "../utils/Socket.hpp" // has to be first because windows is stupid
+#include "tests_utils.hpp"
 #include "../server/ShortTermServerStorage.hpp"
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
@@ -972,7 +973,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				EXPECT_EQ(up->to_decrypt.size(), 1);
 				EXPECT_EQ(up->to_decrypt.front().ciphertext, ciphertext);
 				EXPECT_EQ(up->to_decrypt.front().op_id, opid);
-				EXPECT_EQ(up->to_decrypt.front().shards_ids, ownerShardsIDs2);
+				EXPECT_SAME_ELEMS(up->to_decrypt.front().shards_ids, ownerShardsIDs2);
 			}
 			for (auto& sock : involvedRegMemberSocks)
 			{
