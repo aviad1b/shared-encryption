@@ -985,7 +985,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				EXPECT_EQ(up->to_decrypt.size(), 1);
 				EXPECT_EQ(up->to_decrypt.front().ciphertext, ciphertext);
 				EXPECT_EQ(up->to_decrypt.front().op_id, opid);
-				EXPECT_EQ(up->to_decrypt.front().shards_ids, regMemberShardsIDs);
+				EXPECT_SAME_ELEMS(up->to_decrypt.front().shards_ids, regMemberShardsIDs);
 			}
 
 			// 5,6) involved memebrs compute decryption part locally and send them back
