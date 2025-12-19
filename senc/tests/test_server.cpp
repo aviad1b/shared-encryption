@@ -799,20 +799,20 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 
 		auto nonCreatorInvolvedOwnerSocks = nonCreatorOwnerSocks |
 			std::views::take(params.ownersThreshold);
-		auto nonCreatorInvolvedOwnerUsernames = nonCreatorOwnerUsernames |
-			std::views::take(params.regMembersThreshold);
+		// auto nonCreatorInvolvedOwnerUsernames = nonCreatorOwnerUsernames |
+		// 	std::views::take(params.regMembersThreshold);
 
 		auto involvedOwnerSocks = join(creatorSocks, nonCreatorInvolvedOwnerSocks);
-		auto involvedOwnerUsernames = join(creatorUsernames, nonCreatorInvolvedOwnerUsernames);
+		// auto involvedOwnerUsernames = join(creatorUsernames, nonCreatorInvolvedOwnerUsernames);
 
 		auto uninvolvedOwnerSocks = nonCreatorOwnerSocks | std::views::drop(params.ownersThreshold);
-		auto uninvolvedOwnerUsernames = nonCreatorOwnerUsernames | std::views::drop(params.regMembersThreshold);
+		// auto uninvolvedOwnerUsernames = nonCreatorOwnerUsernames | std::views::drop(params.regMembersThreshold);
 
 		auto involvedRegMemberSocks = regMemberSocks | std::views::take(params.regMembersThreshold);
-		auto involvedRegMemberUsernames = regMemberUsernames | std::views::take(params.regMembersThreshold);
+		// auto involvedRegMemberUsernames = regMemberUsernames | std::views::take(params.regMembersThreshold);
 
 		auto uninvolvedRegMemberSocks = regMemberSocks | std::views::drop(params.regMembersThreshold);
-		auto uninvolvedRegMemberUsernames = regMemberUsernames | std::views::drop(params.regMembersThreshold);
+		// auto uninvolvedRegMemberUsernames = regMemberUsernames | std::views::drop(params.regMembersThreshold);
 
 		auto involvedSocks = join(involvedOwnerSocks, involvedRegMemberSocks);
 		auto uninvolvedSocks = join(uninvolvedOwnerSocks, uninvolvedRegMemberSocks);
@@ -985,7 +985,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			// 5,6) involved memebrs compute decryption part locally and send them back
 			for (auto [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
 			{
-				auto [sock, shard] = sockshard;
+				auto& [sock, shard] = sockshard;
 				if (initiatorIndex == i)
 					continue; // initiator doesn't compute yet
 
