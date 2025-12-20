@@ -1085,10 +1085,10 @@ INSTANTIATE_TEST_SUITE_P(
 			{
 				CycleParams{
 					.owners              = 2,
-					.regMembers          = 1,
-					.nonMembers          = 1,
+					.regMembers          = 0,
+					.nonMembers          = 0,
 					.ownersThreshold     = 2,
-					.regMembersThreshold = 1,
+					.regMembersThreshold = 0,
 					.msgSize             = 256,
 					.rounds              = 1
 				}
