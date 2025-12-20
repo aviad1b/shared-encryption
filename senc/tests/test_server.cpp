@@ -1027,10 +1027,16 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(up.has_value());
 			EXPECT_TRUE(up->finished_decryptions.size() == 1);
 			EXPECT_TRUE(up->finished_decryptions.front().op_id == opid);
-			// EXPECT_TRUE(up->finished_decryptions.front().shardsIDs1 == regMemberShardsIDs);
-			// EXPECT_TRUE(up->finished_decryptions.front().shardsIDs2 == ownerShardsIDs2);
+			auto& finishedShardsIDs1 = up->finished_decryptions.front().shardsIDs1;
+			auto& finishedShardsIDs2 = up->finished_decryptions.front().shardsIDs2;
 			auto& parts1 = up->finished_decryptions.front().parts1;
 			auto& parts2 = up->finished_decryptions.front().parts2;
+
+			// check same shard IDs as involved members
+			finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
+			finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.front().shardsIDs1, regMemberShardsIDs);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.front().shardsIDs2, ownerShardsIDs2);
 
 			// 8) initiator computes their own decryption parts
 			auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(
