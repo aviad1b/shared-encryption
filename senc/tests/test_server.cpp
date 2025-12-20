@@ -1030,8 +1030,8 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(up.has_value());
 			EXPECT_TRUE(up->finished_decryptions.size() == 1);
 			EXPECT_TRUE(up->finished_decryptions.front().op_id == opid);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.front().parts1, parts1);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.front().parts2, parts2);
+			EXPECT_EQ(up->finished_decryptions.front().parts1, parts1);
+			EXPECT_EQ(up->finished_decryptions.front().parts2, parts2);
 
 			// check same shard IDs as involved members
 			auto& finishedShardsIDs1 = up->finished_decryptions.front().shardsIDs1;
