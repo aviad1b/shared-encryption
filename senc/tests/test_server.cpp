@@ -1007,7 +1007,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				});
 				EXPECT_TRUE(sp.has_value());
 			}
-			for (auto [sock, shard] : zip(involvedOwnerSocks, ownerShards2))
+			for (auto [sock, shard] : zip(involvedRegMemberSocks, regMemberShards))
 			{
 				auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer2
 					ciphertext,
