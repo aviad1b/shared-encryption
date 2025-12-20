@@ -989,6 +989,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			}
 
 			// 5,6) involved memebrs compute decryption part locally and send them back
+			std::vector<DecryptionPart> parts1, parts2;
 			for (auto [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
 			{
 				auto& [sock, shard] = sockshard;
@@ -1000,6 +1001,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 					shard,
 					ownerShardsIDs2
 				);
+				parts2.push_back(part);
 
 				auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 					.op_id = opid,
@@ -1014,6 +1016,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 					shard,
 					regMemberShardsIDs
 				);
+				parts1.push_back(part);
 
 				auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 					.op_id = opid,
@@ -1027,12 +1030,12 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(up.has_value());
 			EXPECT_TRUE(up->finished_decryptions.size() == 1);
 			EXPECT_TRUE(up->finished_decryptions.front().op_id == opid);
-			auto& finishedShardsIDs1 = up->finished_decryptions.front().shardsIDs1;
-			auto& finishedShardsIDs2 = up->finished_decryptions.front().shardsIDs2;
-			auto& parts1 = up->finished_decryptions.front().parts1;
-			auto& parts2 = up->finished_decryptions.front().parts2;
+			EXPECT_SAME_ELEMS(up->finished_decryptions.front().parts1, parts1);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.front().parts2, parts2);
 
 			// check same shard IDs as involved members
+			auto& finishedShardsIDs1 = up->finished_decryptions.front().shardsIDs1;
+			auto& finishedShardsIDs2 = up->finished_decryptions.front().shardsIDs2;
 			finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
 			finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
 			EXPECT_SAME_ELEMS(up->finished_decryptions.front().shardsIDs1, regMemberShardsIDs);
