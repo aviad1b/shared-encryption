@@ -591,8 +591,8 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	parts1.push_back(ownerPart1);
 	std::vector<DecryptionPart> parts2 = finishedParts2;
 	parts2.push_back(ownerPart2);
-	EXPECT_GT(parts1.size(), 0); // regMembersThreahold=0
-	EXPECT_GT(parts2.size(), 2); // ownersThreahold=2
+	EXPECT_GT(parts1.size(), 2); // regMembersThreahold=2
+	EXPECT_GT(parts2.size(), 0); // ownersThreahold=0
 	auto decrypted = senc::Shamir::decrypt_join_2l(
 		ownerCiphertext, parts1, parts2
 	);
