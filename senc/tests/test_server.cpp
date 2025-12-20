@@ -1009,7 +1009,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			}
 			for (auto [sock, shard] : zip(involvedRegMemberSocks, regMemberShards))
 			{
-				auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer2
+				auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer1
 					ciphertext,
 					shard,
 					regMemberShardsIDs
