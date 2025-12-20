@@ -1042,12 +1042,12 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(
 				ciphertext,
 				ownerShards1[initiatorIndex],
-				regMemberShardsIDs
+				finishedShardsIDs1
 			);
 			auto initiatorPart2 = senc::Shamir::decrypt_get_2l<2>(
 				ciphertext,
 				ownerShards2[initiatorIndex],
-				ownerShardsIDs2
+				finishedShardsIDs2
 			);
 
 			// 9) initiator combines their parts with received parts
