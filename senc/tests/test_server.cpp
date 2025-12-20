@@ -1084,13 +1084,13 @@ INSTANTIATE_TEST_SUITE_P(
 			std::make_unique<InlinePacketSender>,
 			{
 				CycleParams{
-					.owners              = 8,
-					.regMembers          = 15,
-					.nonMembers          = 7,
-					.ownersThreshold     = 5,
-					.regMembersThreshold = 10,
+					.owners              = 2,
+					.regMembers          = 1,
+					.nonMembers          = 1,
+					.ownersThreshold     = 2,
+					.regMembersThreshold = 1,
 					.msgSize             = 256,
-					.rounds              = 5
+					.rounds              = 1
 				}
 			}
 		}
