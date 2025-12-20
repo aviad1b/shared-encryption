@@ -486,6 +486,11 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	EXPECT_EQ(member2SetsAddedTo.front().pub_key2, ownerPubKey2);
 	const auto& member2Shard = member2SetsAddedTo.front().priv_key1_shard;
 
+	// check different shard IDs
+	EXPECT_NE(ownerShard2.first, memberShard.first);
+	EXPECT_NE(ownerShard2.first, member2Shard.first);
+	EXPECT_NE(memberShard.first, member2Shard.first);
+
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
 	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
