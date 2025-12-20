@@ -1051,6 +1051,9 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				ciphertext, parts1, parts2
 			);
 			EXPECT_EQ(decrypted, msg);
+
+			// end of round
+			regMemberShardsIDs.pop_back(); // remove initiator's shard ID
 		}
 
 		// logout
