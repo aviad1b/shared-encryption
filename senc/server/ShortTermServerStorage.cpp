@@ -128,6 +128,9 @@ namespace senc::server
 
 	PrivKeyShardID ShortTermServerStorage::sample_shard_id()
 	{
-		return _shardsDist([](const auto& x) { return !x; }); // if !x, then x is invalid
+		return _shardsDist();
+		// no need to check for non-zero, since distribution is now confined above 0.
+		// if the confining range ever changes to include zero, a check against a 
+		// zero-value shard ID should be done here.
 	}
 }
