@@ -80,6 +80,7 @@ namespace senc::server
 			{
 				// generate unique, non-zero shard ID for this userset
 				auto shardID = sample_shard_id();
+				// TODO: I think i made a mistake here - this might not be unique...
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);
