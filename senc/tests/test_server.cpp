@@ -286,13 +286,18 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	const auto& usersetID = ms->user_set_id;
 	const auto& pubKey1 = ms->pub_key1;
 	const auto& pubKey2 = ms->pub_key2;
+	auto& ownerShard1 = ms->priv_key1_shard;
+	auto& ownerShard2 = ms->priv_key2_shard;
+
+	EXPECT_NE(ownerShard1.first, 0);
+	EXPECT_NE(ownerShard2.first, 0);
 
 	std::vector<PrivKeyShardID> shards1IDs, shards2IDs;
 	std::vector<PrivKeyShard> shards1, shards2;
-	shards1IDs.push_back(ms->priv_key1_shard.first);
-	shards1.emplace_back(std::move(ms->priv_key1_shard));
-	shards2IDs.push_back(ms->priv_key2_shard.first);
-	shards2.emplace_back(std::move(ms->priv_key2_shard));
+	shards1IDs.push_back(ownerShard1.first);
+	shards1.emplace_back(std::move(ownerShard1));
+	shards2IDs.push_back(ownerShard2.first);
+	shards2.emplace_back(std::move(ownerShard2));
 
 	for (auto& client : { std::ref(client2), std::ref(client3) })
 	{
@@ -306,6 +311,9 @@ TEST_P(ServerTest, MakeSetCheckKey)
 		// check unique ID and shard
 		EXPECT_EQ(std::find(shards1IDs.begin(), shards1IDs.end(), shard.first), shards1IDs.end());
 		EXPECT_EQ(std::find(shards1.begin(), shards1.end(), shard), shards1.end());
+
+		// check non-zero ID
+		EXPECT_NE(shard.first, 0);
 
 		// store shard
 		shards1IDs.push_back(shard.first);
