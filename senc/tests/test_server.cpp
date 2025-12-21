@@ -296,13 +296,20 @@ TEST_P(ServerTest, MakeSetCheckKey)
 
 	for (auto& client : { std::ref(client2), std::ref(client3) })
 	{
-		// get userset update, check same userset ID, store key shard
+		// get userset update, check same userset ID, get shard
 		auto up = post<pkt::UpdateResponse>(client, pkt::UpdateRequest{});
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_reg_member.size(), 1);
 		EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
-		shards1IDs.push_back(up->added_as_reg_member.front().priv_key1_shard.first);
-		shards1.push_back(std::move(up->added_as_reg_member.front().priv_key1_shard));
+		auto& shard = up->added_as_reg_member.front().priv_key1_shard;
+
+		// check unique ID and shard
+		EXPECT_EQ(std::find(shards1IDs.begin(), shards1IDs.end(), shard.first), shards1IDs.end());
+		EXPECT_EQ(std::find(shards1.begin(), shards1.end(), shard), shards1.end());
+
+		// store shard
+		shards1IDs.push_back(shard.first);
+		shards1.push_back(std::move(shard));
 	}
 
 	// try to decrypt some message using these shards
