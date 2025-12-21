@@ -1102,7 +1102,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	EXPECT_EQ(owner3SetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(owner3SetsAddedTo.front().pub_key1, ownerPubKey1);
 	EXPECT_EQ(owner3SetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& owner3Shard = owner2SetsAddedTo.front().priv_key2_shard;
+	const auto& owner3Shard = owner3SetsAddedTo.front().priv_key2_shard;
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(owner2OnLookup.size(), 1);
