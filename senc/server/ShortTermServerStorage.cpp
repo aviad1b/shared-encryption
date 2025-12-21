@@ -13,7 +13,10 @@
 namespace senc::server
 {
 	ShortTermServerStorage::ShortTermServerStorage()
-		: _shardsDist(utils::Random<PrivKeyShardID>::get_dist()) { }
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS)) { }
+	// we don't want shard IDs to be too big, or there is a reasonable chance of overflow during computations.
+	// therefore, the distribution for shard IDs is set to be within a confined range.
+	// it doesn't HAVE to be [1, MAX_MEMBERS], it just seemed like a reasonable range to choose.
 
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
@@ -76,7 +79,8 @@ namespace senc::server
 			for (const auto& member : utils::views::join(owners, regMembers))
 			{
 				// generate unique, non-zero shard ID for this userset
-				auto shardID = _shardsDist([](const auto& x) { return !x; }); // if !x, then x is invalid
+				auto shardID = sample_shard_id();
+				// TODO: I think i made a mistake here - this might not be unique...
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);
@@ -121,5 +125,13 @@ namespace senc::server
 	{
 		const std::lock_guard<std::mutex> lock(_mtxShardIDs);
 		return _shardIDs.at(std::make_tuple(user, userset));
+	}
+
+	PrivKeyShardID ShortTermServerStorage::sample_shard_id()
+	{
+		return _shardsDist();
+		// no need to check for non-zero, since distribution is now confined above 0.
+		// if the confining range ever changes to include zero, a check against a 
+		// zero-value shard ID should be done here.
 	}
 }

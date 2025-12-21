@@ -44,6 +44,8 @@ namespace senc::server
 	private:
 		utils::Distribution<PrivKeyShardID> _shardsDist;
 
+		PrivKeyShardID sample_shard_id();
+
 		// map user to owned sets
 		std::mutex _mtxUsers;
 		utils::HashMap<std::string, utils::HashSet<UserSetID>> _users;
