@@ -254,6 +254,83 @@ TEST_P(ServerTest, MakeSetGetMembers)
 	}
 }
 
+TEST_P(ServerTest, MakeSetCheckKey)
+{
+	auto client1 = Socket("127.0.0.1", port);
+	auto client2 = Socket("127.0.0.1", port);
+	auto client3 = Socket("127.0.0.1", port);
+
+	exchange_protocol_version(client1);
+	exchange_protocol_version(client2);
+	exchange_protocol_version(client3);
+
+	// signup
+	const auto u1 = "avi";
+	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1 });
+	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
+	const auto u2 = "batya";
+	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2 });
+	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
+	const auto u3 = "gal";
+	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3 });
+	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
+
+	// make set
+	auto ms = post<pkt::MakeUserSetResponse>(client1, pkt::MakeUserSetRequest{
+		.reg_members = { u2, u3 },
+		.owners = { },
+		.reg_members_threshold = 2,
+		.owners_threshold = 0
+	});
+	EXPECT_TRUE(ms.has_value());
+	const auto& usersetID = ms->user_set_id;
+	const auto& pubKey1 = ms->pub_key1;
+	const auto& pubKey2 = ms->pub_key2;
+
+	std::vector<PrivKeyShardID> shards1IDs, shards2IDs;
+	std::vector<PrivKeyShard> shards1, shards2;
+	shards1IDs.push_back(ms->priv_key1_shard.first);
+	shards1.emplace_back(std::move(ms->priv_key1_shard));
+	shards2IDs.push_back(ms->priv_key2_shard.first);
+	shards2.emplace_back(std::move(ms->priv_key2_shard));
+
+	for (auto& client : { std::ref(client2), std::ref(client3) })
+	{
+		// get userset update, check same userset ID, store key shard
+		auto up = post<pkt::UpdateResponse>(client, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->added_as_reg_member.size(), 1);
+		EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
+		shards1IDs.push_back(up->added_as_reg_member.front().priv_key1_shard.first);
+		shards1.push_back(std::move(up->added_as_reg_member.front().priv_key1_shard));
+	}
+
+	// try to decrypt some message using these shards
+	const std::string str = "Hello There";
+	const Buffer msg(str.begin(), str.end());
+	Schema schema;
+	const auto ciphertext = schema.encrypt(msg, pubKey1, pubKey2);
+
+	std::vector<DecryptionPart> parts1, parts2;
+	for (const auto& shard1 : shards1)
+		parts1.emplace_back(
+			senc::Shamir::decrypt_get_2l<1>(ciphertext, shard1, shards1IDs)
+		);
+	for (const auto& shard2 : shards2)
+		parts2.emplace_back(
+			senc::Shamir::decrypt_get_2l<2>(ciphertext, shard2, shards2IDs)
+		);
+	const auto decrypted = senc::Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
+	EXPECT_EQ(decrypted, msg);
+
+	// logout
+	for (auto& client : { std::ref(client1), std::ref(client2), std::ref(client3) })
+	{
+		auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
+		EXPECT_TRUE(lo.has_value());
+	}
+}
+
 TEST_P(ServerTest, EmptyUpdateCycle)
 {
 	auto client = Socket("127.0.0.1", port);
