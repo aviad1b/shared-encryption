@@ -79,8 +79,7 @@ namespace senc::server
 			for (const auto& member : utils::views::join(owners, regMembers))
 			{
 				// generate unique, non-zero shard ID for this userset
-				auto shardID = sample_shard_id();
-				// TODO: I think i made a mistake here - this might not be unique...
+				auto shardID = sample_shard_id(usersetShardsEntry);
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);
@@ -125,13 +124,5 @@ namespace senc::server
 	{
 		const std::lock_guard<std::mutex> lock(_mtxShardIDs);
 		return _shardIDs.at(std::make_tuple(user, userset));
-	}
-
-	PrivKeyShardID ShortTermServerStorage::sample_shard_id()
-	{
-		return _shardsDist();
-		// no need to check for non-zero, since distribution is now confined above 0.
-		// if the confining range ever changes to include zero, a check against a 
-		// zero-value shard ID should be done here.
 	}
 }

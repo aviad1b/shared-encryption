@@ -44,7 +44,13 @@ namespace senc::server
 	private:
 		utils::Distribution<PrivKeyShardID> _shardsDist;
 
-		PrivKeyShardID sample_shard_id();
+		PrivKeyShardID sample_shard_id(const utils::HasContainsMethod<PrivKeyShardID> auto& container)
+		{
+			return _shardsDist(container);
+			// no need to check for non-zero, since distribution is now confined above 0.
+			// if the confining range ever changes to include zero, a check against a 
+			// zero-value shard ID should be done here.
+		}
 
 		// map user to owned sets
 		std::mutex _mtxUsers;
