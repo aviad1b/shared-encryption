@@ -159,7 +159,7 @@ namespace senc::utils
 	 * @tparam S Shared secret type.
 	 * @tparam SID Type used as Shamir shard ID.
 	 */
-	template <typename S, ShamirShardID SID = std::int32_t>
+	template <typename S, ShamirShardID SID = std::uint32_t>
 	requires ShamirSecret<S, SID>
 	class Shamir : public ShamirUtils<S, SID>
 	{
@@ -219,7 +219,7 @@ namespace senc::utils
 	 * @tparam SID Type used as Shamir shard ID.
 	 */
 	template <Group G, enc::Symmetric1L SE, ConstCallable<enc::Key<SE>, G, G> KDF,
-			  ShamirShardID SID = std::int32_t>
+			  ShamirShardID SID = std::uint32_t>
 	class ShamirHybridElGamal : public ShamirUtils<ShamirHybridElGamalS<G>, SID>
 	{
 	public:
