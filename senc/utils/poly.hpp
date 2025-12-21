@@ -51,7 +51,7 @@ namespace senc::utils
 	template <typename Self, typename I, typename O>
 	concept PolyCoeff = requires(const Self self, const I& x)
 	{
-		{ std::declval<Self>() * x } -> std::same_as<O>;
+		{ std::declval<Self>() * x } -> std::convertible_to<O>;
 	};
 
 	/**

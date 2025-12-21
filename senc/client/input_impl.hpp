@@ -56,7 +56,7 @@ namespace senc
 		constexpr T MIN = std::numeric_limits<T>::min();
 		constexpr T MAX = std::numeric_limits<T>::max();
 		bool invalid = false;
-		int num = 0;
+		long long num = 0;
 
 		do
 		{
@@ -67,7 +67,7 @@ namespace senc
 				if (str.empty())
 					return std::nullopt;
 
-			try { num = std::stoi(str); }
+			try { num = std::stoll(str); }
 			catch (const std::exception&)
 			{
 				std::cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << std::endl;
