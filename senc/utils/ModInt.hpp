@@ -662,6 +662,23 @@ namespace senc::utils
 		(LowerComparable, typename ModInt<ModTraits>::Int),
 		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	);
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct is_mod_int : std::false_type { };
+
+		template <ModTraitsType ModTraits>
+		struct is_mod_int<ModInt<ModTraits>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::ModIntType
+	 * @brief Looks for a typename that is any kind of `MidInt`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept ModIntType = sfinae::is_mod_int<Self>::value;
 }
 
 #include "ModInt_impl.hpp"
