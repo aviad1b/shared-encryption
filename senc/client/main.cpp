@@ -284,9 +284,9 @@ namespace senc
 		}
 
 		if (resp.status == pkt::LoginResponse::Status::BadUsername)
-			cout << "Signup failed: Bad username." << endl;
+			cout << "Login failed: Bad username." << endl;
 		else
-			cout << "Signup failed: Unknown error." << endl;
+			cout << "Login failed: Unknown error." << endl;
 
 		return ConnStatus::Disconnected;
 	}
