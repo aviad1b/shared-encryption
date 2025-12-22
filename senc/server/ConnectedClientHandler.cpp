@@ -18,8 +18,7 @@ namespace senc::server
 												   PacketSender& sender,
 												   UpdateManager& updateManager,
 												   DecryptionsManager& decryptionsManager)
-		: _distShardID(utils::Random<PrivKeyShardID>::get_dist()),
-		  _sock(sock), _username(username),
+		: _sock(sock), _username(username),
 		  _schema(schema), _storage(storage),
 		  _receiver(receiver), _sender(sender),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }

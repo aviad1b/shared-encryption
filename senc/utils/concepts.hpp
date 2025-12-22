@@ -273,6 +273,18 @@ namespace senc::utils
 	template <typename Self>
 	concept IntConstructibleNoExcept = std::is_nothrow_constructible_v<Self, int>;
 
+	template <typename Self>
+	concept ZeroComparable = requires(const Self self)
+	{
+		{ 0 == self } -> BoolConvertible;
+	};
+
+	template <typename Self>
+	concept ZeroComparableNoExcept = requires(const Self self)
+	{
+		{ 0 == self } noexcept -> BoolConvertibleNoExcept;
+	};
+
 	template <typename Self, typename Other = Self>
 	concept EqualityComparable = requires(const Self a, const Other b)
 	{

@@ -13,7 +13,7 @@
 namespace senc::server
 {
 	ShortTermServerStorage::ShortTermServerStorage()
-		: _shardsDist(utils::Random<PrivKeyShardID>::get_dist()) { }
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS + 1)) { }
 
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
@@ -76,7 +76,7 @@ namespace senc::server
 			for (const auto& member : utils::views::join(owners, regMembers))
 			{
 				// generate unique, non-zero shard ID for this userset
-				auto shardID = _shardsDist([](const auto& x) { return !x; }); // if !x, then x is invalid
+				auto shardID = sample_shard_id(usersetShardsEntry);
 
 				// register shard ID
 				usersetShardsEntry.insert(shardID);

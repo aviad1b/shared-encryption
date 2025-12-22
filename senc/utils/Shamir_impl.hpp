@@ -17,7 +17,7 @@ namespace senc::utils
 	requires ShamirSecret<S, SID>
 	inline typename ShamirUtils<S, SID>::Shard ShamirUtils<S, SID>::make_shard(const Poly& poly, SID shardID)
 	{
-		if (!shardID)
+		if (0 == shardID)
 			throw ShamirException("Invalid shard ID provided: Should be non-zero");
 		return { shardID, poly(shardID) };
 	}
@@ -128,7 +128,7 @@ namespace senc::utils
 		std::optional<std::size_t> i;
 		for (const auto& [idx, shardID] : privKeyShardsIDs | views::enumerate)
 		{
-			if (!shardID)
+			if (0 == shardID)
 				throw ShamirException("Invalid ID provided: Should be non-zero");
 			privKeyShardsIDsSet.insert(shardID);
 			if (shardID == xi)

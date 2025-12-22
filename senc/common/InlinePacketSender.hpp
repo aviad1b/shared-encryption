@@ -56,6 +56,7 @@ namespace senc
 		void send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem);
 
 		void send_pub_key(utils::Socket& sock, const PubKey& pubKey);
+		void send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID);
 		void send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard);
 
 		void send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext);

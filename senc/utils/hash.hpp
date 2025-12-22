@@ -8,10 +8,13 @@
 
 #pragma once
 
+#include <cryptopp/sha.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <tuple>
 #include "concepts.hpp"
+#include "bytes.hpp"
+#include "math.hpp"
 
 namespace senc::utils
 {
@@ -93,6 +96,30 @@ namespace senc::utils
 		std::size_t operator()(T value) const noexcept(StdHashableNoExcept<T>)
 		{
 			return std::hash<T>{}(value);
+		}
+	};
+
+	template <>
+	class Hash<BigInt>
+	{
+	public:
+		std::size_t operator()(const BigInt& value) const
+		{
+			// serialize to big-endian byte array
+			size_t n = value.MinEncodedSize();
+			Buffer buff(n);
+			value.Encode(buff.data(), buff.size());
+
+			// hash bytes
+			CryptoPP::SHA256 hash;
+			byte digest[CryptoPP::SHA256::DIGESTSIZE];
+			hash.CalculateDigest(digest, buff.data(), buff.size());
+
+			// fold digest into size_t
+			std::size_t result = 0;
+			static_assert(sizeof(result) <= sizeof(digest));
+			std::memcpy(&result, digest, sizeof(result));
+			return result;
 		}
 	};
 

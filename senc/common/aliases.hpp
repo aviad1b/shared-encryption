@@ -21,7 +21,8 @@ namespace senc
 	>;
 
 	using Shamir = utils::ShamirHybridElGamal<
-		utils::ECGroup, utils::enc::AES1L, utils::enc::ECHKDF2L
+		utils::ECGroup, utils::enc::AES1L, utils::enc::ECHKDF2L,
+		utils::BigInt
 	>;
 
 	using PubKey = utils::enc::PubKey<Schema>;
