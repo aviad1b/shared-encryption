@@ -22,7 +22,7 @@ namespace senc
 
 	using Shamir = utils::ShamirHybridElGamal<
 		utils::ECGroup, utils::enc::AES1L, utils::enc::ECHKDF2L,
-		utils::ModInt<utils::IntegralModTraits<std::int32_t, 257, true>>
+		utils::BigInt
 	>;
 
 	using PubKey = utils::enc::PubKey<Schema>;

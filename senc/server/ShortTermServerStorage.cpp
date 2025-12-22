@@ -12,6 +12,9 @@
 
 namespace senc::server
 {
+	ShortTermServerStorage::ShortTermServerStorage()
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS + 1)) { }
+
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
 		bool inserted = false;

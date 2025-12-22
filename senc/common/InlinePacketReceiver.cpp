@@ -213,7 +213,7 @@ namespace senc
 
 	void InlinePacketReceiver::recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out)
 	{
-		sock.recv_connected_value(out);
+		recv_big_int(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out)

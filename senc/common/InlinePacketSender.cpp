@@ -199,7 +199,7 @@ namespace senc
 
 	void InlinePacketSender::send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID)
 	{
-		sock.send_connected_value(shardID);
+		send_big_int(sock, shardID);
 	}
 
 	void InlinePacketSender::send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard)
