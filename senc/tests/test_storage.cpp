@@ -221,7 +221,7 @@ TEST_P(ServerStorageTest, GetShardId_ReturnsValidShardID)
 
 	PrivKeyShardID shardID = storage->get_shard_id("avi", usersetID);
 
-	EXPECT_NE(shardID, static_cast<PrivKeyShardID>(0));
+	EXPECT_NE(shardID, PrivKeyShardID{});
 }
 
 TEST_P(ServerStorageTest, GetShardId_DifferentUsersGetDifferentShards)
@@ -268,8 +268,8 @@ TEST_P(ServerStorageTest, GetShardId_RegularMembersGetShardIDs)
 	PrivKeyShardID ownerShard = storage->get_shard_id("avi", usersetID);
 	PrivKeyShardID memberShard = storage->get_shard_id("batya", usersetID);
 
-	EXPECT_NE(ownerShard, static_cast<PrivKeyShardID>(0));
-	EXPECT_NE(memberShard, static_cast<PrivKeyShardID>(0));
+	EXPECT_NE(ownerShard, PrivKeyShardID{});
+	EXPECT_NE(memberShard, PrivKeyShardID{});
 	EXPECT_NE(ownerShard, memberShard);
 }
 
