@@ -65,10 +65,9 @@ struct ServerTestParams
 	StorageFactory storageFactory;
 	ReceiverFactory receiverFactory;
 	SenderFactory senderFactory;
-	std::vector<CycleParams> cycleParams;
 };
 
-class ServerTest : public testing::TestWithParam<ServerTestParams>
+class ServerTestBase : public testing::Test
 {
 protected:
 	Port port;
@@ -80,10 +79,12 @@ protected:
 	std::unique_ptr<PacketSender> sender;
 	std::unique_ptr<Server> server;
 
+	virtual const ServerTestParams& get_server_test_params() = 0;
+
 	void SetUp() override
 	{
 		port = Random<Port>::sample_from_range(49152, 65535);
-		auto& params = GetParam();
+		const auto& params = get_server_test_params();
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
@@ -120,6 +121,30 @@ protected:
 	{
 		sender->send_request(sock, request);
 		return receiver->recv_response<Response>(sock);
+	}
+};
+
+class ServerTest : public ServerTestBase, public testing::WithParamInterface<ServerTestParams>
+{
+protected:
+	const ServerTestParams& get_server_test_params() override
+	{
+		return GetParam();
+	}
+};
+
+class MultiCycleServerTest : public ServerTestBase,
+	public testing::WithParamInterface<std::tuple<ServerTestParams, CycleParams>>
+{
+protected:
+	const ServerTestParams& get_server_test_params() override
+	{
+		return std::get<0>(GetParam());
+	}
+
+	const CycleParams& get_cycle_params()
+	{
+		return std::get<1>(GetParam());
 	}
 };
 
@@ -483,7 +508,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -671,7 +696,7 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -826,7 +851,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1009,7 +1034,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1191,7 +1216,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard1.first); // include owner's shard ID in comp
+	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1216,7 +1241,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	}
 }
 
-TEST_P(ServerTest, MultiCycleDecryptFlow2L)
+TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 {
 	auto makeusers = [this](std::size_t size, const char* prefix)
 	{
@@ -1233,333 +1258,386 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 		);
 	};
 
-	for (const auto& params : GetParam().cycleParams)
+	const auto& params = get_cycle_params();
+
+	// users:
+	// - creator
+	// - ownerThreshold additional involved owners
+	//   (in total we have +1 with creator, one needs to be the initiator)
+	// - regMemberThreshold involved non-owners
+	// - remaining (uninvolved) owners and non-owners to fill up params
+	// - non-members
+
+	std::vector<Socket> creatorSocksVec;
+	creatorSocksVec.emplace_back("127.0.0.1", port);
+	std::vector<std::string> creatorUsernamesVec = { "creator" };
+
+	auto creatorSocks = creatorSocksVec | std::views::all;
+	auto creatorUsernames = creatorUsernamesVec | std::views::all;
+
+	auto& creatorSock = creatorSocksVec.front();
+
+	auto [nonCreatorOwnerSocksVec, nonCreatorOwnerUsernamesVec] = makeusers(params.owners, "owner");
+	auto nonCreatorOwnerSocks = nonCreatorOwnerSocksVec | std::views::all;
+	auto nonCreatorOwnerUsernames = nonCreatorOwnerUsernamesVec | std::views::all;
+	auto [regMemberSocksVec, regMemberUsernamesVec] = makeusers(params.regMembers, "reg");
+	auto regMemberSocks = regMemberSocksVec | std::views::all;
+	auto regMemberUsernames = regMemberUsernamesVec | std::views::all;
+	auto [nonMemberSocksVec, nonMemberUsernamesVec] = makeusers(params.nonMembers, "foreign");
+	auto nonMemberSocks = nonMemberSocksVec | std::views::all;
+	auto nonMemberUsernames = nonMemberUsernamesVec | std::views::all;
+
+	auto nonCreatorInvolvedOwnerSocks = nonCreatorOwnerSocks |
+		std::views::take(params.ownersThreshold);
+	// auto nonCreatorInvolvedOwnerUsernames = nonCreatorOwnerUsernames |
+	// 	std::views::take(params.regMembersThreshold);
+
+	auto involvedOwnerSocks = join(creatorSocks, nonCreatorInvolvedOwnerSocks);
+	// auto involvedOwnerUsernames = join(creatorUsernames, nonCreatorInvolvedOwnerUsernames);
+
+	auto uninvolvedOwnerSocks = nonCreatorOwnerSocks | std::views::drop(params.ownersThreshold);
+	// auto uninvolvedOwnerUsernames = nonCreatorOwnerUsernames | std::views::drop(params.regMembersThreshold);
+
+	auto involvedRegMemberSocks = regMemberSocks | std::views::take(params.regMembersThreshold);
+	// auto involvedRegMemberUsernames = regMemberUsernames | std::views::take(params.regMembersThreshold);
+
+	auto uninvolvedRegMemberSocks = regMemberSocks | std::views::drop(params.regMembersThreshold);
+	// auto uninvolvedRegMemberUsernames = regMemberUsernames | std::views::drop(params.regMembersThreshold);
+
+	auto involvedSocks = join(involvedOwnerSocks, involvedRegMemberSocks);
+	auto uninvolvedSocks = join(uninvolvedOwnerSocks, uninvolvedRegMemberSocks);
+
+	auto memberSocks = join(creatorSocks, nonCreatorOwnerSocks, regMemberSocks);
+	auto memberUsernames = join(creatorUsernames, nonCreatorOwnerUsernames, regMemberUsernames);
+
+	auto allSocks = join(memberSocks, nonMemberSocks);
+	auto allUsernames = join(memberUsernames, nonMemberUsernames);
+
+	for (auto& sock : allSocks)
+		exchange_protocol_version(sock);
+
+	// signup
+	for (auto [sock, username] : zip(allSocks, allUsernames))
 	{
-		// users:
-		// - creator
-		// - ownerThreshold additional involved owners
-		//   (in total we have +1 with creator, one needs to be the initiator)
-		// - regMemberThreshold involved non-owners
-		// - remaining (uninvolved) owners and non-owners to fill up params
-		// - non-members
+		std::optional<pkt::SignupResponse> su = 
+			post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+		EXPECT_TRUE(su.has_value());
+		EXPECT_EQ(su->status, pkt::SignupResponse::Status::Success);
+	}
 
-		std::vector<Socket> creatorSocksVec;
-		creatorSocksVec.emplace_back("127.0.0.1", port);
-		std::vector<std::string> creatorUsernamesVec = { "creator" };
+	// vectors to store shards later
+	std::vector<PrivKeyShard> regMemberShards;
+	std::vector<PrivKeyShardID> regMemberShardsIDs;
+	std::vector<PrivKeyShard> ownerShards1, ownerShards2;
+	std::vector<PrivKeyShardID> ownerShardsIDs1, ownerShardsIDs2;
 
-		auto creatorSocks = creatorSocksVec | std::views::all;
-		auto creatorUsernames = creatorUsernamesVec | std::views::all;
+	// make userset
+	auto ms = post<pkt::MakeUserSetResponse>(creatorSock, pkt::MakeUserSetRequest{
+		.reg_members = regMemberUsernamesVec,
+		.owners = nonCreatorOwnerUsernamesVec,
+		.reg_members_threshold = params.regMembersThreshold,
+		.owners_threshold = params.ownersThreshold
+	});
+	EXPECT_TRUE(ms.has_value());
+	const auto& usersetID = ms->user_set_id;
+	const auto& pubKey1 = ms->pub_key1;
+	const auto& pubKey2 = ms->pub_key2;
+	ownerShardsIDs1.push_back(ms->priv_key1_shard.first);
+	ownerShards1.emplace_back(std::move(ms->priv_key1_shard));
+	ownerShardsIDs2.push_back(ms->priv_key2_shard.first);
+	ownerShards2.emplace_back(std::move(ms->priv_key2_shard));
 
-		auto& creatorSock = creatorSocksVec.front();
+	// each involved member should get its own shard(s) and register to use later
+	for (auto& sock : involvedRegMemberSocks)
+	{
+		auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->added_as_reg_member.size(), 1);
+		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
+		EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
+		EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
+		regMemberShardsIDs.push_back(up->added_as_reg_member.back().priv_key1_shard.first);
+		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().priv_key1_shard));
+	}
+	for (auto& sock : nonCreatorInvolvedOwnerSocks)
+	{
+		auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->added_as_owner.size(), 1);
+		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
+		EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
+		EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
+		ownerShardsIDs1.push_back(up->added_as_owner.back().priv_key1_shard.first);
+		ownerShards1.emplace_back(std::move(up->added_as_owner.back().priv_key1_shard));
+		ownerShardsIDs2.push_back(up->added_as_owner.back().priv_key2_shard.first);
+		ownerShards2.emplace_back(std::move(up->added_as_owner.back().priv_key2_shard));
+	}
 
-		auto [nonCreatorOwnerSocksVec, nonCreatorOwnerUsernamesVec] = makeusers(params.owners, "owner");
-		auto nonCreatorOwnerSocks = nonCreatorOwnerSocksVec | std::views::all;
-		auto nonCreatorOwnerUsernames = nonCreatorOwnerUsernamesVec | std::views::all;
-		auto [regMemberSocksVec, regMemberUsernamesVec] = makeusers(params.regMembers, "reg");
-		auto regMemberSocks = regMemberSocksVec | std::views::all;
-		auto regMemberUsernames = regMemberUsernamesVec | std::views::all;
-		auto [nonMemberSocksVec, nonMemberUsernamesVec] = makeusers(params.nonMembers, "foreign");
-		auto nonMemberSocks = nonMemberSocksVec | std::views::all;
-		auto nonMemberUsernames = nonMemberUsernamesVec | std::views::all;
+	// as for the uninvolved users, they do the same, but we don't care about their shards
+	for (auto& sock : uninvolvedRegMemberSocks)
+	{
+		auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->added_as_reg_member.size(), 1);
+		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
+		EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
+		EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
+	}
+	for (auto& sock : uninvolvedOwnerSocks)
+	{
+		auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->added_as_owner.size(), 1);
+		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
+		EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
+		EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
+	}
 
-		auto nonCreatorInvolvedOwnerSocks = nonCreatorOwnerSocks |
-			std::views::take(params.ownersThreshold);
-		// auto nonCreatorInvolvedOwnerUsernames = nonCreatorOwnerUsernames |
-		// 	std::views::take(params.regMembersThreshold);
+	// encryption-decryption rounds loop
+	auto involvedOwnerDist = Random<std::size_t>::get_dist_below(
+		static_cast<std::size_t>(params.ownersThreshold) + 1
+	); // see use below
+	Schema schema;
+	for (int i = 0; i < params.rounds; ++i)
+	{
+		// encrypt message
+		const Buffer msg = senc::utils::random_bytes(params.msgSize);
+		auto ciphertext = schema.encrypt(msg, pubKey1, pubKey2);
 
-		auto involvedOwnerSocks = join(creatorSocks, nonCreatorInvolvedOwnerSocks);
-		// auto involvedOwnerUsernames = join(creatorUsernames, nonCreatorInvolvedOwnerUsernames);
+		// select random user to request decryption (for test)
+		// (index 0 for set creator, after that for other owners - 
+		//  we do this to match enumeration indexes of involvedOwnerSocks)
+		const auto initiatorIndex = involvedOwnerDist();
+		auto& initiator = (0 == initiatorIndex) ? creatorSock 
+			: nonCreatorInvolvedOwnerSocks[initiatorIndex - 1];
 
-		auto uninvolvedOwnerSocks = nonCreatorOwnerSocks | std::views::drop(params.ownersThreshold);
-		// auto uninvolvedOwnerUsernames = nonCreatorOwnerUsernames | std::views::drop(params.regMembersThreshold);
+		// initiator counts as a non-owner for the decryption of layer1
+		regMemberShardsIDs.push_back(ownerShardsIDs1[initiatorIndex]);
 
-		auto involvedRegMemberSocks = regMemberSocks | std::views::take(params.regMembersThreshold);
-		// auto involvedRegMemberUsernames = regMemberUsernames | std::views::take(params.regMembersThreshold);
+		// 1) initiator starts decryption
+		auto dc = post<pkt::DecryptResponse>(initiator, pkt::DecryptRequest{
+			usersetID, ciphertext
+		});
+		EXPECT_TRUE(dc.has_value());
+		const OperationID opid = std::move(dc->op_id);
 
-		auto uninvolvedRegMemberSocks = regMemberSocks | std::views::drop(params.regMembersThreshold);
-		// auto uninvolvedRegMemberUsernames = regMemberUsernames | std::views::drop(params.regMembersThreshold);
-
-		auto involvedSocks = join(involvedOwnerSocks, involvedRegMemberSocks);
-		auto uninvolvedSocks = join(uninvolvedOwnerSocks, uninvolvedRegMemberSocks);
-
-		auto memberSocks = join(creatorSocks, nonCreatorOwnerSocks, regMemberSocks);
-		auto memberUsernames = join(creatorUsernames, nonCreatorOwnerUsernames, regMemberUsernames);
-
-		auto allSocks = join(memberSocks, nonMemberSocks);
-		auto allUsernames = join(memberUsernames, nonMemberUsernames);
-
-		for (auto& sock : allSocks)
-			exchange_protocol_version(sock);
-
-		// signup
-		for (auto [sock, username] : zip(allSocks, allUsernames))
+		// 2) all involved members run update to get decryption lookup request
+		//    (uninvolved members are in lookup too, just won't be used later)
+		for (auto [i, sock] : memberSocks | enumerate)
 		{
-			std::optional<pkt::SignupResponse> su = 
-				post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
-			EXPECT_TRUE(su.has_value());
-			EXPECT_EQ(su->status, pkt::SignupResponse::Status::Success);
+			if (initiatorIndex == i)
+				continue; // initiator doesn't run update
+			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+			EXPECT_TRUE(up.has_value());
+			EXPECT_EQ(up->on_lookup.size(), 1);
+			EXPECT_EQ(up->on_lookup.back(), opid);
 		}
 
-		// vectors to store shards later
-		std::vector<PrivKeyShard> regMemberShards;
-		std::vector<PrivKeyShardID> regMemberShardsIDs;
-		std::vector<PrivKeyShard> ownerShards1, ownerShards2;
-		std::vector<PrivKeyShardID> ownerShardsIDs1, ownerShardsIDs2;
+		// 3) involved members tell server that they're willing to participate in operation
+		for (auto [i, sock] : involvedSocks | enumerate)
+		{
+			if (initiatorIndex == i)
+				continue; // initiator doesn't request participance
+			auto dp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{
+				opid
+			});
+			EXPECT_TRUE(dp.has_value());
+			EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::SendPart);
+		}
 
-		// make userset
-		auto ms = post<pkt::MakeUserSetResponse>(creatorSock, pkt::MakeUserSetRequest{
-			.reg_members = regMemberUsernamesVec,
-			.owners = nonCreatorOwnerUsernamesVec,
-			.reg_members_threshold = params.regMembersThreshold,
-			.owners_threshold = params.ownersThreshold
-		});
-		EXPECT_TRUE(ms.has_value());
-		const auto& usersetID = ms->user_set_id;
-		const auto& pubKey1 = ms->pub_key1;
-		const auto& pubKey2 = ms->pub_key2;
-		ownerShardsIDs1.push_back(ms->priv_key1_shard.first);
-		ownerShards1.emplace_back(std::move(ms->priv_key1_shard));
-		ownerShardsIDs2.push_back(ms->priv_key2_shard.first);
-		ownerShards2.emplace_back(std::move(ms->priv_key2_shard));
+		// (and non-involved members are not required...)
+		for (auto& sock : uninvolvedSocks)
+		{
+			auto dp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{
+				opid
+			});
+			EXPECT_TRUE(dp.has_value());
+			EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::NotRequired);
+		}
 
-		// each involved member should get its own shard(s) and register to use later
+		// 4) involved members run update to get decryption request
+		for (auto [i, sock] : involvedOwnerSocks | enumerate)
+		{
+			if (initiatorIndex == i)
+				continue; // initiator doesn't run update
+			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+			EXPECT_TRUE(up.has_value());
+			EXPECT_EQ(up->to_decrypt.size(), 1);
+			EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
+			EXPECT_EQ(up->to_decrypt.back().op_id, opid);
+			EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, ownerShardsIDs2);
+		}
 		for (auto& sock : involvedRegMemberSocks)
 		{
 			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
-			EXPECT_EQ(up->added_as_reg_member.size(), 1);
-			EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
-			regMemberShardsIDs.push_back(up->added_as_reg_member.back().priv_key1_shard.first);
-			regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().priv_key1_shard));
-		}
-		for (auto& sock : nonCreatorInvolvedOwnerSocks)
-		{
-			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-			EXPECT_TRUE(up.has_value());
-			EXPECT_EQ(up->added_as_owner.size(), 1);
-			EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
-			ownerShardsIDs1.push_back(up->added_as_owner.back().priv_key1_shard.first);
-			ownerShards1.emplace_back(std::move(up->added_as_owner.back().priv_key1_shard));
-			ownerShardsIDs2.push_back(up->added_as_owner.back().priv_key2_shard.first);
-			ownerShards2.emplace_back(std::move(up->added_as_owner.back().priv_key2_shard));
+			EXPECT_EQ(up->to_decrypt.size(), 1);
+			EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
+			EXPECT_EQ(up->to_decrypt.back().op_id, opid);
+			EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, regMemberShardsIDs);
 		}
 
-		// as for the uninvolved users, they do the same, but we don't care about their shards
-		for (auto& sock : uninvolvedRegMemberSocks)
+		// 5,6) involved memebrs compute decryption part locally and send them back
+		std::vector<DecryptionPart> parts1, parts2;
+		for (auto [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
 		{
-			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-			EXPECT_TRUE(up.has_value());
-			EXPECT_EQ(up->added_as_reg_member.size(), 1);
-			EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
-		}
-		for (auto& sock : uninvolvedOwnerSocks)
-		{
-			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-			EXPECT_TRUE(up.has_value());
-			EXPECT_EQ(up->added_as_owner.size(), 1);
-			EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
-		}
+			auto& [sock, shard] = sockshard;
+			if (initiatorIndex == i)
+				continue; // initiator doesn't compute yet
 
-		// encryption-decryption rounds loop
-		auto involvedOwnerDist = Random<std::size_t>::get_dist_below(
-			static_cast<std::size_t>(params.ownersThreshold) + 1
-		); // see use below
-		Schema schema;
-		for (int i = 0; i < params.rounds; ++i)
-		{
-			// encrypt message
-			const Buffer msg = senc::utils::random_bytes(params.msgSize);
-			auto ciphertext = schema.encrypt(msg, pubKey1, pubKey2);
+			auto part = senc::Shamir::decrypt_get_2l<2>( // owner knows it's layer2
+				ciphertext,
+				shard,
+				ownerShardsIDs2
+			);
+			parts2.push_back(part);
 
-			// select random user to request decryption (for test)
-			// (index 0 for set creator, after that for other owners - 
-			//  we do this to match enumeration indexes of involvedOwnerSocks)
-			const auto initiatorIndex = involvedOwnerDist();
-			auto& initiator = (0 == initiatorIndex) ? creatorSock 
-				: nonCreatorInvolvedOwnerSocks[initiatorIndex - 1];
-
-			// initiator counts as a non-owner for the decryption of layer1
-			regMemberShardsIDs.push_back(ownerShardsIDs1[initiatorIndex]);
-
-			// 1) initiator starts decryption
-			auto dc = post<pkt::DecryptResponse>(initiator, pkt::DecryptRequest{
-				usersetID, ciphertext
+			auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
+				.op_id = opid,
+				.decryption_part = std::move(part)
 			});
-			EXPECT_TRUE(dc.has_value());
-			const OperationID opid = std::move(dc->op_id);
-
-			// 2) all involved members run update to get decryption lookup request
-			//    (uninvolved members are in lookup too, just won't be used later)
-			for (auto [i, sock] : memberSocks | enumerate)
-			{
-				if (initiatorIndex == i)
-					continue; // initiator doesn't run update
-				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-				EXPECT_TRUE(up.has_value());
-				EXPECT_EQ(up->on_lookup.size(), 1);
-				EXPECT_EQ(up->on_lookup.back(), opid);
-			}
-
-			// 3) involved members tell server that they're willing to participate in operation
-			for (auto [i, sock] : involvedSocks | enumerate)
-			{
-				if (initiatorIndex == i)
-					continue; // initiator doesn't request participance
-				auto dp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{
-					opid
-				});
-				EXPECT_TRUE(dp.has_value());
-				EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::SendPart);
-			}
-
-			// (and non-involved members are not required...)
-			for (auto& sock : uninvolvedSocks)
-			{
-				auto dp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{
-					opid
-				});
-				EXPECT_TRUE(dp.has_value());
-				EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::NotRequired);
-			}
-
-			// 4) involved members run update to get decryption request
-			for (auto [i, sock] : involvedOwnerSocks | enumerate)
-			{
-				if (initiatorIndex == i)
-					continue; // initiator doesn't run update
-				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-				EXPECT_TRUE(up.has_value());
-				EXPECT_EQ(up->to_decrypt.size(), 1);
-				EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
-				EXPECT_EQ(up->to_decrypt.back().op_id, opid);
-				EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, ownerShardsIDs2);
-			}
-			for (auto& sock : involvedRegMemberSocks)
-			{
-				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
-				EXPECT_TRUE(up.has_value());
-				EXPECT_EQ(up->to_decrypt.size(), 1);
-				EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
-				EXPECT_EQ(up->to_decrypt.back().op_id, opid);
-				EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, regMemberShardsIDs);
-			}
-
-			// 5,6) involved memebrs compute decryption part locally and send them back
-			std::vector<DecryptionPart> parts1, parts2;
-			for (auto [i, sockshard] : zip(involvedOwnerSocks, ownerShards2) | enumerate)
-			{
-				auto& [sock, shard] = sockshard;
-				if (initiatorIndex == i)
-					continue; // initiator doesn't compute yet
-
-				auto part = senc::Shamir::decrypt_get_2l<2>( // owner knows it's layer2
-					ciphertext,
-					shard,
-					ownerShardsIDs2
-				);
-				parts2.push_back(part);
-
-				auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
-					.op_id = opid,
-					.decryption_part = std::move(part)
-				});
-				EXPECT_TRUE(sp.has_value());
-			}
-			for (auto [sock, shard] : zip(involvedRegMemberSocks, regMemberShards))
-			{
-				auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer1
-					ciphertext,
-					shard,
-					regMemberShardsIDs
-				);
-				parts1.push_back(part);
-
-				auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
-					.op_id = opid,
-					.decryption_part = std::move(part)
-				});
-				EXPECT_TRUE(sp.has_value());
-			}
-
-			// 7) initiator runs update to get finished decryption parts
-			auto up = post<pkt::UpdateResponse>(initiator, pkt::UpdateRequest{});
-			EXPECT_TRUE(up.has_value());
-			EXPECT_EQ(up->finished_decryptions.size(), 1);
-			EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
-			EXPECT_EQ(up->finished_decryptions.back().parts1, parts1);
-			EXPECT_EQ(up->finished_decryptions.back().parts2, parts2);
-
-			// check same shard IDs as involved members
-			auto& finishedShardsIDs1 = up->finished_decryptions.back().shardsIDs1;
-			auto& finishedShardsIDs2 = up->finished_decryptions.back().shardsIDs2;
-			finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
-			finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs1, regMemberShardsIDs);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs2, ownerShardsIDs2);
-
-			// 8) initiator computes their own decryption parts
-			auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(
-				ciphertext,
-				ownerShards1[initiatorIndex],
-				finishedShardsIDs1
-			);
-			auto initiatorPart2 = senc::Shamir::decrypt_get_2l<2>(
-				ciphertext,
-				ownerShards2[initiatorIndex],
-				finishedShardsIDs2
-			);
-
-			// 9) initiator combines their parts with received parts
-			parts1.push_back(std::move(initiatorPart1));
-			parts2.push_back(std::move(initiatorPart2));
-			auto decrypted = senc::Shamir::decrypt_join_2l(
-				ciphertext, parts1, parts2
-			);
-			EXPECT_EQ(decrypted, msg);
-
-			// end of round
-			regMemberShardsIDs.pop_back(); // remove initiator's shard ID
+			EXPECT_TRUE(sp.has_value());
 		}
-
-		// logout
-		for (auto& sock : allSocks)
+		for (auto [sock, shard] : zip(involvedRegMemberSocks, regMemberShards))
 		{
-			std::optional<pkt::LogoutResponse> lo =
-				post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
-			EXPECT_TRUE(lo.has_value());
+			auto part = senc::Shamir::decrypt_get_2l<1>( // non-owner knows it's layer1
+				ciphertext,
+				shard,
+				regMemberShardsIDs
+			);
+			parts1.push_back(part);
+
+			auto sp = post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
+				.op_id = opid,
+				.decryption_part = std::move(part)
+			});
+			EXPECT_TRUE(sp.has_value());
 		}
+
+		// 7) initiator runs update to get finished decryption parts
+		auto up = post<pkt::UpdateResponse>(initiator, pkt::UpdateRequest{});
+		EXPECT_TRUE(up.has_value());
+		EXPECT_EQ(up->finished_decryptions.size(), 1);
+		EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
+		EXPECT_EQ(up->finished_decryptions.back().parts1, parts1);
+		EXPECT_EQ(up->finished_decryptions.back().parts2, parts2);
+
+		// check same shard IDs as involved members
+		auto& finishedShardsIDs1 = up->finished_decryptions.back().shardsIDs1;
+		auto& finishedShardsIDs2 = up->finished_decryptions.back().shardsIDs2;
+		finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
+		finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
+		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs1, regMemberShardsIDs);
+		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs2, ownerShardsIDs2);
+
+		// 8) initiator computes their own decryption parts
+		auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(
+			ciphertext,
+			ownerShards1[initiatorIndex],
+			finishedShardsIDs1
+		);
+		auto initiatorPart2 = senc::Shamir::decrypt_get_2l<2>(
+			ciphertext,
+			ownerShards2[initiatorIndex],
+			finishedShardsIDs2
+		);
+
+		// 9) initiator combines their parts with received parts
+		parts1.push_back(std::move(initiatorPart1));
+		parts2.push_back(std::move(initiatorPart2));
+		auto decrypted = senc::Shamir::decrypt_join_2l(
+			ciphertext, parts1, parts2
+		);
+		EXPECT_EQ(decrypted, msg);
+
+		// end of round
+		regMemberShardsIDs.pop_back(); // remove initiator's shard ID
+	}
+
+	// logout
+	for (auto& sock : allSocks)
+	{
+		std::optional<pkt::LogoutResponse> lo =
+			post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
+		EXPECT_TRUE(lo.has_value());
 	}
 }
 
 // ===== Instantiation of Parameterized Tests =====
 
+const auto SERVER_IMPLS = testing::Values(
+	ServerTestParams{
+		std::make_unique<ShortTermServerStorage>,
+		std::make_unique<InlinePacketReceiver>,
+		std::make_unique<InlinePacketSender>
+	}
+);
+
+const auto CYCLE_PARAMS = testing::Values(
+	CycleParams{
+		.owners              = 0,
+		.regMembers          = 0,
+		.nonMembers          = 0,
+		.ownersThreshold     = 0,
+		.regMembersThreshold = 0,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 0,
+		.regMembers          = 1,
+		.nonMembers          = 0,
+		.ownersThreshold     = 0,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 1,
+		.regMembers          = 0,
+		.nonMembers          = 0,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 0,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 1,
+		.regMembers          = 1,
+		.nonMembers          = 0,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 2,
+		.regMembers          = 2,
+		.nonMembers          = 1,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 8,
+		.regMembers          = 15,
+		.nonMembers          = 7,
+		.ownersThreshold     = 5,
+		.regMembersThreshold = 10,
+		.msgSize             = 256,
+		.rounds              = 5
+	}
+);
+
 INSTANTIATE_TEST_SUITE_P(
 	ServerImplementations,
 	ServerTest,
-	testing::Values(
-		ServerTestParams{
-			std::make_unique<ShortTermServerStorage>,
-			std::make_unique<InlinePacketReceiver>,
-			std::make_unique<InlinePacketSender>,
-			{
-				CycleParams{
-					.owners              = 8,
-					.regMembers          = 15,
-					.nonMembers          = 7,
-					.ownersThreshold     = 5,
-					.regMembersThreshold = 10,
-					.msgSize             = 256,
-					.rounds              = 5
-				}
-			}
-		}
-	)
+	SERVER_IMPLS
+);
+
+INSTANTIATE_TEST_CASE_P(
+	ServerMultiCycle,
+	MultiCycleServerTest,
+	testing::Combine(SERVER_IMPLS, CYCLE_PARAMS)
 );
