@@ -12,12 +12,6 @@
 
 namespace senc::server
 {
-	ShortTermServerStorage::ShortTermServerStorage()
-		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS)) { }
-	// we don't want shard IDs to be too big, or there is a reasonable chance of overflow during computations.
-	// therefore, the distribution for shard IDs is set to be within a confined range.
-	// it doesn't HAVE to be [1, MAX_MEMBERS], it just seemed like a reasonable range to choose.
-
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
 		bool inserted = false;

@@ -22,8 +22,6 @@ namespace senc::server
 	public:
 		using Self = ShortTermServerStorage;
 
-		ShortTermServerStorage();
-
 		void new_user(const std::string& username) override;
 
 		bool user_exists(const std::string& username) override;
@@ -42,14 +40,12 @@ namespace senc::server
 		PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) override;
 
 	private:
-		utils::Distribution<PrivKeyShardID> _shardsDist;
-
 		PrivKeyShardID sample_shard_id(const utils::HasContainsMethod<PrivKeyShardID> auto& container)
 		{
-			return _shardsDist(container);
-			// no need to check for non-zero, since distribution is now confined above 0.
-			// if the confining range ever changes to include zero, a check against a 
-			// zero-value shard ID should be done here.
+			auto res = PrivKeyShardID::sample();
+			while (container.contains(res) || 0 == res)
+				res = PrivKeyShardID::sample();
+			return res;
 		}
 
 		// map user to owned sets

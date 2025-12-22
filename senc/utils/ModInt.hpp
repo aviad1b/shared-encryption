@@ -199,6 +199,14 @@ namespace senc::utils
 		Self& operator=(Self&&) noexcept(std::is_nothrow_move_assignable_v<Int>) = default;
 
 		/**
+		 * @brief Constructs ModInt from another ModInt that has different traits.
+		 */
+		template <ModTraitsType OtherModTraits>
+		requires std::constructible_from<typename ModTraits::Underlying, typename OtherModTraits::Underlying>
+		ModInt(const ModInt<OtherModTraits>& other)
+			noexcept(std::is_nothrow_constructible_v<typename ModTraits::Underlying, typename OtherModTraits::Underlying>);
+
+		/**
 		 * @brief Casting of modular integer into its underlying fundamental.
 		 */
 		operator const Int&() const noexcept;

@@ -130,6 +130,13 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
+	template <ModTraitsType OtherModTraits>
+	requires std::constructible_from<typename ModTraits::Underlying, typename OtherModTraits::Underlying>
+	inline ModInt<ModTraits>::ModInt(const ModInt<OtherModTraits>& other)
+		noexcept(std::is_nothrow_constructible_v<typename ModTraits::Underlying, typename OtherModTraits::Underlying>)
+		: Self(static_cast<Int>(static_cast<typename OtherModTraits::Underlying>(other))) { }
+
+	template <ModTraitsType ModTraits>
 	inline ModInt<ModTraits>::operator const Int&() const noexcept
 	{
 		return this->_value;
