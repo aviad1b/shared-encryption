@@ -68,7 +68,7 @@ struct ServerTestParams
 	std::vector<CycleParams> cycleParams;
 };
 
-class ServerTest : public testing::TestWithParam<ServerTestParams>
+class ServerTestBase : public testing::Test
 {
 protected:
 	Port port;
@@ -80,10 +80,12 @@ protected:
 	std::unique_ptr<PacketSender> sender;
 	std::unique_ptr<Server> server;
 
+	virtual const ServerTestParams& get_server_test_params() = 0;
+
 	void SetUp() override
 	{
 		port = Random<Port>::sample_from_range(49152, 65535);
-		auto& params = GetParam();
+		const auto& params = get_server_test_params();
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
@@ -120,6 +122,15 @@ protected:
 	{
 		sender->send_request(sock, request);
 		return receiver->recv_response<Response>(sock);
+	}
+};
+
+class ServerTest : public ServerTestBase, public testing::WithParamInterface<ServerTestParams>
+{
+protected:
+	const ServerTestParams& get_server_test_params() override
+	{
+		return GetParam();
 	}
 };
 
