@@ -296,7 +296,7 @@ namespace senc
 		if (input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::Connected;
 
-		post<pkt::LogoutResponse>(sock, pkt::LoginRequest{});
+		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
 
 		cout << "Goodbye!" << endl;
 		return ConnStatus::Disconnected;
