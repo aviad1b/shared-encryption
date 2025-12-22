@@ -100,6 +100,17 @@ namespace senc::server
 		// register oepration in decryptions manager
 		auto opid = _decryptionsManager.new_operation();
 
+		// if both thresholds are zero, nothing to do, requires no members
+		if (0 == info.owners_threshold && 0 == info.reg_members_threshold)
+		{
+			// in this case, register as finished and return.
+			_updateManager.register_finished_decrpytion(
+				_username, opid,
+				{}, {}, {}, {}
+			);
+			return opid;
+		}
+
 		// prepare decryption operation
 		_decryptionsManager.prepare_operation(
 			opid,
