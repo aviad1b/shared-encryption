@@ -44,6 +44,7 @@ namespace senc::utils
 	template <typename Self, typename SID>
 	concept ShamirSecret = (ZeroConstructible<Self> || DefaultConstructibleClass<Self>) && // for utils::sum
 		(OneConstructible<Self> || HasIdentity<Self>) && // for utils::product
+		std::constructible_from<Self, SID> && // for acurate computations
 		Addable<Self> && SelfAddable<Self> &&
 		Subtractable<Self> && SelfSubtractable<Self> &&
 		Multiplicable<Self> && SelfMultiplicable<Self> &&
