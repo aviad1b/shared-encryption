@@ -56,6 +56,7 @@ namespace senc
 		void recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out);
 
 		void recv_pub_key(utils::Socket& sock, PubKey& out);
+		void recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out);
 		void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);
 
 		void recv_ciphertext(utils::Socket& sock, Ciphertext& out);

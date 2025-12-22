@@ -9,13 +9,70 @@
 #pragma once
 
 #include "../common/packets.hpp"
+#include "../utils/ModInt.hpp"
 
 namespace senc
 {
 	template <typename Self>
-	concept NumInputable = std::integral<Self> &&
-		(std::numeric_limits<Self>::min() >= std::numeric_limits<long long>::min()) &&
-		(std::numeric_limits<Self>::max() <= std::numeric_limits<long long>::max());
+	concept NumInputable = 
+		(
+			std::integral<Self> &&
+			(std::numeric_limits<Self>::min() >= std::numeric_limits<long long>::min()) &&
+			(std::numeric_limits<Self>::max() <= std::numeric_limits<long long>::max())
+		) ||
+		(
+			utils::ModIntType<Self> &&
+			(Self::modulus() - 1 <= std::numeric_limits<long long>::max())
+		) ||
+		std::same_as<Self, utils::BigInt>;
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct num_inputable_int { using type = T; };
+
+		template <utils::ModIntType T>
+		struct num_inputable_int<T> { using type = typename T::Int; };
+
+		template <>
+		struct num_inputable_int<utils::BigInt> { using type = long long; };
+	}
+
+	template <NumInputable T>
+	using NumInputableInt = typename sfinae::num_inputable_int<T>::type;
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct num_inputable_min : std::integral_constant<
+			NumInputableInt<T>,
+			std::numeric_limits<NumInputableInt<T>>::min()
+		> { };
+
+		template <utils::ModIntType T>
+		struct num_inputable_min<T> : std::integral_constant<
+			NumInputableInt<T>,
+			static_cast<NumInputableInt<T>>(0)
+		> { };
+
+		template <typename T>
+		struct num_inputable_max : std::integral_constant<
+			NumInputableInt<T>,
+			std::numeric_limits<NumInputableInt<T>>::max()
+		> { };
+
+		template <utils::ModIntType T>
+		struct num_inputable_max<T> : std::integral_constant<
+			NumInputableInt<T>,
+			T::modulus()
+		>{ };
+	}
+
+	template <NumInputable T>
+	constexpr NumInputableInt<T> NUM_INPUTABLE_MIN = sfinae::num_inputable_min<T>::value;
+
+	template <NumInputable T>
+	constexpr NumInputableInt<T> NUM_INPUTABLE_MAX = sfinae::num_inputable_max<T>::value;
 
 	std::string input();
 	std::string input(const std::string& msg);

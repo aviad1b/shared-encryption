@@ -12,6 +12,7 @@
 #include "Exception.hpp"
 #include "concepts.hpp"
 #include "Random.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
@@ -149,7 +150,7 @@ namespace senc::utils
 		using Self = ModInt<ModTraits>;
 		using Int = typename ModTraits::Underlying;
 		static constexpr bool IS_PRIME_MOD = ModTraits::is_known_prime();
-		static auto modulus() { return ModTraits::modulus(); }
+		static constexpr auto modulus() { return ModTraits::modulus(); }
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
@@ -198,9 +199,23 @@ namespace senc::utils
 		Self& operator=(Self&&) noexcept(std::is_nothrow_move_assignable_v<Int>) = default;
 
 		/**
+		 * @brief Constructs ModInt from another ModInt that has different traits.
+		 */
+		template <ModTraitsType OtherModTraits>
+		requires std::constructible_from<typename ModTraits::Underlying, typename OtherModTraits::Underlying>
+		ModInt(const ModInt<OtherModTraits>& other)
+			noexcept(std::is_nothrow_constructible_v<typename ModTraits::Underlying, typename OtherModTraits::Underlying>);
+
+		/**
 		 * @brief Casting of modular integer into its underlying fundamental.
 		 */
 		operator const Int&() const noexcept;
+
+		/**
+		 * @brief Hashes modint value.
+		 * @return Result hash.
+		 */
+		std::size_t hash() const noexcept;
 
 		/**
 		 * @brief Checks if the modular integer is equal to another.
@@ -655,6 +670,23 @@ namespace senc::utils
 		(LowerComparable, typename ModInt<ModTraits>::Int),
 		(SelfDevisible, typename ModInt<ModTraits>::Int)
 	);
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct is_mod_int : std::false_type { };
+
+		template <ModTraitsType ModTraits>
+		struct is_mod_int<ModInt<ModTraits>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::ModIntType
+	 * @brief Looks for a typename that is any kind of `MidInt`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept ModIntType = sfinae::is_mod_int<Self>::value;
 }
 
 #include "ModInt_impl.hpp"
