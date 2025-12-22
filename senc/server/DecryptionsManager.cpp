@@ -24,29 +24,29 @@ namespace senc::server
 			parts1.size() >= required_reg_members;
 	}
 
-	OperationID DecryptionsManager::register_new_operation(const std::string& requester,
-														   const UserSetID& usersetID,
-														   Ciphertext&& ciphertext,
-														   member_count_t requiredOwners,
-														   member_count_t requiredRegMembers)
+	OperationID DecryptionsManager::new_operation()
 	{
-		OperationID opid{};
-		{
-			const std::unique_lock<std::mutex> lock(_mtxAllOpIDs);
-			opid = OperationID::generate(_allOpIDs);
-			_allOpIDs.insert(opid);
-		}
-		{
-			const std::unique_lock<std::mutex> lock(_mtxPrep);
-			_prep.emplace(opid, PrepareRecord{
-				requester,
-				usersetID,
-				std::move(ciphertext),
-				requiredOwners,
-				requiredRegMembers
-				});
-		}
+		const std::unique_lock<std::mutex> lock(_mtxAllOpIDs);
+		auto opid = OperationID::generate(_allOpIDs);
+		_allOpIDs.insert(opid);
 		return opid;
+	}
+
+	void DecryptionsManager::prepare_operation(const OperationID& opid,
+											   const std::string& requester,
+											   const UserSetID& usersetID,
+											   Ciphertext&& ciphertext,
+											   member_count_t requiredOwners,
+											   member_count_t requiredRegMembers)
+	{
+		const std::unique_lock<std::mutex> lock(_mtxPrep);
+		_prep.emplace(opid, PrepareRecord{
+			requester,
+			usersetID,
+			std::move(ciphertext),
+			requiredOwners,
+			requiredRegMembers
+		});
 	}
 
 	std::pair<std::optional<DecryptionsManager::PrepareRecord>, bool>

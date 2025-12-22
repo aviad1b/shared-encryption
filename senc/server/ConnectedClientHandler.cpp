@@ -98,7 +98,11 @@ namespace senc::server
 		auto info = _storage.get_userset_info(usersetID);
 
 		// register oepration in decryptions manager
-		auto opid = _decryptionsManager.register_new_operation(
+		auto opid = _decryptionsManager.new_operation();
+
+		// prepare decryption operation
+		_decryptionsManager.prepare_operation(
+			opid,
 			_username, usersetID,
 			std::move(ciphertext),
 			info.owners_threshold,
