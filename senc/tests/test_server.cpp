@@ -1575,13 +1575,58 @@ const auto SERVER_IMPLS = testing::Values(
 
 const auto CYCLE_PARAMS = testing::Values(
 	CycleParams{
-		.owners = 8,
-		.regMembers = 15,
-		.nonMembers = 7,
-		.ownersThreshold = 5,
+		.owners              = 0,
+		.regMembers          = 0,
+		.nonMembers          = 0,
+		.ownersThreshold     = 0,
+		.regMembersThreshold = 0,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 0,
+		.regMembers          = 1,
+		.nonMembers          = 0,
+		.ownersThreshold     = 0,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 1,
+		.regMembers          = 0,
+		.nonMembers          = 0,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 0,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 1,
+		.regMembers          = 1,
+		.nonMembers          = 0,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 2,
+		.regMembers          = 2,
+		.nonMembers          = 1,
+		.ownersThreshold     = 1,
+		.regMembersThreshold = 1,
+		.msgSize             = 256,
+		.rounds              = 3
+	},
+	CycleParams{
+		.owners              = 8,
+		.regMembers          = 15,
+		.nonMembers          = 7,
+		.ownersThreshold     = 5,
 		.regMembersThreshold = 10,
-		.msgSize = 256,
-		.rounds = 5
+		.msgSize             = 256,
+		.rounds              = 5
 	}
 );
 
