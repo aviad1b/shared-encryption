@@ -197,9 +197,14 @@ namespace senc
 		send_ecgroup_elem(sock, pubKey);
 	}
 
+	void InlinePacketSender::send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID)
+	{
+		sock.send_connected_value(shardID);
+	}
+
 	void InlinePacketSender::send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard)
 	{
-		sock.send_connected_value(shard.first);
+		send_priv_key_shard_id(sock, shard.first);
 		send_big_int(sock, static_cast<const utils::BigInt&>(shard.second));
 	}
 
@@ -244,7 +249,7 @@ namespace senc
 		send_ciphertext(sock, record.ciphertext);
 		sock.send_connected_value(static_cast<member_count_t>(record.shards_ids.size()));
 		for (const auto& shardID : record.shards_ids)
-			sock.send_connected_value(shardID);
+			send_priv_key_shard_id(sock, shardID);
 	}
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record)
@@ -258,8 +263,8 @@ namespace senc
 		for (const auto& part : record.parts2)
 			send_decryption_part(sock, part);
 		for (const auto& shardID : record.shardsIDs1)
-			sock.send_connected_value(shardID);
+			send_priv_key_shard_id(sock, shardID);
 		for (const auto& shardID : record.shardsIDs2)
-			sock.send_connected_value(shardID);
+			send_priv_key_shard_id(sock, shardID);
 	}
 }

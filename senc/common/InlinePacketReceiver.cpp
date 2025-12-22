@@ -211,9 +211,14 @@ namespace senc
 		recv_ecgroup_elem(sock, out);
 	}
 
+	void InlinePacketReceiver::recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out)
+	{
+		sock.recv_connected_value(out);
+	}
+
 	void InlinePacketReceiver::recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out)
 	{
-		sock.recv_connected_value(out.first);
+		recv_priv_key_shard_id(sock, out.first);
 		
 		// converting second from BigInt
 		utils::BigInt second;
@@ -268,7 +273,7 @@ namespace senc
 		auto shardsIDsCount = sock.recv_connected_primitive<member_count_t>();
 		out.shards_ids.resize(shardsIDsCount);
 		for (auto& shardID : out.shards_ids)
-			sock.recv_connected_value(shardID);
+			recv_priv_key_shard_id(sock, shardID);
 	}
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out)
@@ -291,9 +296,9 @@ namespace senc
 		// recv shards IDs
 		out.shardsIDs1.resize(parts1Count);
 		for (auto& shardID : out.shardsIDs1)
-			sock.recv_connected_value(shardID);
+			recv_priv_key_shard_id(sock, shardID);
 		out.shardsIDs2.resize(parts2Count);
 		for (auto& shardID : out.shardsIDs2)
-			sock.recv_connected_value(shardID);
+			recv_priv_key_shard_id(sock, shardID);
 	}
 }
