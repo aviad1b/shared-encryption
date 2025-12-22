@@ -136,6 +136,12 @@ namespace senc::utils
 	}
 
 	template <ModTraitsType ModTraits>
+	inline std::size_t ModInt<ModTraits>::hash() const noexcept
+	{
+		return Hash<Int>()(this->_value);
+	}
+
+	template <ModTraitsType ModTraits>
 	inline bool ModInt<ModTraits>::operator==(Self other) const SENC_REQ_NOEXCEPT(
 		(EqualityComparable, Int)
 	)

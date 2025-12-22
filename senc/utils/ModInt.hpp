@@ -12,6 +12,7 @@
 #include "Exception.hpp"
 #include "concepts.hpp"
 #include "Random.hpp"
+#include "hash.hpp"
 
 namespace senc::utils
 {
@@ -201,6 +202,12 @@ namespace senc::utils
 		 * @brief Casting of modular integer into its underlying fundamental.
 		 */
 		operator const Int&() const noexcept;
+
+		/**
+		 * @brief Hashes modint value.
+		 * @return Result hash.
+		 */
+		std::size_t hash() const noexcept;
 
 		/**
 		 * @brief Checks if the modular integer is equal to another.
