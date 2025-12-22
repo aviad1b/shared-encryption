@@ -23,7 +23,8 @@ namespace senc
 		(
 			utils::ModIntType<Self> &&
 			(Self::modulus() - 1 <= std::numeric_limits<long long>::max())
-		);
+		) ||
+		std::same_as<Self, utils::BigInt>;
 
 	namespace sfinae
 	{
@@ -32,6 +33,9 @@ namespace senc
 
 		template <utils::ModIntType T>
 		struct num_inputable_int<T> { using type = typename T::Int; };
+
+		template <>
+		struct num_inputable_int<utils::BigInt> { using type = long long; };
 	}
 
 	template <NumInputable T>
