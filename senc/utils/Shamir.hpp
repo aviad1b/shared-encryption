@@ -33,7 +33,7 @@ namespace senc::utils
 	 */
 	template <typename Self>
 	concept ShamirShardID = PolyInput<Self> && Hashable<Self> &&
-		EqualityComparable<Self> && BoolConvertible<Self>;
+		EqualityComparable<Self> && ZeroComparable<Self>;
 
 	/**
 	 * @concept senc::utils::ShamirSecret
