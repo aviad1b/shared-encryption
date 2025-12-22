@@ -1492,7 +1492,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			// 7) initiator runs update to get finished decryption parts
 			auto up = post<pkt::UpdateResponse>(initiator, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
-			EXPECT_TRUE(up->finished_decryptions.size() == 1);
+			EXPECT_EQ(up->finished_decryptions.size(), 1);
 			EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
 			EXPECT_EQ(up->finished_decryptions.back().parts1, parts1);
 			EXPECT_EQ(up->finished_decryptions.back().parts2, parts2);
