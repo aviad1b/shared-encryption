@@ -1328,24 +1328,24 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->added_as_reg_member.size(), 1);
-			EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_reg_member.front().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_reg_member.front().pub_key2, pubKey2);
-			regMemberShardsIDs.push_back(up->added_as_reg_member.front().priv_key1_shard.first);
-			regMemberShards.emplace_back(std::move(up->added_as_reg_member.front().priv_key1_shard));
+			EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
+			EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
+			EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
+			regMemberShardsIDs.push_back(up->added_as_reg_member.back().priv_key1_shard.first);
+			regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().priv_key1_shard));
 		}
 		for (auto& sock : nonCreatorInvolvedOwnerSocks)
 		{
 			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->added_as_owner.size(), 1);
-			EXPECT_EQ(up->added_as_owner.front().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_owner.front().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_owner.front().pub_key2, pubKey2);
-			ownerShardsIDs1.push_back(up->added_as_owner.front().priv_key1_shard.first);
-			ownerShards1.emplace_back(std::move(up->added_as_owner.front().priv_key1_shard));
-			ownerShardsIDs2.push_back(up->added_as_owner.front().priv_key2_shard.first);
-			ownerShards2.emplace_back(std::move(up->added_as_owner.front().priv_key2_shard));
+			EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
+			EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
+			EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
+			ownerShardsIDs1.push_back(up->added_as_owner.back().priv_key1_shard.first);
+			ownerShards1.emplace_back(std::move(up->added_as_owner.back().priv_key1_shard));
+			ownerShardsIDs2.push_back(up->added_as_owner.back().priv_key2_shard.first);
+			ownerShards2.emplace_back(std::move(up->added_as_owner.back().priv_key2_shard));
 		}
 
 		// as for the uninvolved users, they do the same, but we don't care about their shards
@@ -1354,18 +1354,18 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->added_as_reg_member.size(), 1);
-			EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_reg_member.front().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_reg_member.front().pub_key2, pubKey2);
+			EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
+			EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
+			EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
 		}
 		for (auto& sock : uninvolvedOwnerSocks)
 		{
 			auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->added_as_owner.size(), 1);
-			EXPECT_EQ(up->added_as_owner.front().user_set_id, usersetID);
-			EXPECT_EQ(up->added_as_owner.front().pub_key1, pubKey1);
-			EXPECT_EQ(up->added_as_owner.front().pub_key2, pubKey2);
+			EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
+			EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
+			EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
 		}
 
 		// encryption-decryption rounds loop
@@ -1405,7 +1405,7 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 				EXPECT_TRUE(up.has_value());
 				EXPECT_EQ(up->on_lookup.size(), 1);
-				EXPECT_EQ(up->on_lookup.front(), opid);
+				EXPECT_EQ(up->on_lookup.back(), opid);
 			}
 
 			// 3) involved members tell server that they're willing to participate in operation
@@ -1438,18 +1438,18 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 				EXPECT_TRUE(up.has_value());
 				EXPECT_EQ(up->to_decrypt.size(), 1);
-				EXPECT_EQ(up->to_decrypt.front().ciphertext, ciphertext);
-				EXPECT_EQ(up->to_decrypt.front().op_id, opid);
-				EXPECT_SAME_ELEMS(up->to_decrypt.front().shards_ids, ownerShardsIDs2);
+				EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
+				EXPECT_EQ(up->to_decrypt.back().op_id, opid);
+				EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, ownerShardsIDs2);
 			}
 			for (auto& sock : involvedRegMemberSocks)
 			{
 				auto up = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
 				EXPECT_TRUE(up.has_value());
 				EXPECT_EQ(up->to_decrypt.size(), 1);
-				EXPECT_EQ(up->to_decrypt.front().ciphertext, ciphertext);
-				EXPECT_EQ(up->to_decrypt.front().op_id, opid);
-				EXPECT_SAME_ELEMS(up->to_decrypt.front().shards_ids, regMemberShardsIDs);
+				EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
+				EXPECT_EQ(up->to_decrypt.back().op_id, opid);
+				EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, regMemberShardsIDs);
 			}
 
 			// 5,6) involved memebrs compute decryption part locally and send them back
@@ -1493,17 +1493,17 @@ TEST_P(ServerTest, MultiCycleDecryptFlow2L)
 			auto up = post<pkt::UpdateResponse>(initiator, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_TRUE(up->finished_decryptions.size() == 1);
-			EXPECT_TRUE(up->finished_decryptions.front().op_id == opid);
-			EXPECT_EQ(up->finished_decryptions.front().parts1, parts1);
-			EXPECT_EQ(up->finished_decryptions.front().parts2, parts2);
+			EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
+			EXPECT_EQ(up->finished_decryptions.back().parts1, parts1);
+			EXPECT_EQ(up->finished_decryptions.back().parts2, parts2);
 
 			// check same shard IDs as involved members
-			auto& finishedShardsIDs1 = up->finished_decryptions.front().shardsIDs1;
-			auto& finishedShardsIDs2 = up->finished_decryptions.front().shardsIDs2;
+			auto& finishedShardsIDs1 = up->finished_decryptions.back().shardsIDs1;
+			auto& finishedShardsIDs2 = up->finished_decryptions.back().shardsIDs2;
 			finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
 			finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.front().shardsIDs1, regMemberShardsIDs);
-			EXPECT_SAME_ELEMS(up->finished_decryptions.front().shardsIDs2, ownerShardsIDs2);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs1, regMemberShardsIDs);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs2, ownerShardsIDs2);
 
 			// 8) initiator computes their own decryption parts
 			auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(
