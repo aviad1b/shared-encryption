@@ -13,7 +13,10 @@ namespace senc::server
 	pkt::UpdateResponse UpdateManager::retrieve_updates(const std::string& username)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		return _updates[username];
+		const auto it = _updates.find(username);
+		if (it == _updates.end())
+			return {}; // no updates
+		return std::move(_updates.extract(it).mapped());
 	}
 
 	void UpdateManager::register_reg_member(const std::string& username,
