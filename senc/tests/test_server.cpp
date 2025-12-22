@@ -762,7 +762,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
 
 	// (extra does same, but will not participate in decryption)
-	auto up3 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
+	auto up3 = post<pkt::UpdateResponse>(extra, pkt::UpdateRequest{});
 	EXPECT_TRUE(up3.has_value());
 	const auto& extraSetsAddedTo = up3->added_as_reg_member;
 	EXPECT_EQ(extraSetsAddedTo.size(), 1);
