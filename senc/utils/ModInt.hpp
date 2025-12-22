@@ -150,7 +150,7 @@ namespace senc::utils
 		using Self = ModInt<ModTraits>;
 		using Int = typename ModTraits::Underlying;
 		static constexpr bool IS_PRIME_MOD = ModTraits::is_known_prime();
-		static auto modulus() { return ModTraits::modulus(); }
+		static constexpr auto modulus() { return ModTraits::modulus(); }
 
 		/**
 		 * @brief Constructs a modular integer with zero value.
