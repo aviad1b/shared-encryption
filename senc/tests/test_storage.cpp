@@ -164,7 +164,7 @@ TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMem
 	HashSet<std::string> owners = { "avi" };
 	HashSet<std::string> regMembers = { "batya" };
 
-	UserSetID usersetID = storage->new_userset(owners, regMembers, 1, 1);
+	storage->new_userset(owners, regMembers, 1, 1);
 
 	HashSet<UserSetID> batyaSets = storage->get_usersets("batya");
 
