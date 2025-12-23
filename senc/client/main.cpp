@@ -418,7 +418,7 @@ namespace senc
 
 		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
 
-		cout << "Encrypted message:" << endl;
+		cout << "Encrypted message (ciphertext):" << endl;
 		print_ciphertext(ciphertext);
 		cout << endl;
 
