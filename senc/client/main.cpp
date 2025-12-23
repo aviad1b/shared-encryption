@@ -408,6 +408,7 @@ namespace senc
 		cout << endl;
 
 		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
+		cout << endl;
 
 		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
 
@@ -421,6 +422,7 @@ namespace senc
 	{
 		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
 		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl;
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
 			usersetID, std::move(ciphertext)
@@ -491,6 +493,7 @@ namespace senc
 	ConnStatus participate(Socket& sock)
 	{
 		auto opid = input_operation_id("Enter operation ID: ");
+		cout << endl;
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
@@ -507,10 +510,17 @@ namespace senc
 		(void)sock;
 
 		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
+		cout << endl;
+
 		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl;
+
 		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
+		cout << endl;
+
 		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved decryption key shard IDs (each in new line): ");
 		cout << endl;
+
 		DecryptionPart part{};
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
@@ -526,6 +536,7 @@ namespace senc
 	{
 		auto opid = input_operation_id("Enter operation ID: ");
 		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
+		cout << endl;
 
 		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 			opid,
@@ -542,6 +553,7 @@ namespace senc
 		(void)sock;
 
 		auto ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl;
 
 		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
 
@@ -552,6 +564,7 @@ namespace senc
 		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
 
 		auto isText = input_yesno("Is this a textual message? (y/n): ");
+		cout << endl;
 
 		std::string msg;
 		if (isText)
