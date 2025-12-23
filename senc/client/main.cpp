@@ -410,7 +410,7 @@ namespace senc
 
 		cout << "Encrypted message:" << endl;
 		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
-		cout << "c1:\t" << bytes_to_base64(c2.to_bytes()) << endl;
+		cout << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl;
 		cout << "c3a:\t" << bytes_to_base64(c3a) << endl;
 		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
 		cout << endl;
