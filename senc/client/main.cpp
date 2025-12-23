@@ -629,7 +629,7 @@ namespace senc
 			for (++it; it != data.shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
-		cout << endl << endl;
+		cout << endl;
 
 		cout << "==============================" << endl;
 	}
