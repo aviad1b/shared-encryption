@@ -288,7 +288,7 @@ namespace senc
 		else
 			cout << "Login failed: Unknown error." << endl;
 
-		return ConnStatus::Disconnected;
+		return ConnStatus::Error;
 	}
 
 	ConnStatus logout(Socket& sock)
