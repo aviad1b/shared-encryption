@@ -576,8 +576,6 @@ namespace senc
 		cout << "Second public key:" << endl << bytes_to_base64(data.pub_key2.to_bytes()) << endl << endl;
 		cout << "First private key shard: (" << data.priv_key1_shard.first
 			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
-		cout << "Second private key shard: (" << data.priv_key1_shard.first
-			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 			cout << "Second private key shard: (" << data.priv_key2_shard.first
 				 << "," << data.priv_key2_shard.second << ")" << endl << endl;
