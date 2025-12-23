@@ -428,6 +428,8 @@ namespace senc
 	ConnStatus decrypt(Socket& sock)
 	{
 		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
+		cout << endl;
+
 		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
