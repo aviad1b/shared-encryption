@@ -158,6 +158,8 @@ namespace senc::utils
 		UUID(const Underlying& value);
 
 		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
+
+		static void underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes);
 	};
 }
 

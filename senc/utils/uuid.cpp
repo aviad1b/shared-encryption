@@ -92,6 +92,23 @@ namespace senc::utils
 			out[8 + i] = underlying.Data4[i];
 	}
 
+	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes)
+	{
+		out.Data1 = (static_cast<std::uint32_t>(bytes[0]) << 24) |
+			(static_cast<std::uint32_t>(bytes[1]) << 16) |
+			(static_cast<std::uint32_t>(bytes[2]) << 8) |
+			(static_cast<std::uint32_t>(bytes[3]));
+
+		out.Data2 = (static_cast<std::uint32_t>(bytes[4]) << 8) |
+			(static_cast<std::uint32_t>(bytes[5]));
+
+		out.Data3 = (static_cast<std::uint32_t>(bytes[6]) << 8) |
+			(static_cast<std::uint32_t>(bytes[7]));
+
+		for (std::size_t i = 0; i < 8; i++)
+			out.Data4[i] = bytes[8 + i];
+	}
+
 	std::ostream& operator<<(std::ostream& os, const UUID& uuid)
 	{
 		return os << uuid._str;
