@@ -294,7 +294,7 @@ namespace senc
 	ConnStatus logout(Socket& sock)
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
-			return ConnStatus::Connected;
+			return ConnStatus::Error; // not actually an error, but we want to trace back
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
 
