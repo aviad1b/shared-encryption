@@ -322,7 +322,7 @@ namespace senc
 
 		cout << "Userset created successfully:" << endl << endl;
 
-		cout << "\tID: " << resp.user_set_id << endl << endl;
+		cout << "ID: " << resp.user_set_id << endl << endl;
 
 		cout << "First public key:" << endl << bytes_to_base64(resp.pub_key1.to_bytes()) << endl << endl;
 
