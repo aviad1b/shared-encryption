@@ -122,6 +122,9 @@ namespace senc
 	OperationID input_operation_id();
 	OperationID input_operation_id(const std::string& msg);
 
+	std::pair<PubKey, PubKey> input_pub_keys();
+	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg);
+
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids();
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids(const std::string& msg);
 

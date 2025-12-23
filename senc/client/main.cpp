@@ -407,8 +407,7 @@ namespace senc
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
 		cout << endl;
 
-		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first encryption key:\n")));
-		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second encryption key:\n")));
+		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
 
 		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
 

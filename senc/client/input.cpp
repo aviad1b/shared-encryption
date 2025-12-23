@@ -109,6 +109,19 @@ namespace senc
 		return input_operation_id();
 	}
 
+	std::pair<PubKey, PubKey> input_pub_keys()
+	{
+		auto pubKey1 = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		auto pubKey2 = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		return { std::move(pubKey1), std::move(pubKey2) };
+	}
+
+	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_pub_keys();
+	}
+
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids()
 	{
 		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>();
