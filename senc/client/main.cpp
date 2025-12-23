@@ -420,6 +420,7 @@ namespace senc
 
 		cout << "Encrypted message:" << endl;
 		print_ciphertext(ciphertext);
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
