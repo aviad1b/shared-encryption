@@ -269,7 +269,7 @@ namespace senc
 		else
 			cout << "Signup failed: Unknown error." << endl;
 
-		return ConnStatus::Disconnected;
+		return ConnStatus::Error;
 	}
 
 	ConnStatus login(Socket& sock)
