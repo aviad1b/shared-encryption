@@ -399,8 +399,8 @@ namespace senc
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
-		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
-		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
+		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first encryption key:\n")));
+		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second encryption key:\n")));
 
 		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
 
@@ -501,8 +501,8 @@ namespace senc
 
 		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
 		Ciphertext ciphertext = input_ciphertext();
-		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
-		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line): ");
+		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved decryption key shard IDs (each in new line): ");
 		cout << endl;
 		DecryptionPart part{};
 		if (isOwner)
