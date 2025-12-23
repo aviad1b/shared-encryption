@@ -138,8 +138,8 @@ namespace senc
 
 			try
 			{
-				res.first = PrivKeyShardID(std::stoi(idStr));
-				res.second = PrivKeyShardValue(std::stoi(valStr));
+				res.first = PrivKeyShardID(idStr.c_str());
+				res.second = utils::BigInt(valStr.c_str());
 			}
 			catch (const std::exception&)
 			{
