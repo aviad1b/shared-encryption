@@ -121,7 +121,8 @@ namespace senc::server
 		);
 
 		// inform all relevant members of lookup
-		for (const auto& member : utils::views::join(info.owners, info.reg_members))
+		auto members = utils::views::join(info.owners, info.reg_members);
+		for (const auto& member : members)
 			_updateManager.register_lookup(member, opid);
 
 		return opid;
