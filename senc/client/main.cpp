@@ -4,6 +4,7 @@
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include "output.hpp"
 #include "input.hpp"
 
 namespace senc
@@ -332,9 +333,7 @@ namespace senc
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		cout << "First public key:" << endl << bytes_to_base64(resp.pub_key1.to_bytes()) << endl << endl;
-
-		cout << "Second public key:" << endl << bytes_to_base64(resp.pub_key2.to_bytes()) << endl << endl;
+		print_pub_keys(resp.pub_key1, resp.pub_key2);
 
 		cout << "First private key shard: (" << resp.priv_key1_shard.first
 			 << "," << resp.priv_key1_shard.second << ")" << endl << endl;
@@ -572,8 +571,7 @@ namespace senc
 		cout << "==============================" << endl;
 		cout << "Set #" << (idx + 1) << ":" << endl << endl;
 		cout << "ID: " << data.user_set_id << endl << endl;
-		cout << "First public key:" << endl << bytes_to_base64(data.pub_key1.to_bytes()) << endl << endl;
-		cout << "Second public key:" << endl << bytes_to_base64(data.pub_key2.to_bytes()) << endl << endl;
+		print_pub_keys(data.pub_key1, data.pub_key2);
 		cout << "First private key shard: (" << data.priv_key1_shard.first
 			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
