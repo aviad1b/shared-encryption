@@ -12,16 +12,12 @@
 
 namespace senc::utils
 {
-	UUID::UUID() : _str("00000000-0000-0000-0000-000000000000") { }
-
 	UUID::UUID(const char* value) : Self(std::string(value)) { }
 
-	UUID::UUID(const std::string& value) : Self(std::string(value)) { }
-
-	UUID::UUID(std::string&& value) : _str(std::move(value))
+	UUID::UUID(const std::string& value)
 	{
 		Underlying underlying{};
-		if (RPC_S_INVALID_STRING_UUID == UuidFromStringA((RPC_CSTR)_str.c_str(), &underlying))
+		if (RPC_S_INVALID_STRING_UUID == UuidFromStringA((RPC_CSTR)value.c_str(), &underlying))
 			throw UUIDException("Bad UUID", value);
 
 		bytes_from_underlying(this->_bytes, underlying);
@@ -39,9 +35,18 @@ namespace senc::utils
 		return this->_bytes == other._bytes;
 	}
 
-	const std::string& UUID::to_string() const noexcept
+	std::string UUID::to_string() const
 	{
-		return this->_str;
+		Underlying underlying{};
+		char* str = nullptr;
+
+		underlying_from_bytes(underlying, this->_bytes);
+		if (RPC_S_OUT_OF_MEMORY == UuidToStringA(&underlying, (RPC_CSTR*)&str))
+			throw std::bad_alloc{};
+
+		std::string res = str;
+		RpcStringFreeA((RPC_CSTR*)&str);
+		return res;
 	}
 
 	std::size_t UUID::hash() const noexcept
@@ -64,13 +69,6 @@ namespace senc::utils
 	UUID::UUID(const Underlying& value)
 	{
 		bytes_from_underlying(this->_bytes, value);
-
-		// get string representation
-		char* str = nullptr;
-		if (RPC_S_OUT_OF_MEMORY == UuidToStringA(&value, (RPC_CSTR*)&str))
-			throw std::bad_alloc{};
-		this->_str = str;
-		RpcStringFreeA((RPC_CSTR*)&str);
 	}
 
 	void UUID::bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying)
@@ -111,6 +109,6 @@ namespace senc::utils
 
 	std::ostream& operator<<(std::ostream& os, const UUID& uuid)
 	{
-		return os << uuid._str;
+		return os << uuid.to_string();
 	}
 }

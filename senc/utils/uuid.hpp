@@ -59,7 +59,7 @@ namespace senc::utils
 		/**
 		 * @brief Constructs a zero-value UUID.
 		 */
-		UUID();
+		UUID() = default;
 
 		/**
 		 * @brief Constructs a UUID from a given string representation.
@@ -72,12 +72,6 @@ namespace senc::utils
 		 * @param value String representation of UUID value.
 		 */
 		UUID(const std::string& value);
-
-		/**
-		 * @brief Constructs a UUID from a given (moved) string representation.
-		 * @param value String representation of UUID value (moved).
-		 */
-		UUID(std::string&& value);
 
 		/**
 		 * @brief Copy constructor of UUID.
@@ -122,7 +116,7 @@ namespace senc::utils
 		 * @brief Gets string representation of UUID.
 		 * @return String representation of UUID.
 		 */
-		const std::string& to_string() const noexcept;
+		std::string to_string() const;
 
 		/**
 		 * @brief Hashes UUID value.
@@ -153,7 +147,6 @@ namespace senc::utils
 
 	private:
 		std::array<byte, 16> _bytes{};
-		std::string _str;
 
 		UUID(const Underlying& value);
 
