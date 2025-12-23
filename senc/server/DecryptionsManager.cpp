@@ -70,6 +70,9 @@ namespace senc::server
 
 		// push participant to matching vector
 		auto& vec = isOwner ? record.owners_found : record.reg_members_found;
+		const auto requiredCount = isOwner ? record.required_owners : record.required_reg_members;
+		if (vec.size() >= requiredCount) // if already has enough members in vector
+			return { res, false }; // operation ID is valid, already has enough members
 		vec.insert(username);
 
 		// if has enough members, move from prepare stage to collect stage
