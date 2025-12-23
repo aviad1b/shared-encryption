@@ -129,6 +129,7 @@ namespace senc
 	PrivKeyShard input_priv_key_shard(const std::string& msg);
 
 	Ciphertext input_ciphertext();
+	Ciphertext input_ciphertext(const std::string& msg);
 
 	template <bool allowEmpty = false>
 	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part();

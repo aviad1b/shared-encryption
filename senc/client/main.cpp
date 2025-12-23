@@ -413,7 +413,7 @@ namespace senc
 	ConnStatus decrypt(Socket& sock)
 	{
 		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
-		Ciphertext ciphertext = input_ciphertext();
+		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
 			usersetID, std::move(ciphertext)
@@ -500,7 +500,7 @@ namespace senc
 		(void)sock;
 
 		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
-		Ciphertext ciphertext = input_ciphertext();
+		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
 		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
 		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved decryption key shard IDs (each in new line): ");
 		cout << endl;
@@ -534,7 +534,7 @@ namespace senc
 	{
 		(void)sock;
 
-		auto ciphertext = input_ciphertext();
+		auto ciphertext = input_ciphertext("Enter ciphertext: ");
 
 		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
 
