@@ -314,13 +314,17 @@ namespace senc
 	ConnStatus make_userset(Socket& sock)
 	{
 		vector<string> owners = input_usernames(
-			"Enter owners (usernames, each in new line, ending with empty line):\n"
+			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
 		vector<string> regMembers = input_usernames(
-			"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
+			"Enter non-owner members (usernames, each in new line, ending with empty line): "
 		);
+
 		auto ownersThreshold = input_threshold("Enter owners threshold for decryption: ");
+		cout << endl;
+
 		auto regMembersThreshold = input_threshold("Enter non-owner members threshold for decryption: ");
+		cout << endl;
 
 		auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
 			.reg_members = std::move(regMembers),
@@ -361,6 +365,7 @@ namespace senc
 	ConnStatus get_members(Socket& sock)
 	{
 		auto id = input_userset_id("Enter userset ID: ");
+		cout << endl;
 
 		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
 
@@ -391,14 +396,17 @@ namespace senc
 		PlaintextOption choice = (PlaintextOption)input_num<int>("Enter your choice: ");
 		while (PlaintextOption::Text != choice && PlaintextOption::Binary != choice)
 			choice = (PlaintextOption)input_num<int>("Invalid input, try again: ");
+		cout << endl;
 
 		Buffer plaintext;
 		if (PlaintextOption::Text == choice)
 		{
-			string msg = input("Enter message to encrypt (text):\n");
+			string msg = input("Enter message to encrypt (text): ");
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
+		cout << endl;
+
 		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first encryption key:\n")));
 		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second encryption key:\n")));
 
