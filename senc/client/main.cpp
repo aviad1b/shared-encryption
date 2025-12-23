@@ -470,8 +470,8 @@ namespace senc
 		{
 			hadUpdates = true;
 			cout << "IDs of operations looking for you:" << endl;
-			for (const auto& opid : resp.on_lookup)
-				cout << opid << endl;
+			for (const auto& [i, opid] : resp.on_lookup | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << opid << endl;
 			cout << endl;
 		}
 
