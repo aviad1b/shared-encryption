@@ -340,6 +340,7 @@ namespace senc
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
 		print_pub_keys(resp.pub_key1, resp.pub_key2);
+		cout << endl;
 
 		print_priv_key1_shard(resp.priv_key1_shard);
 		
@@ -585,12 +586,19 @@ namespace senc
 	{
 		using Data = std::remove_cvref_t<decltype(data)>;
 		cout << "==============================" << endl;
+
 		cout << "Set #" << (idx + 1) << ":" << endl << endl;
+
 		cout << "ID: " << data.user_set_id << endl << endl;
+
 		print_pub_keys(data.pub_key1, data.pub_key2);
+		cout << endl;
+
 		print_priv_key1_shard(data.priv_key1_shard);
+
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 			print_priv_key2_shard(data.priv_key2_shard);
+
 		cout << "==============================" << endl << endl << endl;
 	}
 

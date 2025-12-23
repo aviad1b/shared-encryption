@@ -20,8 +20,7 @@ namespace senc
 	{
 		cout << "Encryption key: "
 			 << utils::bytes_to_base64(pubKey1.to_bytes()) << endl
-			 << utils::bytes_to_base64(pubKey2.to_bytes()) << endl
-			 << endl;
+			 << utils::bytes_to_base64(pubKey2.to_bytes()) << endl;
 	}
 
 	// helper function, not accessed by main
