@@ -39,4 +39,16 @@ namespace senc
 	{
 		print_priv_key_any_shard("Owner", shard);
 	}
+
+	void print_ciphertext(const Ciphertext& ciphertext)
+	{
+		const auto& [c1, c2, c3] = ciphertext;
+		const auto& [c3a, c3b] = c3;
+
+		cout << "c1:\t" << utils::bytes_to_base64(c1.to_bytes()) << endl;
+		cout << "c2:\t" << utils::bytes_to_base64(c2.to_bytes()) << endl;
+		cout << "c3a:\t" << utils::bytes_to_base64(c3a) << endl;
+		cout << "c3b:\t" << utils::bytes_to_base64(c3b) << endl;
+		cout << endl;
+	}
 }

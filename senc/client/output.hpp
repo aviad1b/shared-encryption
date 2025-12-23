@@ -17,4 +17,6 @@ namespace senc
 	void print_priv_key1_shard(const PrivKeyShard& shard);
 	
 	void print_priv_key2_shard(const PrivKeyShard& shard);
+
+	void print_ciphertext(const Ciphertext& ciphertext);
 }

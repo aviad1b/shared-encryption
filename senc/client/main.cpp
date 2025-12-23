@@ -402,15 +402,10 @@ namespace senc
 		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
 		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
 
-		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
-		const auto& [c3a, c3b] = c3;
+		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
 
 		cout << "Encrypted message:" << endl;
-		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
-		cout << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl;
-		cout << "c3a:\t" << bytes_to_base64(c3a) << endl;
-		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
-		cout << endl;
+		print_ciphertext(ciphertext);
 
 		return ConnStatus::Connected;
 	}
@@ -578,22 +573,14 @@ namespace senc
 
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data)
 	{
-		const auto& [c1, c2, c3] = data.ciphertext;
-		const auto& [c3a, c3b] = c3;
-		Buffer c3aBuffer(c3a.begin(), c3a.end());
-
 		cout << "==============================" << endl;
 
 		cout << "To-Decrypt Operation #" << (idx + 1) << ":" << endl << endl;
 
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
-		cout << "Ciphertext:" << endl
-			 << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl
-			 << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl
-			 << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl
-			 << "c3b:\t" << bytes_to_base64(c3b) << endl
-			 << endl;
+		cout << "Ciphertext:" << endl;
+		print_ciphertext(data.ciphertext);
 
 		cout << "Involved Shards IDs: ";
 		if (!data.shards_ids.empty())
