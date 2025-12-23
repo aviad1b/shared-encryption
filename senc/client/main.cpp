@@ -193,9 +193,10 @@ namespace senc
 			try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
-				cout << "Bad choice, try again." << endl;
+				cout << "Bad choice, try again." << endl << endl;
 				continue;
 			}
+			cout << endl;
 
 			try { status = func(sock); }
 			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
@@ -228,9 +229,10 @@ namespace senc
 			try { func = MAIN_OPTS.at((MainMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
-				cout << "Bad choice, try again." << endl;
+				cout << "Bad choice, try again." << endl << endl;
 				continue;
 			}
+			cout << endl;
 
 			try { status = func(sock); }
 			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
