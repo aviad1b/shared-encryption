@@ -360,6 +360,7 @@ namespace senc
 			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
 				cout << (i + 1) << ".\t" << id << endl;
 		}
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
