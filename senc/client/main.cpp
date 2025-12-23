@@ -357,8 +357,8 @@ namespace senc
 		else
 		{
 			cout << "IDs of owned usersets:" << endl;
-			for (const auto& id : resp.user_sets_ids)
-				cout << id << endl;
+			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << id << endl;
 		}
 
 		return ConnStatus::Connected;
