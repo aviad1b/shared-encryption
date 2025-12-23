@@ -67,10 +67,10 @@ namespace senc::server
 			else
 				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
 		}
-		if (isOwner)
-			record.owners_found.insert(username);
-		else
-			record.reg_members_found.insert(username);
+
+		// push participant to matching vector
+		auto& vec = isOwner ? record.owners_found : record.reg_members_found;
+		vec.insert(username);
 
 		// if has enough members, move from prepare stage to collect stage
 		if (record.has_enough_members())
