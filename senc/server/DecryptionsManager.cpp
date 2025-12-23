@@ -67,10 +67,13 @@ namespace senc::server
 			else
 				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
 		}
-		if (isOwner)
+
+		// push participant to matching vector
+		if (isOwner && record.owners_found.size() < record.required_owners)
 			record.owners_found.insert(username);
-		else
+		else if (record.reg_members_found.size() < record.required_reg_members)
 			record.reg_members_found.insert(username);
+		else return { res, false }; // operation ID is valid, already has enough members
 
 		// if has enough members, move from prepare stage to collect stage
 		if (record.has_enough_members())
