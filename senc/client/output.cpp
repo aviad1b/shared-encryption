@@ -18,8 +18,10 @@ namespace senc
 {
 	void print_pub_keys(const PubKey& pubKey1, const PubKey& pubKey2)
 	{
-		cout << "First public key:" << endl << utils::bytes_to_base64(pubKey1.to_bytes()) << endl << endl;
-		cout << "Second public key:" << endl << utils::bytes_to_base64(pubKey2.to_bytes()) << endl << endl;
+		cout << "Encryption key: "
+			 << utils::bytes_to_base64(pubKey1.to_bytes())
+			 << utils::bytes_to_base64(pubKey2.to_bytes())
+			 << endl << endl;
 	}
 
 	// helper function, not accessed by main
