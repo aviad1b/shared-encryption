@@ -335,11 +335,9 @@ namespace senc
 
 		print_pub_keys(resp.pub_key1, resp.pub_key2);
 
-		cout << "First private key shard: (" << resp.priv_key1_shard.first
-			 << "," << resp.priv_key1_shard.second << ")" << endl << endl;
-
-		cout << "Second private key shard: (" << resp.priv_key2_shard.first
-			<< "," << resp.priv_key2_shard.second << ")" << endl << endl;
+		print_priv_key1_shard(resp.priv_key1_shard);
+		
+		print_priv_key2_shard(resp.priv_key2_shard);
 
 		return ConnStatus::Connected;
 	}
@@ -572,11 +570,9 @@ namespace senc
 		cout << "Set #" << (idx + 1) << ":" << endl << endl;
 		cout << "ID: " << data.user_set_id << endl << endl;
 		print_pub_keys(data.pub_key1, data.pub_key2);
-		cout << "First private key shard: (" << data.priv_key1_shard.first
-			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
+		print_priv_key1_shard(data.priv_key1_shard);
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
-			cout << "Second private key shard: (" << data.priv_key2_shard.first
-				 << "," << data.priv_key2_shard.second << ")" << endl << endl;
+			print_priv_key2_shard(data.priv_key2_shard);
 		cout << "==============================" << endl << endl << endl;
 	}
 
