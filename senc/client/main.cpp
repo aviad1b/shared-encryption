@@ -93,7 +93,7 @@ namespace senc
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
 		{ MainMenuOption::MakeUserSet, { "Create a new userset", make_userset } },
 		{ MainMenuOption::GetUserSets, { "Show my usersets", get_usersets } },
-		{ MainMenuOption::GetMembers, { "Show userset's memebrs", get_members } },
+		{ MainMenuOption::GetMembers, { "Show userset's members", get_members } },
 		{ MainMenuOption::Encrypt, { "Encrypt a message", encrypt } },
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
