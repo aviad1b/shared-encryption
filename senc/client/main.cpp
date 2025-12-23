@@ -436,9 +436,11 @@ namespace senc
 	ConnStatus update(Socket& sock)
 	{
 		auto resp = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		bool hadUpdates = false;
 
 		if (!resp.added_as_owner.empty())
 		{
+			hadUpdates = true;
 			cout << "Added to " << resp.added_as_owner.size() << " new usersets as owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_owner | utils::views::enumerate)
 				print_userset_data(i, data);
@@ -447,6 +449,7 @@ namespace senc
 
 		if (!resp.added_as_reg_member.empty())
 		{
+			hadUpdates = true;
 			cout << "Added to " << resp.added_as_reg_member.size() << " new usersets as non-owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_reg_member | utils::views::enumerate)
 				print_userset_data(i, data);
@@ -455,6 +458,7 @@ namespace senc
 
 		if (!resp.on_lookup.empty())
 		{
+			hadUpdates = true;
 			cout << "IDs of operations looking for you:" << endl;
 			for (const auto& opid : resp.on_lookup)
 				cout << opid << endl;
@@ -463,6 +467,7 @@ namespace senc
 
 		if (!resp.to_decrypt.empty())
 		{
+			hadUpdates = true;
 			cout << "Pending decryption operations:" << endl;
 			for (const auto& [i, data] : resp.to_decrypt | utils::views::enumerate)
 				print_to_decrypt_data(i, data);
@@ -471,11 +476,15 @@ namespace senc
 
 		if (!resp.finished_decryptions.empty())
 		{
+			hadUpdates = true;
 			cout << "Finished decryption operations:" << endl;
 			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
 				print_finished_data(i, data);
 			cout << endl;
 		}
+
+		if (!hadUpdates)
+			cout << "No updates to show." << endl;
 
 		return ConnStatus::Connected;
 	}
