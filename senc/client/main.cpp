@@ -600,12 +600,11 @@ namespace senc
 		cout << endl;
 
 		print_priv_key1_shard(data.priv_key1_shard);
-		cout << endl;
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
-			print_priv_key2_shard(data.priv_key2_shard);
 			cout << endl;
+			print_priv_key2_shard(data.priv_key2_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;
