@@ -26,7 +26,7 @@ namespace senc
 	// helper function, not accessed by main
 	static void print_priv_key_any_shard(const char* label, const PrivKeyShard& shard)
 	{
-		cout << label << " decryption key shard: (" << shard.first << "," << shard.second << ")" << endl << endl;
+		cout << label << " decryption key shard: (" << shard.first << "," << shard.second << ")" << endl;
 	}
 
 	void print_priv_key1_shard(const PrivKeyShard& shard)

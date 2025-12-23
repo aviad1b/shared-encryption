@@ -343,8 +343,10 @@ namespace senc
 		cout << endl;
 
 		print_priv_key1_shard(resp.priv_key1_shard);
+		cout << endl;
 		
 		print_priv_key2_shard(resp.priv_key2_shard);
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -595,9 +597,13 @@ namespace senc
 		cout << endl;
 
 		print_priv_key1_shard(data.priv_key1_shard);
+		cout << endl;
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
+		{
 			print_priv_key2_shard(data.priv_key2_shard);
+			cout << endl;
+		}
 
 		cout << "==============================" << endl << endl << endl;
 	}
