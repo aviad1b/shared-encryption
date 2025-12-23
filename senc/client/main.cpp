@@ -190,7 +190,11 @@ namespace senc
 
 			string choiceStr = input("Enter your choice: ");
 			try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
-			catch (const std::exception&) { cout << "Bad choice, try again." << endl; }
+			catch (const std::exception&)
+			{
+				cout << "Bad choice, try again." << endl;
+				continue;
+			}
 
 			try { status = func(sock); }
 			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
