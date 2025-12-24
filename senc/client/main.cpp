@@ -454,7 +454,6 @@ namespace senc
 			cout << "Added to " << resp.added_as_owner.size() << " new usersets as owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_owner | utils::views::enumerate)
 				print_userset_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.added_as_reg_member.empty())
@@ -463,7 +462,6 @@ namespace senc
 			cout << "Added to " << resp.added_as_reg_member.size() << " new usersets as non-owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_reg_member | utils::views::enumerate)
 				print_userset_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.on_lookup.empty())
@@ -472,7 +470,6 @@ namespace senc
 			cout << "IDs of operations looking for you:" << endl;
 			for (const auto& [i, opid] : resp.on_lookup | utils::views::enumerate)
 				cout << (i + 1) << ".\t" << opid << endl;
-			cout << endl;
 		}
 
 		if (!resp.to_decrypt.empty())
@@ -481,7 +478,6 @@ namespace senc
 			cout << "Pending decryption operations:" << endl;
 			for (const auto& [i, data] : resp.to_decrypt | utils::views::enumerate)
 				print_to_decrypt_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.finished_decryptions.empty())
@@ -490,11 +486,11 @@ namespace senc
 			cout << "Finished decryption operations:" << endl;
 			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
 				print_finished_data(i, data);
-			cout << endl;
 		}
 
 		if (!hadUpdates)
 			cout << "No updates to show." << endl;
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
