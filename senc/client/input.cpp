@@ -109,6 +109,19 @@ namespace senc
 		return input_operation_id();
 	}
 
+	std::pair<PubKey, PubKey> input_pub_keys()
+	{
+		auto pubKey1 = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		auto pubKey2 = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		return { std::move(pubKey1), std::move(pubKey2) };
+	}
+
+	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_pub_keys();
+	}
+
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids()
 	{
 		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>();
@@ -161,15 +174,21 @@ namespace senc
 
 	Ciphertext input_ciphertext()
 	{
-		auto c1 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input("Enter ciphertext c1 (base64):\n")));
-		auto c2 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input("Enter ciphertext c2 (base64):\n")));
-		auto c3aBuffer = utils::bytes_from_base64(input("Enter ciphertext c3a (base64):\n"));
-		auto c3b = utils::bytes_from_base64(input("Enter ciphertext c3b (base64):\n"));
+		auto c1 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input()));
+		auto c2 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input()));
+		auto c3aBuffer = utils::bytes_from_base64(input());
+		auto c3b = utils::bytes_from_base64(input());
 
 		CryptoPP::SecByteBlock c3a(c3aBuffer.data(), c3aBuffer.size());
 		utils::enc::AES1L::Ciphertext c3{ c3a, c3b };
 
 		return { std::move(c1), std::move(c2), std::move(c3) };
+	}
+
+	Ciphertext input_ciphertext(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_ciphertext();
 	}
 
 	std::vector<DecryptionPart> input_decryption_parts()

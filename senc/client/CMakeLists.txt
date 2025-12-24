@@ -3,6 +3,8 @@ add_executable(senc_client
 	"input.hpp"
 	"input.cpp"
 	"input_impl.hpp"
+	"output.hpp"
+	"output.cpp"
 )
 
 set_property(TARGET senc_client PROPERTY CXX_STANDARD 20)

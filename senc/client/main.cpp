@@ -4,6 +4,7 @@
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "../utils/Socket.hpp"
+#include "output.hpp"
 #include "input.hpp"
 
 namespace senc
@@ -92,7 +93,7 @@ namespace senc
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
 		{ MainMenuOption::MakeUserSet, { "Create a new userset", make_userset } },
 		{ MainMenuOption::GetUserSets, { "Show my usersets", get_usersets } },
-		{ MainMenuOption::GetMembers, { "Show userset's memebrs", get_members } },
+		{ MainMenuOption::GetMembers, { "Show userset's members", get_members } },
 		{ MainMenuOption::Encrypt, { "Encrypt a message", encrypt } },
 		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
 		{ MainMenuOption::Update, { "Run an update cycle", update } },
@@ -165,6 +166,7 @@ namespace senc
 		bool connected = login_menu(sock);
 		if (!connected)
 			return;
+		cout << endl;
 
 		main_menu(sock);;
 	}
@@ -192,12 +194,13 @@ namespace senc
 			try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
-				cout << "Bad choice, try again." << endl;
+				cout << "Bad choice, try again." << endl << endl;
 				continue;
 			}
+			cout << endl;
 
 			try { status = func(sock); }
-			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+			catch (const std::exception& e) { cout << "Error: " << e.what() << endl << endl; }
 
 			cout << endl;
 		} while (ConnStatus::Error == status);
@@ -227,12 +230,13 @@ namespace senc
 			try { func = MAIN_OPTS.at((MainMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
-				cout << "Bad choice, try again." << endl;
+				cout << "Bad choice, try again." << endl << endl;
 				continue;
 			}
+			cout << endl;
 
 			try { status = func(sock); }
-			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+			catch (const std::exception& e) { cout << "Error: " << e.what() << endl << endl; }
 
 			cout << endl;
 		} while (ConnStatus::Disconnected != status);
@@ -264,6 +268,7 @@ namespace senc
 	ConnStatus signup(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl << endl;
 
 		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
 		if (resp.status == pkt::SignupResponse::Status::Success)
@@ -283,6 +288,7 @@ namespace senc
 	ConnStatus login(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl << endl;
 
 		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
 		if (resp.status == pkt::LoginResponse::Status::Success)
@@ -303,6 +309,7 @@ namespace senc
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::Error; // not actually an error, but we want to trace back
+		cout << endl << endl;
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
 
@@ -313,13 +320,17 @@ namespace senc
 	ConnStatus make_userset(Socket& sock)
 	{
 		vector<string> owners = input_usernames(
-			"Enter owners (usernames, each in new line, ending with empty line):\n"
+			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
 		vector<string> regMembers = input_usernames(
-			"Enter non-owner members (usernames, each in new line, ending with empty line):\n"
+			"Enter non-owner members (usernames, each in new line, ending with empty line): "
 		);
+
 		auto ownersThreshold = input_threshold("Enter owners threshold for decryption: ");
+		cout << endl;
+
 		auto regMembersThreshold = input_threshold("Enter non-owner members threshold for decryption: ");
+		cout << endl;
 
 		auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
 			.reg_members = std::move(regMembers),
@@ -332,15 +343,14 @@ namespace senc
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		cout << "First public key:" << endl << bytes_to_base64(resp.pub_key1.to_bytes()) << endl << endl;
+		print_pub_keys(resp.pub_key1, resp.pub_key2);
+		cout << endl;
 
-		cout << "Second public key:" << endl << bytes_to_base64(resp.pub_key2.to_bytes()) << endl << endl;
-
-		cout << "First private key shard: (" << resp.priv_key1_shard.first
-			 << "," << resp.priv_key1_shard.second << ")" << endl << endl;
-
-		cout << "Second private key shard: (" << resp.priv_key2_shard.first
-			<< "," << resp.priv_key2_shard.second << ")" << endl << endl;
+		print_priv_key1_shard(resp.priv_key1_shard);
+		cout << endl;
+		
+		print_priv_key2_shard(resp.priv_key2_shard);
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -354,9 +364,10 @@ namespace senc
 		else
 		{
 			cout << "IDs of owned usersets:" << endl;
-			for (const auto& id : resp.user_sets_ids)
-				cout << id << endl;
+			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << id << endl;
 		}
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -364,6 +375,7 @@ namespace senc
 	ConnStatus get_members(Socket& sock)
 	{
 		auto id = input_userset_id("Enter userset ID: ");
+		cout << endl;
 
 		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
 
@@ -394,25 +406,24 @@ namespace senc
 		PlaintextOption choice = (PlaintextOption)input_num<int>("Enter your choice: ");
 		while (PlaintextOption::Text != choice && PlaintextOption::Binary != choice)
 			choice = (PlaintextOption)input_num<int>("Invalid input, try again: ");
+		cout << endl;
 
 		Buffer plaintext;
 		if (PlaintextOption::Text == choice)
 		{
-			string msg = input("Enter message to encrypt (text):\n");
+			string msg = input("Enter message to encrypt (text): ");
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
-		auto pubKey1 = PubKey::from_bytes(bytes_from_base64(input("Enter first public key (base64):\n")));
-		auto pubKey2 = PubKey::from_bytes(bytes_from_base64(input("Enter second public key (base64):\n")));
+		cout << endl;
 
-		auto [c1, c2, c3] = schema.encrypt(plaintext, pubKey1, pubKey2);
-		const auto& [c3a, c3b] = c3;
+		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
+		cout << endl;
 
-		cout << "Encrypted message:" << endl;
-		cout << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl;
-		cout << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl;
-		cout << "c3a:\t" << bytes_to_base64(c3a) << endl;
-		cout << "c3b:\t" << bytes_to_base64(c3b) << endl;
+		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
+
+		cout << "Encrypted message (ciphertext): ";
+		print_ciphertext(ciphertext);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -421,14 +432,17 @@ namespace senc
 	ConnStatus decrypt(Socket& sock)
 	{
 		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
-		Ciphertext ciphertext = input_ciphertext();
+		cout << endl;
+
+		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
 			usersetID, std::move(ciphertext)
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
-		cout << "Operation ID: " << resp.op_id << endl;
+		cout << "Operation ID: " << resp.op_id << endl << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -444,7 +458,6 @@ namespace senc
 			cout << "Added to " << resp.added_as_owner.size() << " new usersets as owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_owner | utils::views::enumerate)
 				print_userset_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.added_as_reg_member.empty())
@@ -453,16 +466,14 @@ namespace senc
 			cout << "Added to " << resp.added_as_reg_member.size() << " new usersets as non-owner:" << endl;
 			for (const auto& [i, data] : resp.added_as_reg_member | utils::views::enumerate)
 				print_userset_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.on_lookup.empty())
 		{
 			hadUpdates = true;
 			cout << "IDs of operations looking for you:" << endl;
-			for (const auto& opid : resp.on_lookup)
-				cout << opid << endl;
-			cout << endl;
+			for (const auto& [i, opid] : resp.on_lookup | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << opid << endl;
 		}
 
 		if (!resp.to_decrypt.empty())
@@ -471,7 +482,6 @@ namespace senc
 			cout << "Pending decryption operations:" << endl;
 			for (const auto& [i, data] : resp.to_decrypt | utils::views::enumerate)
 				print_to_decrypt_data(i, data);
-			cout << endl;
 		}
 
 		if (!resp.finished_decryptions.empty())
@@ -480,11 +490,11 @@ namespace senc
 			cout << "Finished decryption operations:" << endl;
 			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
 				print_finished_data(i, data);
-			cout << endl;
 		}
 
 		if (!hadUpdates)
 			cout << "No updates to show." << endl;
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -492,6 +502,7 @@ namespace senc
 	ConnStatus participate(Socket& sock)
 	{
 		auto opid = input_operation_id("Enter operation ID: ");
+		cout << endl;
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
@@ -508,10 +519,17 @@ namespace senc
 		(void)sock;
 
 		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
-		Ciphertext ciphertext = input_ciphertext();
-		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your private key shard: ");
-		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved private key shard IDs (each in new line): ");
 		cout << endl;
+
+		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl;
+
+		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
+		cout << endl;
+
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter involved decryption key shard IDs (each in new line): ");
+		cout << endl;
+
 		DecryptionPart part{};
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
@@ -526,14 +544,17 @@ namespace senc
 	ConnStatus send_part(Socket& sock)
 	{
 		auto opid = input_operation_id("Enter operation ID: ");
+		cout << endl;
+
 		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
+		cout << endl;
 
 		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
 			opid,
 			std::move(part)
 		});
 
-		cout << "Part submitted successfully." << endl;
+		cout << "Part submitted successfully." << endl << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -542,17 +563,19 @@ namespace senc
 	{
 		(void)sock;
 
-		auto ciphertext = input_ciphertext();
+		auto ciphertext = input_ciphertext("Enter ciphertext: ");
+		cout << endl;
 
-		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
+		auto parts1 = input_decryption_parts("Enter non-owner layer decryption parts: ");
 
-		auto parts2 = input_decryption_parts("Enter layer2 decryption parts: ");
+		auto parts2 = input_decryption_parts("Enter owner layer decryption parts: ");
 
 		cout << endl;
 
 		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
 
 		auto isText = input_yesno("Is this a textual message? (y/n): ");
+		cout << endl;
 
 		std::string msg;
 		if (isText)
@@ -560,7 +583,7 @@ namespace senc
 		else
 			msg = utils::bytes_to_base64(decrypted);
 
-		cout << "Decrypted message:" << endl << msg << endl;
+		cout << "Decrypted message:" << endl << msg << endl << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -570,36 +593,36 @@ namespace senc
 	{
 		using Data = std::remove_cvref_t<decltype(data)>;
 		cout << "==============================" << endl;
+
 		cout << "Set #" << (idx + 1) << ":" << endl << endl;
+
 		cout << "ID: " << data.user_set_id << endl << endl;
-		cout << "First public key:" << endl << bytes_to_base64(data.pub_key1.to_bytes()) << endl << endl;
-		cout << "Second public key:" << endl << bytes_to_base64(data.pub_key2.to_bytes()) << endl << endl;
-		cout << "First private key shard: (" << data.priv_key1_shard.first
-			 << "," << data.priv_key1_shard.second << ")" << endl << endl;
+
+		print_pub_keys(data.pub_key1, data.pub_key2);
+		cout << endl;
+
+		print_priv_key1_shard(data.priv_key1_shard);
+
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
-			cout << "Second private key shard: (" << data.priv_key2_shard.first
-				 << "," << data.priv_key2_shard.second << ")" << endl << endl;
+		{
+			cout << endl;
+			print_priv_key2_shard(data.priv_key2_shard);
+		}
+
 		cout << "==============================" << endl << endl << endl;
 	}
 
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data)
 	{
-		const auto& [c1, c2, c3] = data.ciphertext;
-		const auto& [c3a, c3b] = c3;
-		Buffer c3aBuffer(c3a.begin(), c3a.end());
-
 		cout << "==============================" << endl;
 
 		cout << "To-Decrypt Operation #" << (idx + 1) << ":" << endl << endl;
 
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
-		cout << "Ciphertext:" << endl
-			 << "c1:\t" << bytes_to_base64(c1.to_bytes()) << endl
-			 << "c2:\t" << bytes_to_base64(c2.to_bytes()) << endl
-			 << "c3a:\t" << bytes_to_base64(c3aBuffer) << endl
-			 << "c3b:\t" << bytes_to_base64(c3b) << endl
-			 << endl;
+		cout << "Ciphertext: ";
+		print_ciphertext(data.ciphertext);
+		cout << endl;
 
 		cout << "Involved Shards IDs: ";
 		if (!data.shards_ids.empty())
@@ -609,7 +632,7 @@ namespace senc
 			for (++it; it != data.shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
-		cout << endl << endl;
+		cout << endl;
 
 		cout << "==============================" << endl;
 	}
@@ -622,12 +645,12 @@ namespace senc
 
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
-		cout << "First layer decryption parts:" << endl;
+		cout << "Non-owner layer decryption parts:" << endl;
 		for (const auto& part : data.parts1)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
-		cout << "First layer involved shard IDs: ";
+		cout << "Non-owner layer involved shard IDs: ";
 		if (!data.shardsIDs1.empty())
 		{
 			auto it = data.shardsIDs1.cbegin();
@@ -637,12 +660,12 @@ namespace senc
 		}
 		cout << endl << endl;
 
-		cout << "Second layer decryption parts:" << endl;
-		for (const auto& part : data.parts1)
+		cout << "Owner layer decryption parts:" << endl;
+		for (const auto& part : data.parts2)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
-		cout << "Second layer involved shard IDs: ";
+		cout << "Owner layer involved shard IDs: ";
 		if (!data.shardsIDs2.empty())
 		{
 			auto it = data.shardsIDs2.cbegin();
