@@ -564,9 +564,9 @@ namespace senc
 		auto ciphertext = input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		auto parts1 = input_decryption_parts("Enter layer1 decryption parts: ");
+		auto parts1 = input_decryption_parts("Enter non-owner layer decryption parts: ");
 
-		auto parts2 = input_decryption_parts("Enter layer2 decryption parts: ");
+		auto parts2 = input_decryption_parts("Enter owner layer decryption parts: ");
 
 		cout << endl;
 
@@ -643,12 +643,12 @@ namespace senc
 
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
-		cout << "First layer decryption parts:" << endl;
+		cout << "Non-owner layer decryption parts:" << endl;
 		for (const auto& part : data.parts1)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
-		cout << "First layer involved shard IDs: ";
+		cout << "Non-owner layer involved shard IDs: ";
 		if (!data.shardsIDs1.empty())
 		{
 			auto it = data.shardsIDs1.cbegin();
@@ -658,12 +658,12 @@ namespace senc
 		}
 		cout << endl << endl;
 
-		cout << "Second layer decryption parts:" << endl;
+		cout << "Owner layer decryption parts:" << endl;
 		for (const auto& part : data.parts1)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
-		cout << "Second layer involved shard IDs: ";
+		cout << "Owner layer involved shard IDs: ";
 		if (!data.shardsIDs2.empty())
 		{
 			auto it = data.shardsIDs2.cbegin();
