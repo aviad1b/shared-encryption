@@ -159,6 +159,9 @@ namespace senc::server
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
+		const auto requesterShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
+		opCollRecord.shardsIDs1.push_back(requesterShardID);
+		opCollRecord.shardsIDs2.push_back(requesterShardID);
 		_updateManager.register_finished_decrpytion(
 			opCollRecord.requester, opid,
 			std::move(opCollRecord.parts1),

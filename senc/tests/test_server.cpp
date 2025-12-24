@@ -502,13 +502,11 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
-	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -690,13 +688,11 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
-	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -845,13 +841,11 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
-	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1028,13 +1022,11 @@ TEST_P(ServerTest, DecryptFlow2L)
 	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
-	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1210,13 +1202,11 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	auto& finishedParts2 = finished.front().parts2;
 
 	// 8) owner computes their own decryption parts
-	finishedShardsIDs1.push_back(ownerShard1.first); // include owner's shard ID in comp
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
 		ownerCiphertext,
 		ownerShard1,
 		finishedShardsIDs1
 	);
-	finishedShardsIDs2.push_back(ownerShard2.first); // include owner's shard ID in comp
 	auto ownerPart2 = senc::Shamir::decrypt_get_2l<2>(
 		ownerCiphertext,
 		ownerShard2,
@@ -1525,8 +1515,6 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		// check same shard IDs as involved members
 		auto& finishedShardsIDs1 = up->finished_decryptions.back().shardsIDs1;
 		auto& finishedShardsIDs2 = up->finished_decryptions.back().shardsIDs2;
-		finishedShardsIDs1.push_back(ownerShardsIDs1[initiatorIndex]);
-		finishedShardsIDs2.push_back(ownerShardsIDs2[initiatorIndex]);
 		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs1, regMemberShardsIDs);
 		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs2, ownerShardsIDs2);
 
