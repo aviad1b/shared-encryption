@@ -618,8 +618,9 @@ namespace senc
 
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
-		cout << "Ciphertext:" << endl;
+		cout << "Ciphertext: ";
 		print_ciphertext(data.ciphertext);
+		cout << endl;
 
 		cout << "Involved Shards IDs: ";
 		if (!data.shards_ids.empty())
