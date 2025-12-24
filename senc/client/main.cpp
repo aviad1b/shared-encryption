@@ -552,7 +552,7 @@ namespace senc
 			std::move(part)
 		});
 
-		cout << "Part submitted successfully." << endl;
+		cout << "Part submitted successfully." << endl << endl;
 
 		return ConnStatus::Connected;
 	}
