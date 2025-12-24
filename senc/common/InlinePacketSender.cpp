@@ -254,7 +254,7 @@ namespace senc
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record)
 	{
-		// NOTE: Assuming each parts vector is same len as its corresponding shards IDs vector
+		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
 		sock.send_connected_value(static_cast<member_count_t>(record.parts1.size()));
 		sock.send_connected_value(static_cast<member_count_t>(record.parts2.size()));
 		sock.send_connected_value(record.op_id);
