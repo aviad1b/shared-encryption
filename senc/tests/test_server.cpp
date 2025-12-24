@@ -496,10 +496,15 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
+
 	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
 	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
 	auto& finishedParts1 = finished.front().parts1;
 	auto& finishedParts2 = finished.front().parts2;
+	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
+	EXPECT_EQ(finishedShardsIDs2.size(), 1); // owner shard only
 
 	// 8) owner computes their own decryption parts
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
@@ -682,10 +687,15 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
+
 	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
 	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
 	auto& finishedParts1 = finished.front().parts1;
 	auto& finishedParts2 = finished.front().parts2;
+	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs1.size(), 3); // three shards, owner + two members
+	EXPECT_EQ(finishedShardsIDs2.size(), 1); // owner shard only
 
 	// 8) owner computes their own decryption parts
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
@@ -835,10 +845,15 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
+
 	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
 	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
 	auto& finishedParts1 = finished.front().parts1;
 	auto& finishedParts2 = finished.front().parts2;
+	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
+	EXPECT_EQ(finishedShardsIDs2.size(), 1); // owner shard only
 
 	// 8) owner computes their own decryption parts
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
@@ -1016,10 +1031,15 @@ TEST_P(ServerTest, DecryptFlow2L)
 	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
+
 	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
 	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
 	auto& finishedParts1 = finished.front().parts1;
 	auto& finishedParts2 = finished.front().parts2;
+	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
+	EXPECT_EQ(finishedShardsIDs2.size(), 2); // two shards, owner+owner2
 
 	// 8) owner computes their own decryption parts
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
@@ -1196,10 +1216,15 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	auto& finished = up3->finished_decryptions;
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
+
 	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
 	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
 	auto& finishedParts1 = finished.front().parts1;
 	auto& finishedParts2 = finished.front().parts2;
+	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
+	EXPECT_EQ(finishedShardsIDs1.size(), 1); // owner shard only
+	EXPECT_EQ(finishedShardsIDs2.size(), 3); // three shards, owner + two more owners
 
 	// 8) owner computes their own decryption parts
 	auto ownerPart1 = senc::Shamir::decrypt_get_2l<1>(
