@@ -199,7 +199,7 @@ namespace senc
 			cout << endl;
 
 			try { status = func(sock); }
-			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+			catch (const std::exception& e) { cout << "Error: " << e.what() << endl << endl; }
 
 			cout << endl;
 		} while (ConnStatus::Error == status);
@@ -235,7 +235,7 @@ namespace senc
 			cout << endl;
 
 			try { status = func(sock); }
-			catch (const std::exception& e) { cout << "Error: " << e.what() << endl; }
+			catch (const std::exception& e) { cout << "Error: " << e.what() << endl << endl; }
 
 			cout << endl;
 		} while (ConnStatus::Disconnected != status);
