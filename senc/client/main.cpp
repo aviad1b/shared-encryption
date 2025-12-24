@@ -661,7 +661,7 @@ namespace senc
 		cout << endl << endl;
 
 		cout << "Owner layer decryption parts:" << endl;
-		for (const auto& part : data.parts1)
+		for (const auto& part : data.parts2)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
