@@ -579,7 +579,7 @@ namespace senc
 		else
 			msg = utils::bytes_to_base64(decrypted);
 
-		cout << "Decrypted message:" << endl << msg << endl;
+		cout << "Decrypted message:" << endl << msg << endl << endl;
 
 		return ConnStatus::Connected;
 	}
