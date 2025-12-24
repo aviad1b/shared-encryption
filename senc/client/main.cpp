@@ -527,7 +527,7 @@ namespace senc
 		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
 		cout << endl;
 
-		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter envolved decryption key shard IDs (each in new line): ");
+		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter involved decryption key shard IDs (each in new line): ");
 		cout << endl;
 
 		DecryptionPart part{};
