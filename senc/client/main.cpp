@@ -431,14 +431,14 @@ namespace senc
 		cout << endl;
 
 		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
-		cout << endl;
+		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
 			usersetID, std::move(ciphertext)
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
-		cout << "Operation ID: " << resp.op_id << endl;
+		cout << "Operation ID: " << resp.op_id << endl << endl;
 
 		return ConnStatus::Connected;
 	}
