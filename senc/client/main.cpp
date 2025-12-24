@@ -166,6 +166,7 @@ namespace senc
 		bool connected = login_menu(sock);
 		if (!connected)
 			return;
+		cout << endl;
 
 		main_menu(sock);;
 	}
@@ -267,6 +268,7 @@ namespace senc
 	ConnStatus signup(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl << endl;
 
 		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
 		if (resp.status == pkt::SignupResponse::Status::Success)
@@ -286,6 +288,7 @@ namespace senc
 	ConnStatus login(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl << endl;
 
 		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
 		if (resp.status == pkt::LoginResponse::Status::Success)
@@ -306,6 +309,7 @@ namespace senc
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::Error; // not actually an error, but we want to trace back
+		cout << endl << endl;
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
 
