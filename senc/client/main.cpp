@@ -544,6 +544,8 @@ namespace senc
 	ConnStatus send_part(Socket& sock)
 	{
 		auto opid = input_operation_id("Enter operation ID: ");
+		cout << endl;
+
 		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
 		cout << endl;
 
