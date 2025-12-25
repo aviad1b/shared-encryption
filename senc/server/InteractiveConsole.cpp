@@ -100,6 +100,7 @@ namespace senc::server
 		switch (vkCode)
 		{
 		case VK_RETURN: // enter key
+		{
 			write_to_console("\r\n");
 
 			std::string input = _curIn;
@@ -113,8 +114,9 @@ namespace senc::server
 			if (_running) // only show prompt if still running
 				display_prompt();
 			break;
-
+		}
 		case VK_BACK: // backspace key
+		{
 			if (!_curIn.empty())
 			{
 				_curIn.pop_back();
@@ -123,11 +125,13 @@ namespace senc::server
 				write_to_console("\b \b");
 			}
 			break;
-
+		}
 		default:
+		{
 			_curIn += ch;
 			write_to_console(std::string(1, ch));
 			break;
+		}
 		}
 	}
 
