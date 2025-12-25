@@ -31,7 +31,7 @@ namespace senc::server
 		 * @brief Constructs interactive console.
 		 * @param handleInput A function used to handle user input, returning `true` if should stop.
 		 */
-		InteractiveConsole(std::function<bool(const std::string&)> handleInput);
+		InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput);
 
 		/**
 		 * @brief Destructor of InteractiveConsole, ensures console is stopped.
@@ -55,7 +55,7 @@ namespace senc::server
 		void stop_inputs();
 
 	private:
-		std::function<bool(const std::string&)> _handleInput;
+		std::function<bool(Self&, const std::string&)> _handleInput;
 		std::atomic<bool> _running;
 		std::mutex _mtxOut;
 

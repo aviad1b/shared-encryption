@@ -12,7 +12,7 @@
 
 namespace senc::server
 {
-	InteractiveConsole::InteractiveConsole(std::function<bool(const std::string&)> handleInput)
+	InteractiveConsole::InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput)
 		: _handleInput(handleInput),
 		  _running(false),
 		  _hStdin(GetStdHandle(STD_INPUT_HANDLE)),
@@ -115,7 +115,7 @@ namespace senc::server
 
 			// handle input (unlock before calling handler to avoid deadlock)
 			_mtxOut.unlock();
-			_running = !_handleInput(input); // _handleInput returns `true` for stop
+			_running = !_handleInput(*this, input); // _handleInput returns `true` for stop
 			_mtxOut.lock();
 
 			if (_running) // only show prompt if still running

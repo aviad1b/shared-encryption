@@ -17,8 +17,9 @@ using senc::Schema;
 
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
-static bool handle_cmd(const std::string& cmd)
+static bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
 {
+	(void)console;
 	return cmd == "stop"; // stop if command is "stop"
 }
 
