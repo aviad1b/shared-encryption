@@ -253,7 +253,10 @@ namespace senc::utils
 			nullptr
 		);
 
-		return msg ? std::string(msg) : "";
+		std::string res = msg ? std::string(msg) : "";
+		if (res.ends_with("\n"))
+			res = res.substr(0, res.length() - 1);
+		return res;
 	}
 
 	bool Socket::underlying_has_data(Underlying sock)
