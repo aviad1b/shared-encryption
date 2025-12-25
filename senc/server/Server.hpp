@@ -11,6 +11,7 @@
 #include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
 #include <condition_variable>
+#include <functional>
 #include <atomic>
 #include <mutex>
 
@@ -28,6 +29,7 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
+		 * @param log A function used to output server log messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
@@ -37,6 +39,7 @@ namespace senc::server
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
+						std::function<void(const std::string&)> log,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketReceiver& receiver,
@@ -62,6 +65,7 @@ namespace senc::server
 	private:
 		Socket _listenSock;
 		utils::Port _listenPort;
+		std::function<void(const std::string&)> _log;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 

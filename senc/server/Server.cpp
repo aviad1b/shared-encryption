@@ -15,13 +15,14 @@
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
+				   std::function<void(const std::string&)> log,
 				   Schema& schema,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
 				   PacketSender& sender,
 				   UpdateManager& updateManager,
 				   DecryptionsManager& decryptionsManager)
-		: _listenPort(listenPort),
+		: _listenPort(listenPort), _log(log),
 		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);

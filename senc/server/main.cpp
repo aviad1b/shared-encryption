@@ -15,6 +15,11 @@ using senc::Schema;
 
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
+namespace senc::server
+{
+	void log(const std::string& msg);
+}
+
 int main(int argc, char** argv)
 {
 	if (argc > 2)
@@ -39,6 +44,7 @@ int main(int argc, char** argv)
 	DecryptionsManager decryptionsManager;
 	Server server(
 		port,
+		senc::server::log,
 		schema,
 		storage,
 		receiver,
