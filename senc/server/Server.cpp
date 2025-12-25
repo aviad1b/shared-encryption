@@ -63,7 +63,7 @@ namespace senc::server
 		{
 			std::optional<Socket> sock;
 			try { sock = _listenSock.accept(); }
-			catch (utils::SocketException&) { continue; }
+			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
 
 			std::thread handleClientThread(&Self::handle_new_client, this, std::move(*sock));
@@ -74,9 +74,14 @@ namespace senc::server
 	void Server::handle_new_client(Socket sock)
 	{
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
-		auto [connected, username] = handler.connect_client();
-		if (connected)
-			client_loop(sock, username);
+		try
+		{
+			auto [connected, username] = handler.connect_client();
+			if (connected)
+				client_loop(sock, username);
+		}
+		catch (const utils::SocketException&) { }
+		// silently ignores failed receives - assumes client disconnected
 	}
 
 	void Server::client_loop(Socket& sock, const std::string& username)
