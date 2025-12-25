@@ -104,6 +104,9 @@ namespace senc::server
 		const char ch = keyEvent.uChar.AsciiChar;
 		const WORD vkCode = keyEvent.wVirtualKeyCode;
 
+		if (ch == 0 && vkCode != VK_RETURN && vkCode != VK_BACK)
+			return;
+
 		switch (vkCode)
 		{
 		case VK_RETURN: // enter key
