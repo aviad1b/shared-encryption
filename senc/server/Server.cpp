@@ -15,7 +15,7 @@
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
-				   std::function<void(const std::string&)> log,
+				   std::optional<std::function<void(const std::string&)>> log,
 				   Schema& schema,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
@@ -27,6 +27,16 @@ namespace senc::server
 	{
 		_listenSock.bind(_listenPort);
 	}
+
+	Server::Server(utils::Port listenPort,
+				   Schema& schema,
+				   IServerStorage& storage,
+				   PacketReceiver& receiver,
+				   PacketSender& sender,
+				   UpdateManager& updateManager,
+				   DecryptionsManager& decryptionsManager)
+		: Self(listenPort, std::nullopt, schema, storage,
+			   receiver, sender, updateManager, decryptionsManager) { }
 
 	void Server::start()
 	{
@@ -56,6 +66,12 @@ namespace senc::server
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
+	}
+
+	void Server::log(const std::string& msg)
+	{
+		if (_log.has_value())
+			(*_log)(msg);
 	}
 
 	void Server::accept_loop()

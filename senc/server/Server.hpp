@@ -39,7 +39,26 @@ namespace senc::server
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						std::function<void(const std::string&)> log,
+						std::optional<std::function<void(const std::string&)>> log,
+						Schema& schema,
+						IServerStorage& storage,
+						PacketReceiver& receiver,
+						PacketSender& sender,
+						UpdateManager& updateManager,
+						DecryptionsManager& decryptionsManager);
+
+		/**
+		 * @brief Constructs a new server instance.
+		 * @param listenPort Port for server to listen on.
+		 * @param schema Decryptions schema to use for decryptions.
+		 * @param storage Implementation of `IServerStorage`.
+		 * @param receiver Implementation of `PacketReceiver`.
+		 * @param sender Implementation of `PacketSender`.
+		 * @param updateManager Instance of `UpdateManager`.
+		 * @param decryptionsManager Instance of `DecryptionsManager`.
+		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 */
+		explicit Server(utils::Port listenPort,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketReceiver& receiver,
@@ -65,12 +84,18 @@ namespace senc::server
 	private:
 		Socket _listenSock;
 		utils::Port _listenPort;
-		std::function<void(const std::string&)> _log;
+		std::optional<std::function<void(const std::string&)>> _log;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
+
+		/**
+		 * @brief Outputs server log message.
+		 * @param msg Message to output.
+		 */
+		void log(const std::string& msg);
 
 		/**
 		 * @brief Accepts new clients in a loop.
