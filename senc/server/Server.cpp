@@ -121,7 +121,8 @@ namespace senc::server
 					" (\"" + username + "\") lost connection: " + e.what());
 			}
 
-			log("Client " + ip.as_str() + ":" + std::to_string(port) + "(\"" + username + "\") disconnected.");
+			log("Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username
+				+ "\") disconnected.");
 		}
 	}
 
