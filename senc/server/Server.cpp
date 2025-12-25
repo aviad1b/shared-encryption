@@ -63,7 +63,7 @@ namespace senc::server
 		{
 			std::optional<Socket> sock;
 			try { sock = _listenSock.accept(); }
-			catch (utils::SocketException&) { continue; }
+			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
 
 			std::thread handleClientThread(&Self::handle_new_client, this, std::move(*sock));
