@@ -15,17 +15,28 @@
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
+				   std::optional<std::function<void(const std::string&)>> log,
 				   Schema& schema,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
 				   PacketSender& sender,
 				   UpdateManager& updateManager,
 				   DecryptionsManager& decryptionsManager)
-		: _listenPort(listenPort),
+		: _listenPort(listenPort), _log(log),
 		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
+
+	Server::Server(utils::Port listenPort,
+				   Schema& schema,
+				   IServerStorage& storage,
+				   PacketReceiver& receiver,
+				   PacketSender& sender,
+				   UpdateManager& updateManager,
+				   DecryptionsManager& decryptionsManager)
+		: Self(listenPort, std::nullopt, schema, storage,
+			   receiver, sender, updateManager, decryptionsManager) { }
 
 	void Server::start()
 	{
@@ -57,31 +68,63 @@ namespace senc::server
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
 	}
 
+	void Server::log(const std::string& msg)
+	{
+		if (_log.has_value())
+			(*_log)(msg);
+	}
+
 	void Server::accept_loop()
 	{
 		while (_isRunning)
 		{
-			std::optional<Socket> sock;
-			try { sock = _listenSock.accept(); }
+			std::optional<std::pair<Socket, std::tuple<utils::IPv4, utils::Port>>> acceptRet;
+			try { acceptRet = _listenSock.accept(); }
 			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
 
-			std::thread handleClientThread(&Self::handle_new_client, this, std::move(*sock));
+			auto& [sock, addr] = *acceptRet;
+			const auto& [ip, port] = addr;
+
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " connected.");
+
+			std::thread handleClientThread(
+				&Self::handle_new_client, this,
+				std::move(sock), std::move(ip), port
+			);
 			handleClientThread.detach();
 		}
 	}
 
-	void Server::handle_new_client(Socket sock)
+	void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
 	{
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
-		try
+		bool connected = false;
+		std::string username;
+
+		try { std::tie(connected, username) = handler.connect_client(); }
+		catch (const utils::SocketException& e)
 		{
-			auto [connected, username] = handler.connect_client();
-			if (connected)
-				client_loop(sock, username);
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " lost connection: " + e.what());
 		}
-		catch (const utils::SocketException&) { }
-		// silently ignores failed receives - assumes client disconnected
+
+		if (!connected)
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " disconnected.");
+		else
+		{
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " logged in as \"" +
+				username + "\".");
+
+			try { client_loop(sock, username); }
+			catch (const utils::SocketException& e)
+			{
+				log("[info] Client " + ip.as_str() + ":" + std::to_string(port) +
+					" (\"" + username + "\") lost connection: " + e.what());
+			}
+
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username
+				+ "\") disconnected.");
+		}
 	}
 
 	void Server::client_loop(Socket& sock, const std::string& username)

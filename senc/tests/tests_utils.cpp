@@ -26,7 +26,7 @@ std::tuple<TcpSocket<IPv4>, TcpSocket<IPv4>> prepare_tcp()
 	std::jthread t(
 		[&listenSock, &p]()
 		{
-			try { p.set_value(listenSock.accept()); }
+			try { p.set_value(listenSock.accept().first); }
 			catch (...) { p.set_exception(std::current_exception()); }
 		}
 	);

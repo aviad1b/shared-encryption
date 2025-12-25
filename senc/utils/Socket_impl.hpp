@@ -241,12 +241,19 @@ namespace senc::utils
 	}
 
 	template <IPType IP>
-	inline TcpSocket<IP>::Self TcpSocket<IP>::accept()
+	inline std::pair<typename TcpSocket<IP>::Self, std::tuple<IP, Port>>
+		TcpSocket<IP>::accept()
 	{
-		auto sock = ::accept(this->_sock, nullptr, nullptr);
+		typename IP::UnderlyingSockAddr clientAddr{};
+		int clientAddrLen = sizeof(clientAddr);
+
+		auto sock = ::accept(this->_sock, (struct sockaddr*)&clientAddr, &clientAddrLen);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
 			throw SocketException("Failed to accept", Socket::get_last_sock_err());
-		return Self(sock, true); // isConnected=true
+		return std::make_pair(
+			Self(sock, true), // isConnected=true
+			IP::from_underlying_sock_addr(clientAddr)
+		);
 	}
 
 	template <IPType IP>
