@@ -103,7 +103,6 @@ namespace senc::server
 
 		const char ch = keyEvent.uChar.AsciiChar;
 		const WORD vkCode = keyEvent.wVirtualKeyCode;
-		bool stop = false;
 
 		switch (vkCode)
 		{
@@ -116,7 +115,7 @@ namespace senc::server
 
 			// handle input (unlock before calling handler to avoid deadlock)
 			_mtxOut.unlock();
-			stop = _handleInput(input);
+			_running = !_handleInput(input); // _handleInput returns `true` for stop
 			_mtxOut.lock();
 
 			if (_running) // only show prompt if still running
@@ -141,9 +140,6 @@ namespace senc::server
 			break;
 		}
 		}
-
-		if (stop)
-			stop_inputs();
 	}
 
 	void InteractiveConsole::display_prompt()
