@@ -8,8 +8,13 @@
 
 #pragma once
 
+#include <WinSock2.h> // has to be before <Windows.h> (to be able to use sockets in other files)
+#include <Windows.h>
+
 #include <functional>
+#include <atomic>
 #include <string>
+#include <mutex>
 
 namespace senc::server
 {
@@ -29,6 +34,11 @@ namespace senc::server
 		InteractiveConsole(std::function<void(const std::string&)> handleInput);
 
 		/**
+		 * @brief Destructor of InteractiveConsole, ensures console is stopped.
+		 */
+		~InteractiveConsole();
+
+		/**
 		 * @brief Starts interactive console.
 		 */
 		void start();
@@ -46,5 +56,22 @@ namespace senc::server
 
 	private:
 		std::function<void(const std::string&)> _handleInput;
+		std::atomic<bool> _running;
+		std::mutex _mtxOut;
+
+		HANDLE _hStdin;
+		HANDLE _hStdout;
+
+		std::string _curIn;
+
+		void input_loop();
+
+		void handle_key_event(const KEY_EVENT_RECORD& keyEvent);
+
+		void display_prompt();
+
+		void clear_current_line();
+
+		void write_to_console(const std::string& text);
 	};
 }
