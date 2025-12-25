@@ -643,7 +643,7 @@ namespace senc::utils
 		 * @return New TCP socket connected to accepted client.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		Self accept();
+		std::pair<Self, std::tuple<IP, Port>> accept();
 
 	protected:
 		using Underlying = Base::Underlying;

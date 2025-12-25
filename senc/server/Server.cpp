@@ -79,7 +79,7 @@ namespace senc::server
 		while (_isRunning)
 		{
 			std::optional<Socket> sock;
-			try { sock = _listenSock.accept(); }
+			try { sock = _listenSock.accept().first; }
 			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
 
