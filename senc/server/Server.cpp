@@ -105,23 +105,24 @@ namespace senc::server
 		try { std::tie(connected, username) = handler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
-			log("Client " + ip.as_str() + ":" + std::to_string(port) + " lost connection: " + e.what());
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " lost connection: " + e.what());
 		}
 
 		if (!connected)
-			log("Client " + ip.as_str() + ":" + std::to_string(port) + " disconnected.");
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " disconnected.");
 		else
 		{
-			log("Client " + ip.as_str() + ":" + std::to_string(port) + " logged in as \"" + username + "\".");
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " logged in as \"" +
+				username + "\".");
 
 			try { client_loop(sock, username); }
 			catch (const utils::SocketException& e)
 			{
-				log("Client " + ip.as_str() + ":" + std::to_string(port) +
+				log("[info] Client " + ip.as_str() + ":" + std::to_string(port) +
 					" (\"" + username + "\") lost connection: " + e.what());
 			}
 
-			log("Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username
 				+ "\") disconnected.");
 		}
 	}
