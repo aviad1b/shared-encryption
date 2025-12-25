@@ -2,9 +2,11 @@
 #include "../common/InlinePacketReceiver.hpp"
 #include "../common/InlinePacketSender.hpp"
 #include "ShortTermServerStorage.hpp"
+#include "InteractiveConsole.hpp"
 #include "Server.hpp"
 
 using senc::server::ShortTermServerStorage;
+using senc::server::InteractiveConsole;
 using senc::server::DecryptionsManager;
 using senc::server::UpdateManager;
 using senc::InlinePacketReceiver;
@@ -15,9 +17,9 @@ using senc::Schema;
 
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
-namespace senc::server
+static bool handle_cmd(const std::string& cmd)
 {
-	void log(const std::string& msg);
+	return cmd == "stop"; // stop if command is "stop"
 }
 
 int main(int argc, char** argv)
@@ -36,6 +38,8 @@ int main(int argc, char** argv)
 		}
 	}
 
+	InteractiveConsole console(handle_cmd);
+
 	Schema schema;
 	InlinePacketReceiver receiver;
 	InlinePacketSender sender;
@@ -44,7 +48,7 @@ int main(int argc, char** argv)
 	DecryptionsManager decryptionsManager;
 	Server server(
 		port,
-		senc::server::log,
+		[&console](const std::string& msg) { console.print(msg); },
 		schema,
 		storage,
 		receiver,
@@ -54,15 +58,11 @@ int main(int argc, char** argv)
 	);
 
 	server.start();
-	std::cout << "[info] Server listening at port " << port << "." << std::endl;
-	std::cout << "[info] Use \"stop\" to stop server." << std::endl;
 
-	std::string cmd;
-	while (cmd != "stop")
-	{
-		std::cout << "> ";
-		std::getline(std::cin, cmd);
-	}
+	console.print("[info] Server listening at port " + std::to_string(port) + ".");
+	console.print("[info] Use \"stop\" to stop server.");
+
+	console.start(); // start input loop
 
 	server.stop();
 	server.wait();
