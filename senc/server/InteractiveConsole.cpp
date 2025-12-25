@@ -50,15 +50,22 @@ namespace senc::server
 
 	void InteractiveConsole::print(const std::string& msg)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxOut);
+		// if input loop is not running, do regular print
+		// otherwise, do complex logic
+		if (!_running)
+			write_to_console(msg + "\r\n");
+		else
+		{
+			const std::lock_guard<std::mutex> lock(_mtxOut);
 
-		// clear and print
-		clear_current_line();
-		write_to_console(msg + "\r\n");
+			// clear and print
+			clear_current_line();
+			write_to_console(msg + "\r\n");
 
-		// redraw prompt and current input
-		display_prompt();
-		write_to_console(_curIn);
+			// redraw prompt and current input
+			display_prompt();
+			write_to_console(_curIn);
+		}
 	}
 
 	void InteractiveConsole::stop()
