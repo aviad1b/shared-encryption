@@ -14,7 +14,7 @@ namespace senc::server
 {
 	InteractiveConsole::InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput)
 		: _handleInput(handleInput),
-		  _running(false),
+		  _running(false), _handlingInput(false),
 		  _hStdin(GetStdHandle(STD_INPUT_HANDLE)),
 		  _hStdout(GetStdHandle(STD_OUTPUT_HANDLE))
 	{
@@ -50,9 +50,9 @@ namespace senc::server
 
 	void InteractiveConsole::print(const std::string& msg)
 	{
-		// if input loop is not running, do regular print
+		// if input loop is not running or mid-handling input, do regular print
 		// otherwise, do complex logic
-		if (!_running)
+		if (!_running || _handlingInput)
 			write_to_console(msg + "\r\n");
 		else
 		{
@@ -115,7 +115,9 @@ namespace senc::server
 
 			// handle input (unlock before calling handler to avoid deadlock)
 			_mtxOut.unlock();
+			_handlingInput = true;
 			_running = !_handleInput(*this, input); // _handleInput returns `true` for stop
+			_handlingInput = false;
 			_mtxOut.lock();
 
 			if (_running) // only show prompt if still running

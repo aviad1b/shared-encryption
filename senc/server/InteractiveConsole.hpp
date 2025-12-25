@@ -57,6 +57,7 @@ namespace senc::server
 	private:
 		std::function<bool(Self&, const std::string&)> _handleInput;
 		std::atomic<bool> _running;
+		bool _handlingInput;
 		std::mutex _mtxOut;
 
 		HANDLE _hStdin;
