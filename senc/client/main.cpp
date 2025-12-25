@@ -244,7 +244,15 @@ namespace senc
 			cout << endl;
 
 			try { status = func(sock); }
-			catch (const std::exception& e) { cout << "Error: " << e.what() << endl << endl; }
+			catch (const utils::SocketException& e)
+			{
+				cout << "Lost connection to the server: " << e.what() << endl << endl;
+				status = ConnStatus::Disconnected;
+			}
+			catch (const std::exception& e)
+			{
+				cout << "Error: " << e.what() << endl << endl;
+			}
 
 			cout << endl;
 		} while (ConnStatus::Disconnected != status);
