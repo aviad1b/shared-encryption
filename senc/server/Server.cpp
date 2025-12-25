@@ -88,13 +88,17 @@ namespace senc::server
 
 			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " connected.");
 
-			std::thread handleClientThread(&Self::handle_new_client, this, std::move(sock));
+			std::thread handleClientThread(
+				&Self::handle_new_client, this,
+				std::move(sock), std::move(ip), port
+			);
 			handleClientThread.detach();
 		}
 	}
 
-	void Server::handle_new_client(Socket sock)
+	void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
 	{
+		(void)ip, (void)port;
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
 		try
 		{

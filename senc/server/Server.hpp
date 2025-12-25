@@ -105,8 +105,10 @@ namespace senc::server
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
 		 * @param sock Socket connected to client (moved).
+		 * @param ip IP address by which client connected.
+		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock);
+		void handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port);
 
 		/**
 		 * @brief Handles client requests in a loop.
