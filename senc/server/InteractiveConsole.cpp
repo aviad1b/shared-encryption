@@ -24,10 +24,10 @@ namespace senc::server
 
 	InteractiveConsole::~InteractiveConsole()
 	{
-		stop();
+		stop_inputs();
 	}
 
-	void InteractiveConsole::start()
+	void InteractiveConsole::start_inputs()
 	{
 		if (_running.exchange(true))
 			return; // already running
@@ -68,7 +68,7 @@ namespace senc::server
 		}
 	}
 
-	void InteractiveConsole::stop()
+	void InteractiveConsole::stop_inputs()
 	{
 		_running = false;
 	}
@@ -143,7 +143,7 @@ namespace senc::server
 		}
 
 		if (stop)
-			this->stop();
+			stop_inputs();
 	}
 
 	void InteractiveConsole::display_prompt()

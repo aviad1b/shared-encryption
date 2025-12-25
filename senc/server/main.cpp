@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	console.print("[info] Server listening at port " + std::to_string(port) + ".");
 	console.print("[info] Use \"stop\" to stop server.");
 
-	console.start(); // start input loop
+	console.start_inputs(); // start input loop
 
 	server.stop();
 	server.wait();

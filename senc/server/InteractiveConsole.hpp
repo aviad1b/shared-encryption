@@ -41,7 +41,7 @@ namespace senc::server
 		/**
 		 * @brief Starts interactive console.
 		 */
-		void start();
+		void start_inputs();
 
 		/**
 		 * @brief Prints message to interactive console.
@@ -52,7 +52,7 @@ namespace senc::server
 		/**
 		 * @brief Stops interactive console.
 		 */
-		void stop();
+		void stop_inputs();
 
 	private:
 		std::function<bool(const std::string&)> _handleInput;
