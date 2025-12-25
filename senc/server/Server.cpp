@@ -78,12 +78,17 @@ namespace senc::server
 	{
 		while (_isRunning)
 		{
-			std::optional<Socket> sock;
-			try { sock = _listenSock.accept().first; }
+			std::optional<std::pair<Socket, std::tuple<utils::IPv4, utils::Port>>> acceptRet;
+			try { acceptRet = _listenSock.accept(); }
 			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
 
-			std::thread handleClientThread(&Self::handle_new_client, this, std::move(*sock));
+			auto& [sock, addr] = *acceptRet;
+			const auto& [ip, port] = addr;
+
+			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " connected.");
+
+			std::thread handleClientThread(&Self::handle_new_client, this, std::move(sock));
 			handleClientThread.detach();
 		}
 	}
