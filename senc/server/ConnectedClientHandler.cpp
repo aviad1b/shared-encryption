@@ -103,11 +103,11 @@ namespace senc::server
 		// if both thresholds are zero, nothing to do, requires no members
 		if (0 == info.owners_threshold && 0 == info.reg_members_threshold)
 		{
-			// in this case, register as finished and return.
-			_updateManager.register_finished_decrpytion(
-				_username, opid,
-				{}, {}, {}, {}
-			);
+			// in this case, finish operation and return.
+			finish_operation(opid, DecryptionsManager::CollectedRecord(
+				_username, usersetID,
+				info.owners_threshold, info.reg_members_threshold
+			));
 			return opid;
 		}
 
@@ -159,6 +159,9 @@ namespace senc::server
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
+		const auto requesterShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
+		opCollRecord.shardsIDs1.push_back(requesterShardID);
+		opCollRecord.shardsIDs2.push_back(requesterShardID);
 		_updateManager.register_finished_decrpytion(
 			opCollRecord.requester, opid,
 			std::move(opCollRecord.parts1),
