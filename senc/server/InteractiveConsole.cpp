@@ -12,7 +12,7 @@
 
 namespace senc::server
 {
-	InteractiveConsole::InteractiveConsole(std::function<void(const std::string&)> handleInput)
+	InteractiveConsole::InteractiveConsole(std::function<bool(const std::string&)> handleInput)
 		: _handleInput(handleInput),
 		  _running(false),
 		  _hStdin(GetStdHandle(STD_INPUT_HANDLE)),
@@ -96,6 +96,7 @@ namespace senc::server
 
 		const char ch = keyEvent.uChar.AsciiChar;
 		const WORD vkCode = keyEvent.wVirtualKeyCode;
+		bool stop = false;
 
 		switch (vkCode)
 		{
@@ -108,7 +109,7 @@ namespace senc::server
 
 			// handle input (unlock before calling handler to avoid deadlock)
 			_mtxOut.unlock();
-			_handleInput(input);
+			stop = _handleInput(input);
 			_mtxOut.lock();
 
 			if (_running) // only show prompt if still running
@@ -133,6 +134,9 @@ namespace senc::server
 			break;
 		}
 		}
+
+		if (stop)
+			this->stop();
 	}
 
 	void InteractiveConsole::display_prompt()
