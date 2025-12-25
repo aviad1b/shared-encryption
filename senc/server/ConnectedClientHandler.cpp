@@ -103,11 +103,11 @@ namespace senc::server
 		// if both thresholds are zero, nothing to do, requires no members
 		if (0 == info.owners_threshold && 0 == info.reg_members_threshold)
 		{
-			// in this case, register as finished and return.
-			_updateManager.register_finished_decrpytion(
-				_username, opid,
-				{}, {}, {}, {}
-			);
+			// in this case, finish operation and return.
+			finish_operation(opid, DecryptionsManager::CollectedRecord(
+				_username, usersetID,
+				info.owners_threshold, info.reg_members_threshold
+			));
 			return opid;
 		}
 
