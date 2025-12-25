@@ -100,14 +100,19 @@ namespace senc::server
 	{
 		(void)ip, (void)port;
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
-		try
-		{
-			auto [connected, username] = handler.connect_client();
-			if (connected)
-				client_loop(sock, username);
-		}
+		bool connected = false;
+		std::string username;
+
+		try { std::tie(connected, username) = handler.connect_client(); }
 		catch (const utils::SocketException&) { }
 		// silently ignores failed receives - assumes client disconnected
+
+		if (connected)
+		{
+			try { client_loop(sock, username); }
+			catch (const utils::SocketException&) {}
+			// silently ignores failed receives - assumes client disconnected
+		}
 	}
 
 	void Server::client_loop(Socket& sock, const std::string& username)
