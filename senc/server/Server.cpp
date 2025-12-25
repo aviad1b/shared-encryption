@@ -98,7 +98,6 @@ namespace senc::server
 
 	void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
 	{
-		(void)ip, (void)port;
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
 		bool connected = false;
 		std::string username;
@@ -107,11 +106,17 @@ namespace senc::server
 		catch (const utils::SocketException&) { }
 		// silently ignores failed receives - assumes client disconnected
 
-		if (connected)
+		if (!connected)
+			log("Client " + ip.as_str() + ":" + std::to_string(port) + " disconnected.");
+		else
 		{
+			log("Client " + ip.as_str() + ":" + std::to_string(port) + " logged in as \"" + username + "\".");
+
 			try { client_loop(sock, username); }
-			catch (const utils::SocketException&) {}
+			catch (const utils::SocketException&) { }
 			// silently ignores failed receives - assumes client disconnected
+
+			log("Client " + ip.as_str() + ":" + std::to_string(port) + "(\"" + username + "\") disconnected.");
 		}
 	}
 
