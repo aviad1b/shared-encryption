@@ -11,7 +11,6 @@
 #include "../common/aliases.hpp"
 #include "../common/sizes.hpp"
 #include "../utils/ranges.hpp"
-#include "../utils/hash.hpp"
 #include "ServerException.hpp"
 #include <string>
 #include <vector>
