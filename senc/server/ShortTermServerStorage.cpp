@@ -39,13 +39,13 @@ namespace senc::server
 												  member_count_t ownersThreshold,
 												  member_count_t regMembersThreshold)
 	{
-		UserSetInfo info{
+		StoredUserSetInfo info{
 			utils::to_ordered_set<std::string>(owners),
 			utils::to_ordered_set<std::string>(regMembers),
 			ownersThreshold,
 			regMembersThreshold
 		};
-		UserSetInfo* pInfo = &info;
+		StoredUserSetInfo* pInfo = &info;
 
 		// lock users for entire function to prevent changes while working
 		// (e.g. we don't want member to get removed after we already checked it exists)
@@ -120,7 +120,12 @@ namespace senc::server
 		const auto it = _usersets.find(userset);
 		if (it == _usersets.end())
 			throw UserSetNotFoundException(userset);
-		return it->second;
+		return UserSetInfo{
+			.owners = std::set<std::string>(it->second.owners.begin(), it->second.owners.end()),
+			.reg_members = std::set<std::string>(it->second.reg_members.begin(), it->second.reg_members.end()),
+			.owners_threshold = it->second.owners_threshold,
+			.reg_members_threshold = it->second.reg_members_threshold
+		};
 	}
 
 	PrivKeyShardID ShortTermServerStorage::get_shard_id(const std::string& user, const UserSetID& userset)

@@ -42,6 +42,14 @@ namespace senc::server
 		PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) override;
 
 	private:
+		struct StoredUserSetInfo
+		{
+			std::set<std::string> owners;
+			std::set<std::string> reg_members;
+			member_count_t owners_threshold;
+			member_count_t reg_members_threshold;
+		};
+
 		utils::Distribution<PrivKeyShardID> _shardsDist;
 
 		PrivKeyShardID sample_shard_id(const utils::HasContainsMethod<PrivKeyShardID> auto& container)
@@ -58,7 +66,7 @@ namespace senc::server
 
 		// map userset to info
 		std::mutex _mtxUsersets;
-		utils::HashMap<UserSetID, UserSetInfo> _usersets;
+		utils::HashMap<UserSetID, StoredUserSetInfo> _usersets;
 
 		// map opid to operation info
 		std::mutex _mtxOperations;
