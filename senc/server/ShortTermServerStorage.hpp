@@ -28,8 +28,8 @@ namespace senc::server
 
 		bool user_exists(const std::string& username) override;
 
-		UserSetID new_userset(const utils::HashSet<std::string>& owners,
-							  const utils::HashSet<std::string>& regMembers,
+		UserSetID new_userset(utils::ranges::StringViewRange&& owners,
+							  utils::ranges::StringViewRange&& regMembers,
 							  member_count_t ownersThreshold,
 							  member_count_t regMembersThreshold) override;
 

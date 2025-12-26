@@ -46,7 +46,9 @@ namespace senc::server
 		auto itCreator = setOwners.insert(creator).first; // to pass creator as an owner as well for storage
 
 		res.user_set_id = _storage.new_userset(
-			setOwners, setRegMembers, ownersThreshold, regMembersThreshold
+			utils::ranges::strings(setOwners),
+			utils::ranges::strings(setRegMembers),
+			ownersThreshold, regMembersThreshold
 		);
 
 		setOwners.erase(itCreator); // remove creator from owners set for the rest of this function
