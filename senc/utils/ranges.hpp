@@ -394,7 +394,10 @@ namespace senc::utils
 		 * @tparam R2 Second joined range.
 		 */
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		class ConcatViewIterator
 		{
 			friend class ConcatViewIterator<!isConst, R1, R2>;
@@ -404,8 +407,11 @@ namespace senc::utils
 			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
 			using It2 = std::ranges::iterator_t<std::conditional_t<isConst, const R2, R2>>;
 
-			using value_type = std::ranges::range_value_t<R1>;
-			using reference = std::ranges::range_reference_t<R1>;
+			using reference = std::common_reference_t<
+				std::ranges::range_reference_t<R1>,
+				std::ranges::range_reference_t<R2>
+			>;
+			using value_type = std::remove_cvref_t<reference>;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;

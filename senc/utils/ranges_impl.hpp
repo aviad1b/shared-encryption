@@ -279,13 +279,19 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline ConcatViewIterator<isConst, R1, R2>::ConcatViewIterator(
 			bool inFirst, It1 it1, It1 end1, It2 it2)
 			: _inFirst(inFirst), _it1(it1), _end1(end1), _it2(it2) { }
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::reference
 			ConcatViewIterator<isConst, R1, R2>::operator*() const
 		{
@@ -293,7 +299,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self&
 			ConcatViewIterator<isConst, R1, R2>::operator++()
 		{
@@ -305,7 +314,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self
 			ConcatViewIterator<isConst, R1, R2>::operator++(int)
 		{
@@ -315,7 +327,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		template <bool otherIsConst>
 		inline bool ConcatViewIterator<isConst, R1, R2>::operator==(const ConcatViewIterator<otherIsConst, R1, R2>& other) const
 		{
