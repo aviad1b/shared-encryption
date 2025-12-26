@@ -241,14 +241,9 @@ namespace senc::server
 			return Status::Connected;
 		}
 
-		pkt::GetUserSetsResponse response{};
-		response.user_sets_ids.insert(
-			response.user_sets_ids.end(),
-			usersets.begin(), usersets.end()
-		);
-		// TODO: Sort?
-
-		_sender.send_response(_sock, response);
+		_sender.send_response(_sock, pkt::GetUserSetsResponse{
+			std::move(usersets)
+		});
 
 		return Status::Connected;
 	}
@@ -265,19 +260,10 @@ namespace senc::server
 			return Status::Connected;
 		}
 
-		pkt::GetMembersResponse response{};
-		response.owners.insert(
-			response.owners.end(),
-			info.owners.begin(), info.owners.end()
-		);
-		response.reg_members.insert(
-			response.reg_members.end(),
-			info.reg_members.begin(),
-			info.reg_members.end()
-		);
-		// TODO: Sort?
-
-		_sender.send_response(_sock, response);
+		_sender.send_response(_sock, pkt::GetMembersResponse{
+			std::move(info.owners),
+			std::move(info.reg_members)
+		});
 
 		return Status::Connected;
 	}
