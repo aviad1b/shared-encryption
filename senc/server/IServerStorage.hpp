@@ -130,8 +130,8 @@ namespace senc::server
 	 */
 	struct UserSetInfo
 	{
-		std::set<std::string> owners;
-		std::set<std::string> reg_members;
+		std::vector<std::string> owners;
+		std::vector<std::string> reg_members;
 		member_count_t owners_threshold;
 		member_count_t reg_members_threshold;
 	};

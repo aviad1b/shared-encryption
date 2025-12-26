@@ -121,8 +121,8 @@ namespace senc::server
 		if (it == _usersets.end())
 			throw UserSetNotFoundException(userset);
 		return UserSetInfo{
-			.owners = std::set<std::string>(it->second.owners.begin(), it->second.owners.end()),
-			.reg_members = std::set<std::string>(it->second.reg_members.begin(), it->second.reg_members.end()),
+			.owners = std::vector<std::string>(it->second.owners.begin(), it->second.owners.end()),
+			.reg_members = std::vector<std::string>(it->second.reg_members.begin(), it->second.reg_members.end()),
 			.owners_threshold = it->second.owners_threshold,
 			.reg_members_threshold = it->second.reg_members_threshold
 		};
