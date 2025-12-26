@@ -14,7 +14,6 @@
 #include "ServerException.hpp"
 #include <string>
 #include <vector>
-#include <set>
 
 namespace senc::server
 {

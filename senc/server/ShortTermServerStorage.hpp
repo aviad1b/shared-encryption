@@ -10,6 +10,7 @@
 
 #include "IServerStorage.hpp"
 #include <mutex>
+#include <set>
 
 namespace senc::server
 {
