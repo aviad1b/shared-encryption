@@ -10,8 +10,7 @@
 
 namespace senc::utils
 {
-	template <typename T, std::ranges::input_range R>
-	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	template <typename T, typename R>
 	inline std::vector<T> to_vector(R&& range)
 	{
 		std::vector<T> res;

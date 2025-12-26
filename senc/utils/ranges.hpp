@@ -24,8 +24,7 @@ namespace senc::utils
 	 * @param range Range to convert into vector.
 	 * @return Vector version of `range`.
 	 */
-	template <typename T, std::ranges::input_range R>
-	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	template <typename T, typename R>
 	std::vector<T> to_vector(R&& range);
 
 	/**
