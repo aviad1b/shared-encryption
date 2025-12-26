@@ -202,7 +202,7 @@ namespace senc
 			try { status = func(sock); }
 			catch (const utils::SocketException& e)
 			{
-				cout << "Lost connection to the server: " << e.what() << endl << endl;
+				cout << "Lost connection to the server: " << e.what() << endl;
 				status = ConnStatus::Disconnected;
 			}
 			catch (const std::exception& e)
@@ -246,7 +246,7 @@ namespace senc
 			try { status = func(sock); }
 			catch (const utils::SocketException& e)
 			{
-				cout << "Lost connection to the server: " << e.what() << endl << endl;
+				cout << "Lost connection to the server: " << e.what() << endl;
 				status = ConnStatus::Disconnected;
 			}
 			catch (const std::exception& e)
