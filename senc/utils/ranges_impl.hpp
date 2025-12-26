@@ -74,6 +74,61 @@ namespace senc::utils
 
 	namespace ranges
 	{
+		inline StringViewRangeIterator::StringViewRangeIterator()
+			: _r(nullptr) { }
+
+		inline StringViewRangeIterator::StringViewRangeIterator(StringViewRange& r)
+			: _r(&r)
+		{
+			++*this;
+		}
+
+		inline StringViewRangeIterator::Self& StringViewRangeIterator::operator++()
+		{
+			if (!_r)
+				return *this; // already at end
+
+			if (_r->next(_strv)) // increment and check if reached end
+				_r = nullptr;
+
+			return *this;
+		}
+
+		inline std::string_view StringViewRangeIterator::operator*() const
+		{
+			return _strv;
+		}
+
+		inline bool StringViewRangeIterator::operator==(std::default_sentinel_t) const
+		{
+			return !_r; // reached end iff _r is nullptr
+		}
+
+		inline StringViewRange::iterator StringViewRange::begin()
+		{
+			return iterator(*this);
+		}
+
+		inline StringViewRange::sentinel StringViewRange::end()
+		{
+			return std::default_sentinel;
+		}
+
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		inline StringRangeAdapter<R>::StringRangeAdapter(R& r)
+			: _it(std::ranges::begin(r)), _end(std::ranges::end(r)) { }
+
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		inline bool StringRangeAdapter<R>::next(std::string_view& out)
+		{
+			if (_it == _end)
+				return true;
+			out = *_it++;
+			return false;
+		}
+
 		template <std::ranges::view V>
 		inline EnumerateViewIterator<V>::EnumerateViewIterator(
 			std::ranges::iterator_t<V>&& it, std::size_t idx

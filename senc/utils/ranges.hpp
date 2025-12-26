@@ -12,6 +12,7 @@
 #include <utility>
 #include <ranges>
 #include <vector>
+#include <string>
 
 #include "concepts.hpp"
 
@@ -52,6 +53,89 @@ namespace senc::utils
 
 	namespace ranges
 	{
+		/**
+		 * @class senc::utils::ranges::StringViewRange
+		 * @brief Type-erased range of string views.
+		 */
+		class StringViewRange;
+
+		/**
+		 * @class senc::utils::ranges::StringViewRangeIterator
+		 * @brief Iterator type of `StringViewRange`.
+		 */
+		class StringViewRangeIterator
+		{
+		public:
+			using Self = StringViewRangeIterator;
+
+			StringViewRangeIterator();
+
+			explicit StringViewRangeIterator(StringViewRange& r);
+
+			Self& operator++();
+
+			std::string_view operator*() const;
+
+			bool operator==(std::default_sentinel_t) const;
+
+		private:
+			StringViewRange* _r;
+			std::string_view _strv;
+		};
+
+		class StringViewRange
+		{
+			friend class StringViewRangeIterator;
+
+		public:
+			using Self = StringViewRange;
+			using iterator = StringViewRangeIterator;
+			using sentinel = std::default_sentinel_t;
+
+			virtual ~StringViewRange() { }
+
+			iterator begin();
+
+			sentinel end();
+
+		protected:
+			/**
+			 * @brief Increments iterator to next element.
+			 * @param out To store next element to.
+			 * @return `true` if reached end, otherwise `false`.
+			 */
+			virtual bool next(std::string_view& out) = 0;
+		};
+
+		/**
+		 * @class senc::utils::ranges::StringRangeAdapter
+		 * @brief Adapter used for type erasue with StringViewRange.
+		 */
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		class StringRangeAdapter : public StringViewRange
+		{
+		public:
+			explicit StringRangeAdapter(R& r);
+
+		protected:
+			bool next(std::string_view& out) override;
+
+		private:
+			std::ranges::iterator_t<R> _it;
+			std::ranges::sentinel_t<R> _end;
+		};
+
+		/**
+		 * @brief Gets type-erased range of string views.
+		 */
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		StringRangeAdapter<R> strings(R& r)
+		{
+			return StringRangeAdapter<R>(r);
+		}
+
 		/**
 		 * @class senc::utils::ranges::EnumerateViewIterator
 		 * @brief Iterator type of `senc::utils::ranges::EnumerateView`.
