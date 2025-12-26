@@ -261,8 +261,8 @@ namespace senc::server
 		}
 
 		_sender.send_response(_sock, pkt::GetMembersResponse{
-			std::move(info.owners),
-			std::move(info.reg_members)
+			.reg_members = std::move(info.reg_members),
+			.owners = std::move(info.owners)
 		});
 
 		return Status::Connected;
