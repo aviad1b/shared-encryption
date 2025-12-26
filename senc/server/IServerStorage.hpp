@@ -10,7 +10,7 @@
 
 #include "../common/aliases.hpp"
 #include "../common/sizes.hpp"
-#include "../utils/hash.hpp"
+#include "../utils/ranges.hpp"
 #include "ServerException.hpp"
 #include <string>
 #include <vector>
@@ -128,8 +128,8 @@ namespace senc::server
 	 */
 	struct UserSetInfo
 	{
-		utils::HashSet<std::string> owners;
-		utils::HashSet<std::string> reg_members;
+		std::vector<std::string> owners;
+		std::vector<std::string> reg_members;
 		member_count_t owners_threshold;
 		member_count_t reg_members_threshold;
 	};
@@ -178,8 +178,8 @@ namespace senc::server
 		 * @return ID of userset.
 		 * @throw ServerStorageException In case of error.
 		 */
-		virtual UserSetID new_userset(const utils::HashSet<std::string>& owners,
-									  const utils::HashSet<std::string>& regMembers,
+		virtual UserSetID new_userset(utils::ranges::StringViewRange&& owners,
+									  utils::ranges::StringViewRange&& regMembers,
 									  member_count_t ownersThreshold,
 									  member_count_t regMembersThreshold) = 0;
 
@@ -189,7 +189,7 @@ namespace senc::server
 		 * @return Set of IDs of usersets where `owner` is an owner.
 		 * @throw ServerStorageException In case of error.
 		 */
-		virtual utils::HashSet<UserSetID> get_usersets(const std::string& owner) = 0;
+		virtual std::vector<UserSetID> get_usersets(const std::string& owner) = 0;
 
 		/**
 		 * @brief Checks if a given user owns a given userset.

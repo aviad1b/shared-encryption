@@ -10,13 +10,21 @@
 
 namespace senc::utils
 {
-	template <typename T, std::ranges::input_range R>
-	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	template <typename T, typename R>
 	inline std::vector<T> to_vector(R&& range)
 	{
 		std::vector<T> res;
 		for (auto it = range.begin(); it != range.end(); ++it)
 			res.emplace_back(*it);
+		return res;
+	}
+
+	template <typename T, typename R>
+	std::set<T> to_ordered_set(R&& range)
+	{
+		std::set<T> res;
+		for (auto it = range.begin(); it != range.end(); ++it)
+			res.emplace(*it);
 		return res;
 	}
 
@@ -74,6 +82,61 @@ namespace senc::utils
 
 	namespace ranges
 	{
+		inline StringViewRangeIterator::StringViewRangeIterator()
+			: _r(nullptr) { }
+
+		inline StringViewRangeIterator::StringViewRangeIterator(StringViewRange& r)
+			: _r(&r)
+		{
+			++*this;
+		}
+
+		inline StringViewRangeIterator::Self& StringViewRangeIterator::operator++()
+		{
+			if (!_r)
+				return *this; // already at end
+
+			if (_r->next(_strv)) // increment and check if reached end
+				_r = nullptr;
+
+			return *this;
+		}
+
+		inline std::string_view StringViewRangeIterator::operator*() const
+		{
+			return _strv;
+		}
+
+		inline bool StringViewRangeIterator::operator==(std::default_sentinel_t) const
+		{
+			return !_r; // reached end iff _r is nullptr
+		}
+
+		inline StringViewRange::iterator StringViewRange::begin()
+		{
+			return iterator(*this);
+		}
+
+		inline StringViewRange::sentinel StringViewRange::end()
+		{
+			return std::default_sentinel;
+		}
+
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		inline StringRangeAdapter<R>::StringRangeAdapter(R& r)
+			: _it(std::ranges::begin(r)), _end(std::ranges::end(r)) { }
+
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		inline bool StringRangeAdapter<R>::next(std::string_view& out)
+		{
+			if (_it == _end)
+				return true;
+			out = *_it++;
+			return false;
+		}
+
 		template <std::ranges::view V>
 		inline EnumerateViewIterator<V>::EnumerateViewIterator(
 			std::ranges::iterator_t<V>&& it, std::size_t idx
@@ -216,13 +279,19 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline ConcatViewIterator<isConst, R1, R2>::ConcatViewIterator(
 			bool inFirst, It1 it1, It1 end1, It2 it2)
 			: _inFirst(inFirst), _it1(it1), _end1(end1), _it2(it2) { }
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::reference
 			ConcatViewIterator<isConst, R1, R2>::operator*() const
 		{
@@ -230,7 +299,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self&
 			ConcatViewIterator<isConst, R1, R2>::operator++()
 		{
@@ -242,7 +314,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		inline typename ConcatViewIterator<isConst, R1, R2>::Self
 			ConcatViewIterator<isConst, R1, R2>::operator++(int)
 		{
@@ -252,7 +327,10 @@ namespace senc::utils
 		}
 
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		template <bool otherIsConst>
 		inline bool ConcatViewIterator<isConst, R1, R2>::operator==(const ConcatViewIterator<otherIsConst, R1, R2>& other) const
 		{

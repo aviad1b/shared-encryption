@@ -12,6 +12,8 @@
 #include <utility>
 #include <ranges>
 #include <vector>
+#include <string>
+#include <set>
 
 #include "concepts.hpp"
 
@@ -23,9 +25,17 @@ namespace senc::utils
 	 * @param range Range to convert into vector.
 	 * @return Vector version of `range`.
 	 */
-	template <typename T, std::ranges::input_range R>
-	requires std::convertible_to<std::ranges::range_value_t<R>, T>
+	template <typename T, typename R>
 	std::vector<T> to_vector(R&& range);
+
+	/**
+	 * @brief Converts range into (an ordered) set.
+	 * @tparam T Element type.
+	 * @param range Range to convert into vector.
+	 * @return Set version of `range`.
+	 */
+	template <typename T, typename R>
+	std::set<T> to_ordered_set(R&& range);
 
 	/**
 	 * @brief Computes product of all elements in range.
@@ -52,6 +62,89 @@ namespace senc::utils
 
 	namespace ranges
 	{
+		/**
+		 * @class senc::utils::ranges::StringViewRange
+		 * @brief Type-erased range of string views.
+		 */
+		class StringViewRange;
+
+		/**
+		 * @class senc::utils::ranges::StringViewRangeIterator
+		 * @brief Iterator type of `StringViewRange`.
+		 */
+		class StringViewRangeIterator
+		{
+		public:
+			using Self = StringViewRangeIterator;
+
+			StringViewRangeIterator();
+
+			explicit StringViewRangeIterator(StringViewRange& r);
+
+			Self& operator++();
+
+			std::string_view operator*() const;
+
+			bool operator==(std::default_sentinel_t) const;
+
+		private:
+			StringViewRange* _r;
+			std::string_view _strv;
+		};
+
+		class StringViewRange
+		{
+			friend class StringViewRangeIterator;
+
+		public:
+			using Self = StringViewRange;
+			using iterator = StringViewRangeIterator;
+			using sentinel = std::default_sentinel_t;
+
+			virtual ~StringViewRange() { }
+
+			iterator begin();
+
+			sentinel end();
+
+		protected:
+			/**
+			 * @brief Increments iterator to next element.
+			 * @param out To store next element to.
+			 * @return `true` if reached end, otherwise `false`.
+			 */
+			virtual bool next(std::string_view& out) = 0;
+		};
+
+		/**
+		 * @class senc::utils::ranges::StringRangeAdapter
+		 * @brief Adapter used for type erasue with StringViewRange.
+		 */
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		class StringRangeAdapter : public StringViewRange
+		{
+		public:
+			explicit StringRangeAdapter(R& r);
+
+		protected:
+			bool next(std::string_view& out) override;
+
+		private:
+			std::ranges::iterator_t<R> _it;
+			std::ranges::sentinel_t<R> _end;
+		};
+
+		/**
+		 * @brief Gets type-erased range of string views.
+		 */
+		template <std::ranges::input_range R>
+		requires std::convertible_to<std::ranges::range_reference_t<R>, std::string_view>
+		StringRangeAdapter<R> strings(R& r)
+		{
+			return StringRangeAdapter<R>(r);
+		}
+
 		/**
 		 * @class senc::utils::ranges::EnumerateViewIterator
 		 * @brief Iterator type of `senc::utils::ranges::EnumerateView`.
@@ -301,7 +394,10 @@ namespace senc::utils
 		 * @tparam R2 Second joined range.
 		 */
 		template <bool isConst, std::ranges::range R1, std::ranges::range R2>
-		requires std::same_as<std::ranges::range_reference_t<R1>, std::ranges::range_reference_t<R2>>
+		requires std::common_reference_with<
+			std::ranges::range_reference_t<R1>,
+			std::ranges::range_reference_t<R2>
+		>
 		class ConcatViewIterator
 		{
 			friend class ConcatViewIterator<!isConst, R1, R2>;
@@ -311,8 +407,11 @@ namespace senc::utils
 			using It1 = std::ranges::iterator_t<std::conditional_t<isConst, const R1, R1>>;
 			using It2 = std::ranges::iterator_t<std::conditional_t<isConst, const R2, R2>>;
 
-			using value_type = std::ranges::range_value_t<R1>;
-			using reference = std::ranges::range_reference_t<R1>;
+			using reference = std::common_reference_t<
+				std::ranges::range_reference_t<R1>,
+				std::ranges::range_reference_t<R2>
+			>;
+			using value_type = std::remove_cvref_t<reference>;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::input_iterator_tag;
 			using iterator_concept = std::input_iterator_tag;

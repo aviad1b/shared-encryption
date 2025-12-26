@@ -41,15 +41,12 @@ namespace senc::server
 	{
 		pkt::MakeUserSetResponse res{};
 
-		utils::HashSet<std::string> setRegMembers(regMembers.begin(), regMembers.end());
-		utils::HashSet<std::string> setOwners(owners.begin(), owners.end());
-		auto itCreator = setOwners.insert(creator).first; // to pass creator as an owner as well for storage
-
+		auto allOwners = utils::views::join(owners, std::views::single(creator));
 		res.user_set_id = _storage.new_userset(
-			setOwners, setRegMembers, ownersThreshold, regMembersThreshold
+			utils::ranges::strings(allOwners),
+			utils::ranges::strings(regMembers),
+			ownersThreshold, regMembersThreshold
 		);
-
-		setOwners.erase(itCreator); // remove creator from owners set for the rest of this function
 
 		// generate keys, and shards for each member
 		PrivKey privKey1{}, privKey2{};
@@ -65,8 +62,8 @@ namespace senc::server
 			return _storage.get_shard_id(username, res.user_set_id);
 		};
 		auto creatorShardID = _storage.get_shard_id(creator, res.user_set_id);
-		auto ownersShardsIDs = setOwners | std::views::transform(getShardID);
-		auto regMembersShardsIDs = setRegMembers | std::views::transform(getShardID);
+		auto ownersShardsIDs = owners | std::views::transform(getShardID);
+		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members
 		res.priv_key1_shard = Shamir::make_shard(poly1, creatorShardID);
@@ -77,13 +74,13 @@ namespace senc::server
 
 		// for all non-creator members, register update for userset
 		// (note that the zip view provides all elements by reference wrapper)
-		for (auto [owner, shard1, shard2] : utils::views::zip(setOwners, ownersShards1, ownersShards2))
+		for (auto [owner, shard1, shard2] : utils::views::zip(owners, ownersShards1, ownersShards2))
 			_updateManager.register_owner(
 				owner, res.user_set_id,
 				res.pub_key1, res.pub_key2,
 				std::move(shard1), std::move(shard2)
 			);
-		for (auto [regMember, shard] : utils::views::zip(setRegMembers, regMembersShards))
+		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
 				regMember, res.user_set_id,
 				res.pub_key1, res.pub_key2,
@@ -229,7 +226,7 @@ namespace senc::server
 	{
 		(void)request;
 
-		utils::HashSet<UserSetID> usersets;
+		std::vector<UserSetID> usersets;
 		try { usersets = _storage.get_usersets(_username); }
 		catch (const ServerException& e)
 		{
@@ -239,14 +236,9 @@ namespace senc::server
 			return Status::Connected;
 		}
 
-		pkt::GetUserSetsResponse response{};
-		response.user_sets_ids.insert(
-			response.user_sets_ids.end(),
-			usersets.begin(), usersets.end()
-		);
-		// TODO: Sort?
-
-		_sender.send_response(_sock, response);
+		_sender.send_response(_sock, pkt::GetUserSetsResponse{
+			std::move(usersets)
+		});
 
 		return Status::Connected;
 	}
@@ -263,19 +255,10 @@ namespace senc::server
 			return Status::Connected;
 		}
 
-		pkt::GetMembersResponse response{};
-		response.owners.insert(
-			response.owners.end(),
-			info.owners.begin(), info.owners.end()
-		);
-		response.reg_members.insert(
-			response.reg_members.end(),
-			info.reg_members.begin(),
-			info.reg_members.end()
-		);
-		// TODO: Sort?
-
-		_sender.send_response(_sock, response);
+		_sender.send_response(_sock, pkt::GetMembersResponse{
+			.reg_members = std::move(info.reg_members),
+			.owners = std::move(info.owners)
+		});
 
 		return Status::Connected;
 	}

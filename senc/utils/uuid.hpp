@@ -113,6 +113,13 @@ namespace senc::utils
 		bool operator==(const Self& other) const noexcept;
 
 		/**
+		 * @brief Defines ordering of UUIDs (for ordered sets).
+		 * @param other Other UUID to compare to.
+		 * @return `true` if `*this` is ordered before `other`, otherwise `false`.
+		 */
+		bool operator<(const Self& other) const noexcept;
+
+		/**
 		 * @brief Gets string representation of UUID.
 		 * @return String representation of UUID.
 		 */

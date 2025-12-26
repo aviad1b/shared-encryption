@@ -135,3 +135,24 @@ TEST(RangeViewTests, JoinHandlesSecondEmpty)
 	for (const auto& [i, elem] : join(x, y) | enumerate)
 		EXPECT_EQ(elem, all[i]);
 }
+
+TEST(StringViewsRangeTests, WorksOverJoin)
+{
+	std::vector<std::string> vec{ "a", "b", "c" };
+	std::string singVal = "d";
+	auto sing = std::views::single(singVal);
+
+	auto joined = join(vec, sing);
+
+	auto strings = senc::utils::ranges::strings(joined);
+	senc::utils::ranges::StringViewRange& rng = strings;
+
+	std::size_t i = 0;
+	for (const auto& str : rng)
+	{
+		if (i < vec.size())
+			EXPECT_EQ(str, vec[i++]);
+		else
+			EXPECT_EQ(str, singVal);
+	}
+}
