@@ -3,6 +3,7 @@
 #include <memory>
 #include "../server/IServerStorage.hpp"
 #include "../server/ShortTermServerStorage.hpp"
+#include "tests_utils.hpp"
 
 using senc::server::ShortTermServerStorage;
 using senc::server::IServerStorage;
@@ -122,10 +123,10 @@ TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 	UserSetInfo info = storage->get_userset_info(usersetID);
 
 	EXPECT_EQ(info.owners.size(), 2);
-	EXPECT_TRUE(info.owners.contains("avi"));
-	EXPECT_TRUE(info.owners.contains("batya"));
+	EXPECT_CONTAINS(info.owners, "avi");
+	EXPECT_CONTAINS(info.owners, "batya");
 	EXPECT_EQ(info.reg_members.size(), 1);
-	EXPECT_TRUE(info.reg_members.contains("gal"));
+	EXPECT_CONTAINS(info.reg_members, "gal");
 	EXPECT_EQ(info.owners_threshold, ownersThreshold);
 	EXPECT_EQ(info.reg_members_threshold, regThreshold);
 }
