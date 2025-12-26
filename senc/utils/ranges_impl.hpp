@@ -19,6 +19,15 @@ namespace senc::utils
 		return res;
 	}
 
+	template <typename T, typename R>
+	std::set<T> to_ordered_set(R&& range)
+	{
+		std::set<T> res;
+		for (auto it = range.begin(); it != range.end(); ++it)
+			res.emplace(*it);
+		return res;
+	}
+
 	template <std::ranges::input_range R>
 	requires Multiplicable<std::ranges::range_value_t<R>> &&
 		(OneConstructible<std::ranges::range_value_t<R>> || 

@@ -13,6 +13,7 @@
 #include <ranges>
 #include <vector>
 #include <string>
+#include <set>
 
 #include "concepts.hpp"
 
@@ -26,6 +27,15 @@ namespace senc::utils
 	 */
 	template <typename T, typename R>
 	std::vector<T> to_vector(R&& range);
+
+	/**
+	 * @brief Converts range into (an ordered) set.
+	 * @tparam T Element type.
+	 * @param range Range to convert into vector.
+	 * @return Set version of `range`.
+	 */
+	template <typename T, typename R>
+	std::set<T> to_ordered_set(R&& range);
 
 	/**
 	 * @brief Computes product of all elements in range.
