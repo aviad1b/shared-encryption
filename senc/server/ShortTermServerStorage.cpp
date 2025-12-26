@@ -21,7 +21,7 @@ namespace senc::server
 		{
 			const std::lock_guard<std::mutex> lock(_mtxUsers);
 			inserted = _users.insert(std::make_pair(
-				username, utils::HashSet<UserSetID>{}
+				username, std::set<UserSetID>{}
 			)).second;
 		}
 		if (!inserted)
@@ -96,7 +96,7 @@ namespace senc::server
 		return setID;
 	}
 
-	utils::HashSet<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
+	std::set<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(owner);

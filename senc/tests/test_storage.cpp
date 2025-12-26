@@ -1,3 +1,4 @@
+#include <WinSock2.h> // no idea why this was needed here, microsoft are getting on my nerves
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>

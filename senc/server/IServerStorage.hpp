@@ -191,7 +191,7 @@ namespace senc::server
 		 * @return Set of IDs of usersets where `owner` is an owner.
 		 * @throw ServerStorageException In case of error.
 		 */
-		virtual utils::HashSet<UserSetID> get_usersets(const std::string& owner) = 0;
+		virtual std::set<UserSetID> get_usersets(const std::string& owner) = 0;
 
 		/**
 		 * @brief Checks if a given user owns a given userset.

@@ -33,7 +33,7 @@ namespace senc::server
 							  member_count_t ownersThreshold,
 							  member_count_t regMembersThreshold) override;
 
-		utils::HashSet<UserSetID> get_usersets(const std::string& owner) override;
+		std::set<UserSetID> get_usersets(const std::string& owner) override;
 
 		bool user_owns_userset(const std::string& user, const UserSetID& userset) override;
 
@@ -62,7 +62,7 @@ namespace senc::server
 
 		// map user to owned sets
 		std::mutex _mtxUsers;
-		utils::HashMap<std::string, utils::HashSet<UserSetID>> _users;
+		utils::HashMap<std::string, std::set<UserSetID>> _users;
 
 		// map userset to info
 		std::mutex _mtxUsersets;
