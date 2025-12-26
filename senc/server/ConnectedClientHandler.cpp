@@ -231,7 +231,7 @@ namespace senc::server
 	{
 		(void)request;
 
-		std::set<UserSetID> usersets;
+		std::vector<UserSetID> usersets;
 		try { usersets = _storage.get_usersets(_username); }
 		catch (const ServerException& e)
 		{

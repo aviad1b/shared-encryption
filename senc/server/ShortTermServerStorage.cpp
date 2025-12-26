@@ -96,13 +96,13 @@ namespace senc::server
 		return setID;
 	}
 
-	std::set<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
+	std::vector<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(owner);
 		if (it == _users.end())
 			throw UserNotFoundException(owner);
-		return it->second;
+		return std::vector<UserSetID>(it->second.begin(), it->second.end());
 	}
 
 	bool ShortTermServerStorage::user_owns_userset(const std::string& user, const UserSetID& userset)

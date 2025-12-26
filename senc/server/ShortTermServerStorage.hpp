@@ -33,7 +33,7 @@ namespace senc::server
 							  member_count_t ownersThreshold,
 							  member_count_t regMembersThreshold) override;
 
-		std::set<UserSetID> get_usersets(const std::string& owner) override;
+		std::vector<UserSetID> get_usersets(const std::string& owner) override;
 
 		bool user_owns_userset(const std::string& user, const UserSetID& userset) override;
 
