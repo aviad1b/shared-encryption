@@ -35,6 +35,11 @@ namespace senc::utils
 		return this->_bytes == other._bytes;
 	}
 
+	bool UUID::operator<(const Self& other) const noexcept
+	{
+		return this->_bytes < other._bytes;
+	}
+
 	std::string UUID::to_string() const
 	{
 		Underlying underlying{};
