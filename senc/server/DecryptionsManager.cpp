@@ -136,6 +136,6 @@ namespace senc::server
 				return itColl->second.userset_id;
 		}
 
-		throw ServerException("No operation with ID " + opid.to_string());
+		throw ServerException("Operation with ID " + opid.to_string() + " not found or already finished");
 	}
 }
