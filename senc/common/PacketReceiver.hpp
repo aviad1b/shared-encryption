@@ -15,6 +15,10 @@
 
 namespace senc
 {
+	/**
+	 * @class PacketReceiver
+	 * @brief Abstraction of packet receiving.
+	 */
 	class PacketReceiver
 	{
 	public:
