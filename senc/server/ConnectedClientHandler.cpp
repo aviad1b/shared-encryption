@@ -27,9 +27,7 @@ namespace senc::server
 	{
 		Status status = Status::Connected;
 		while (Status::Connected == status)
-		{
 			status = iteration();
-		}
 	}
 
 	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
