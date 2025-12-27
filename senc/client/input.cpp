@@ -129,7 +129,8 @@ namespace senc
 
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids(const std::string& msg)
 	{
-		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>(msg);
+		std::cout << msg;
+		return input_priv_key_shard_ids();
 	}
 
 	PrivKeyShard input_priv_key_shard()
