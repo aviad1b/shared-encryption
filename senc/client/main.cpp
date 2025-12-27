@@ -104,6 +104,9 @@ namespace senc::client
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
+	static InlinePacketReceiver receiver;
+	static InlinePacketSender sender;
+
 	int main(int argc, char** argv)
 	{
 		if (argc > 3 || argc < 2)
@@ -150,11 +153,9 @@ namespace senc::client
 	 */
 	void run_client(Socket& sock)
 	{
-		// first, send protocol version to server
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
-
-		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
-		if (!isProtocolVersionSupported)
+		sender.send_connection_request(sock);
+		const bool validConn = receiver.recv_connection_response(sock);
+		if (!validConn)
 		{
 			cout << "Protocol version not supported by server, exiting." << endl;
 			return;
@@ -266,9 +267,6 @@ namespace senc::client
 	template <typename Resp>
 	inline Resp post(Socket& sock, const auto& request)
 	{
-		static InlinePacketReceiver receiver;
-		static InlinePacketSender sender;
-
 		sender.send_request(sock, request);
 		auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
 		if (!resp.has_value())

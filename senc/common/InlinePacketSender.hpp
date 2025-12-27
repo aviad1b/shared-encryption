@@ -19,6 +19,10 @@ namespace senc
 		using Self = InlinePacketSender;
 		using Base = PacketSender;
 
+		void send_connection_request(utils::Socket& sock) override;
+
+		void send_connection_response(utils::Socket& sock, bool isConnectionValid) override;
+
 		void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
 
 		void send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet) override;

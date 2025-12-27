@@ -10,6 +10,18 @@
 
 namespace senc
 {
+	void InlinePacketSender::send_connection_request(utils::Socket& sock)
+	{
+		// send protocol version
+		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
+	}
+
+	void InlinePacketSender::send_connection_response(utils::Socket& sock, bool isConnectionValid)
+	{
+		// send flag indicating whether connection is valid or not
+		sock.send_connected_primitive(isConnectionValid);
+	}
+
 	void InlinePacketSender::send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet)
 	{
 		sock.send_connected_value(packet.msg);

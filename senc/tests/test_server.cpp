@@ -109,11 +109,11 @@ protected:
 		server.reset();
 	}
 
-	void exchange_protocol_version(senc::utils::Socket& sock) const
+	void make_connection(senc::utils::Socket& sock) const
 	{
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
-		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
-		EXPECT_TRUE(isProtocolVersionSupported);
+		sender->send_connection_request(sock);
+		const bool validConn = receiver->recv_connection_response(sock);
+		EXPECT_TRUE(validConn);
 	}
 
 	template <typename Response>
@@ -151,7 +151,7 @@ protected:
 TEST_P(ServerTest, LogoutWithoutLogin)
 {
 	auto client = Socket("127.0.0.1", port);
-	exchange_protocol_version(client);
+	make_connection(client);
 	auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
 	EXPECT_TRUE(lo.has_value());
 }
@@ -161,8 +161,8 @@ TEST_P(ServerTest, SignupAndLogin)
 	auto avi = Socket("127.0.0.1", port);
 	auto batya = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(avi);
-	exchange_protocol_version(batya);
+	make_connection(avi);
+	make_connection(batya);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
@@ -183,8 +183,8 @@ TEST_P(ServerTest, SignupAndLogin)
 	// log back in
 	avi = Socket("127.0.0.1", port);
 	batya = Socket("127.0.0.1", port);
-	exchange_protocol_version(avi);
-	exchange_protocol_version(batya);
+	make_connection(avi);
+	make_connection(batya);
 	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi" });
 	EXPECT_TRUE(li1.has_value() && li1->status == pkt::LoginResponse::Status::Success);
 	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya" });
@@ -203,9 +203,9 @@ TEST_P(ServerTest, MakeSetGetMembers)
 	auto client2 = Socket("127.0.0.1", port);
 	auto client3 = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(client1);
-	exchange_protocol_version(client2);
-	exchange_protocol_version(client3);
+	make_connection(client1);
+	make_connection(client2);
+	make_connection(client3);
 
 	// signup
 	const auto u1 = "avi";
@@ -285,9 +285,9 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	auto client2 = Socket("127.0.0.1", port);
 	auto client3 = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(client1);
-	exchange_protocol_version(client2);
-	exchange_protocol_version(client3);
+	make_connection(client1);
+	make_connection(client2);
+	make_connection(client3);
 
 	// signup
 	const auto u1 = "avi";
@@ -375,7 +375,7 @@ TEST_P(ServerTest, EmptyUpdateCycle)
 {
 	auto client = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(client);
+	make_connection(client);
 
 	// signup
 	auto su = post<pkt::SignupResponse>(client, pkt::SignupRequest{ "avi" });
@@ -400,8 +400,8 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	auto owner = Socket("127.0.0.1", port);
 	auto member = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(owner);
-	exchange_protocol_version(member);
+	make_connection(owner);
+	make_connection(member);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
@@ -542,9 +542,9 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	auto member = Socket("127.0.0.1", port);
 	auto member2 = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(owner);
-	exchange_protocol_version(member);
-	exchange_protocol_version(member2);
+	make_connection(owner);
+	make_connection(member);
+	make_connection(member2);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
@@ -735,9 +735,9 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	auto member = Socket("127.0.0.1", port);
 	auto extra = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(owner);
-	exchange_protocol_version(member);
-	exchange_protocol_version(extra);
+	make_connection(owner);
+	make_connection(member);
+	make_connection(extra);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
@@ -891,9 +891,9 @@ TEST_P(ServerTest, DecryptFlow2L)
 	auto member = Socket("127.0.0.1", port);
 	auto owner2 = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(owner);
-	exchange_protocol_version(member);
-	exchange_protocol_version(owner2);
+	make_connection(owner);
+	make_connection(member);
+	make_connection(owner2);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
@@ -1077,9 +1077,9 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	auto owner2 = Socket("127.0.0.1", port);
 	auto owner3 = Socket("127.0.0.1", port);
 
-	exchange_protocol_version(owner);
-	exchange_protocol_version(owner2);
-	exchange_protocol_version(owner3);
+	make_connection(owner);
+	make_connection(owner2);
+	make_connection(owner3);
 
 	// signup
 	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
@@ -1329,7 +1329,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	auto allUsernames = join(memberUsernames, nonMemberUsernames);
 
 	for (auto& sock : allSocks)
-		exchange_protocol_version(sock);
+		make_connection(sock);
 
 	// signup
 	for (auto [sock, username] : zip(allSocks, allUsernames))
