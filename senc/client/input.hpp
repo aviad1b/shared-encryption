@@ -159,36 +159,62 @@ namespace senc::client
 	 * @brief Gets numeric input.
 	 * @tparam T Number-representing type to use for input, must satisfy `NumInputable`.
 	 * @tparam allowEmpty Whether or not should allow empty input.
+	 * @tparam MIN Minimum bound for input.
+	 * @tparam MAX Maximum bound for input.
 	 * @return Numeric input, or `std::nullopt` for empty input.
 	 */
-	template <NumInputable T, bool allowEmpty = false>
+	template <
+		NumInputable T,
+		bool allowEmpty = false,
+		NumInputableInt<T> MIN = NUM_INPUTABLE_MIN<T>,
+		NumInputableInt<T> MAX = NUM_INPUTABLE_MAX<T>
+	>
 	std::conditional_t<allowEmpty, std::optional<T>, T> input_num();
 
 	/**
 	 * @brief Gets numeric input.
 	 * @tparam T Number-representing type to use for input, must satisfy `NumInputable`.
 	 * @tparam allowEmpty Whether or not should allow empty input.
+	 * @tparam MIN Minimum bound for input.
+	 * @tparam MAX Maximum bound for input.
 	 * @param msg Message to print before input.
 	 * @return Numeric input, or `std::nullopt` for empty input.
 	 */
-	template <NumInputable T, bool allowEmpty = false>
+	template <
+		NumInputable T,
+		bool allowEmpty = false,
+		NumInputableInt<T> MIN = NUM_INPUTABLE_MIN<T>,
+		NumInputableInt<T> MAX = NUM_INPUTABLE_MAX<T>
+	>
 	std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const std::string& msg);
 
 	/**
 	 * @brief Gets multiple numeric inputs (until empty input).
 	 * @tparam T Number-representing type to use for input, must satisfy `NumInputable`.
+	 * @tparam MIN Minimum bound for input.
+	 * @tparam MAX Maximum bound for input.
 	 * @return Vector of numeric inputs.
 	 */
-	template <NumInputable T>
+	template <
+		NumInputable T,
+		NumInputableInt<T> MIN = NUM_INPUTABLE_MIN<T>,
+		NumInputableInt<T> MAX = NUM_INPUTABLE_MAX<T>
+	>
 	std::vector<T> input_num_vec();
 
 	/**
 	 * @brief Gets multiple numeric inputs (until empty input).
 	 * @tparam T Number-representing type to use for input, must satisfy `NumInputable`.
+	 * @tparam MIN Minimum bound for input.
+	 * @tparam MAX Maximum bound for input.
 	 * @param msg Message to print before input.
 	 * @return Vector of numeric inputs.
 	 */
-	template <NumInputable T>
+	template <
+		NumInputable T,
+		NumInputableInt<T> MIN = NUM_INPUTABLE_MIN<T>,
+		NumInputableInt<T> MAX = NUM_INPUTABLE_MAX<T>
+	>
 	std::vector<T> input_num_vec(const std::string& msg);
 
 	/**

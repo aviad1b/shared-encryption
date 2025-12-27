@@ -50,12 +50,15 @@ namespace senc::client
 		return input_vec<T, elemInput>();
 	}
 
-	template <NumInputable T, bool allowEmpty>
+	template <
+		NumInputable T,
+		bool allowEmpty,
+		NumInputableInt<T> MIN,
+		NumInputableInt<T> MAX
+	>
 	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num()
 	{
 		using Int = NumInputableInt<T>;
-		static constexpr Int MIN = NUM_INPUTABLE_MIN<T>;
-		static constexpr Int MAX = NUM_INPUTABLE_MAX<T>;
 		bool invalid = false;
 		long long num = 0;
 
@@ -80,23 +83,28 @@ namespace senc::client
 		return static_cast<Int>(num);
 	}
 
-	template <NumInputable T, bool allowEmpty>
+	template <
+		NumInputable T,
+		bool allowEmpty,
+		NumInputableInt<T> MIN,
+		NumInputableInt<T> MAX
+	>
 	inline std::conditional_t<allowEmpty, std::optional<T>, T> input_num(const std::string& msg)
 	{
 		std::cout << msg;
-		return input_num<T, allowEmpty>();
+		return input_num<T, allowEmpty, MIN, MAX>();
 	}
 
-	template <NumInputable T>
+	template <NumInputable T, NumInputableInt<T> MIN, NumInputableInt<T> MAX>
 	std::vector<T> input_num_vec()
 	{
-		return input_vec<T, input_num<T, true>>();
+		return input_vec<T, input_num<T, true, MIN, MAX>>();
 	}
 
-	template <NumInputable T>
+	template <NumInputable T, NumInputableInt<T> MIN, NumInputableInt<T> MAX>
 	std::vector<T> input_num_vec(const std::string& msg)
 	{
-		return input_vec<T, input_num<T, true>>(msg);
+		return input_vec<T, input_num<T, true, MIN, MAX>>(msg);
 	}
 
 	template <bool allowEmpty>
