@@ -153,11 +153,9 @@ namespace senc::client
 	 */
 	void run_client(Socket& sock)
 	{
-		// first, send protocol version to server
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
-
-		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
-		if (!isProtocolVersionSupported)
+		sender.send_connection_request(sock);
+		const bool validConn = receiver.recv_connection_response(sock);
+		if (!validConn)
 		{
 			cout << "Protocol version not supported by server, exiting." << endl;
 			return;
