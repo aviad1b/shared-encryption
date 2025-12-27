@@ -24,6 +24,8 @@ namespace senc::server
 	class ConnectingClientHandler
 	{
 	public:
+		using Self = ConnectingClientHandler;
+
 		/**
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param sock Socket connected to client.
