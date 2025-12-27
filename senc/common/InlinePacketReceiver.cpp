@@ -12,6 +12,19 @@
 
 namespace senc
 {
+	bool InlinePacketReceiver::recv_connection_request(utils::Socket& sock)
+	{
+		// receive & check protocol version
+		auto protocolVersion = sock.recv_connected_primitive<std::uint8_t>();
+		return (protocolVersion == pkt::PROTOCOL_VERSION);
+	}
+
+	bool InlinePacketReceiver::recv_connection_response(utils::Socket& sock)
+	{
+		// receive flag indicating whether connection is valid or not
+		return sock.recv_connected_primitive<bool>();
+	}
+
 	void InlinePacketReceiver::recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out)
 	{
 		sock.recv_connected_value(out.msg);

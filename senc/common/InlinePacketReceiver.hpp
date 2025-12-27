@@ -19,6 +19,10 @@ namespace senc
 		using Self = InlinePacketReceiver;
 		using Base = PacketReceiver;
 
+		bool recv_connection_request(utils::Socket& sock) override;
+
+		bool recv_connection_response(utils::Socket& sock) override;
+
 		void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) override;
 
 		void recv_request_data(utils::Socket& sock, pkt::SignupRequest& out) override;

@@ -21,6 +21,19 @@ namespace senc
 		virtual ~PacketSender() { }
 
 		/**
+		 * @brief Sends initial requets to begin connection.
+		 * @param sock Socket to send through.
+		 */
+		virtual void send_connection_request(utils::Socket& sock) = 0;
+
+		/**
+		 * @brief Sends resposne to initial request to begin connection.
+		 * @param isConnectionValid `true` if conenction is valid, otherwise `false`.
+		 * @param sock Socket to send through.
+		 */
+		virtual void send_connection_response(utils::Socket& sock, bool isConnectionValid) = 0;
+
+		/**
 		 * @brief Sends given request with fitting code.
 		 * @param sock Socket to send through.
 		 * @param packet Packet to send.
