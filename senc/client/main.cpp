@@ -50,7 +50,7 @@ namespace senc::client
 		Exit
 	};
 
-	enum class ConnStatus { Error, Connected, Disconnected };
+	enum class ConnStatus { NoChange, Connected, Disconnected };
 
 	using SockFunc = std::function<ConnStatus(Socket&)>;
 
@@ -209,7 +209,7 @@ namespace senc::client
 			}
 
 			cout << endl;
-		} while (ConnStatus::Error == status);
+		} while (ConnStatus::NoChange == status);
 
 		return ConnStatus::Connected == status;
 	}
@@ -293,7 +293,7 @@ namespace senc::client
 		else
 			cout << "Signup failed: Unknown error." << endl;
 
-		return ConnStatus::Error;
+		return ConnStatus::NoChange;
 	}
 
 	ConnStatus login(Socket& sock)
@@ -313,13 +313,13 @@ namespace senc::client
 		else
 			cout << "Login failed: Unknown error." << endl;
 
-		return ConnStatus::Error;
+		return ConnStatus::NoChange;
 	}
 
 	ConnStatus logout(Socket& sock)
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
-			return ConnStatus::Error; // not actually an error, but we want to trace back
+			return ConnStatus::NoChange; // not actually an error, but we want to trace back
 		cout << endl << endl;
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
