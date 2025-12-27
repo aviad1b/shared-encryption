@@ -18,6 +18,7 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ConnectingClientHandler
 	 * @brief Handles requests of connecting client (not yet signed in).
 	 */
 	class ConnectingClientHandler
