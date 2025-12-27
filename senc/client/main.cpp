@@ -85,23 +85,23 @@ namespace senc::client
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
 		{ LoginMenuOption::Signup, { "Signup", signup } },
-		{ LoginMenuOption::Login, { "Login", login } },
-		{ LoginMenuOption::Exit, { "Exit", logout } }
+		{ LoginMenuOption::Login , { "Login" , login  } },
+		{ LoginMenuOption::Exit  , { "Exit"  , logout } },
 	};
 
 	// maps main menu option to description and function
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
-		{ MainMenuOption::MakeUserSet, { "Create a new userset", make_userset } },
-		{ MainMenuOption::GetUserSets, { "Show my usersets", get_usersets } },
-		{ MainMenuOption::GetMembers, { "Show userset's members", get_members } },
-		{ MainMenuOption::Encrypt, { "Encrypt a message", encrypt } },
-		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
-		{ MainMenuOption::Update, { "Run an update cycle", update } },
-		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::CompPart, { "Compute part for decryption", comp_part } },
-		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
-		{ MainMenuOption::JoinParts, { "Join decryption parts", join_parts } },
-		{ MainMenuOption::Exit, { "Exit", logout } }
+		{ MainMenuOption::MakeUserSet, { "Create a new userset"       , make_userset } },
+		{ MainMenuOption::GetUserSets, { "Show my usersets"           , get_usersets } },
+		{ MainMenuOption::GetMembers , { "Show userset's members"     , get_members  } },
+		{ MainMenuOption::Encrypt    , { "Encrypt a message"          , encrypt      } },
+		{ MainMenuOption::Decrypt    , { "Decrypt a message"          , decrypt      } },
+		{ MainMenuOption::Update     , { "Run an update cycle"        , update       } },
+		{ MainMenuOption::Participate, { "Participate in decryption"  , participate  } },
+		{ MainMenuOption::CompPart   , { "Compute part for decryption", comp_part    } },
+		{ MainMenuOption::SendPart   , { "Send part for decryption"   , send_part    } },
+		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
+		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
 	int main(int argc, char** argv)
