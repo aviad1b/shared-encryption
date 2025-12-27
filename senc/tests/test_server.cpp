@@ -111,9 +111,9 @@ protected:
 
 	void make_connection(senc::utils::Socket& sock) const
 	{
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
-		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
-		EXPECT_TRUE(isProtocolVersionSupported);
+		sender->send_connection_request(sock);
+		const bool validConn = receiver->recv_connection_response(sock);
+		EXPECT_TRUE(validConn);
 	}
 
 	template <typename Response>
