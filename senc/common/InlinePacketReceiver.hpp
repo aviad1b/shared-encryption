@@ -13,6 +13,10 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::InlinePacketReceiver
+	 * @brief Inline implementation of `senc::PacketReceiver`.
+	 */
 	class InlinePacketReceiver : public PacketReceiver
 	{
 	public:
