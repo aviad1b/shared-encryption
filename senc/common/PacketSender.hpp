@@ -13,6 +13,10 @@
 
 namespace senc
 {
+	/**
+	 * @class PacketSender
+	 * @brief Abstraction of packet sending.
+	 */
 	class PacketSender
 	{
 	public:
