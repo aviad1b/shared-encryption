@@ -19,6 +19,7 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ConnectedClientHandler
 	 * @brief Handles requests of connected client.
 	 */
 	class ConnectedClientHandler
