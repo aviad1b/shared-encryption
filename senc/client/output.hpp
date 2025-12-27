@@ -10,7 +10,7 @@
 
 #include "../common/aliases.hpp"
 
-namespace senc
+namespace senc::client
 {
 	void print_pub_keys(const PubKey& pubKey1, const PubKey& pubKey2);
 

@@ -7,7 +7,7 @@
 #include "output.hpp"
 #include "input.hpp"
 
-namespace senc
+namespace senc::client
 {
 	using AddedAsMemberRecord = pkt::UpdateResponse::AddedAsMemberRecord;
 	using AddedAsOwnerRecord = pkt::UpdateResponse::AddedAsOwnerRecord;
@@ -697,5 +697,5 @@ namespace senc
 
 int main(int argc, char** argv)
 {
-	return senc::main(argc, argv);
+	return senc::client::main(argc, argv);
 }

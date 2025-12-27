@@ -11,7 +11,7 @@
 #include "../common/packets.hpp"
 #include "../utils/ModInt.hpp"
 
-namespace senc
+namespace senc::client
 {
 	template <typename Self>
 	concept NumInputable = 
