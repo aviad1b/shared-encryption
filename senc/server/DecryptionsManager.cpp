@@ -12,7 +12,7 @@
 
 namespace senc::server
 {
-	bool DecryptionsManager::PrepareRecord::has_enough_members() const
+	bool DecryptionsManager::PrepareRecord::has_enough_participants() const
 	{
 		return owners_found.size() >= required_owners &&
 			reg_members_found.size() >= required_reg_members;
@@ -78,7 +78,7 @@ namespace senc::server
 		else return { res, false }; // operation ID is valid, already has enough members
 
 		// if has enough members, move from prepare stage to collect stage
-		if (it->second.has_enough_members())
+		if (it->second.has_enough_participants())
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{

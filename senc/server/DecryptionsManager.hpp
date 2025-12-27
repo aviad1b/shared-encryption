@@ -75,7 +75,7 @@ namespace senc::server
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 
-			bool has_enough_members() const;
+			bool has_enough_participants() const;
 		};
 
 		/**
