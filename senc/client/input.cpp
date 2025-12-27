@@ -199,6 +199,7 @@ namespace senc
 
 	std::vector<DecryptionPart> input_decryption_parts(const std::string& msg)
 	{
-		return input_vec<DecryptionPart, input_decryption_part<true>>(msg);
+		std::cout << msg;
+		return input_decryption_parts();
 	}
 }
