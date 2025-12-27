@@ -123,14 +123,14 @@ namespace senc::server
 	const UserSetID DecryptionsManager::get_operation_userset(const OperationID& opid)
 	{
 		{
-			std::unique_lock<std::mutex> lockPrep(_mtxPrep);
+			std::unique_lock<std::mutex> lock(_mtxPrep);
 			const auto itPrep = _prep.find(opid);
 			if (itPrep != _prep.end())
 				return itPrep->second.userset_id;
 		}
 
 		{
-			std::unique_lock<std::mutex> lockColl(_mtxCollected);
+			std::unique_lock<std::mutex> lock(_mtxCollected);
 			const auto itColl = _collected.find(opid);
 			if (itColl != _collected.end())
 				return itColl->second.userset_id;
