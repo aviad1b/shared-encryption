@@ -319,7 +319,7 @@ namespace senc::client
 	ConnStatus logout(Socket& sock)
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
-			return ConnStatus::NoChange; // not actually an error, but we want to trace back
+			return ConnStatus::NoChange;
 		cout << endl << endl;
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
