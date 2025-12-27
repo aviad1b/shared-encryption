@@ -105,16 +105,15 @@ namespace senc::server
 		// register parts
 		const std::unique_lock<std::mutex> lock(_mtxCollected);
 		auto it = _collected.find(opid);
-		auto& record = it->second;
-		auto& parts = isOwner ? record.parts2 : record.parts1;
-		auto& shardsIDs = isOwner ? record.shardsIDs2 : record.shardsIDs1;
+		auto& parts = isOwner ? it->second.parts2 : it->second.parts1;
+		auto& shardsIDs = isOwner ? it->second.shardsIDs2 : it->second.shardsIDs1;
 		parts.push_back(std::move(part));
 		shardsIDs.push_back(std::move(shardID));
 
 		// if has enough parts, remove record and return collect record
-		if (record.has_enough_parts())
+		if (it->second.has_enough_parts())
 		{
-			res.emplace(std::move(record));
+			res.emplace(std::move(it->second));
 			_collected.erase(it);
 		}
 
