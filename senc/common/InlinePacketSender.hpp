@@ -13,6 +13,10 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::InlinePacketSender
+	 * @brief Inline implementation of `senc::PacketSender`.
+	 */
 	class InlinePacketSender : public PacketSender
 	{
 	public:
