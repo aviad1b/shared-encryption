@@ -59,7 +59,6 @@ namespace senc::server
 		// register participant
 		const std::unique_lock<std::mutex> lockPrep(_mtxPrep);
 		const auto it = _prep.find(opid);
-		auto& record = it->second;
 		if (it == _prep.end())
 		{
 			if (_allOpIDs.contains(opid))
@@ -72,23 +71,23 @@ namespace senc::server
 		// - if owner, try pushing into owners vec, if full then try pushing into non-owners vec
 		// - if non-owner, try pushing into non-owners vec
 		// - return false if failed (member isn't needed)
-		if (isOwner && record.owners_found.size() < record.required_owners)
-			record.owners_found.insert(username);
-		else if (record.reg_members_found.size() < record.required_reg_members)
-			record.reg_members_found.insert(username);
+		if (isOwner && it->second.owners_found.size() < it->second.required_owners)
+			it->second.owners_found.insert(username);
+		else if (it->second.reg_members_found.size() < it->second.required_reg_members)
+			it->second.reg_members_found.insert(username);
 		else return { res, false }; // operation ID is valid, already has enough members
 
 		// if has enough members, move from prepare stage to collect stage
-		if (record.has_enough_members())
+		if (it->second.has_enough_members())
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
-				record.requester,
-				record.userset_id,
-				record.required_owners,
-				record.required_reg_members
+				it->second.requester,
+				it->second.userset_id,
+				it->second.required_owners,
+				it->second.required_reg_members
 			});
-			res.emplace(std::move(record));
+			res.emplace(std::move(it->second));
 			_prep.erase(it);
 		}
 
