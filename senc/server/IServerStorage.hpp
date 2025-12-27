@@ -139,16 +139,6 @@ namespace senc::server
 	};
 
 	/**
-	 * @struct senc::server::OperationInfo
-	 * @brief Used for holding/returning information about a requested operation.
-	 */
-	struct OperationInfo
-	{
-		std::string requester;
-		bool is_completed = false;
-	};
-
-	/**
 	 * @interface senc::server::IServerStorage
 	 * @brief Interface of server storage.
 	 */
