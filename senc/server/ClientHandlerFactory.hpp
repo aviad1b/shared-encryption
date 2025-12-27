@@ -20,6 +20,7 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ClientHandlerFactory
 	 * @brief Used for constructing client handlers.
 	 */
 	class ClientHandlerFactory
