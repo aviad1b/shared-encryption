@@ -425,7 +425,7 @@ namespace senc::client
 			string msg = input("Enter message to encrypt (text): ");
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
-		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
+		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64): "));
 		cout << endl;
 
 		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
