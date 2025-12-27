@@ -68,7 +68,10 @@ namespace senc::server
 				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
 		}
 
-		// push participant to matching vector
+		// push participant to matching vector:
+		// - if owner, try pushing into owners vec, if full then try pushing into non-owners vec
+		// - if non-owner, try pushing into non-owners vec
+		// - return false if failed (member isn't needed)
 		if (isOwner && record.owners_found.size() < record.required_owners)
 			record.owners_found.insert(username);
 		else if (record.reg_members_found.size() < record.required_reg_members)
