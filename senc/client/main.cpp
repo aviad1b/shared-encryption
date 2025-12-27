@@ -104,6 +104,9 @@ namespace senc::client
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
+	static InlinePacketReceiver receiver;
+	static InlinePacketSender sender;
+
 	int main(int argc, char** argv)
 	{
 		if (argc > 3 || argc < 2)
@@ -266,9 +269,6 @@ namespace senc::client
 	template <typename Resp>
 	inline Resp post(Socket& sock, const auto& request)
 	{
-		static InlinePacketReceiver receiver;
-		static InlinePacketSender sender;
-
 		sender.send_request(sock, request);
 		auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
 		if (!resp.has_value())
