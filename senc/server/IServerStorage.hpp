@@ -17,6 +17,10 @@
 
 namespace senc::server
 {
+	/**
+	 * @class senc::server::ServerStorageException
+	 * @brief Type of exceptions thrown on server storage errors.
+	 */
 	class ServerStorageException : public ServerException
 	{
 	public:
