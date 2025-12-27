@@ -106,21 +106,18 @@ namespace senc::client
 
 	int main(int argc, char** argv)
 	{
-		if (argc > 3)
+		if (argc > 3 || argc < 2)
 		{
-			cout << "Usage: " << argv[0] << " [IP] [port]" << endl;
+			cout << "Usage: " << argv[0] << " <IP> [port]" << endl;
 			return 1;
 		}
 
-		IPv4 ip = "127.0.0.1";
-		if (argc >= 2)
+		std::optional<IPv4> ip;
+		try { ip = argv[1]; }
+		catch (const std::exception&)
 		{
-			try { ip = argv[1]; }
-			catch (const std::exception&)
-			{
-				cout << "Bad IP: " << argv[1] << endl;
-				return 1;
-			}
+			cout << "Bad IP: " << argv[1] << endl;
+			return 1;
 		}
 
 		Port port = DEFAULT_LISTEN_PORT;
@@ -135,7 +132,7 @@ namespace senc::client
 		}
 
 		std::optional<TcpSocket<IPv4>> sock;
-		try { sock.emplace(ip, port); }
+		try { sock.emplace(*ip, port); }
 		catch (const std::exception& e)
 		{
 			cout << "Failed to connect to server: " << e.what() << endl;
