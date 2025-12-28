@@ -89,13 +89,13 @@ namespace senc::utils
 		using Self = ShamirException;
 		using Base = Exception;
 
-		ShamirException(const std::string& msg) : Base(msg) {}
+		ShamirException(const std::string& msg) : Base(msg) { }
 
-		ShamirException(std::string&& msg) : Base(std::move(msg)) {}
+		ShamirException(std::string&& msg) : Base(std::move(msg)) { }
 
-		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) {}
+		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 
-		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
+		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		ShamirException(const Self&) = default;
 
