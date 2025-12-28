@@ -13,6 +13,10 @@
 
 namespace senc::utils
 {
+	/**
+	 * @class senc::utils::Exception
+	 * @brief Base class for exceptions.
+	 */
 	class Exception : public std::exception
 	{
 	public:
