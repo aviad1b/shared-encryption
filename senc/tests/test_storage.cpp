@@ -8,7 +8,6 @@
 
 using senc::server::ShortTermServerStorage;
 using senc::server::IServerStorage;
-using senc::server::OperationInfo;
 using senc::server::UserSetInfo;
 using senc::PrivKeyShardID;
 using senc::member_count_t;
