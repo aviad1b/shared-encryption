@@ -26,13 +26,13 @@ namespace senc::utils
 		using Self = ModException;
 		using Base = Exception;
 
-		ModException(const std::string& msg);
+		ModException(const std::string& msg) : Base(msg) { }
 
-		ModException(std::string&& msg);
+		ModException(std::string&& msg) : Base(std::move(msg)) { }
 
-		ModException(const std::string& msg, const std::string& info);
+		ModException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 
-		ModException(std::string&& msg, const std::string& info);
+		ModException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		ModException(const Self&) = default;
 

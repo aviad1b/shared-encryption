@@ -23,7 +23,6 @@
 	"Random_impl.hpp"
 	"ModInt.hpp"
 	"ModInt_impl.hpp"
-	"ModInt.cpp"
 	"Fraction.hpp"
 	"Fraction_impl.hpp"
 	"Group.hpp"
