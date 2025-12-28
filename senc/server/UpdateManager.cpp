@@ -21,27 +21,30 @@ namespace senc::server
 
 	void UpdateManager::register_reg_member(const std::string& username,
 											const UserSetID& usersetID,
-											const PubKey& pubKey1, const PubKey& pubKey2,
+											const PubKey& regLayerPubKey,
+											const PubKey& ownerLayerPubKey,
 											PrivKeyShard&& privKeyShard)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_reg_member.emplace_back(
 			usersetID,
-			pubKey1, pubKey2,
+			regLayerPubKey, ownerLayerPubKey,
 			std::move(privKeyShard)
 		);
 	}
 
 	void UpdateManager::register_owner(const std::string& username,
 									   const UserSetID& usersetID,
-									   const PubKey& pubKey1, const PubKey& pubKey2,
-									   PrivKeyShard&& privKeyShard1, PrivKeyShard&& privKeyShard2)
+									   const PubKey& regLayerPubKey,
+									   const PubKey& ownerLayerPubKey,
+									   PrivKeyShard&& regLayerPrivKeyShard,
+									   PrivKeyShard&& ownerLayerPrivKeyShard)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
-			pubKey1, pubKey2,
-			std::move(privKeyShard1), std::move(privKeyShard2)
+			regLayerPubKey, ownerLayerPubKey,
+			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
 		);
 	}
 
@@ -64,15 +67,15 @@ namespace senc::server
 
 	void UpdateManager::register_finished_decrpytion(const std::string& username,
 													 const OperationID& opid,
-													 std::vector<DecryptionPart>&& parts1,
-													 std::vector<DecryptionPart>&& parts2,
-													 std::vector<PrivKeyShardID>&& shardsIDs1,
-													 std::vector<PrivKeyShardID>&& shardsIDs2)
+													 std::vector<DecryptionPart>&& regLayerParts,
+													 std::vector<DecryptionPart>&& ownerLayerParts,
+													 std::vector<PrivKeyShardID>&& regLayerShardsIDs,
+													 std::vector<PrivKeyShardID>&& ownerLayerShardsIDs)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].finished_decryptions.emplace_back(
-			opid, std::move(parts1), std::move(parts2),
-			std::move(shardsIDs1), std::move(shardsIDs2)
+			opid, std::move(regLayerParts), std::move(ownerLayerParts),
+			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
 	}
 }

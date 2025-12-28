@@ -20,8 +20,8 @@ namespace senc::server
 
 	bool DecryptionsManager::CollectedRecord::has_enough_parts() const
 	{
-		return parts2.size() >= required_owners &&
-			parts1.size() >= required_reg_members;
+		return owner_layer_parts.size() >= required_owners &&
+			reg_layer_parts.size() >= required_reg_members;
 	}
 
 	OperationID DecryptionsManager::new_operation()
@@ -105,8 +105,8 @@ namespace senc::server
 		// register parts
 		const std::unique_lock<std::mutex> lock(_mtxCollected);
 		auto it = _collected.find(opid);
-		auto& parts = isOwner ? it->second.parts2 : it->second.parts1;
-		auto& shardsIDs = isOwner ? it->second.shardsIDs2 : it->second.shardsIDs1;
+		auto& parts = isOwner ? it->second.owner_layer_parts : it->second.reg_layer_parts;
+		auto& shardsIDs = isOwner ? it->second.owner_layer_shards_ids : it->second.reg_layer_shards_ids;
 		parts.push_back(std::move(part));
 		shardsIDs.push_back(std::move(shardID));
 
