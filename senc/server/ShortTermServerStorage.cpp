@@ -17,13 +17,10 @@ namespace senc::server
 
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
-		bool inserted = false;
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			inserted = _users.insert(std::make_pair(
-				username, std::set<UserSetID>{}
-			)).second;
-		}
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		const bool inserted = _users.insert(std::make_pair(
+			username, std::set<UserSetID>{}
+		)).second;
 		if (!inserted)
 			throw UserExistsException(username);
 	}
