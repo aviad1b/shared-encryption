@@ -69,7 +69,17 @@ namespace senc::server
 	void Server::log(const std::string& msg)
 	{
 		if (_log.has_value())
-			(*_log)(msg);
+			(*_log)("[info] " + msg);
+	}
+
+	void Server::log(const utils::IPv4& ip, utils::Port port, const std::string& msg)
+	{
+		log("Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
+	}
+
+	void Server::log(const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
+	{
+		log(ip, port, "(\"" + username + "\") " + msg);
 	}
 
 	void Server::accept_loop()
@@ -84,7 +94,7 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " connected.");
+			log(ip, port, "connected");
 
 			std::thread handleClientThread(
 				&Self::handle_new_client, this,
@@ -103,25 +113,22 @@ namespace senc::server
 		try { std::tie(connected, username) = handler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
-			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " lost connection: " + e.what());
+			log(ip, port, std::string("lost connection: ") + e.what() + ".");
 		}
 
 		if (!connected)
-			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " disconnected.");
+			log(ip, port, "disconnected.");
 		else
 		{
-			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " logged in as \"" +
-				username + "\".");
+			log(ip, port, "logged in as \"" + username + "\".");
 
 			try { client_loop(sock, username); }
 			catch (const utils::SocketException& e)
 			{
-				log("[info] Client " + ip.as_str() + ":" + std::to_string(port) +
-					" (\"" + username + "\") lost connection: " + e.what());
+				log(ip, port, username, std::string("lost connection: ") + e.what());
 			}
 
-			log("[info] Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username
-				+ "\") disconnected.");
+			log(ip, port, username, "disconnected.");
 		}
 	}
 
