@@ -13,9 +13,9 @@
 namespace senc::server
 {
 	/**
- * @class senc::server::ServerException
- * @brief Type of exceptions thrown on Server errors.
- */
+	 * @class senc::server::ServerException
+	 * @brief Type of exceptions thrown on Server errors.
+	 */
 	class ServerException : public utils::Exception
 	{
 	public:
