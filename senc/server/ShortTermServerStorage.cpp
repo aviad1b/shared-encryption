@@ -53,7 +53,7 @@ namespace senc::server
 			if (!_users.contains(member))
 				throw UserNotFoundException(member);
 
-		UserSetID setID;
+		UserSetID setID{};
 
 		// generate set ID and insert new userset to map
 		{
