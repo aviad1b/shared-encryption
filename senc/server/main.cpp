@@ -17,11 +17,7 @@ using senc::Schema;
 
 constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
-static bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
-{
-	(void)console;
-	return cmd == "stop"; // stop if command is "stop"
-}
+bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
 
 int main(int argc, char** argv)
 {
@@ -69,4 +65,10 @@ int main(int argc, char** argv)
 	server.wait();
 
 	return 0;
+}
+
+bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
+{
+	(void)console;
+	return cmd == "stop"; // stop if command is "stop"
 }
