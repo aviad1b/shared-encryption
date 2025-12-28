@@ -294,23 +294,23 @@ namespace senc
 		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
 
 		// recv sizes
-		auto parts1Count = sock.recv_connected_primitive<member_count_t>();
-		auto parts2Count = sock.recv_connected_primitive<member_count_t>();
+		auto regLayerPartsCount = sock.recv_connected_primitive<member_count_t>();
+		auto ownerLayerPartsCount = sock.recv_connected_primitive<member_count_t>();
 		sock.recv_connected_value(out.op_id);
 
 		// recv parts
-		out.reg_layer_parts.resize(parts1Count);
+		out.reg_layer_parts.resize(regLayerPartsCount);
 		for (auto& part : out.reg_layer_parts)
 			recv_decryption_part(sock, part);
-		out.owner_layer_parts.resize(parts2Count);
+		out.owner_layer_parts.resize(ownerLayerPartsCount);
 		for (auto& part : out.owner_layer_parts)
 			recv_decryption_part(sock, part);
 
 		// recv shards IDs
-		out.reg_layer_shards_ids.resize(parts1Count + 1);
+		out.reg_layer_shards_ids.resize(regLayerPartsCount + 1);
 		for (auto& shardID : out.reg_layer_shards_ids)
 			recv_priv_key_shard_id(sock, shardID);
-		out.owner_layer_shards_ids.resize(parts2Count + 1);
+		out.owner_layer_shards_ids.resize(ownerLayerPartsCount + 1);
 		for (auto& shardID : out.owner_layer_shards_ids)
 			recv_priv_key_shard_id(sock, shardID);
 	}
