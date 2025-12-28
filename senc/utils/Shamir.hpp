@@ -106,6 +106,12 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	/**
+	 * @class senc::utils::ShamirUtils
+	 * @brief Contains utilities for both Shamir secret-sharing and Shamir threshold decryption.
+	 * @tparam S Type of secret / private key.
+	 * @tparam SID Shard ID type.
+	 */
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
 	class ShamirUtils
