@@ -14,22 +14,22 @@ namespace senc::client
 {
 	/**
 	 * @brief Prints public keys.
-	 * @param pubKey1 Public key of first layer to print.
-	 * @param pubKey2 Public key of second layer to print.
+	 * @param regLayerPubKey1 Public key of non-owner layer to print.
+	 * @param ownerLayerPubKey2 Public key of owner layer to print.
 	 */
-	void print_pub_keys(const PubKey& pubKey1, const PubKey& pubKey2);
+	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey);
 
 	/**
-	 * @brief Prints a private key shard of the first layer.
-	 * @param shard Private key shard of the first layer to print.
+	 * @brief Prints a private key shard of the non-owner layer.
+	 * @param shard Private key shard to print.
 	 */
-	void print_priv_key1_shard(const PrivKeyShard& shard);
+	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard);
 	
 	/**
-	 * @brief Prints a private key shard of the second layer.
-	 * @param shard Private key shard of the second layer to print.
+	 * @brief Prints a private key shard of the owner layer.
+	 * @param shard Private key shard to print.
 	 */
-	void print_priv_key2_shard(const PrivKeyShard& shard);
+	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard);
 
 	/**
 	 * @brief Prints ciphertext.

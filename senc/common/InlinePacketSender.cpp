@@ -74,10 +74,10 @@ namespace senc
 	void InlinePacketSender::send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
 	{
 		sock.send_connected_value(packet.user_set_id);
-		send_pub_key(sock, packet.pub_key1);
-		send_pub_key(sock, packet.pub_key2);
-		send_priv_key_shard(sock, packet.priv_key1_shard);
-		send_priv_key_shard(sock, packet.priv_key2_shard);
+		send_pub_key(sock, packet.reg_layer_pub_key);
+		send_pub_key(sock, packet.owner_layer_pub_key);
+		send_priv_key_shard(sock, packet.reg_layer_priv_key_shard);
+		send_priv_key_shard(sock, packet.owner_layer_priv_key_shard);
 	}
 
 	void InlinePacketSender::send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
@@ -244,15 +244,15 @@ namespace senc
 			sock,
 			reinterpret_cast<const pkt::UpdateResponse::AddedAsMemberRecord&>(record)
 		);
-		send_priv_key_shard(sock, record.priv_key2_shard);
+		send_priv_key_shard(sock, record.owner_layer_priv_key_shard);
 	}
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		sock.send_connected_value(record.user_set_id);
-		send_pub_key(sock, record.pub_key1);
-		send_pub_key(sock, record.pub_key2);
-		send_priv_key_shard(sock, record.priv_key1_shard);
+		send_pub_key(sock, record.reg_layer_pub_key);
+		send_pub_key(sock, record.owner_layer_pub_key);
+		send_priv_key_shard(sock, record.reg_layer_priv_key_shard);
 	}
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::ToDecryptRecord& record)
@@ -267,16 +267,16 @@ namespace senc
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record)
 	{
 		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
-		sock.send_connected_value(static_cast<member_count_t>(record.parts1.size()));
-		sock.send_connected_value(static_cast<member_count_t>(record.parts2.size()));
+		sock.send_connected_value(static_cast<member_count_t>(record.reg_layer_parts.size()));
+		sock.send_connected_value(static_cast<member_count_t>(record.owner_layer_parts.size()));
 		sock.send_connected_value(record.op_id);
-		for (const auto& part : record.parts1)
+		for (const auto& part : record.reg_layer_parts)
 			send_decryption_part(sock, part);
-		for (const auto& part : record.parts2)
+		for (const auto& part : record.owner_layer_parts)
 			send_decryption_part(sock, part);
-		for (const auto& shardID : record.shardsIDs1)
+		for (const auto& shardID : record.reg_layer_shards_ids)
 			send_priv_key_shard_id(sock, shardID);
-		for (const auto& shardID : record.shardsIDs2)
+		for (const auto& shardID : record.owner_layer_shards_ids)
 			send_priv_key_shard_id(sock, shardID);
 	}
 }

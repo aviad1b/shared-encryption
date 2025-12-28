@@ -111,9 +111,9 @@ namespace senc::client
 
 	std::pair<PubKey, PubKey> input_pub_keys()
 	{
-		auto pubKey1 = PubKey::from_bytes(utils::bytes_from_base64(input()));
-		auto pubKey2 = PubKey::from_bytes(utils::bytes_from_base64(input()));
-		return { std::move(pubKey1), std::move(pubKey2) };
+		auto regLayerPubKey = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		auto ownerLayerPubKey = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		return { std::move(regLayerPubKey), std::move(ownerLayerPubKey) };
 	}
 
 	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg)

@@ -34,10 +34,10 @@ namespace senc::server
 			UserSetID userset_id;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
-			std::vector<DecryptionPart> parts1;
-			std::vector<PrivKeyShardID> shardsIDs1;
-			std::vector<DecryptionPart> parts2;
-			std::vector<PrivKeyShardID> shardsIDs2;
+			std::vector<DecryptionPart> reg_layer_parts;
+			std::vector<PrivKeyShardID> reg_layer_shards_ids;
+			std::vector<DecryptionPart> owner_layer_parts;
+			std::vector<PrivKeyShardID> owner_layer_shards_ids;
 
 			CollectedRecord(const std::string& requester,
 							const UserSetID& usersetID,
