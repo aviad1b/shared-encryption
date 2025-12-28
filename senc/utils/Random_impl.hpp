@@ -2,8 +2,8 @@
  * \file   Random_impl.hpp
  * \brief  Implementation of randomization utilities.
  * 
- * \author test
- * \date   November 2025
+ * \author aviad1b
+ * \date   November 2025, Heshvan 5786
  *********************************************************************/
 
 #include "Random.hpp"
