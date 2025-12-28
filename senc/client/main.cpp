@@ -357,10 +357,10 @@ namespace senc::client
 		print_pub_keys(resp.pub_key1, resp.pub_key2);
 		cout << endl;
 
-		print_priv_key1_shard(resp.priv_key1_shard);
+		print_reg_layer_priv_key_shard(resp.priv_key1_shard);
 		cout << endl;
 		
-		print_priv_key2_shard(resp.priv_key2_shard);
+		print_owner_layer_priv_key_shard(resp.priv_key2_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -428,10 +428,10 @@ namespace senc::client
 		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64): "));
 		cout << endl;
 
-		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
+		auto [regLayerPubKey, ownerLayerPubKey] = input_pub_keys("Enter encryption key: ");
 		cout << endl;
 
-		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
+		auto ciphertext = schema.encrypt(plaintext, regLayerPubKey, ownerLayerPubKey);
 
 		cout << "Encrypted message (ciphertext): ";
 		print_ciphertext(ciphertext);
@@ -543,9 +543,9 @@ namespace senc::client
 
 		DecryptionPart part{};
 		if (isOwner)
-			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
+			part = Shamir::decrypt_get_2l<OWNER_LAYER>(ciphertext, privKeyShard, privKeyShardsIDs);
 		else
-			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
+			part = Shamir::decrypt_get_2l<REG_LAYER>(ciphertext, privKeyShard, privKeyShardsIDs);
 
 		cout << "Result decryption part: " << utils::bytes_to_base64(part.to_bytes()) << endl;
 
@@ -577,13 +577,13 @@ namespace senc::client
 		auto ciphertext = input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		auto parts1 = input_decryption_parts("Enter non-owner layer decryption parts: ");
+		auto regLayerParts = input_decryption_parts("Enter non-owner layer decryption parts: ");
 
-		auto parts2 = input_decryption_parts("Enter owner layer decryption parts: ");
+		auto ownerLayerParts = input_decryption_parts("Enter owner layer decryption parts: ");
 
 		cout << endl;
 
-		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
+		auto decrypted = Shamir::decrypt_join_2l(ciphertext, regLayerParts, ownerLayerParts);
 
 		auto isText = input_yesno("Is this a textual message? (y/n): ");
 		cout << endl;
@@ -612,12 +612,12 @@ namespace senc::client
 		print_pub_keys(data.pub_key1, data.pub_key2);
 		cout << endl;
 
-		print_priv_key1_shard(data.priv_key1_shard);
+		print_reg_layer_priv_key_shard(data.priv_key1_shard);
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
 			cout << endl;
-			print_priv_key2_shard(data.priv_key2_shard);
+			print_owner_layer_priv_key_shard(data.priv_key2_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;

@@ -304,7 +304,7 @@ namespace senc::client
 	/**
 	 * @brief Gets public keys input.
 	 * @param msg Message to print before input.
-	 * @return Public keys input.
+	 * @return Public keys input (non-owner layer, owner layer).
 	 */
 	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg);
 
