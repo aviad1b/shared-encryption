@@ -270,6 +270,11 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	/**
+	 * @class senc::utils::SocketInitializer
+	 * @brief Utility class used for socket environment initialization.
+	 *		  Not to be used externally.
+	 */
 	class SocketInitializer
 	{
 		friend class Socket;
