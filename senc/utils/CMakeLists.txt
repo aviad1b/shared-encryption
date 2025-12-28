@@ -26,7 +26,6 @@
 	"ModInt.cpp"
 	"Fraction.hpp"
 	"Fraction_impl.hpp"
-	"Fraction.cpp"
 	"Group.hpp"
 	"ECGroup.hpp"
 	"ECGroup.cpp"
