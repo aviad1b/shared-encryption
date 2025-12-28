@@ -17,6 +17,16 @@
 namespace senc
 {
 	/**
+	 * @brief Identifier of non-owner encryption layer.
+	 */
+	constexpr auto REG_LAYER = 1;
+
+	/**
+	 * @brief Identifier of owner encryption layer.
+	 */
+	constexpr auto OWNER_LAYER = 2;
+
+	/**
 	 * @typedef senc::Schema
 	 * @brief Encryption schema used by both client and server.
 	 */
