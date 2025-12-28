@@ -151,9 +151,22 @@ namespace senc::utils
 		}
 	};
 
+	/**
+	 * @typedef senc::utils::HashMap
+	 * @brief Hash (unordered) map which accepts key objects with a `hash` method..
+	 * @tparam K Key type, must satisfy `senc::utils::Hashable`.
+	 * @tparam V Value type.
+	 * @tparam KeyEq Key comparing functor (e.g. `std::equal_to<K>`), must satisfy `senc::utils::Equaler<K>`.
+	 */
 	template <Hashable K, typename V, Equaler<K> KeyEq = std::equal_to<K>>
 	using HashMap = std::unordered_map<K, V, Hash<K>, KeyEq>;
 
+	/**
+	 * @typedef senc::utils::HashSet
+	 * @brief Hash (unordered) set which accepts key objects with a `hash` method..
+	 * @tparam K Key type, must satisfy `senc::utils::Hashable`.
+	 * @tparam KeyEq Key comparing functor (e.g. `std::equal_to<K>`), must satisfy `senc::utils::Equaler<K>`.
+	 */
 	template <Hashable K, Equaler<K> KeyEq = std::equal_to<K>>
 	using HashSet = std::unordered_set<K, Hash<K>, KeyEq>;
 }
