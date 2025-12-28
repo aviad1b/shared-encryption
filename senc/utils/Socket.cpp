@@ -14,6 +14,8 @@
 
 namespace senc::utils
 {
+	const SocketInitializer SocketInitializer::SOCKET_INITIALIZER;
+
 	const IPv4::Self IPv4::ANY("0.0.0.0");
 
 	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
@@ -264,6 +266,4 @@ namespace senc::utils
 			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		return r != 0; // true if data is available
 	}
-
-	const SocketInitializer Socket::SOCKET_INITIALIZER;
 }

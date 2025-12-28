@@ -298,6 +298,8 @@ namespace senc::utils
 
 	private:
 		SocketInitializer();
+
+		static const SocketInitializer SOCKET_INITIALIZER;
 	};
 
 	/**
@@ -550,7 +552,6 @@ namespace senc::utils
 		static bool underlying_has_data(Underlying sock);
 
 	private:
-		static const SocketInitializer SOCKET_INITIALIZER;
 		Buffer _buffer; // for leftover data
 	};
 
