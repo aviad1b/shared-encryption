@@ -271,6 +271,20 @@ namespace senc::utils
 	};
 
 	/**
+	 * @class senc::utils::SocketUtils
+	 * @brief Contains utility functions for sockets.
+	 */
+	class SocketUtils
+	{
+	public:
+		/**
+		 * @brief Gets last socket error from system.
+		 * @return Last socket error message.
+		 */
+		static std::string get_last_sock_err();
+	};
+
+	/**
 	 * @class senc::utils::SocketInitializer
 	 * @brief Utility class used for socket environment initialization.
 	 *		  Not to be used externally.
@@ -532,8 +546,6 @@ namespace senc::utils
 		 * @return Amount of bytes outputted.
 		 */
 		std::size_t out_leftover_data(void* out, std::size_t maxsize);
-
-		static std::string get_last_sock_err();
 
 		static bool underlying_has_data(Underlying sock);
 

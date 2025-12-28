@@ -100,6 +100,33 @@ namespace senc::utils
 		out->sin6_addr = this->_addr;
 	}
 
+	std::string SocketUtils::get_last_sock_err()
+	{
+		DWORD err = WSAGetLastError();
+
+		LPSTR msg = nullptr;
+		auto guard = std::experimental::scope_exit{
+			[&msg] { if (msg) LocalFree(msg); }
+		};
+
+		FormatMessageA(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr,
+			err,
+			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+			(LPSTR)&msg,
+			0,
+			nullptr
+		);
+
+		std::string res = msg ? std::string(msg) : "";
+		if (res.ends_with("\n"))
+			res = res.substr(0, res.length() - 1);
+		return res;
+	}
+
 	SocketInitializer::~SocketInitializer()
 	{
 		try { WSACleanup(); }
@@ -110,7 +137,7 @@ namespace senc::utils
 	{
 		WSADATA wsa_data{};
 		if (0 != WSAStartup(MAKEWORD(2, 2), &wsa_data))
-			throw SocketException("WSAStartup failed", Socket::get_last_sock_err());
+			throw SocketException("WSAStartup failed", SocketUtils::get_last_sock_err());
 	}
 	
 	Socket::~Socket()
@@ -135,7 +162,7 @@ namespace senc::utils
 
 		// Note: We assume here that size does not surpass int limit.
 		if (static_cast<int>(size) != ::send(this->_sock, (const char*)data, (int)size, 0))
-			throw SocketException("Failed to send", get_last_sock_err());
+			throw SocketException("Failed to send", SocketUtils::get_last_sock_err());
 	}
 
 	Buffer Socket::recv_connected(std::size_t maxsize)
@@ -164,7 +191,7 @@ namespace senc::utils
 
 		const int count = ::recv(this->_sock, (char*)out + leftoverBytes, (int)(maxsize - leftoverBytes), 0);
 		if (count < 0)
-			throw SocketException("Failed to recieve", get_last_sock_err());
+			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		return count + leftoverBytes;
 	}
 
@@ -184,7 +211,7 @@ namespace senc::utils
 		: _sock(sock), _isConnected(isConnected)
 	{
 		if (UNDERLYING_NO_SOCK == this->_sock)
-			throw SocketException("Failed to create socket", get_last_sock_err());
+			throw SocketException("Failed to create socket", SocketUtils::get_last_sock_err());
 	}
 
 	Socket::Socket(Self&& other) : _sock(other._sock), _isConnected(other._isConnected)
@@ -222,33 +249,6 @@ namespace senc::utils
 		return outputSize;
 	}
 
-	std::string Socket::get_last_sock_err()
-	{
-		DWORD err = WSAGetLastError();
-
-		LPSTR msg = nullptr;
-		auto guard = std::experimental::scope_exit{
-			[&msg]{ if (msg) LocalFree(msg); }
-		};
-
-		FormatMessageA(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			nullptr,
-			err,
-			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-			(LPSTR)&msg,
-			0,
-			nullptr
-		);
-
-		std::string res = msg ? std::string(msg) : "";
-		if (res.ends_with("\n"))
-			res = res.substr(0, res.length() - 1);
-		return res;
-	}
-
 	bool Socket::underlying_has_data(Underlying sock)
 	{
 		fd_set rfds{};
@@ -261,7 +261,7 @@ namespace senc::utils
 
 		int r = select(0, &rfds, nullptr, nullptr, &tv);
 		if (r < 0)
-			throw SocketException("Failed to recieve", get_last_sock_err());
+			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		return r != 0; // true if data is available
 	}
 
