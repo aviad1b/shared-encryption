@@ -83,10 +83,10 @@ namespace senc
 	void InlinePacketReceiver::recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out)
 	{
 		sock.recv_connected_value(out.user_set_id);
-		recv_pub_key(sock, out.pub_key1);
-		recv_pub_key(sock, out.pub_key2);
-		recv_priv_key_shard(sock, out.priv_key1_shard);
-		recv_priv_key_shard(sock, out.priv_key2_shard);
+		recv_pub_key(sock, out.reg_layer_pub_key);
+		recv_pub_key(sock, out.owner_layer_pub_key);
+		recv_priv_key_shard(sock, out.reg_layer_priv_key_shard);
+		recv_priv_key_shard(sock, out.owner_layer_priv_key_shard);
 	}
 
 	void InlinePacketReceiver::recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out)
@@ -267,15 +267,15 @@ namespace senc
 			sock,
 			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out)
 		);
-		recv_priv_key_shard(sock, out.priv_key2_shard);
+		recv_priv_key_shard(sock, out.owner_layer_priv_key_shard);
 	}
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsMemberRecord& out)
 	{
 		sock.recv_connected_value(out.user_set_id);
-		recv_pub_key(sock, out.pub_key1);
-		recv_pub_key(sock, out.pub_key2);
-		recv_priv_key_shard(sock, out.priv_key1_shard);
+		recv_pub_key(sock, out.reg_layer_pub_key);
+		recv_pub_key(sock, out.owner_layer_pub_key);
+		recv_priv_key_shard(sock, out.reg_layer_priv_key_shard);
 	}
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::ToDecryptRecord& out)
@@ -299,19 +299,19 @@ namespace senc
 		sock.recv_connected_value(out.op_id);
 
 		// recv parts
-		out.parts1.resize(parts1Count);
-		for (auto& part : out.parts1)
+		out.reg_layer_parts.resize(parts1Count);
+		for (auto& part : out.reg_layer_parts)
 			recv_decryption_part(sock, part);
-		out.parts2.resize(parts2Count);
-		for (auto& part : out.parts2)
+		out.owner_layer_parts.resize(parts2Count);
+		for (auto& part : out.owner_layer_parts)
 			recv_decryption_part(sock, part);
 
 		// recv shards IDs
-		out.shardsIDs1.resize(parts1Count + 1);
-		for (auto& shardID : out.shardsIDs1)
+		out.reg_layer_shards_ids.resize(parts1Count + 1);
+		for (auto& shardID : out.reg_layer_shards_ids)
 			recv_priv_key_shard_id(sock, shardID);
-		out.shardsIDs2.resize(parts2Count + 1);
-		for (auto& shardID : out.shardsIDs2)
+		out.owner_layer_shards_ids.resize(parts2Count + 1);
+		for (auto& shardID : out.owner_layer_shards_ids)
 			recv_priv_key_shard_id(sock, shardID);
 	}
 }

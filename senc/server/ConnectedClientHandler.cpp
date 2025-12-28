@@ -48,8 +48,8 @@ namespace senc::server
 
 		// generate keys, and shards for each member
 		PrivKey privKey1{}, privKey2{};
-		std::tie(res.pub_key1, privKey1) = _schema.keygen();
-		std::tie(res.pub_key2, privKey2) = _schema.keygen();
+		std::tie(res.reg_layer_pub_key, privKey1) = _schema.keygen();
+		std::tie(res.owner_layer_pub_key, privKey2) = _schema.keygen();
 
 		auto poly1 = Shamir::sample_poly(privKey1, regMembersThreshold);
 		auto poly2 = Shamir::sample_poly(privKey2, ownersThreshold);
@@ -64,8 +64,8 @@ namespace senc::server
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members
-		res.priv_key1_shard = Shamir::make_shard(poly1, creatorShardID);
-		res.priv_key2_shard = Shamir::make_shard(poly2, creatorShardID);
+		res.reg_layer_priv_key_shard = Shamir::make_shard(poly1, creatorShardID);
+		res.owner_layer_priv_key_shard = Shamir::make_shard(poly2, creatorShardID);
 		auto ownersShards1 = Shamir::make_shards(poly1, ownersShardsIDs);
 		auto ownersShards2 = Shamir::make_shards(poly2, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(poly1, regMembersShardsIDs);
@@ -75,13 +75,13 @@ namespace senc::server
 		for (auto [owner, shard1, shard2] : utils::views::zip(owners, ownersShards1, ownersShards2))
 			_updateManager.register_owner(
 				owner, res.user_set_id,
-				res.pub_key1, res.pub_key2,
+				res.reg_layer_pub_key, res.owner_layer_pub_key,
 				std::move(shard1), std::move(shard2)
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
 				regMember, res.user_set_id,
-				res.pub_key1, res.pub_key2,
+				res.reg_layer_pub_key, res.owner_layer_pub_key,
 				std::move(shard)
 			);
 

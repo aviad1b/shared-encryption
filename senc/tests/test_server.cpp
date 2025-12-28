@@ -288,10 +288,10 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& usersetID = ms->user_set_id;
-	const auto& pubKey1 = ms->pub_key1;
-	const auto& pubKey2 = ms->pub_key2;
-	auto& ownerShard1 = ms->priv_key1_shard;
-	auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& pubKey1 = ms->reg_layer_pub_key;
+	const auto& pubKey2 = ms->owner_layer_pub_key;
+	auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	EXPECT_NE(ownerShard1.first, 0);
 	EXPECT_NE(ownerShard2.first, 0);
@@ -310,7 +310,7 @@ TEST_P(ServerTest, MakeSetCheckKey)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_reg_member.size(), 1);
 		EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
-		auto& shard = up->added_as_reg_member.front().priv_key1_shard;
+		auto& shard = up->added_as_reg_member.front().reg_layer_priv_key_shard;
 
 		// check unique ID and shard
 		EXPECT_EQ(std::find(shards1IDs.begin(), shards1IDs.end(), shard.first), shards1IDs.end());
@@ -397,10 +397,10 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
-	const auto& ownerPubKey1 = ms->pub_key1;
-	const auto& ownerPubKey2 = ms->pub_key2;
-	const auto& ownerShard1 = ms->priv_key1_shard;
-	const auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& ownerPubKey1 = ms->reg_layer_pub_key;
+	const auto& ownerPubKey2 = ms->owner_layer_pub_key;
+	const auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	const auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -425,9 +425,9 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	//    member was added to one set, check same as owner's
 	EXPECT_EQ(memberSetsAddedTo.size(), 1);
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& memberShard = memberSetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(memberSetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(memberSetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& memberShard = memberSetsAddedTo.front().reg_layer_priv_key_shard;
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -476,10 +476,10 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
 
-	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	auto& finishedParts1 = finished.front().parts1;
-	auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().reg_layer_shards_ids;
+	auto& finishedShardsIDs2 = finished.front().owner_layer_shards_ids;
+	auto& finishedParts1 = finished.front().reg_layer_parts;
+	auto& finishedParts2 = finished.front().owner_layer_parts;
 	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
@@ -542,10 +542,10 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
-	const auto& ownerPubKey1 = ms->pub_key1;
-	const auto& ownerPubKey2 = ms->pub_key2;
-	const auto& ownerShard1 = ms->priv_key1_shard;
-	const auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& ownerPubKey1 = ms->reg_layer_pub_key;
+	const auto& ownerPubKey2 = ms->owner_layer_pub_key;
+	const auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	const auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -575,15 +575,15 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	//    members were added to one set, check same as owner's
 	EXPECT_EQ(memberSetsAddedTo.size(), 1);
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& memberShard = memberSetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(memberSetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(memberSetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& memberShard = memberSetsAddedTo.front().reg_layer_priv_key_shard;
 
 	EXPECT_EQ(member2SetsAddedTo.size(), 1);
 	EXPECT_EQ(member2SetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(member2SetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(member2SetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& member2Shard = member2SetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(member2SetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(member2SetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& member2Shard = member2SetsAddedTo.front().reg_layer_priv_key_shard;
 
 	// check different shard IDs
 	EXPECT_NE(ownerShard2.first, memberShard.first);
@@ -667,10 +667,10 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
 
-	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	auto& finishedParts1 = finished.front().parts1;
-	auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().reg_layer_shards_ids;
+	auto& finishedShardsIDs2 = finished.front().owner_layer_shards_ids;
+	auto& finishedParts1 = finished.front().reg_layer_parts;
+	auto& finishedParts2 = finished.front().owner_layer_parts;
 	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs1.size(), 3); // three shards, owner + two members
@@ -735,10 +735,10 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
-	const auto& ownerPubKey1 = ms->pub_key1;
-	const auto& ownerPubKey2 = ms->pub_key2;
-	const auto& ownerShard1 = ms->priv_key1_shard;
-	const auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& ownerPubKey1 = ms->reg_layer_pub_key;
+	const auto& ownerPubKey2 = ms->owner_layer_pub_key;
+	const auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	const auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -763,9 +763,9 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	//    member was added to one set, check same as owner's
 	EXPECT_EQ(memberSetsAddedTo.size(), 1);
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& memberShard = memberSetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(memberSetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(memberSetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& memberShard = memberSetsAddedTo.front().reg_layer_priv_key_shard;
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -777,9 +777,9 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	const auto& extraSetsAddedTo = upe->added_as_reg_member;
 	EXPECT_EQ(extraSetsAddedTo.size(), 1);
 	EXPECT_EQ(extraSetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(extraSetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(extraSetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& extraShard = extraSetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(extraSetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(extraSetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& extraShard = extraSetsAddedTo.front().reg_layer_priv_key_shard;
 	(void)extraShard; // for debugging purposes
 
 	// 3) member tells server that they're willing to participate in operation
@@ -825,10 +825,10 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
 
-	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	auto& finishedParts1 = finished.front().parts1;
-	auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().reg_layer_shards_ids;
+	auto& finishedShardsIDs2 = finished.front().owner_layer_shards_ids;
+	auto& finishedParts1 = finished.front().reg_layer_parts;
+	auto& finishedParts2 = finished.front().owner_layer_parts;
 	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
@@ -891,10 +891,10 @@ TEST_P(ServerTest, DecryptFlow2L)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
-	const auto& ownerPubKey1 = ms->pub_key1;
-	const auto& ownerPubKey2 = ms->pub_key2;
-	const auto& ownerShard1 = ms->priv_key1_shard;
-	const auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& ownerPubKey1 = ms->reg_layer_pub_key;
+	const auto& ownerPubKey2 = ms->owner_layer_pub_key;
+	const auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	const auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -924,15 +924,15 @@ TEST_P(ServerTest, DecryptFlow2L)
 	//    members were added to one set, check same as owner's
 	EXPECT_EQ(memberSetsAddedTo.size(), 1);
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(memberSetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& memberShard = memberSetsAddedTo.front().priv_key1_shard;
+	EXPECT_EQ(memberSetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(memberSetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& memberShard = memberSetsAddedTo.front().reg_layer_priv_key_shard;
 
 	EXPECT_EQ(owner2SetsAddedTo.size(), 1);
 	EXPECT_EQ(owner2SetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(owner2SetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(owner2SetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& owner2Shard = owner2SetsAddedTo.front().priv_key2_shard;
+	EXPECT_EQ(owner2SetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(owner2SetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& owner2Shard = owner2SetsAddedTo.front().owner_layer_priv_key_shard;
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -1011,10 +1011,10 @@ TEST_P(ServerTest, DecryptFlow2L)
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
 
-	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	auto& finishedParts1 = finished.front().parts1;
-	auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().reg_layer_shards_ids;
+	auto& finishedShardsIDs2 = finished.front().owner_layer_shards_ids;
+	auto& finishedParts1 = finished.front().reg_layer_parts;
+	auto& finishedParts2 = finished.front().owner_layer_parts;
 	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs1.size(), 2); // two shards, owner+member
@@ -1077,10 +1077,10 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
-	const auto& ownerPubKey1 = ms->pub_key1;
-	const auto& ownerPubKey2 = ms->pub_key2;
-	const auto& ownerShard1 = ms->priv_key1_shard;
-	const auto& ownerShard2 = ms->priv_key2_shard;
+	const auto& ownerPubKey1 = ms->reg_layer_pub_key;
+	const auto& ownerPubKey2 = ms->owner_layer_pub_key;
+	const auto& ownerShard1 = ms->reg_layer_priv_key_shard;
+	const auto& ownerShard2 = ms->owner_layer_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -1110,15 +1110,15 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	//    members were added to one set, check same as owner's
 	EXPECT_EQ(owner2SetsAddedTo.size(), 1);
 	EXPECT_EQ(owner2SetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(owner2SetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(owner2SetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& owner2Shard = owner2SetsAddedTo.front().priv_key2_shard;
+	EXPECT_EQ(owner2SetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(owner2SetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& owner2Shard = owner2SetsAddedTo.front().owner_layer_priv_key_shard;
 
 	EXPECT_EQ(owner3SetsAddedTo.size(), 1);
 	EXPECT_EQ(owner3SetsAddedTo.front().user_set_id, ownerUsersetID);
-	EXPECT_EQ(owner3SetsAddedTo.front().pub_key1, ownerPubKey1);
-	EXPECT_EQ(owner3SetsAddedTo.front().pub_key2, ownerPubKey2);
-	const auto& owner3Shard = owner3SetsAddedTo.front().priv_key2_shard;
+	EXPECT_EQ(owner3SetsAddedTo.front().reg_layer_pub_key, ownerPubKey1);
+	EXPECT_EQ(owner3SetsAddedTo.front().owner_layer_pub_key, ownerPubKey2);
+	const auto& owner3Shard = owner3SetsAddedTo.front().owner_layer_priv_key_shard;
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(owner2OnLookup.size(), 1);
@@ -1196,10 +1196,10 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	EXPECT_EQ(finished.size(), 1);
 	EXPECT_EQ(finished.front().op_id, ownerOpid);
 
-	auto& finishedShardsIDs1 = finished.front().shardsIDs1;
-	auto& finishedShardsIDs2 = finished.front().shardsIDs2;
-	auto& finishedParts1 = finished.front().parts1;
-	auto& finishedParts2 = finished.front().parts2;
+	auto& finishedShardsIDs1 = finished.front().reg_layer_shards_ids;
+	auto& finishedShardsIDs2 = finished.front().owner_layer_shards_ids;
+	auto& finishedParts1 = finished.front().reg_layer_parts;
+	auto& finishedParts2 = finished.front().owner_layer_parts;
 	EXPECT_EQ(finishedShardsIDs1.size(), finishedParts1.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs2.size(), finishedParts2.size() + 1); // including owner shard
 	EXPECT_EQ(finishedShardsIDs1.size(), 1); // owner shard only
@@ -1334,12 +1334,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& usersetID = ms->user_set_id;
-	const auto& pubKey1 = ms->pub_key1;
-	const auto& pubKey2 = ms->pub_key2;
-	ownerShardsIDs1.push_back(ms->priv_key1_shard.first);
-	ownerShards1.emplace_back(std::move(ms->priv_key1_shard));
-	ownerShardsIDs2.push_back(ms->priv_key2_shard.first);
-	ownerShards2.emplace_back(std::move(ms->priv_key2_shard));
+	const auto& pubKey1 = ms->reg_layer_pub_key;
+	const auto& pubKey2 = ms->owner_layer_pub_key;
+	ownerShardsIDs1.push_back(ms->reg_layer_priv_key_shard.first);
+	ownerShards1.emplace_back(std::move(ms->reg_layer_priv_key_shard));
+	ownerShardsIDs2.push_back(ms->owner_layer_priv_key_shard.first);
+	ownerShards2.emplace_back(std::move(ms->owner_layer_priv_key_shard));
 
 	// each involved member should get its own shard(s) and register to use later
 	for (auto& sock : involvedRegMemberSocks)
@@ -1348,10 +1348,10 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_reg_member.size(), 1);
 		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
-		EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
-		EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
-		regMemberShardsIDs.push_back(up->added_as_reg_member.back().priv_key1_shard.first);
-		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().priv_key1_shard));
+		EXPECT_EQ(up->added_as_reg_member.back().reg_layer_pub_key, pubKey1);
+		EXPECT_EQ(up->added_as_reg_member.back().owner_layer_pub_key, pubKey2);
+		regMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_layer_priv_key_shard.first);
+		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_layer_priv_key_shard));
 	}
 	for (auto& sock : nonCreatorInvolvedOwnerSocks)
 	{
@@ -1359,12 +1359,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_owner.size(), 1);
 		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
-		EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
-		EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
-		ownerShardsIDs1.push_back(up->added_as_owner.back().priv_key1_shard.first);
-		ownerShards1.emplace_back(std::move(up->added_as_owner.back().priv_key1_shard));
-		ownerShardsIDs2.push_back(up->added_as_owner.back().priv_key2_shard.first);
-		ownerShards2.emplace_back(std::move(up->added_as_owner.back().priv_key2_shard));
+		EXPECT_EQ(up->added_as_owner.back().reg_layer_pub_key, pubKey1);
+		EXPECT_EQ(up->added_as_owner.back().owner_layer_pub_key, pubKey2);
+		ownerShardsIDs1.push_back(up->added_as_owner.back().reg_layer_priv_key_shard.first);
+		ownerShards1.emplace_back(std::move(up->added_as_owner.back().reg_layer_priv_key_shard));
+		ownerShardsIDs2.push_back(up->added_as_owner.back().owner_layer_priv_key_shard.first);
+		ownerShards2.emplace_back(std::move(up->added_as_owner.back().owner_layer_priv_key_shard));
 	}
 
 	// as for the uninvolved users, they do the same, but we don't care about their shards
@@ -1374,8 +1374,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_reg_member.size(), 1);
 		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
-		EXPECT_EQ(up->added_as_reg_member.back().pub_key1, pubKey1);
-		EXPECT_EQ(up->added_as_reg_member.back().pub_key2, pubKey2);
+		EXPECT_EQ(up->added_as_reg_member.back().reg_layer_pub_key, pubKey1);
+		EXPECT_EQ(up->added_as_reg_member.back().owner_layer_pub_key, pubKey2);
 	}
 	for (auto& sock : uninvolvedOwnerSocks)
 	{
@@ -1383,8 +1383,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_owner.size(), 1);
 		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
-		EXPECT_EQ(up->added_as_owner.back().pub_key1, pubKey1);
-		EXPECT_EQ(up->added_as_owner.back().pub_key2, pubKey2);
+		EXPECT_EQ(up->added_as_owner.back().reg_layer_pub_key, pubKey1);
+		EXPECT_EQ(up->added_as_owner.back().owner_layer_pub_key, pubKey2);
 	}
 
 	// encryption-decryption rounds loop
@@ -1513,14 +1513,14 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->finished_decryptions.size(), 1);
 		EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
-		EXPECT_EQ(up->finished_decryptions.back().parts1, parts1);
-		EXPECT_EQ(up->finished_decryptions.back().parts2, parts2);
+		EXPECT_EQ(up->finished_decryptions.back().reg_layer_parts, parts1);
+		EXPECT_EQ(up->finished_decryptions.back().owner_layer_parts, parts2);
 
 		// check same shard IDs as involved members
-		auto& finishedShardsIDs1 = up->finished_decryptions.back().shardsIDs1;
-		auto& finishedShardsIDs2 = up->finished_decryptions.back().shardsIDs2;
-		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs1, regMemberShardsIDs);
-		EXPECT_SAME_ELEMS(up->finished_decryptions.back().shardsIDs2, ownerShardsIDs2);
+		auto& finishedShardsIDs1 = up->finished_decryptions.back().reg_layer_shards_ids;
+		auto& finishedShardsIDs2 = up->finished_decryptions.back().owner_layer_shards_ids;
+		EXPECT_SAME_ELEMS(up->finished_decryptions.back().reg_layer_shards_ids, regMemberShardsIDs);
+		EXPECT_SAME_ELEMS(up->finished_decryptions.back().owner_layer_shards_ids, ownerShardsIDs2);
 
 		// 8) initiator computes their own decryption parts
 		auto initiatorPart1 = senc::Shamir::decrypt_get_2l<1>(

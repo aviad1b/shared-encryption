@@ -354,13 +354,13 @@ namespace senc::client
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		print_pub_keys(resp.pub_key1, resp.pub_key2);
+		print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
 		cout << endl;
 
-		print_reg_layer_priv_key_shard(resp.priv_key1_shard);
+		print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
 		cout << endl;
 		
-		print_owner_layer_priv_key_shard(resp.priv_key2_shard);
+		print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -609,15 +609,15 @@ namespace senc::client
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		print_pub_keys(data.pub_key1, data.pub_key2);
+		print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
 		cout << endl;
 
-		print_reg_layer_priv_key_shard(data.priv_key1_shard);
+		print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
 			cout << endl;
-			print_owner_layer_priv_key_shard(data.priv_key2_shard);
+			print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;
@@ -657,31 +657,31 @@ namespace senc::client
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
 		cout << "Non-owner layer decryption parts:" << endl;
-		for (const auto& part : data.parts1)
+		for (const auto& part : data.reg_layer_parts)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
 		cout << "Non-owner layer involved shard IDs: ";
-		if (!data.shardsIDs1.empty())
+		if (!data.reg_layer_shards_ids.empty())
 		{
-			auto it = data.shardsIDs1.cbegin();
+			auto it = data.reg_layer_shards_ids.cbegin();
 			cout << *it;
-			for (++it; it != data.shardsIDs1.cend(); ++it)
+			for (++it; it != data.reg_layer_shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
 
 		cout << "Owner layer decryption parts:" << endl;
-		for (const auto& part : data.parts2)
+		for (const auto& part : data.owner_layer_parts)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
 		cout << "Owner layer involved shard IDs: ";
-		if (!data.shardsIDs2.empty())
+		if (!data.owner_layer_shards_ids.empty())
 		{
-			auto it = data.shardsIDs2.cbegin();
+			auto it = data.owner_layer_shards_ids.cbegin();
 			cout << *it;
-			for (++it; it != data.shardsIDs2.cend(); ++it)
+			for (++it; it != data.owner_layer_shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
