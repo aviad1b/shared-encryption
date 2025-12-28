@@ -15,14 +15,14 @@
 namespace senc::server
 {
 	Server::Server(utils::Port listenPort,
-				   std::optional<std::function<void(const std::string&)>> log,
+				   std::optional<std::function<void(const std::string&)>> logInfo,
 				   Schema& schema,
 				   IServerStorage& storage,
 				   PacketReceiver& receiver,
 				   PacketSender& sender,
 				   UpdateManager& updateManager,
 				   DecryptionsManager& decryptionsManager)
-		: _listenPort(listenPort), _log(log),
+		: _listenPort(listenPort), _logInfo(logInfo),
 		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
@@ -66,20 +66,21 @@ namespace senc::server
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
 	}
 
-	void Server::log(const std::string& msg)
+	void Server::log(LogType logType, const std::string& msg)
 	{
-		if (_log.has_value())
-			(*_log)("[info] " + msg);
+		(void)logType;
+		if (_logInfo.has_value())
+			(*_logInfo)(msg);
 	}
 
-	void Server::log(const utils::IPv4& ip, utils::Port port, const std::string& msg)
+	void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg)
 	{
-		log("Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
+		log(logType, "Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
 	}
 
-	void Server::log(const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
+	void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
 	{
-		log(ip, port, "(\"" + username + "\") " + msg);
+		log(logType, ip, port, "(\"" + username + "\") " + msg);
 	}
 
 	void Server::accept_loop()
@@ -94,7 +95,7 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			log(ip, port, "connected");
+			log(LogType::Info, ip, port, "connected");
 
 			std::thread handleClientThread(
 				&Self::handle_new_client, this,
@@ -113,22 +114,22 @@ namespace senc::server
 		try { std::tie(connected, username) = handler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
-			log(ip, port, std::string("lost connection: ") + e.what() + ".");
+			log(LogType::Info, ip, port, std::string("lost connection: ") + e.what() + ".");
 		}
 
 		if (!connected)
-			log(ip, port, "disconnected.");
+			log(LogType::Info, ip, port, "disconnected.");
 		else
 		{
-			log(ip, port, "logged in as \"" + username + "\".");
+			log(LogType::Info, ip, port, "logged in as \"" + username + "\".");
 
 			try { client_loop(sock, username); }
 			catch (const utils::SocketException& e)
 			{
-				log(ip, port, username, std::string("lost connection: ") + e.what());
+				log(LogType::Info, ip, port, username, std::string("lost connection: ") + e.what());
 			}
 
-			log(ip, port, username, "disconnected.");
+			log(LogType::Info, ip, port, username, "disconnected.");
 		}
 	}
 

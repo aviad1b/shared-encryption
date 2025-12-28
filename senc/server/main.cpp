@@ -45,7 +45,7 @@ namespace senc::server
 		DecryptionsManager decryptionsManager;
 		Server server(
 			port,
-			[&console](const std::string& msg) { console->print(msg); },
+			[&console](const std::string& msg) { console->print("[info] " + msg); },
 			schema,
 			storage,
 			receiver,
