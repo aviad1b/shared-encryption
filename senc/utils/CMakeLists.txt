@@ -19,7 +19,6 @@
 	"poly.hpp"
 	"poly_impl.hpp"
 	"Random.hpp"
-	"Random.cpp"
 	"Random_impl.hpp"
 	"ModInt.hpp"
 	"ModInt_impl.hpp"
