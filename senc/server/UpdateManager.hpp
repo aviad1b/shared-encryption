@@ -74,10 +74,10 @@ namespace senc::server
 		 * @param ciphertext Ciphertext being decrypted.
 		 * @param shardsIDs IDs of key shards used in decryption.
 		 */
-		void register_decryption_participated(const std::string& username,
-											  const OperationID& opid,
-											  const Ciphertext& ciphertext,
-											  const std::vector<PrivKeyShardID>& shardsIDs);
+		void register_decryption_participating(const std::string& username,
+											   const OperationID& opid,
+											   const Ciphertext& ciphertext,
+											   const std::vector<PrivKeyShardID>& shardsIDs);
 
 		/**
 		 * @brief Registers a finished decryption operation.

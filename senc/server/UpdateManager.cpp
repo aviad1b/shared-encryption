@@ -51,10 +51,10 @@ namespace senc::server
 		_updates[username].on_lookup.push_back(opid);
 	}
 
-	void UpdateManager::register_decryption_participated(const std::string& username,
-														 const OperationID& opid,
-														 const Ciphertext& ciphertext,
-														 const std::vector<PrivKeyShardID>& shardsIDs)
+	void UpdateManager::register_decryption_participating(const std::string& username,
+														  const OperationID& opid,
+														  const Ciphertext& ciphertext,
+														  const std::vector<PrivKeyShardID>& shardsIDs)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].to_decrypt.emplace_back(
