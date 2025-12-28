@@ -236,14 +236,7 @@ TEST_P(ServerTest, MakeSetGetMembers)
 		EXPECT_TRUE(gs.has_value());
 
 		// check that `usersetID` is in sets
-		EXPECT_NE(
-			std::find(
-				gs->user_sets_ids.begin(),
-				gs->user_sets_ids.end(),
-				usersetID
-			),
-			gs->user_sets_ids.end()
-		);
+		EXPECT_CONTAINS(gs->user_sets_ids, usersetID);
 
 		// get members
 		auto gm = post<pkt::GetMembersResponse>(client, pkt::GetMembersRequest{ usersetID });
@@ -251,24 +244,10 @@ TEST_P(ServerTest, MakeSetGetMembers)
 
 		// check that u1 and u3 are owners
 		for (const auto& owner : { u1, u3 })
-			EXPECT_NE(
-				std::find(
-					gm->owners.begin(),
-					gm->owners.end(),
-					owner
-				),
-				gm->owners.end()
-			);
+			EXPECT_CONTAINS(gm->owners, owner);
 
 		// check that u2 is a (regular) member
-		EXPECT_NE(
-			std::find(
-				gm->reg_members.begin(),
-				gm->reg_members.end(),
-				u2
-			),
-			gm->reg_members.end()
-		);
+		EXPECT_CONTAINS(gm->reg_members, u2);
 	}
 
 	// logout
