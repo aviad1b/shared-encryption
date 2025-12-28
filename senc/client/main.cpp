@@ -517,8 +517,10 @@ namespace senc::client
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
-		if (resp.status == pkt::DecryptParticipateResponse::Status::SendPart)
-			cout << "Participance registered, be ready to send part in a future update." << endl;
+		if (resp.status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart)
+			cout << "Participance registered, be ready to send non-owner layer part in a future update." << endl;
+		else if (resp.status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart)
+			cout << "Participance registered, be ready to send owner layer part in a future update." << endl;
 		else
 			cout << "Your participance is not needed for this operation." << endl;
 

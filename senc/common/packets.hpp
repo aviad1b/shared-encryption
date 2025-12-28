@@ -530,8 +530,11 @@ namespace senc::pkt
 		 */
 		enum class Status : std::uint8_t
 		{
-			/// User must submit a decryption part.
-			SendPart,
+			/// User must submit a non-owner layer decryption part.
+			SendRegLayerPart,
+
+			/// User must submit an owner layer decryption part.
+			SendOwnerLayerPart,
 
 			/// No longer needed.
 			NotRequired

@@ -440,7 +440,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	auto dp = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
 		memberOnLookup.front()
 	});
-	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	// 4) member runs update to get decryption request
 	auto up2 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
@@ -604,12 +604,12 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	auto dp1 = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
 		memberOnLookup.front()
 	});
-	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(member2, pkt::DecryptParticipateRequest{
 		member2OnLookup.front()
 	});
-	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	// 4) members run update to get decryption request
 	auto up2a = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
@@ -789,7 +789,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	auto dp = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
 		memberOnLookup.front()
 	});
-	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	// 4) member runs update to get decryption request
 	auto up2 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
@@ -948,12 +948,12 @@ TEST_P(ServerTest, DecryptFlow2L)
 	auto dp = post<pkt::DecryptParticipateResponse>(member, pkt::DecryptParticipateRequest{
 		memberOnLookup.front()
 	});
-	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(owner2, pkt::DecryptParticipateRequest{
 		owner2OnLookup.front()
 	});
-	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
 	// 4) members run update to get decryption request
 	auto up2 = post<pkt::UpdateResponse>(member, pkt::UpdateRequest{});
@@ -1134,12 +1134,12 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	auto dp1 = post<pkt::DecryptParticipateResponse>(owner2, pkt::DecryptParticipateRequest{
 		owner2OnLookup.front()
 	});
-	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(owner3, pkt::DecryptParticipateRequest{
 		owner3OnLookup.front()
 	});
-	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendPart);
+	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
 	// 4) members run update to get decryption request
 	auto up2a = post<pkt::UpdateResponse>(owner2, pkt::UpdateRequest{});
@@ -1301,7 +1301,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	auto uninvolvedRegMemberSocks = regMemberSocks | std::views::drop(params.regMembersThreshold);
 	// auto uninvolvedRegMemberUsernames = regMemberUsernames | std::views::drop(params.regMembersThreshold);
 
-	auto involvedSocks = join(involvedOwnerSocks, involvedRegMemberSocks);
+	// auto involvedSocks = join(involvedOwnerSocks, involvedRegMemberSocks);
 	auto uninvolvedSocks = join(uninvolvedOwnerSocks, uninvolvedRegMemberSocks);
 
 	auto memberSocks = join(creatorSocks, nonCreatorOwnerSocks, regMemberSocks);
@@ -1431,7 +1431,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		}
 
 		// 3) involved members tell server that they're willing to participate in operation
-		for (auto [i, sock] : involvedSocks | enumerate)
+		for (auto [i, sock] : involvedOwnerSocks | enumerate)
 		{
 			if (initiatorIndex == i)
 				continue; // initiator doesn't request participance
@@ -1439,7 +1439,15 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 				opid
 			});
 			EXPECT_TRUE(dp.has_value());
-			EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::SendPart);
+			EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
+		}
+		for (auto& sock : involvedRegMemberSocks)
+		{
+			auto dp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{
+				opid
+			});
+			EXPECT_TRUE(dp.has_value());
+			EXPECT_EQ(dp->status, pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 		}
 
 		// (and non-involved members are not required...)
