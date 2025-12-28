@@ -743,7 +743,7 @@ namespace senc::utils
 		};
 
 		/**
-		 * @brief Recieves data through socket.
+		 * @brief Receives data through socket.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
@@ -759,7 +759,7 @@ namespace senc::utils
 		};
 
 		/**
-		 * @brief Recieves data through socket.
+		 * @brief Receives data through socket.
 		 * @param out Address to read received data into.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Amount of bytes read.
