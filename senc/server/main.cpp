@@ -29,7 +29,13 @@ namespace senc::server
 			}
 		}
 
-		InteractiveConsole console(handle_cmd);
+		std::optional<InteractiveConsole> console;
+		try { console.emplace(handle_cmd); }
+		catch (const std::exception&)
+		{
+			std::cerr << "Failed to initialize console" << std::endl;
+			return 1;
+		}
 
 		Schema schema;
 		InlinePacketReceiver receiver;
@@ -39,7 +45,7 @@ namespace senc::server
 		DecryptionsManager decryptionsManager;
 		Server server(
 			port,
-			[&console](const std::string& msg) { console.print(msg); },
+			[&console](const std::string& msg) { console->print(msg); },
 			schema,
 			storage,
 			receiver,
@@ -50,10 +56,10 @@ namespace senc::server
 
 		server.start();
 
-		console.print("[info] Server listening at port " + std::to_string(port) + ".");
-		console.print("[info] Use \"stop\" to stop server.");
+		console->print("[info] Server listening at port " + std::to_string(port) + ".");
+		console->print("[info] Use \"stop\" to stop server.");
 
-		console.start_inputs(); // start input loop
+		console->start_inputs(); // start input loop
 
 		server.stop();
 		server.wait();
