@@ -40,9 +40,8 @@ namespace senc::server
 
 	void Server::start()
 	{
-		if (_isRunning)
+		if (_isRunning.exchange(true))
 			throw ServerException("Server is already running");
-		_isRunning = true;
 		
 		_listenSock.listen();
 
