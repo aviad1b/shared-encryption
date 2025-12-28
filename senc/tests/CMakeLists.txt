@@ -23,6 +23,8 @@ add_executable(senc_tests
     "../server/UpdateManager.cpp"
 )
 
+set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
+
 target_link_libraries(senc_tests PRIVATE
     GTest::gtest_main
     senc_utils
