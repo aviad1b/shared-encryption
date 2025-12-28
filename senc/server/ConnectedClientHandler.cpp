@@ -138,13 +138,13 @@ namespace senc::server
 
 		// for each member, make an update of ciphertext to decrypt
 		for (const auto& owner : opPrepRecord.owners_found)
-			_updateManager.register_decryption_participated(
+			_updateManager.register_decryption_participating(
 				owner, opid,
 				opPrepRecord.ciphertext,
 				ownersShardsIDs
 			);
 		for (const auto& regMember : opPrepRecord.reg_members_found)
-			_updateManager.register_decryption_participated(
+			_updateManager.register_decryption_participating(
 				regMember, opid,
 				opPrepRecord.ciphertext,
 				regMembersShardsIDs
