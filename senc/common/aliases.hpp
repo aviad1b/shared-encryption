@@ -6,6 +6,8 @@
  * \date   November 2025, Kislev 5786
  *********************************************************************/
 
+#pragma once
+
 #include "../utils/enc/HybridElGamal2L.hpp"
 #include "../utils/enc/ECHKDF2L.hpp"
 #include "../utils/enc/AES1L.hpp"
