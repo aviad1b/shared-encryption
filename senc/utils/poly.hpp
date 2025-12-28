@@ -163,6 +163,11 @@ namespace senc::utils
 	private:
 		std::vector<C> _coeffs;
 
+		/**
+		 * @brief Samples missing coefficients to make polynomial be of a given degree.
+		 * @param degree Target polynomial degree.
+		 * @param coeffSampler A coefficient-sampling functor.
+		 */
 		void sample_missing_coeffs(PolyDegree degree, std::function<C()> coeffSampler);
 	};
 }
