@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   Random_impl.hpp
- * \brief  Implementation of Random<T> class.
+ * \brief  Implementation of randomization utilities.
  * 
  * \author test
  * \date   November 2025

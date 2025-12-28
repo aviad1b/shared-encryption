@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   Random.hpp
- * \brief  Header of Random<T> class.
+ * \brief  Header of randomization utilities.
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786
