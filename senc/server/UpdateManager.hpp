@@ -22,6 +22,8 @@ namespace senc::server
 	class UpdateManager
 	{
 	public:
+		using Self = UpdateManager;
+
 		UpdateManager() = default;
 
 		/**
