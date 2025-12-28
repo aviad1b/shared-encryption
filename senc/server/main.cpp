@@ -24,7 +24,7 @@ namespace senc::server
 			try { port = std::stoi(argv[1]); }
 			catch (const std::exception&)
 			{
-				std::cout << "Bad port: " << argv[1] << std::endl;
+				std::cerr << "Bad port: " << argv[1] << std::endl;
 				return 1;
 			}
 		}
