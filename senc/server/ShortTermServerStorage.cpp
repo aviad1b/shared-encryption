@@ -42,6 +42,9 @@ namespace senc::server
 			ownersThreshold,
 			regMembersThreshold
 		};
+
+		// we want to be able to move `info` into a map and then still use it;
+		// we use a pointer for this purpose. after `info` is moved, the pointer is updated to its new address
 		StoredUserSetInfo* pInfo = &info;
 
 		// lock users for entire function to prevent changes while working
@@ -65,6 +68,8 @@ namespace senc::server
 				setID,
 				std::move(*pInfo)
 			)).first;
+
+			// update `pInfo` to the new address of `info`
 			pInfo = &it->second;
 		}
 
