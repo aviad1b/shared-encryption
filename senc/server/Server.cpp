@@ -51,9 +51,8 @@ namespace senc::server
 
 	void Server::stop()
 	{
-		if (!_isRunning)
+		if (!_isRunning.exchange(false))
 			throw ServerException("Server is not running");
-		_isRunning = false;
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
