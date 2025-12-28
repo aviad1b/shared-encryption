@@ -49,7 +49,7 @@ namespace senc::server
 		});
 	}
 
-	std::pair<std::optional<DecryptionsManager::PrepareRecord>, bool>
+	std::pair<std::optional<DecryptionsManager::PrepareRecord>, DecryptionsManager::PartRequirement>
 		DecryptionsManager::register_participant(const OperationID& opid,
 												 const std::string& username,
 												 bool isOwner)
@@ -62,7 +62,7 @@ namespace senc::server
 		if (it == _prep.end())
 		{
 			if (_allOpIDs.contains(opid))
-				return { res, false }; // operation ID is valid, already has enough users (user isn't required)
+				return { res, PartRequirement::NotRequired }; // opid valid, already has enough users
 			else
 				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
 		}
@@ -71,11 +71,18 @@ namespace senc::server
 		// - if owner, try pushing into owners vec, if full then try pushing into non-owners vec
 		// - if non-owner, try pushing into non-owners vec
 		// - return false if failed (member isn't needed)
+		PartRequirement partRequirement = PartRequirement::NotRequired;
 		if (isOwner && it->second.owners_found.size() < it->second.required_owners)
+		{
 			it->second.owners_found.insert(username);
+			partRequirement = PartRequirement::OwnerPart;
+		}
 		else if (it->second.reg_members_found.size() < it->second.required_reg_members)
+		{
 			it->second.reg_members_found.insert(username);
-		else return { res, false }; // operation ID is valid, already has enough members
+			partRequirement = PartRequirement::RegPart;
+		}
+		else return { res, PartRequirement::NotRequired }; // opid valid, already has enough members
 
 		// if has enough members, move from prepare stage to collect stage
 		if (it->second.has_enough_participants())
@@ -91,7 +98,7 @@ namespace senc::server
 			_prep.erase(it);
 		}
 
-		return { res, true };
+		return { res, partRequirement };
 	}
 	
 	std::optional<DecryptionsManager::CollectedRecord>

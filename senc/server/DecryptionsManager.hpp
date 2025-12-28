@@ -26,6 +26,12 @@ namespace senc::server
 		using Self = DecryptionsManager;
 
 		/**
+		 * @enum senc::server::DecryptionsManager::PartRequirement
+		 * @brief Represents status of part requirement (required/not, and part type).
+		 */
+		enum class PartRequirement { NotRequired, RegPart, OwnerPart };
+
+		/**
 		 * @brief Record for collected parts of an operation.
 		 */
 		struct CollectedRecord
@@ -108,9 +114,10 @@ namespace senc::server
 		 * @return 1. Record of prepared operation if has enough members, `std::nullopt` otherwise.
 		 *		   2. `true` if user was required for decryption, otherwise `false`.
 		 */
-		std::pair<std::optional<PrepareRecord>, bool> register_participant(const OperationID& opid,
-																		   const std::string& username,
-																		   bool isOwner);
+		std::pair<std::optional<PrepareRecord>, PartRequirement>
+			register_participant(const OperationID& opid,
+								 const std::string& username,
+								 bool isOwner);
 
 		/**
 		 * @brief Registers a decryption part provided by a member.

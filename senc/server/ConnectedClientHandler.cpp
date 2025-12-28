@@ -299,11 +299,11 @@ namespace senc::server
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
 	{
 		std::optional<DecryptionsManager::PrepareRecord> opPrepRecord;
-		bool isRequired = false;
+		DecryptionsManager::PartRequirement partRequirement{};
 
 		try
 		{
-			std::tie(opPrepRecord, isRequired) = _decryptionsManager.register_participant(
+			std::tie(opPrepRecord, partRequirement) = _decryptionsManager.register_participant(
 				request.op_id,
 				_username,
 				_storage.user_owns_userset(_username, _decryptionsManager.get_operation_userset(request.op_id))
@@ -317,15 +317,6 @@ namespace senc::server
 			return Status::Connected;
 		}
 
-		// if user isn't required for decryption, return fitting status
-		if (!isRequired)
-		{
-			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
-				pkt::DecryptParticipateResponse::Status::NotRequired
-			});
-			return Status::Connected;
-		}
-
 		// if decryptions manager returned a prep record, continue to collection stage
 		if (opPrepRecord.has_value())
 		{
@@ -333,10 +324,25 @@ namespace senc::server
 			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
 		}
 
-		// finally, send ack (ask client to send decryption part next (in fitting update))
-		_sender.send_response(_sock, pkt::DecryptParticipateResponse{
-			pkt::DecryptParticipateResponse::Status::SendPart
-		});
+		// finally, send ack (ask client to send decryption part next (in fitting update), or tell if not needed)
+		switch (partRequirement)
+		{
+		case DecryptionsManager::PartRequirement::RegPart:
+			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+				pkt::DecryptParticipateResponse::Status::SendRegLayerPart
+			});
+			break;
+		case DecryptionsManager::PartRequirement::OwnerPart:
+			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart
+			});
+			break;
+		default:
+			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+				pkt::DecryptParticipateResponse::Status::NotRequired
+			});
+			break;
+		}
 
 		return Status::Connected;
 	}
