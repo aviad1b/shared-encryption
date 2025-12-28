@@ -29,6 +29,11 @@ namespace senc::utils
 	 */
 	using Port = int;
 
+	/**
+	 * @concept senc::utils::IPType
+	 * @brief Looks for a typename that can be used as an IP address (e.g. IPv4, IPv6).
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept IPType = std::copyable<Self> &&
 		std::equality_comparable<Self> &&
