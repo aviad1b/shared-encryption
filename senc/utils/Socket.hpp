@@ -253,13 +253,13 @@ namespace senc::utils
 		using Self = SocketException;
 		using Base = Exception;
 
-		SocketException(const std::string& msg);
+		SocketException(const std::string& msg) : Base(msg) { }
 
-		SocketException(std::string&& msg);
+		SocketException(std::string&& msg) : Base(std::move(msg)) { }
 
-		SocketException(const std::string& msg, const std::string& info);
+		SocketException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 		
-		SocketException(std::string&& msg, const std::string& info);
+		SocketException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		SocketException(const Self&) = default;
 

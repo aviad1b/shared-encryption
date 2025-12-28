@@ -100,16 +100,6 @@ namespace senc::utils
 		out->sin6_addr = this->_addr;
 	}
 
-	SocketException::SocketException(const std::string& msg) : Base(msg) { }
-
-	SocketException::SocketException(std::string&& msg) : Base(std::move(msg)) { }
-
-	SocketException::SocketException(const std::string& msg, const std::string& info)
-		: Base(msg, info) { }
-
-	SocketException::SocketException(std::string&& msg, const std::string& info)
-		: Base(std::move(msg), info) { }
-
 	SocketInitializer::~SocketInitializer()
 	{
 		try { WSACleanup(); }
