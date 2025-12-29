@@ -17,6 +17,10 @@
 
 namespace senc::server
 {
+	/**
+	 * @class senc::server::ServerStorageException
+	 * @brief Type of exceptions thrown on server storage errors.
+	 */
 	class ServerStorageException : public ServerException
 	{
 	public:
@@ -132,16 +136,6 @@ namespace senc::server
 		std::vector<std::string> reg_members;
 		member_count_t owners_threshold;
 		member_count_t reg_members_threshold;
-	};
-
-	/**
-	 * @struct senc::server::OperationInfo
-	 * @brief Used for holding/returning information about a requested operation.
-	 */
-	struct OperationInfo
-	{
-		std::string requester;
-		bool is_completed = false;
 	};
 
 	/**

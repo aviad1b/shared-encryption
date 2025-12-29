@@ -199,7 +199,7 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::connect(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to connect", Socket::get_last_sock_err());
+			throw SocketException("Failed to connect", SocketUtils::get_last_sock_err());
 		this->_isConnected = true;
 	}
 
@@ -215,7 +215,7 @@ namespace senc::utils
 		typename IP::UnderlyingSockAddr sa{};
 		addr.init_underlying(&sa, port);
 		if (::bind(this->_sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-			throw SocketException("Failed to bind", Socket::get_last_sock_err());
+			throw SocketException("Failed to bind", SocketUtils::get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -237,7 +237,7 @@ namespace senc::utils
 	inline void TcpSocket<IP>::listen()
 	{
 		if (::listen(this->_sock, SOMAXCONN) < 0)
-			throw SocketException("Failed to listen", Socket::get_last_sock_err());
+			throw SocketException("Failed to listen", SocketUtils::get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -249,7 +249,7 @@ namespace senc::utils
 
 		auto sock = ::accept(this->_sock, (struct sockaddr*)&clientAddr, &clientAddrLen);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
-			throw SocketException("Failed to accept", Socket::get_last_sock_err());
+			throw SocketException("Failed to accept", SocketUtils::get_last_sock_err());
 		return std::make_pair(
 			Self(sock, true), // isConnected=true
 			IP::from_underlying_sock_addr(clientAddr)
@@ -270,7 +270,7 @@ namespace senc::utils
 		struct sockaddr_in addr = {0};
 		addr.sin_family = AF_UNSPEC;
 		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-			throw SocketException("Failed to disconnect", Socket::get_last_sock_err());
+			throw SocketException("Failed to disconnect", SocketUtils::get_last_sock_err());
 		this->_isConnected = false;
 	}
 
@@ -282,7 +282,7 @@ namespace senc::utils
 
 		// Note: We assume here that size does not surpass int limit.
 		if (static_cast<int>(size) != ::sendto(this->_sock, (const char*)data, size, 0, (struct sockaddr*)&sa, sizeof(sa)))
-			throw SocketException("Failed to send", Socket::get_last_sock_err());
+			throw SocketException("Failed to send", SocketUtils::get_last_sock_err());
 	}
 
 	template <IPType IP>
@@ -309,7 +309,7 @@ namespace senc::utils
 			(struct sockaddr*)&addr, &addrLen
 		);
 		if (count < 0)
-			throw SocketException("Failed to recieve", Socket::get_last_sock_err());
+			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		auto [ip, port] = IP::from_underlying_sock_addr(addr);
 		return { static_cast<std::size_t>(count), ip, port };
 	}

@@ -14,13 +14,13 @@
 using std::cout;
 using std::endl;
 
-namespace senc
+namespace senc::client
 {
-	void print_pub_keys(const PubKey& pubKey1, const PubKey& pubKey2)
+	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey)
 	{
 		cout << "Encryption key: "
-			 << utils::bytes_to_base64(pubKey1.to_bytes()) << endl
-			 << utils::bytes_to_base64(pubKey2.to_bytes()) << endl;
+			 << utils::bytes_to_base64(regLayerPubKey.to_bytes()) << endl
+			 << utils::bytes_to_base64(ownerLayerPubKey.to_bytes()) << endl;
 	}
 
 	// helper function, not accessed by main
@@ -29,12 +29,12 @@ namespace senc
 		cout << label << " decryption key shard: (" << shard.first << "," << shard.second << ")" << endl;
 	}
 
-	void print_priv_key1_shard(const PrivKeyShard& shard)
+	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard)
 	{
 		print_priv_key_any_shard("Non-owner", shard);
 	}
 
-	void print_priv_key2_shard(const PrivKeyShard& shard)
+	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard)
 	{
 		print_priv_key_any_shard("Owner", shard);
 	}

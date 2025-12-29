@@ -19,11 +19,14 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ConnectedClientHandler
 	 * @brief Handles requests of connected client.
 	 */
 	class ConnectedClientHandler
 	{
 	public:
+		using Self = ConnectedClientHandler;
+
 		/**
 		 * @brief Constructs a new handler for a connected client.
 		 * @param sock Socket connected to client.

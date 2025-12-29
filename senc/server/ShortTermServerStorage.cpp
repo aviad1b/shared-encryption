@@ -13,17 +13,14 @@
 namespace senc::server
 {
 	ShortTermServerStorage::ShortTermServerStorage()
-		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS + 1)) { }
+		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS)) { }
 
 	void ShortTermServerStorage::new_user(const std::string& username)
 	{
-		bool inserted = false;
-		{
-			const std::lock_guard<std::mutex> lock(_mtxUsers);
-			inserted = _users.insert(std::make_pair(
-				username, std::set<UserSetID>{}
-			)).second;
-		}
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		const bool inserted = _users.insert(std::make_pair(
+			username, std::set<UserSetID>{}
+		)).second;
 		if (!inserted)
 			throw UserExistsException(username);
 	}
@@ -45,6 +42,9 @@ namespace senc::server
 			ownersThreshold,
 			regMembersThreshold
 		};
+
+		// we want to be able to move `info` into a map and then still use it;
+		// we use a pointer for this purpose. after `info` is moved, the pointer is updated to its new address
 		StoredUserSetInfo* pInfo = &info;
 
 		// lock users for entire function to prevent changes while working
@@ -56,7 +56,7 @@ namespace senc::server
 			if (!_users.contains(member))
 				throw UserNotFoundException(member);
 
-		UserSetID setID;
+		UserSetID setID{};
 
 		// generate set ID and insert new userset to map
 		{
@@ -68,6 +68,8 @@ namespace senc::server
 				setID,
 				std::move(*pInfo)
 			)).first;
+
+			// update `pInfo` to the new address of `info`
 			pInfo = &it->second;
 		}
 

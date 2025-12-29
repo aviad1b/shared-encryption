@@ -12,7 +12,7 @@
 
 namespace senc::server
 {
-	bool DecryptionsManager::PrepareRecord::has_enough_members() const
+	bool DecryptionsManager::PrepareRecord::has_enough_participants() const
 	{
 		return owners_found.size() >= required_owners &&
 			reg_members_found.size() >= required_reg_members;
@@ -20,8 +20,8 @@ namespace senc::server
 
 	bool DecryptionsManager::CollectedRecord::has_enough_parts() const
 	{
-		return parts2.size() >= required_owners &&
-			parts1.size() >= required_reg_members;
+		return owner_layer_parts.size() >= required_owners &&
+			reg_layer_parts.size() >= required_reg_members;
 	}
 
 	OperationID DecryptionsManager::new_operation()
@@ -49,7 +49,7 @@ namespace senc::server
 		});
 	}
 
-	std::pair<std::optional<DecryptionsManager::PrepareRecord>, bool>
+	std::pair<std::optional<DecryptionsManager::PrepareRecord>, DecryptionsManager::PartRequirement>
 		DecryptionsManager::register_participant(const OperationID& opid,
 												 const std::string& username,
 												 bool isOwner)
@@ -59,37 +59,46 @@ namespace senc::server
 		// register participant
 		const std::unique_lock<std::mutex> lockPrep(_mtxPrep);
 		const auto it = _prep.find(opid);
-		auto& record = it->second;
 		if (it == _prep.end())
 		{
 			if (_allOpIDs.contains(opid))
-				return { res, false }; // operation ID is valid, already has enough users (user isn't required)
+				return { res, PartRequirement::NotRequired }; // opid valid, already has enough users
 			else
 				throw ServerException("No operation with ID " + opid.to_string()); // no such operation
 		}
 
-		// push participant to matching vector
-		if (isOwner && record.owners_found.size() < record.required_owners)
-			record.owners_found.insert(username);
-		else if (record.reg_members_found.size() < record.required_reg_members)
-			record.reg_members_found.insert(username);
-		else return { res, false }; // operation ID is valid, already has enough members
+		// push participant to matching vector:
+		// - if owner, try pushing into owners vec, if full then try pushing into non-owners vec
+		// - if non-owner, try pushing into non-owners vec
+		// - return false if failed (member isn't needed)
+		PartRequirement partRequirement = PartRequirement::NotRequired;
+		if (isOwner && it->second.owners_found.size() < it->second.required_owners)
+		{
+			it->second.owners_found.insert(username);
+			partRequirement = PartRequirement::OwnerPart;
+		}
+		else if (it->second.reg_members_found.size() < it->second.required_reg_members)
+		{
+			it->second.reg_members_found.insert(username);
+			partRequirement = PartRequirement::RegPart;
+		}
+		else return { res, PartRequirement::NotRequired }; // opid valid, already has enough members
 
 		// if has enough members, move from prepare stage to collect stage
-		if (record.has_enough_members())
+		if (it->second.has_enough_participants())
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
-				record.requester,
-				record.userset_id,
-				record.required_owners,
-				record.required_reg_members
+				it->second.requester,
+				it->second.userset_id,
+				it->second.required_owners,
+				it->second.required_reg_members
 			});
-			res.emplace(std::move(record));
+			res.emplace(std::move(it->second));
 			_prep.erase(it);
 		}
 
-		return { res, true };
+		return { res, partRequirement };
 	}
 	
 	std::optional<DecryptionsManager::CollectedRecord>
@@ -103,16 +112,15 @@ namespace senc::server
 		// register parts
 		const std::unique_lock<std::mutex> lock(_mtxCollected);
 		auto it = _collected.find(opid);
-		auto& record = it->second;
-		auto& parts = isOwner ? record.parts2 : record.parts1;
-		auto& shardsIDs = isOwner ? record.shardsIDs2 : record.shardsIDs1;
+		auto& parts = isOwner ? it->second.owner_layer_parts : it->second.reg_layer_parts;
+		auto& shardsIDs = isOwner ? it->second.owner_layer_shards_ids : it->second.reg_layer_shards_ids;
 		parts.push_back(std::move(part));
 		shardsIDs.push_back(std::move(shardID));
 
 		// if has enough parts, remove record and return collect record
-		if (record.has_enough_parts())
+		if (it->second.has_enough_parts())
 		{
-			res.emplace(std::move(record));
+			res.emplace(std::move(it->second));
 			_collected.erase(it);
 		}
 
@@ -122,19 +130,19 @@ namespace senc::server
 	const UserSetID DecryptionsManager::get_operation_userset(const OperationID& opid)
 	{
 		{
-			std::unique_lock<std::mutex> lockPrep(_mtxPrep);
+			std::unique_lock<std::mutex> lock(_mtxPrep);
 			const auto itPrep = _prep.find(opid);
 			if (itPrep != _prep.end())
 				return itPrep->second.userset_id;
 		}
 
 		{
-			std::unique_lock<std::mutex> lockColl(_mtxCollected);
+			std::unique_lock<std::mutex> lock(_mtxCollected);
 			const auto itColl = _collected.find(opid);
 			if (itColl != _collected.end())
 				return itColl->second.userset_id;
 		}
 
-		throw ServerException("No operation with ID " + opid.to_string());
+		throw ServerException("Operation with ID " + opid.to_string() + " not found or already finished");
 	}
 }

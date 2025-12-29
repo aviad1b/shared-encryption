@@ -29,7 +29,7 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
-		 * @param log A function used to output server log messages.
+		 * @param logInfo A function used to output server log information messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param receiver Implementation of `PacketReceiver`.
@@ -39,7 +39,7 @@ namespace senc::server
 		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						std::optional<std::function<void(const std::string&)>> log,
+						std::optional<std::function<void(const std::string&)>> logInfo,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketReceiver& receiver,
@@ -84,18 +84,37 @@ namespace senc::server
 	private:
 		Socket _listenSock;
 		utils::Port _listenPort;
-		std::optional<std::function<void(const std::string&)>> _log;
+		std::optional<std::function<void(const std::string&)>> _logInfo;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
+		enum class LogType { Info };
+
 		/**
 		 * @brief Outputs server log message.
 		 * @param msg Message to output.
 		 */
-		void log(const std::string& msg);
+		void log(LogType logType, const std::string& msg);
+
+		/**
+		 * @brief Outputs server log message.
+		 * @param ip Client's IP address.
+		 * @param port Client's port.
+		 * @param msg Message to output.
+		 */
+		void log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg);
+		
+		/**
+		 * @brief Outputs server log message.
+		 * @param ip Client's IP address.
+		 * @param port Client's port.
+		 * @param username Client username.
+		 * @param msg Message to output.
+		 */
+		void log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg);
 
 		/**
 		 * @brief Accepts new clients in a loop.

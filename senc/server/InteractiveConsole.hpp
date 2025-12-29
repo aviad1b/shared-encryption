@@ -65,14 +65,32 @@ namespace senc::server
 
 		std::string _curIn;
 
+		/**
+		 * @brief Reads inputs from user until console is stopped
+		 *        (via `stop_input` or a `true` return from `handleInput`).
+		 */
 		void input_loop();
 
+		/**
+		 * @brief Handles console key event.
+		 * @param keyEvent Key event params.
+		 */
 		void handle_key_event(const KEY_EVENT_RECORD& keyEvent);
 
+		/**
+		 * @brief Displays input prompt.
+		 */
 		void display_prompt();
 
+		/**
+		 * @brief Clears current console line.
+		 */
 		void clear_current_line();
 
+		/**
+		 * @brief Writes text directly to console.
+		 * @param text Text to write to console.
+		 */
 		void write_to_console(const std::string& text);
 	};
 }

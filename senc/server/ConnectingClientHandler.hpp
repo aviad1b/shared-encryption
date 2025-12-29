@@ -18,11 +18,14 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ConnectingClientHandler
 	 * @brief Handles requests of connecting client (not yet signed in).
 	 */
 	class ConnectingClientHandler
 	{
 	public:
+		using Self = ConnectingClientHandler;
+
 		/**
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param sock Socket connected to client.

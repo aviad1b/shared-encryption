@@ -26,13 +26,13 @@ namespace senc::utils
 		using Self = FractionException;
 		using Base = Exception;
 
-		FractionException(const std::string& msg);
+		FractionException(const std::string& msg) : Base(msg) { }
 
-		FractionException(std::string&& msg);
+		FractionException(std::string&& msg) : Base(std::move(msg)) { }
 
-		FractionException(const std::string& msg, const std::string& info);
+		FractionException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 
-		FractionException(std::string&& msg, const std::string& info);
+		FractionException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		FractionException(const Self&) = default;
 

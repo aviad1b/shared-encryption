@@ -229,17 +229,17 @@ namespace senc::pkt
 		/// ID of created user set.
 		UserSetID user_set_id;
 
-		/// Public key for encryption on first layer (non-owner layer).
-		PubKey pub_key1;
+		/// Public key for encryption on non-owner layer.
+		PubKey reg_layer_pub_key;
 
-		/// Public key for encryption on second layer (owner layer).
-		PubKey pub_key2;
+		/// Public key for encryption on owner layer.
+		PubKey owner_layer_pub_key;
 
-		/// Private key shard for first layer (non-owner layer).
-		PrivKeyShard priv_key1_shard;
+		/// Private key shard for non-owner layer.
+		PrivKeyShard reg_layer_priv_key_shard;
 
-		/// Private key shard for second layer (owner layer).
-		PrivKeyShard priv_key2_shard;
+		/// Private key shard for owner layer.
+		PrivKeyShard owner_layer_priv_key_shard;
 	};
 
 
@@ -396,14 +396,14 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
-			/// Public key of the set for first layer (non-owner layer) encryption.
-			PubKey pub_key1;
+			/// Public key of the set for non-owner layer encryption.
+			PubKey reg_layer_pub_key;
 
-			/// Public key of the set for second layer (owner layer) encryption.
-			PubKey pub_key2;
+			/// Public key of the set for owner layer encryption.
+			PubKey owner_layer_pub_key;
 
-			/// Private key shard for first layer (non-owner layer) decryption.
-			PrivKeyShard priv_key1_shard;
+			/// Private key shard for non-owner layer decryption.
+			PrivKeyShard reg_layer_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as non-owner.
@@ -421,17 +421,17 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
-			/// Public key of the set for first layer (non-owner layer) encryption.
-			PubKey pub_key1;
+			/// Public key of the set for non-owner layer encryption.
+			PubKey reg_layer_pub_key;
 
-			/// Public key of the set for second layer (owner layer) encryption.
-			PubKey pub_key2;
+			/// Public key of the set for owner layer encryption.
+			PubKey owner_layer_pub_key;
 
-			/// Private key shard for first layer (non-owner layer) decryption.
-			PrivKeyShard priv_key1_shard;
+			/// Private key shard for non-owner layer decryption.
+			PrivKeyShard reg_layer_priv_key_shard;
 
-			/// Private key shard for second layer (owner layer) decryption.
-			PrivKeyShard priv_key2_shard;
+			/// Private key shard for owner layer decryption.
+			PrivKeyShard owner_layer_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as owner.
@@ -475,17 +475,17 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
-			/// Decryption parts for first layer (non-owner layer).
-			std::vector<DecryptionPart> parts1;
+			/// Decryption parts for non-owner layer.
+			std::vector<DecryptionPart> reg_layer_parts;
 
-			/// Decryption parts for second layer (owner layer).
-			std::vector<DecryptionPart> parts2;
+			/// Decryption parts for owner layer.
+			std::vector<DecryptionPart> owner_layer_parts;
 
-			// Shards IDs used in parts of first layer.
-			std::vector<PrivKeyShardID> shardsIDs1;
+			// Shards IDs used in parts of non-owner layer.
+			std::vector<PrivKeyShardID> reg_layer_shards_ids;
 
-			// Shards IDs used in parts of second layer.
-			std::vector<PrivKeyShardID> shardsIDs2;
+			// Shards IDs used in parts of owner layer.
+			std::vector<PrivKeyShardID> owner_layer_shards_ids;
 		};
 
 		/// Finished decryptions requested by this client.
@@ -530,8 +530,11 @@ namespace senc::pkt
 		 */
 		enum class Status : std::uint8_t
 		{
-			/// User must submit a decryption part.
-			SendPart,
+			/// User must submit a non-owner layer decryption part.
+			SendRegLayerPart,
+
+			/// User must submit an owner layer decryption part.
+			SendOwnerLayerPart,
 
 			/// No longer needed.
 			NotRequired

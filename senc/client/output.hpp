@@ -10,13 +10,30 @@
 
 #include "../common/aliases.hpp"
 
-namespace senc
+namespace senc::client
 {
-	void print_pub_keys(const PubKey& pubKey1, const PubKey& pubKey2);
+	/**
+	 * @brief Prints public keys.
+	 * @param regLayerPubKey1 Public key of non-owner layer to print.
+	 * @param ownerLayerPubKey2 Public key of owner layer to print.
+	 */
+	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey);
 
-	void print_priv_key1_shard(const PrivKeyShard& shard);
+	/**
+	 * @brief Prints a private key shard of the non-owner layer.
+	 * @param shard Private key shard to print.
+	 */
+	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard);
 	
-	void print_priv_key2_shard(const PrivKeyShard& shard);
+	/**
+	 * @brief Prints a private key shard of the owner layer.
+	 * @param shard Private key shard to print.
+	 */
+	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard);
 
+	/**
+	 * @brief Prints ciphertext.
+	 * @param ciphertext Ciphertext to print.
+	 */
 	void print_ciphertext(const Ciphertext& ciphertext);
 }

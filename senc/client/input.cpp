@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace senc
+namespace senc::client
 {
 	std::string input()
 	{
@@ -111,9 +111,9 @@ namespace senc
 
 	std::pair<PubKey, PubKey> input_pub_keys()
 	{
-		auto pubKey1 = PubKey::from_bytes(utils::bytes_from_base64(input()));
-		auto pubKey2 = PubKey::from_bytes(utils::bytes_from_base64(input()));
-		return { std::move(pubKey1), std::move(pubKey2) };
+		auto regLayerPubKey = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		auto ownerLayerPubKey = PubKey::from_bytes(utils::bytes_from_base64(input()));
+		return { std::move(regLayerPubKey), std::move(ownerLayerPubKey) };
 	}
 
 	std::pair<PubKey, PubKey> input_pub_keys(const std::string& msg)
@@ -129,7 +129,8 @@ namespace senc
 
 	std::vector<PrivKeyShardID> input_priv_key_shard_ids(const std::string& msg)
 	{
-		return input_vec<PrivKeyShardID, input_num<PrivKeyShardID, true>>(msg);
+		std::cout << msg;
+		return input_priv_key_shard_ids();
 	}
 
 	PrivKeyShard input_priv_key_shard()
@@ -198,6 +199,7 @@ namespace senc
 
 	std::vector<DecryptionPart> input_decryption_parts(const std::string& msg)
 	{
-		return input_vec<DecryptionPart, input_decryption_part<true>>(msg);
+		std::cout << msg;
+		return input_decryption_parts();
 	}
 }

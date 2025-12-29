@@ -89,13 +89,13 @@ namespace senc::utils
 		using Self = ShamirException;
 		using Base = Exception;
 
-		ShamirException(const std::string& msg) : Base(msg) {}
+		ShamirException(const std::string& msg) : Base(msg) { }
 
-		ShamirException(std::string&& msg) : Base(std::move(msg)) {}
+		ShamirException(std::string&& msg) : Base(std::move(msg)) { }
 
-		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) {}
+		ShamirException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 
-		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) {}
+		ShamirException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		ShamirException(const Self&) = default;
 
@@ -106,6 +106,12 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	/**
+	 * @class senc::utils::ShamirUtils
+	 * @brief Contains utilities for both Shamir secret-sharing and Shamir threshold decryption.
+	 * @tparam S Type of secret / private key.
+	 * @tparam SID Shard ID type.
+	 */
 	template <typename S, ShamirShardID SID>
 	requires ShamirSecret<S, SID>
 	class ShamirUtils

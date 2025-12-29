@@ -40,6 +40,11 @@ namespace senc::utils
 		{ self /= std::declval<Self>() } -> std::same_as<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::Group
+	 * @brief Looks for a typename that can be used as an algebric group with a prime order.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept PrimeOrderedGroup = Group<Self> && requires
 	{

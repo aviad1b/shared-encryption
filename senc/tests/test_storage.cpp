@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   test_storage.cpp
+ * \brief  Contains tests for server storage.
+ * 
+ * \author aviad1b
+ * \date   December 2025, Kislev 5786
+ *********************************************************************/
+
 #include <WinSock2.h> // no idea why this was needed here, microsoft are getting on my nerves
 #include <gtest/gtest.h>
 #include <functional>
@@ -8,7 +16,6 @@
 
 using senc::server::ShortTermServerStorage;
 using senc::server::IServerStorage;
-using senc::server::OperationInfo;
 using senc::server::UserSetInfo;
 using senc::PrivKeyShardID;
 using senc::member_count_t;

@@ -29,6 +29,11 @@ namespace senc::utils
 	 */
 	using Port = int;
 
+	/**
+	 * @concept senc::utils::IPType
+	 * @brief Looks for a typename that can be used as an IP address (e.g. IPv4, IPv6).
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept IPType = std::copyable<Self> &&
 		std::equality_comparable<Self> &&
@@ -248,13 +253,13 @@ namespace senc::utils
 		using Self = SocketException;
 		using Base = Exception;
 
-		SocketException(const std::string& msg);
+		SocketException(const std::string& msg) : Base(msg) { }
 
-		SocketException(std::string&& msg);
+		SocketException(std::string&& msg) : Base(std::move(msg)) { }
 
-		SocketException(const std::string& msg, const std::string& info);
+		SocketException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 		
-		SocketException(std::string&& msg, const std::string& info);
+		SocketException(std::string&& msg, const std::string& info) : Base(std::move(msg), info) { }
 
 		SocketException(const Self&) = default;
 
@@ -265,6 +270,25 @@ namespace senc::utils
 		Self& operator=(Self&&) = default;
 	};
 
+	/**
+	 * @class senc::utils::SocketUtils
+	 * @brief Contains utility functions for sockets.
+	 */
+	class SocketUtils
+	{
+	public:
+		/**
+		 * @brief Gets last socket error from system.
+		 * @return Last socket error message.
+		 */
+		static std::string get_last_sock_err();
+	};
+
+	/**
+	 * @class senc::utils::SocketInitializer
+	 * @brief Utility class used for socket environment initialization.
+	 *		  Not to be used externally.
+	 */
 	class SocketInitializer
 	{
 		friend class Socket;
@@ -274,6 +298,8 @@ namespace senc::utils
 
 	private:
 		SocketInitializer();
+
+		static const SocketInitializer SOCKET_INITIALIZER;
 	};
 
 	/**
@@ -523,12 +549,9 @@ namespace senc::utils
 		 */
 		std::size_t out_leftover_data(void* out, std::size_t maxsize);
 
-		static std::string get_last_sock_err();
-
 		static bool underlying_has_data(Underlying sock);
 
 	private:
-		static const SocketInitializer SOCKET_INITIALIZER;
 		Buffer _buffer; // for leftover data
 	};
 
@@ -720,7 +743,7 @@ namespace senc::utils
 		};
 
 		/**
-		 * @brief Recieves data through socket.
+		 * @brief Receives data through socket.
 		 * @note Requires socket to be disconnected.
 		 * @param maxsize Maximum amount of bytes to recieve.
 		 * @return Recieved data.
@@ -736,10 +759,10 @@ namespace senc::utils
 		};
 
 		/**
-		 * @brief Recieves data through socket.
+		 * @brief Receives data through socket.
 		 * @param out Address to read received data into.
 		 * @param maxsize Maximum amount of bytes to recieve.
-		 * @return Amount of bytes read.
+		 * @return Amount of bytes read as well as IP address and port from which received.
 		 * @throw senc::utils::SocketException On failure.d
 		 */
 		recv_from_into_ret_t recv_from_into(void* out, std::size_t maxsize);
@@ -747,7 +770,7 @@ namespace senc::utils
 		/**
 		 * @brief Recieves data through socket.
 		 * @param out An object holding mutable byte data to read received data into.
-		 * @return Amount of bytes read.
+		 * @return Amount of bytes read as well as IP address and port from which received.
 		 * @throw senc::utils::SocketException On failure.
 		 * @note Reads `out.size()` bytes at max.
 		 */

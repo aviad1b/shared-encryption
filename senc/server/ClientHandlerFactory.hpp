@@ -20,11 +20,14 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::ClientHandlerFactory
 	 * @brief Used for constructing client handlers.
 	 */
 	class ClientHandlerFactory
 	{
 	public:
+		using Self = ClientHandlerFactory;
+
 		/**
 		 * @brief Constructs a new client handler factory.
 		 * @param schema Decryptions schema to use for decryptions.

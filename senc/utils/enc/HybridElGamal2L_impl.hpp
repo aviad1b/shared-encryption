@@ -13,7 +13,7 @@
 
 namespace senc::utils::enc
 {
-	template<Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L()
 	requires std::is_default_constructible_v<S> && std::is_default_constructible_v<KDF>
 		: Self(S(), KDF()) { }
@@ -23,7 +23,7 @@ namespace senc::utils::enc
 	requires std::is_default_constructible_v<KDF>
 		: Self(symmetricSchema, KDF()) { }
 
-	template<Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
+	template <Group G, Symmetric1L S, ConstCallable<Key<S>, G, G> KDF>
 	inline HybridElGamal2L<G, S, KDF>::HybridElGamal2L(KDF&& kdf)
 	requires std::is_default_constructible_v<S>
 		: Self(S(), kdf) { }

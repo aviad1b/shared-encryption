@@ -69,10 +69,6 @@ namespace senc::server
 		std::mutex _mtxUsersets;
 		utils::HashMap<UserSetID, StoredUserSetInfo> _usersets;
 
-		// map opid to operation info
-		std::mutex _mtxOperations;
-		utils::HashMap<OperationID, OperationInfo> _operations;
-
 		// map user and userset to shard ID
 		std::mutex _mtxShardIDs;
 		utils::HashMap<UserSetID, utils::HashSet<PrivKeyShardID>> _usersetShardIDs;

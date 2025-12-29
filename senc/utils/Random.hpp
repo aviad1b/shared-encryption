@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   Random.hpp
- * \brief  Header of Random<T> class.
+ * \brief  Header of randomization utilities.
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786
@@ -27,7 +27,8 @@ namespace senc::utils
 	public:
 		using Self = BigIntUnderlyingDist;
 
-		BigIntUnderlyingDist(const BigInt& min, const BigInt& max);
+		BigIntUnderlyingDist(const BigInt& min, const BigInt& max)
+			: _min(min), _max(max) { }
 
 		BigIntUnderlyingDist(const Self&) = default;
 
@@ -37,7 +38,15 @@ namespace senc::utils
 
 		Self& operator=(Self&&) = default;
 
-		BigInt operator()(CryptoPP::RandomNumberGenerator& engine) const;
+		BigInt operator()(CryptoPP::RandomNumberGenerator& engine) const
+		{
+			BigInt res;
+			res.Randomize(
+				engine, this->_min, this->_max,
+				BigInt::RandomNumberType::ANY
+			);
+			return res;
+		}
 
 	private:
 		BigInt _min, _max;

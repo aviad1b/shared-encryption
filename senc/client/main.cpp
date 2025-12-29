@@ -7,7 +7,7 @@
 #include "output.hpp"
 #include "input.hpp"
 
-namespace senc
+namespace senc::client
 {
 	using AddedAsMemberRecord = pkt::UpdateResponse::AddedAsMemberRecord;
 	using AddedAsOwnerRecord = pkt::UpdateResponse::AddedAsOwnerRecord;
@@ -50,7 +50,7 @@ namespace senc
 		Exit
 	};
 
-	enum class ConnStatus { Error, Connected, Disconnected };
+	enum class ConnStatus { NoChange, Connected, Disconnected };
 
 	using SockFunc = std::function<ConnStatus(Socket&)>;
 
@@ -85,42 +85,42 @@ namespace senc
 	// maps login menu option to description and function
 	const std::map<LoginMenuOption, OptionRecord> LOGIN_OPTS {
 		{ LoginMenuOption::Signup, { "Signup", signup } },
-		{ LoginMenuOption::Login, { "Login", login } },
-		{ LoginMenuOption::Exit, { "Exit", logout } }
+		{ LoginMenuOption::Login , { "Login" , login  } },
+		{ LoginMenuOption::Exit  , { "Exit"  , logout } },
 	};
 
 	// maps main menu option to description and function
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
-		{ MainMenuOption::MakeUserSet, { "Create a new userset", make_userset } },
-		{ MainMenuOption::GetUserSets, { "Show my usersets", get_usersets } },
-		{ MainMenuOption::GetMembers, { "Show userset's members", get_members } },
-		{ MainMenuOption::Encrypt, { "Encrypt a message", encrypt } },
-		{ MainMenuOption::Decrypt, { "Decrypt a message", decrypt } },
-		{ MainMenuOption::Update, { "Run an update cycle", update } },
-		{ MainMenuOption::Participate, { "Participate in decryption", participate } },
-		{ MainMenuOption::CompPart, { "Compute part for decryption", comp_part } },
-		{ MainMenuOption::SendPart, { "Send part for decryption", send_part } },
-		{ MainMenuOption::JoinParts, { "Join decryption parts", join_parts } },
-		{ MainMenuOption::Exit, { "Exit", logout } }
+		{ MainMenuOption::MakeUserSet, { "Create a new userset"       , make_userset } },
+		{ MainMenuOption::GetUserSets, { "Show my usersets"           , get_usersets } },
+		{ MainMenuOption::GetMembers , { "Show userset's members"     , get_members  } },
+		{ MainMenuOption::Encrypt    , { "Encrypt a message"          , encrypt      } },
+		{ MainMenuOption::Decrypt    , { "Decrypt a message"          , decrypt      } },
+		{ MainMenuOption::Update     , { "Run an update cycle"        , update       } },
+		{ MainMenuOption::Participate, { "Participate in decryption"  , participate  } },
+		{ MainMenuOption::CompPart   , { "Compute part for decryption", comp_part    } },
+		{ MainMenuOption::SendPart   , { "Send part for decryption"   , send_part    } },
+		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
+		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
+
+	static InlinePacketReceiver receiver;
+	static InlinePacketSender sender;
 
 	int main(int argc, char** argv)
 	{
-		if (argc > 3)
+		if (argc > 3 || argc < 2)
 		{
-			cout << "Usage: " << argv[0] << " [IP] [port]" << endl;
+			cout << "Usage: " << argv[0] << " <IP> [port]" << endl;
 			return 1;
 		}
 
-		IPv4 ip = "127.0.0.1";
-		if (argc >= 2)
+		std::optional<IPv4> ip;
+		try { ip = argv[1]; }
+		catch (const std::exception&)
 		{
-			try { ip = argv[1]; }
-			catch (const std::exception&)
-			{
-				cout << "Bad IP: " << argv[1] << endl;
-				return 1;
-			}
+			cout << "Bad IP: " << argv[1] << endl;
+			return 1;
 		}
 
 		Port port = DEFAULT_LISTEN_PORT;
@@ -135,7 +135,7 @@ namespace senc
 		}
 
 		std::optional<TcpSocket<IPv4>> sock;
-		try { sock.emplace(ip, port); }
+		try { sock.emplace(*ip, port); }
 		catch (const std::exception& e)
 		{
 			cout << "Failed to connect to server: " << e.what() << endl;
@@ -153,11 +153,9 @@ namespace senc
 	 */
 	void run_client(Socket& sock)
 	{
-		// first, send protocol version to server
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
-
-		const bool isProtocolVersionSupported = sock.recv_connected_primitive<bool>();
-		if (!isProtocolVersionSupported)
+		sender.send_connection_request(sock);
+		const bool validConn = receiver.recv_connection_response(sock);
+		if (!validConn)
 		{
 			cout << "Protocol version not supported by server, exiting." << endl;
 			return;
@@ -211,7 +209,7 @@ namespace senc
 			}
 
 			cout << endl;
-		} while (ConnStatus::Error == status);
+		} while (ConnStatus::NoChange == status);
 
 		return ConnStatus::Connected == status;
 	}
@@ -269,9 +267,6 @@ namespace senc
 	template <typename Resp>
 	inline Resp post(Socket& sock, const auto& request)
 	{
-		static InlinePacketReceiver receiver;
-		static InlinePacketSender sender;
-
 		sender.send_request(sock, request);
 		auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
 		if (!resp.has_value())
@@ -298,7 +293,7 @@ namespace senc
 		else
 			cout << "Signup failed: Unknown error." << endl;
 
-		return ConnStatus::Error;
+		return ConnStatus::NoChange;
 	}
 
 	ConnStatus login(Socket& sock)
@@ -318,13 +313,13 @@ namespace senc
 		else
 			cout << "Login failed: Unknown error." << endl;
 
-		return ConnStatus::Error;
+		return ConnStatus::NoChange;
 	}
 
 	ConnStatus logout(Socket& sock)
 	{
 		if (!input_yesno("Are you sure you want to leave? (y/n): "))
-			return ConnStatus::Error; // not actually an error, but we want to trace back
+			return ConnStatus::NoChange;
 		cout << endl << endl;
 
 		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
@@ -359,13 +354,13 @@ namespace senc
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		print_pub_keys(resp.pub_key1, resp.pub_key2);
+		print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
 		cout << endl;
 
-		print_priv_key1_shard(resp.priv_key1_shard);
+		print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
 		cout << endl;
 		
-		print_priv_key2_shard(resp.priv_key2_shard);
+		print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -430,13 +425,13 @@ namespace senc
 			string msg = input("Enter message to encrypt (text): ");
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
-		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64):\n"));
+		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64): "));
 		cout << endl;
 
-		auto [pubKey1, pubKey2] = input_pub_keys("Enter encryption key: ");
+		auto [regLayerPubKey, ownerLayerPubKey] = input_pub_keys("Enter encryption key: ");
 		cout << endl;
 
-		auto ciphertext = schema.encrypt(plaintext, pubKey1, pubKey2);
+		auto ciphertext = schema.encrypt(plaintext, regLayerPubKey, ownerLayerPubKey);
 
 		cout << "Encrypted message (ciphertext): ";
 		print_ciphertext(ciphertext);
@@ -522,8 +517,10 @@ namespace senc
 
 		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
 
-		if (resp.status == pkt::DecryptParticipateResponse::Status::SendPart)
-			cout << "Participance registered, be ready to send part in a future update." << endl;
+		if (resp.status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart)
+			cout << "Participance registered, be ready to send non-owner layer part in a future update." << endl;
+		else if (resp.status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart)
+			cout << "Participance registered, be ready to send owner layer part in a future update." << endl;
 		else
 			cout << "Your participance is not needed for this operation." << endl;
 
@@ -548,9 +545,9 @@ namespace senc
 
 		DecryptionPart part{};
 		if (isOwner)
-			part = Shamir::decrypt_get_2l<2>(ciphertext, privKeyShard, privKeyShardsIDs);
+			part = Shamir::decrypt_get_2l<OWNER_LAYER>(ciphertext, privKeyShard, privKeyShardsIDs);
 		else
-			part = Shamir::decrypt_get_2l<1>(ciphertext, privKeyShard, privKeyShardsIDs);
+			part = Shamir::decrypt_get_2l<REG_LAYER>(ciphertext, privKeyShard, privKeyShardsIDs);
 
 		cout << "Result decryption part: " << utils::bytes_to_base64(part.to_bytes()) << endl;
 
@@ -582,13 +579,13 @@ namespace senc
 		auto ciphertext = input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		auto parts1 = input_decryption_parts("Enter non-owner layer decryption parts: ");
+		auto regLayerParts = input_decryption_parts("Enter non-owner layer decryption parts: ");
 
-		auto parts2 = input_decryption_parts("Enter owner layer decryption parts: ");
+		auto ownerLayerParts = input_decryption_parts("Enter owner layer decryption parts: ");
 
 		cout << endl;
 
-		auto decrypted = Shamir::decrypt_join_2l(ciphertext, parts1, parts2);
+		auto decrypted = Shamir::decrypt_join_2l(ciphertext, regLayerParts, ownerLayerParts);
 
 		auto isText = input_yesno("Is this a textual message? (y/n): ");
 		cout << endl;
@@ -614,15 +611,15 @@ namespace senc
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		print_pub_keys(data.pub_key1, data.pub_key2);
+		print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
 		cout << endl;
 
-		print_priv_key1_shard(data.priv_key1_shard);
+		print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
 			cout << endl;
-			print_priv_key2_shard(data.priv_key2_shard);
+			print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;
@@ -662,31 +659,31 @@ namespace senc
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
 		cout << "Non-owner layer decryption parts:" << endl;
-		for (const auto& part : data.parts1)
+		for (const auto& part : data.reg_layer_parts)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
 		cout << "Non-owner layer involved shard IDs: ";
-		if (!data.shardsIDs1.empty())
+		if (!data.reg_layer_shards_ids.empty())
 		{
-			auto it = data.shardsIDs1.cbegin();
+			auto it = data.reg_layer_shards_ids.cbegin();
 			cout << *it;
-			for (++it; it != data.shardsIDs1.cend(); ++it)
+			for (++it; it != data.reg_layer_shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
 
 		cout << "Owner layer decryption parts:" << endl;
-		for (const auto& part : data.parts2)
+		for (const auto& part : data.owner_layer_parts)
 			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
 		cout << endl;
 
 		cout << "Owner layer involved shard IDs: ";
-		if (!data.shardsIDs2.empty())
+		if (!data.owner_layer_shards_ids.empty())
 		{
-			auto it = data.shardsIDs2.cbegin();
+			auto it = data.owner_layer_shards_ids.cbegin();
 			cout << *it;
-			for (++it; it != data.shardsIDs2.cend(); ++it)
+			for (++it; it != data.owner_layer_shards_ids.cend(); ++it)
 				cout << ", " << *it;
 		}
 		cout << endl << endl;
@@ -697,5 +694,5 @@ namespace senc
 
 int main(int argc, char** argv)
 {
-	return senc::main(argc, argv);
+	return senc::client::main(argc, argv);
 }

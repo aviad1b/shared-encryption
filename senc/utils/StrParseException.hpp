@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   StrParseException.hpp
- * \brief  Header of StrParseException class.
+ * \brief  Contains StrParseException class.
  * 
  * \author aviad1b
  * \date   December 2025, Kislev 5786
@@ -22,13 +22,13 @@ namespace senc::utils
 		using Self = StrParseException;
 		using Base = Exception;
 
-		StrParseException(const std::string& msg);
+		StrParseException(const std::string& msg) : Base(msg) { }
 
-		StrParseException(std::string&& msg);
+		StrParseException(std::string&& msg) : Base(std::move(msg)) { }
 
-		StrParseException(const std::string& msg, const std::string& info);
+		StrParseException(const std::string& msg, const std::string& info) : Base(msg, info) { }
 
-		StrParseException(std::string&& msg, const std::string& info);
+		StrParseException(std::string&& msg, const std::string& info): Base(std::move(msg), info) { }
 
 		StrParseException(const Self&) = default;
 

@@ -15,12 +15,30 @@
 
 namespace senc
 {
+	/**
+	 * @class PacketReceiver
+	 * @brief Abstraction of packet receiving.
+	 */
 	class PacketReceiver
 	{
 	public:
 		using Self = PacketReceiver;
 
 		virtual ~PacketReceiver() { }
+
+		/**
+		 * @brief Receives initial requets to begin connection.
+		 * @param sock Socket to send through.
+		 * @return `true` if connection is valid, otherwise `false`.
+		 */
+		virtual bool recv_connection_request(utils::Socket& sock) = 0;
+		
+		/**
+		 * @brief Receives resposne to initial request to begin connection.
+		 * @param sock Socket to send through.
+		 * @return `true` if connection is valid, otherwise `false`.
+		 */
+		virtual bool recv_connection_response(utils::Socket& sock) = 0;
 
 		/**
 		 * @brief Receives a request of one of the given types.

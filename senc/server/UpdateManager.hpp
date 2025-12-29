@@ -22,6 +22,8 @@ namespace senc::server
 	class UpdateManager
 	{
 	public:
+		using Self = UpdateManager;
+
 		UpdateManager() = default;
 
 		/**
@@ -35,28 +37,31 @@ namespace senc::server
 		 * @brief Registers that a user was added to a userset as non-owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
-		 * @param pubKey1 First public key used in this user userset for encryption.
-		 * @param pubKey2 Second public key used in this user userset for encryption.
+		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
+		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
 		 * @param privKeyShard User's private key shard in userset.
 		 */
 		void register_reg_member(const std::string& username,
 								 const UserSetID& usersetID,
-								 const PubKey& pubKey1, const PubKey& pubKey2,
+								 const PubKey& regLayerPubKey,
+								 const PubKey& ownerLayerPubKey,
 								 PrivKeyShard&& privKeyShard);
 
 		/**
 		 * @brief Registers that a user was added to a userset as owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
-		 * @param pubKey1 First public key used in this user userset for encryption.
-		 * @param pubKey2 Second public key used in this user userset for encryption.
-		 * @param privKeyShard1 User's private key shard in userset for layer1 (moved).
-		 * @param privKeyShard2 User's private key shard in userset for layer2 (moved).
+		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
+		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
+		 * @param regLayerPrivKeyShard User's private key shard in userset for non-owner layer (moved).
+		 * @param ownerLayerPrivKeyShard User's private key shard in userset for owner layer (moved).
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
-							const PubKey& pubKey1, const PubKey& pubKey2,
-							PrivKeyShard&& privKeyShard1, PrivKeyShard&& privKeyShard2);
+							const PubKey& regLayerPubKey,
+							const PubKey& ownerLayerPubKey,
+							PrivKeyShard&& regLayerPrivKeyShard,
+							PrivKeyShard&& ownerLayerPrivKeyShard);
 
 		/**
 		 * @brief Registers user to look for in order to perform a decryption operation.
@@ -72,26 +77,26 @@ namespace senc::server
 		 * @param ciphertext Ciphertext being decrypted.
 		 * @param shardsIDs IDs of key shards used in decryption.
 		 */
-		void register_decryption_participated(const std::string& username,
-											  const OperationID& opid,
-											  const Ciphertext& ciphertext,
-											  const std::vector<PrivKeyShardID>& shardsIDs);
+		void register_decryption_participating(const std::string& username,
+											   const OperationID& opid,
+											   const Ciphertext& ciphertext,
+											   const std::vector<PrivKeyShardID>& shardsIDs);
 
 		/**
 		 * @brief Registers a finished decryption operation.
 		 * @param username Username of user who initiated the operation.
 		 * @param opid Operation ID.
-		 * @param parts1 Decryption parts for first layer (moved).
-		 * @param parts2 Decryption parts for second layer (moved).
-		 * @param shardsIDs1 Shards IDs used in first layer (moved).
-		 * @param shardsIDs2 Shards IDs used in second layer (moved).
+		 * @param regLayerParts Decryption parts for non-owner layer (moved).
+		 * @param ownerLayerParts Decryption parts for owner layer (moved).
+		 * @param regLayerShardsIDs Shards IDs used in non-owner layer (moved).
+		 * @param ownerLayerShardsIDs Shards IDs used in owner layer (moved).
 		 */
 		void register_finished_decrpytion(const std::string& username,
 										  const OperationID& opid,
-										  std::vector<DecryptionPart>&& parts1,
-										  std::vector<DecryptionPart>&& parts2,
-										  std::vector<PrivKeyShardID>&& shardsIDs1,
-										  std::vector<PrivKeyShardID>&& shardsIDs2);
+										  std::vector<DecryptionPart>&& regLayerParts,
+										  std::vector<DecryptionPart>&& ownerLayerParts,
+										  std::vector<PrivKeyShardID>&& regLayerShardsIDs,
+										  std::vector<PrivKeyShardID>&& ownerLayerShardsIDs);
 
 	private:
 		// maps username to updates prepared so far

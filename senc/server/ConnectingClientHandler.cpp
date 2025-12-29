@@ -18,14 +18,10 @@ namespace senc::server
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
-		// check client's protocol version
-		auto protocolVersion = _sock.recv_connected_primitive<std::uint8_t>();
-		if (protocolVersion != pkt::PROTOCOL_VERSION)
-		{
-			_sock.send_connected_primitive(false); // bad protocol version
-			return { false, "" }; // user disconnected
-		}
-		_sock.send_connected_primitive(true); // good protocol version
+		const bool validConn = _receiver.recv_connection_request(_sock);
+		_sender.send_connection_response(_sock, validConn);
+		if (!validConn)
+			return { false, "" };
 
 		// run login/signup loop
 		std::string username;

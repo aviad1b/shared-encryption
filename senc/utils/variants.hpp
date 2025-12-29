@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   variants.hpp
- * \brief  Contains variant-related utilities
+ * \brief  Contains variant-related utilities.
  * 
  * \author aviad1b
  * \date   November 2025, Kislev 5786

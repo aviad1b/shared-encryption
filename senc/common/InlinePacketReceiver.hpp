@@ -13,11 +13,19 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::InlinePacketReceiver
+	 * @brief Inline implementation of `senc::PacketReceiver`.
+	 */
 	class InlinePacketReceiver : public PacketReceiver
 	{
 	public:
 		using Self = InlinePacketReceiver;
 		using Base = PacketReceiver;
+
+		bool recv_connection_request(utils::Socket& sock) override;
+
+		bool recv_connection_response(utils::Socket& sock) override;
 
 		void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) override;
 

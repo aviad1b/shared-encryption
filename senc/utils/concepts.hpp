@@ -74,21 +74,43 @@ namespace senc::utils
 	template <typename Self>
 	concept StringType = sfinae::is_string_type<Self>::value;
 
+	/**
+	 * @concept senc::utils::ConvertibleTo
+	 * @brief Looks for a typename that can be casted to another.
+	 * @tparam Self Examined typename.
+	 * @tparam To Destination typename.
+	 */
 	template <typename Self, typename To>
 	concept ConvertibleTo = requires(Self&& self)
 	{
 		{ static_cast<To>(std::forward<Self>(self)) };
 	};
 
+	/**
+	 * @concept senc::utils::ConvertibleToNoExcept
+	 * @brief Looks for a typename that can be casted to another, without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam To Destination typename.
+	 */
 	template <typename Self, typename To>
 	concept ConvertibleToNoExcept = requires(Self && self)
 	{
 		{ static_cast<To>(std::forward<Self>(self)) } noexcept;
 	};
 
+	/**
+	 * @concept senc::utils::BoolConvertible
+	 * @brief Looks for a typename that can be casted to `bool`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept BoolConvertible = ConvertibleTo<Self, bool>;
 
+	/**
+	 * @concept senc::utils::BoolConvertibleNoExcept
+	 * @brief Looks for a typename that can be casted to `bool`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept BoolConvertibleNoExcept = ConvertibleToNoExcept<Self, bool>;
 
@@ -104,7 +126,7 @@ namespace senc::utils
 	concept RetConvertible = std::same_as<T, void> || ConvertibleTo<Self, T>;
 
 	/**
-	 * @concept senc::utils::RetConvertible
+	 * @concept senc::utils::RetConvertibleNoExcept
 	 * @brief Looks for a typename which is equivalent to another as a return type, without throwing.
 	 * @tparam Self Examined typename.
 	 * @tparam T Equivalent-in-question type.
@@ -129,7 +151,7 @@ namespace senc::utils
 
 	/**
 	 * @concept senc::utils::CallableNoExcept
-	 * @brief Checks for a typename which is callable with given arg types for given return type,
+	 * @brief Looks for a typename which is callable with given arg types for given return type,
 	 *		  without throwing.
 	 * @tparam Self Examined typename.
 	 * @tparam Ret Expected return type.
@@ -142,8 +164,8 @@ namespace senc::utils
 	};
 
 	/**
-	 * @concept senc::utils::Callable
-	 * @brief Checks for a typename which is const-callable with given arg types for given return type.
+	 * @concept senc::utils::ConstCallable
+	 * @brief Looks for a typename which is const-callable with given arg types for given return type.
 	 * @tparam Self Examined typename.
 	 * @tparam Ret Expected return type.
 	 * @tparam Args Expected argument types.
@@ -202,6 +224,12 @@ namespace senc::utils
 	template <typename Self, typename Value, typename Other = Value>
 	concept Equaler = ConstCallable<Self, bool, const Value&, const Other&>;
 
+	/**
+	 * @concept senc::utils::Copyable
+	 * @brief Looks for a typename that can be copied (and moved).
+	 * @note Equivalent to `std::copy`, but without requiring to be swappable.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept Copyable = requires(Self a, const Self b)
 	{
@@ -211,6 +239,12 @@ namespace senc::utils
 		{ a = std::move(b) };
 	};
 
+	/**
+	 * @concept senc::utils::CopyableNoExcept
+	 * @brief Looks for a typename that can be copied (and moved), without throwing.
+	 * @note Equivalent to `std::copy`, but without requiring to be swappable (and without throwing).
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept CopyableNoExcept = requires(Self a, const Self b)
 	{
@@ -220,269 +254,556 @@ namespace senc::utils
 		{ a = std::move(b) } noexcept;
 	};
 
+	/**
+	 * @concept senc::utils::Outputable
+	 * @brief Looks for a typename that can be outputted into an ostream.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept Outputable = requires(std::ostream& os, const Self self)
 	{
 		{ os << self } -> std::convertible_to<std::ostream&>;
 	};
 
+	/**
+	 * @concept senc::utils::Inputable
+	 * @brief Looks for a typename that can be inputted from an istream.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept Inputable = requires(std::istream & is, Self self)
 	{
 		{ is >> self } -> std::convertible_to<std::istream&>;
 	};
 
+	/**
+	 * @concept senc::utils::DefaultConstructibleClass
+	 * @brief Looks for a non-fundamental class typename which can be default-constructed.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept DefaultConstructibleClass = std::is_default_constructible_v<Self> &&
 		!std::is_fundamental_v<Self>;
 
+	/**
+	 * @concept senc::utils::DefaultConstructibleClassNoExcept
+	 * @brief Looks for a non-fundamental class typename which can be default-constructed, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept DefaultConstructibleClassNoExcept = std::is_nothrow_default_constructible_v<Self> &&
 		!std::is_fundamental_v<Self>;
 
+	/**
+	 * @concept senc::utils::ZeroConstructible
+	 * @brief Looks for a typename that can be constructed form zero.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ZeroConstructible = requires { { Self(0) }; };
 
+	/**
+	 * @concept senc::utils::ZeroConstructibleNoExcept
+	 * @brief Looks for a typename that can be constructed form zero, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ZeroConstructibleNoExcept = requires { { Self(0) } noexcept; };
 
+	/**
+	 * @concept senc::utils::ClassDefaultOrZeroConstructible
+	 * @brief Looks for a typename that is either `DefaultConstructibleClass` or `ZeroConstructible`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ClassDefaultOrZeroConstructible = DefaultConstructibleClass<Self> ||
 		ZeroConstructible<Self>;
 
+	/**
+	 * @concept senc::utils::ClassDefaultOrZeroConstructibleNoExcept
+	 * @brief Looks for a typename that is either `DefaultConstructibleClassNoExcept` or 
+	 *        `ZeroConstructibleNoExcept`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ClassDefaultOrZeroConstructibleNoExcept =
 		(DefaultConstructibleClass<Self> && DefaultConstructibleClassNoExcept<Self>) ||
 		(ZeroConstructible<Self> && ZeroConstructibleNoExcept<Self>);
 
+	/**
+	 * @concept senc::utils::OneConstructible
+	 * @brief Looks for a typename that can be initialized form one.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept OneConstructible = requires { { Self(1) }; };
 
+	/**
+	 * @concept senc::utils::OneConstructibleNoExcept
+	 * @brief Looks for a typename that can be initialized form one, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept OneConstructibleNoExcept = requires { { Self(1) } noexcept; };
 
+	/**
+	 * @concept senc::utils::HasIdentity
+	 * @brief Looks for a typename that has a static `identity` method.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept HasIdentity = requires { { Self::identity() } -> ConvertibleTo<const Self&>; };
 
+	/**
+	 * @concept senc::utils::HasIdentityNoExcept
+	 * @brief Looks for a typename that has a static `identity` method which does not throw.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept HasIdentityNoExcept = requires { { Self::identity() } noexcept -> ConvertibleToNoExcept<const Self&>; };
 
+	/**
+	 * @concept senc::utils::IntConstructible
+	 * @brief Looks for a typename that can be constructed from `int`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept IntConstructible = std::constructible_from<Self, int>;
 
+	/**
+	 * @concept senc::utils::IntConstructibleNoExcept
+	 * @brief Looks for a typename that can be constructed from `int`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept IntConstructibleNoExcept = std::is_nothrow_constructible_v<Self, int>;
 
+	/**
+	 * @concept senc::utils::ZeroComparable
+	 * @brief Looks for a typename that can be compared to zero.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ZeroComparable = requires(const Self self)
 	{
 		{ 0 == self } -> BoolConvertible;
 	};
 
+	/**
+	 * @concept senc::utils::ZeroComparableNoExcept
+	 * @brief Looks for a typename that can be compared to zero, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept ZeroComparableNoExcept = requires(const Self self)
 	{
 		{ 0 == self } noexcept -> BoolConvertibleNoExcept;
 	};
 
+	/**
+	 * @concept senc::utils::EqualityComparable
+	 * @brief Looks for a typename that can be compared to another (or itself) using `operator==`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator==`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept EqualityComparable = requires(const Self a, const Other b)
 	{
 		{ a == b } -> BoolConvertible;
 	};
 
+	/**
+	 * @concept senc::utils::EqualityComparableNoExcept
+	 * @brief Looks for a typename that can be compared to another (or itself) using `operator==`, 
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator==`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept EqualityComparableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a == b } -> BoolConvertibleNoExcept;
 	};
 
+	/**
+	 * @concept senc::utils::LowerComparable
+	 * @brief Looks for a typename that can be compared to another (or itself) using `operator<`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator<`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept LowerComparable = requires(const Self a, const Other b)
 	{
 		{ a < b } -> BoolConvertible;
 	};
 
+	/**
+	 * @concept senc::utils::LowerComparableNoExcept
+	 * @brief Looks for a typename that can be compared to another (or itself) using `operator<`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator<`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept LowerComparableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a < b } noexcept -> BoolConvertibleNoExcept;
 	};
 
+	/**
+	 * @concept senc::utils::LeftIncrementable
+	 * @brief Looks for a typename that can be pre-incemented using `operator++`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept LeftIncrementable = requires(Self a)
 	{
 		{ ++a } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::LeftIncrementableNoExcept
+	 * @brief Looks for a typename that can be pre-incemented using `operator++`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept LeftIncrementableNoExcept = requires(Self a)
 	{
 		{ ++a } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::RightIncrementable
+	 * @brief Looks for a typename that can be post-incemented using `operator++`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept RightIncrementable = requires(Self a)
 	{
 		{ a++ } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::RightIncrementableNoExcept
+	 * @brief Looks for a typename that can be post-incemented using `operator++`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept RightIncrementableNoExcept = requires(Self a)
 	{
 		{ a++ } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::LeftDecrementable
+	 * @brief Looks for a typename that can be pre-decemented using `operator--`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept LeftDecrementable = requires(Self a)
 	{
 		{ --a } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::LeftDecrementableNoExcept
+	 * @brief Looks for a typename that can be pre-decemented using `operator--`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept LeftDecrementableNoExcept = requires(Self a)
 	{
 		{ --a } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::RightDecrementable
+	 * @brief Looks for a typename that can be post-decemented using `operator--`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept RightDecrementable = requires(Self a)
 	{
 		{ a-- } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::RightDecrementableNoExcept
+	 * @brief Looks for a typename that can be post-decemented using `operator--`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept RightDecrementableNoExcept = requires(Self a)
 	{
 		{ a-- } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::Negatable
+	 * @brief Looks for a typename that can be negated using `operator-`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept Negatable = requires(const Self a)
 	{
 		{ -a } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::NegatableNoExcept
+	 * @brief Looks for a typename that can be negated using `operator-`, without throwing.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept NegatableNoExcept = requires(const Self a)
 	{
 		{ -a } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::Addable
+	 * @brief Looks for a typename that can be added to another (or itself) using `operator+`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator+`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept Addable = requires(const Self a, const Other b)
 	{
 		{ a + b } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::Addable
+	 * @brief Looks for a typename that can be added to another (or itself) using `operator+`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator+`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept AddableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a + b } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfAddable
+	 * @brief Looks for a typename that can be added with another (or itself) using `operator+=`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator+=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfAddable = requires(Self a, const Other b)
 	{
 		{ a += b } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfAddableNoExcept
+	 * @brief Looks for a typename that can be added with another (or itself) using `operator+=`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator+=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfAddableNoExcept = requires(Self a, const Other b)
 	{
 		{ a += b } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::Subtractable
+	 * @brief Looks for a typename that can be subtracted from another (or itself) using `operator-`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator-`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept Subtractable = requires(const Self a, const Other b)
 	{
 		{ a - b } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SubtractableNoExcept
+	 * @brief Looks for a typename that can be subtracted from another (or itself) using `operator-`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator-`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SubtractableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a - b } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfSubtractable
+	 * @brief Looks for a typename that can be subtracted by another (or itself) using `operator-=`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator-=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfSubtractable = requires(Self a, const Other b)
 	{
 		{ a -= b } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfSubtractableNoExcept
+	 * @brief Looks for a typename that can be subtracted by another (or itself) using `operator-=`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator-=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfSubtractableNoExcept = requires(Self a, const Other b)
 	{
 		{ a -= b } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::Multiplicable
+	 * @brief Looks for a typename that can be multiplied by another (or itself) using `operator*`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator*`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept Multiplicable = requires(const Self a, const Other b)
 	{
 		{ a * b } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::MultiplicableNoExcept
+	 * @brief Looks for a typename that can be multiplied by another (or itself) using `operator*`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator*`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept MultiplicableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a * b } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfMultiplicable
+	 * @brief Looks for a typename that can be multiplied by another (or itself) using `operator*=`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator*=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfMultiplicable = requires(Self a, const Other b)
 	{
 		{ a *= b } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfMultiplicableNoExcept
+	 * @brief Looks for a typename that can be multiplied by another (or itself) using `operator*=`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator*=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfMultiplicableNoExcept = requires(Self a, const Other b)
 	{
 		{ a *= b } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::Devisible
+	 * @brief Looks for a typename that can be devided by another (or itself) using `operator/`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator/`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept Devisible = requires(const Self a, const Other b)
 	{
 		{ a / b } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::DevisibleNoExcept
+	 * @brief Looks for a typename that can be devided by another (or itself) using `operator/`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator/`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept DevisibleNoExcept = requires(const Self a, const Other b)
 	{
 		{ a / b } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfDevisible
+	 * @brief Looks for a typename that can be devided by another (or itself) using `operator/=`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator/=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfDevisible = requires(Self a, const Other b)
 	{
 		{ a /= b } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfDevisibleNoExcept
+	 * @brief Looks for a typename that can be devided by another (or itself) using `operator/=`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator/=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfDevisibleNoExcept = requires(Self a, const Other b)
 	{
 		{ a /= b } noexcept -> ConvertibleToNoExcept<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::Modulable
+	 * @brief Looks for a typename that can be modulo-devided by another (or itself) using `operator%`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator%`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept Modulable = requires(const Self a, const Other b)
 	{
 		{ a % b } -> ConvertibleTo<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::ModulableNoExcept
+	 * @brief Looks for a typename that can be modulo-devided by another (or itself) using `operator%`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied with `Self` using `operator%`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept ModulableNoExcept = requires(const Self a, const Other b)
 	{
 		{ a % b } noexcept -> ConvertibleToNoExcept<Self>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfModulable
+	 * @brief Looks for a typename that can be modulo-devided by another (or itself) using `operator%=`.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator%=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfModulable = requires(Self a, const Other b)
 	{
 		{ a %= b } -> ConvertibleTo<Self&>;
 	};
 
+	/**
+	 * @concept senc::utils::SelfModulableNoExcept
+	 * @brief Looks for a typename that can be modulo-devided by another (or itself) using `operator%=`,
+	 *        without throwing.
+	 * @tparam Self Examined typename.
+	 * @tparam Other Typename to check if can be applied on `Self` using `operator%=`.
+	 */
 	template <typename Self, typename Other = Self>
 	concept SelfModulableNoExcept = requires(Self a, const Other b)
 	{
@@ -509,8 +830,10 @@ namespace senc::utils
 #define SENC_REQUIRES_CHECK_IMPL(con, ...) con<__VA_ARGS__>
 
 
-// SENC_REQ_NOEXCEPT generates both noexcept and requires checks for provided concepts
 // SENC_REQ generates requires checks for provided concepts
+// SENC_REQ_NOEXCEPT generates both noexcept and requires checks for provided concepts
+// SENC_REQ_NOEXCEPT_COND generates both noexcept and requires checks for provided concepts,
+//                        with an explicit additional requires condition
 
 #define SENC_REQ_NOEXCEPT_COND_1(cond, p1) \
 	noexcept((cond) && SENC_NOEXCEPT_CHECK(p1)) \

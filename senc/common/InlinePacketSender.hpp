@@ -13,11 +13,19 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::InlinePacketSender
+	 * @brief Inline implementation of `senc::PacketSender`.
+	 */
 	class InlinePacketSender : public PacketSender
 	{
 	public:
 		using Self = InlinePacketSender;
 		using Base = PacketSender;
+
+		void send_connection_request(utils::Socket& sock) override;
+
+		void send_connection_response(utils::Socket& sock, bool isConnectionValid) override;
 
 		void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
 

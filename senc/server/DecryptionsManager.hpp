@@ -26,6 +26,12 @@ namespace senc::server
 		using Self = DecryptionsManager;
 
 		/**
+		 * @enum senc::server::DecryptionsManager::PartRequirement
+		 * @brief Represents status of part requirement (required/not, and part type).
+		 */
+		enum class PartRequirement { NotRequired, RegPart, OwnerPart };
+
+		/**
 		 * @brief Record for collected parts of an operation.
 		 */
 		struct CollectedRecord
@@ -34,10 +40,10 @@ namespace senc::server
 			UserSetID userset_id;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
-			std::vector<DecryptionPart> parts1;
-			std::vector<PrivKeyShardID> shardsIDs1;
-			std::vector<DecryptionPart> parts2;
-			std::vector<PrivKeyShardID> shardsIDs2;
+			std::vector<DecryptionPart> reg_layer_parts;
+			std::vector<PrivKeyShardID> reg_layer_shards_ids;
+			std::vector<DecryptionPart> owner_layer_parts;
+			std::vector<PrivKeyShardID> owner_layer_shards_ids;
 
 			CollectedRecord(const std::string& requester,
 							const UserSetID& usersetID,
@@ -75,7 +81,7 @@ namespace senc::server
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 
-			bool has_enough_members() const;
+			bool has_enough_participants() const;
 		};
 
 		/**
@@ -108,9 +114,10 @@ namespace senc::server
 		 * @return 1. Record of prepared operation if has enough members, `std::nullopt` otherwise.
 		 *		   2. `true` if user was required for decryption, otherwise `false`.
 		 */
-		std::pair<std::optional<PrepareRecord>, bool> register_participant(const OperationID& opid,
-																		   const std::string& username,
-																		   bool isOwner);
+		std::pair<std::optional<PrepareRecord>, PartRequirement>
+			register_participant(const OperationID& opid,
+								 const std::string& username,
+								 bool isOwner);
 
 		/**
 		 * @brief Registers a decryption part provided by a member.
