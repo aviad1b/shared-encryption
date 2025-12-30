@@ -47,6 +47,7 @@
 	</li>
     <li><a href="#non-contribution">(Non-)Contribution</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -452,6 +453,12 @@ As of now, this is a personal project, which does not accept contribution (into 
 This project is protected under the GPL-3.0 License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+## Acknowledgments
+
+* [Best-README-Template by @othneildrew](https://github.com/othneildrew/Best-README-Template?tab=readme-ov-file)
 
 
 
