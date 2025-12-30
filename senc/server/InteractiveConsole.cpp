@@ -162,5 +162,8 @@ namespace senc::server
 	{
 		DWORD written = 0;
 		WriteConsoleA(_hStdout, text.c_str(), static_cast<DWORD>(text.size()), &written, nullptr);
+
+		// flushoutput to ensure it's displayed immediately
+		FlushFileBuffers(_hStdout);
 	}
 }
