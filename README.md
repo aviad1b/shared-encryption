@@ -460,6 +460,8 @@ This project is protected under the GPL-3.0 License. See `LICENSE` for more info
 
 * [Best-README-Template by @othneildrew](https://github.com/othneildrew/Best-README-Template?tab=readme-ov-file)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
