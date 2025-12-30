@@ -497,7 +497,7 @@ namespace senc::pkt
 	// DecryptParticipate cycle
 	// Client requests to participate in a decryption operation for 
 	// which requester was under lookup.
-	// Server responds with status ("send part" if wants client to 
+	// Server responds with status (layer to send part of if wants client to 
 	// participate, "not required" if no longer needs client for this 
 	// operation).
 	// =================================================================
