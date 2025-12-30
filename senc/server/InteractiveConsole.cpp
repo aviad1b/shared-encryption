@@ -154,13 +154,35 @@ namespace senc::server
 
 	void InteractiveConsole::clear_current_line()
 	{
-		// move to beginning of line and clear to end
-		write_to_console("\r\033[K");
+		CONSOLE_SCREEN_BUFFER_INFO csbi{};
+		if (!GetConsoleScreenBufferInfo(_hStdout, &csbi))
+			return;
+
+		// move cursor to beginning of current line
+		COORD cursorPos = csbi.dwCursorPosition;
+		cursorPos.X = 0;
+		SetConsoleCursorPosition(_hStdout, cursorPos);
+
+		// calculate number of characters to clear (from cursor to end of line)
+		DWORD lineLength = csbi.dwSize.X;
+		DWORD charsWritten = 0;
+
+		// fill with spaces
+		FillConsoleOutputCharacter(_hStdout, ' ', lineLength, cursorPos, &charsWritten);
+
+		// reset attributes for the cleared area
+		FillConsoleOutputAttribute(_hStdout, csbi.wAttributes, lineLength, cursorPos, &charsWritten);
+
+		// move cursor back to beginning of line
+		SetConsoleCursorPosition(_hStdout, cursorPos);
 	}
 
 	void InteractiveConsole::write_to_console(const std::string& text)
 	{
 		DWORD written = 0;
 		WriteConsoleA(_hStdout, text.c_str(), static_cast<DWORD>(text.size()), &written, nullptr);
+
+		// flushoutput to ensure it's displayed immediately
+		FlushFileBuffers(_hStdout);
 	}
 }
