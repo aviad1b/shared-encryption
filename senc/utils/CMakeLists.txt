@@ -1,4 +1,5 @@
 ﻿add_library(senc_utils
+	"env.hpp"
 	"bytes.hpp"
 	"bytes.cpp"
 	"strs.hpp"
