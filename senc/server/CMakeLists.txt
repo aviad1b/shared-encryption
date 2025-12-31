@@ -14,7 +14,7 @@ add_executable (senc_server
 	"DecryptionsManager.hpp"
 	"DecryptionsManager.cpp"
 	"InteractiveConsole.hpp"
-	"InteractiveConsole.cpp"
+	"InteractiveConsole_windows.cpp"
 	"Server.hpp"
 	"Server.cpp"
 	"main.cpp"

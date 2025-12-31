@@ -1,11 +1,14 @@
 /*********************************************************************
- * \file   InteractiveConsole.cpp
- * \brief  Implementation of InteractiveConsole class.
+ * \file   InteractiveConsole_windows.cpp
+ * \brief  Implementation of InteractiveConsole class for windows.
  * 
  * \author aviad1b
  * \date   December 2025, Teveth 5786
  *********************************************************************/
 
+#include "../utils/env.hpp"
+
+#ifdef SENC_WINDOWS
 #include "InteractiveConsole.hpp"
 
 #include "../utils/Exception.hpp"
@@ -186,3 +189,4 @@ namespace senc::server
 		FlushFileBuffers(_hStdout);
 	}
 }
+#endif
