@@ -8,8 +8,11 @@
 
 #include "Socket.hpp"
 
-#include <experimental/scope>
+#ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
+#endif
+
+#include <experimental/scope>
 #include <cstring>
 
 namespace senc::utils
