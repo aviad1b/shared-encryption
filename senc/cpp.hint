@@ -1,0 +1,8 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define SENC_REQ
+#define SENC_REQ_NOEXCEPT
+#define SENC_REQ_NOEXCEPT_COND
+#define INSTANTIATE_TEST_CASE_P
+#define INSTANTIATE_TEST_SUIT_P
