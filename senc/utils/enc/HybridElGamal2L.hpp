@@ -11,7 +11,7 @@
 #include <tuple>
 
 #include "../concepts.hpp"
-#include "../random.hpp"
+#include "../Random.hpp"
 #include "../Group.hpp"
 #include "../math.hpp"
 #include "general.hpp"
