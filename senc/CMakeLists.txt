@@ -25,6 +25,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cryptopp-cmake)
 
+# download uuid-dev for linux only
+if (WIN32)
+else()
+FetchContent_Declare(
+    libuuid
+    GIT_REPOSITORY https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
+    GIT_TAG v2.39
+)
+FetchContent_MakeAvailable(libuuid)
+endif()
+
 add_compile_options(-Werror -Wall -Wextra -Wvla)
 
 add_subdirectory("utils")
