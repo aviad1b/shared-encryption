@@ -166,7 +166,7 @@ namespace senc::client
 			return;
 		cout << endl;
 
-		main_menu(sock);;
+		main_menu(sock);
 	}
 
 	/**
