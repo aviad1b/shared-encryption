@@ -6,10 +6,9 @@
  * \date   December 2025, Teveth 5786
  *********************************************************************/
 
-#include "../utils/env.hpp"
+#include "InteractiveConsole.hpp"
 
 #ifdef SENC_WINDOWS
-#include "InteractiveConsole.hpp"
 
 #include "../utils/Exception.hpp"
 

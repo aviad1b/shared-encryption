@@ -8,8 +8,14 @@
 
 #pragma once
 
+#include "../utils/env.hpp"
+
+#ifdef SENC_WINDOWS
 #include <WinSock2.h> // has to be before <Windows.h> (to be able to use sockets in other files)
 #include <Windows.h>
+#else
+#include <termios.h>
+#endif
 
 #include <functional>
 #include <atomic>
@@ -60,8 +66,14 @@ namespace senc::server
 		bool _handlingInput;
 		std::mutex _mtxOut;
 
+#ifdef SENC_WINDOWS
 		HANDLE _hStdin;
 		HANDLE _hStdout;
+#else
+		int _stdin_fd;
+		int _stdout_fd;
+		struct termios _original_termios;
+#endif
 
 		std::string _curIn;
 
