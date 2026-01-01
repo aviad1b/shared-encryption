@@ -10,6 +10,8 @@
 
 #ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
+#else
+#include <poll.h>
 #endif
 
 #include <experimental/scope>
