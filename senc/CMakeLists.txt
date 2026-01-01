@@ -84,15 +84,20 @@ if(NOT cryptopp_POPULATED)
     )
 endif()
 
-# download uuid-dev for linux only
+# download libuuid for linux only
 if (WIN32)
 else()
-FetchContent_Declare(
-    libuuid
-    GIT_REPOSITORY https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-    GIT_TAG v2.39
-)
-FetchContent_MakeAvailable(libuuid)
+    find_path(UUID_INCLUDE_DIR uuid/uuid.h)
+    find_library(UUID_LIBRARY NAMES uuid)
+    
+    if(NOT UUID_INCLUDE_DIR OR NOT UUID_LIBRARY)
+        message(FATAL_ERROR "libuuid not found. Install with: sudo apt-get install uuid-dev")
+    endif()
+    
+    # Create an interface library to link against
+    add_library(libuuid INTERFACE)
+    target_include_directories(libuuid INTERFACE ${UUID_INCLUDE_DIR})
+    target_link_libraries(libuuid INTERFACE ${UUID_LIBRARY})
 endif()
 
 add_compile_options(-Werror -Wall -Wextra -Wvla)

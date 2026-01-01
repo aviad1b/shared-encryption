@@ -44,7 +44,7 @@
 if (WIN32)
 target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
 else()
-target_link_libraries(senc_utils PUBLIC uuid)
+target_link_libraries(senc_utils PUBLIC libuuid)
 endif()
 target_link_libraries(senc_utils PUBLIC cryptopp)
 
