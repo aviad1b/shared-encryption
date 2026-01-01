@@ -318,7 +318,7 @@ namespace senc::utils
 		int r = poll(&pfd, 1, 0); // timeout = 0 -> poll
 
 		if (r < 0)
-			throw SocketException("Failed to receive", errno);
+			throw SocketException("Failed to receive", SocketUtils::get_last_sock_err());
 
 		return (pfd.revents & POLLIN) != 0;
 	}
