@@ -94,7 +94,7 @@ else()
         message(FATAL_ERROR "libuuid not found. Install with: sudo apt-get install uuid-dev")
     endif()
     
-    # Create an interface library to link against
+    # create an interface library to link against
     add_library(libuuid INTERFACE)
     target_include_directories(libuuid INTERFACE ${UUID_INCLUDE_DIR})
     target_link_libraries(libuuid INTERFACE ${UUID_LIBRARY})
