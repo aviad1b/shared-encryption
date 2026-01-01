@@ -8,6 +8,10 @@
 
 #include "Socket.hpp"
 
+#ifdef SENC_WINDOWS
+#include <ws2tcpip.h>
+#endif
+
 #include <algorithm>
 
 namespace senc::utils
@@ -245,7 +249,7 @@ namespace senc::utils
 		TcpSocket<IP>::accept()
 	{
 		typename IP::UnderlyingSockAddr clientAddr{};
-		int clientAddrLen = sizeof(clientAddr);
+		socklen_t clientAddrLen = sizeof(clientAddr);
 
 		auto sock = ::accept(this->_sock, (struct sockaddr*)&clientAddr, &clientAddrLen);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
@@ -303,7 +307,7 @@ namespace senc::utils
 	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(void* out, std::size_t maxsize)
 	{
 		typename IP::UnderlyingSockAddr addr{};
-		int addrLen = sizeof(addr);
+		socklen_t addrLen = sizeof(addr);
 		const int count = ::recvfrom(
 			this->_sock, (char*)out, (int)maxsize, 0,
 			(struct sockaddr*)&addr, &addrLen
