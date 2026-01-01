@@ -83,11 +83,19 @@ namespace senc::server
 		 */
 		void input_loop();
 
+#ifdef SENC_WINDOWS
 		/**
 		 * @brief Handles console key event.
 		 * @param keyEvent Key event params.
 		 */
 		void handle_key_event(const KEY_EVENT_RECORD& keyEvent);
+#else
+		/**
+		 * @brief Handles console key event.
+		 * @param ch Character representing pressed key.
+		 */
+		void handle_key_event(char ch);
+#endif
 
 		/**
 		 * @brief Displays input prompt.
