@@ -8,10 +8,17 @@
 
 #pragma once
 
+#include "env.hpp"
+
+#ifdef SENC_WINDOWS
+#include <rpc.h>
+#else
+#include <uuid/uuid.h>
+#endif
+
 #include <ostream>
 #include <string>
 #include <array>
-#include <rpc.h>
 #include "Exception.hpp"
 #include "concepts.hpp"
 #include "bytes.hpp"
@@ -54,7 +61,11 @@ namespace senc::utils
 	{
 	public:
 		using Self = UUID;
+#ifdef SENC_WINDOWS
 		using Underlying = ::UUID;
+#else
+		using Underlying = uuid_t;
+#endif
 
 		/**
 		 * @brief Constructs a zero-value UUID.

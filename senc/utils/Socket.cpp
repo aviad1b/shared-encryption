@@ -8,8 +8,13 @@
 
 #include "Socket.hpp"
 
-#include <experimental/scope>
+#ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
+#else
+#include <poll.h>
+#endif
+
+#include <experimental/scope>
 #include <cstring>
 
 namespace senc::utils
@@ -102,6 +107,7 @@ namespace senc::utils
 		out->sin6_addr = this->_addr;
 	}
 
+#ifdef SENC_WINDOWS
 	std::string SocketUtils::get_last_sock_err()
 	{
 		DWORD err = WSAGetLastError();
@@ -128,19 +134,47 @@ namespace senc::utils
 			res = res.substr(0, res.length() - 1);
 		return res;
 	}
+#else
+	std::string SocketUtils::get_last_sock_err()
+	{
+		static constexpr std::size_t MAX_MSG_LEN = 256;
+		char msg[MAX_MSG_LEN] = "";
 
+		strerror_r(errno, msg, MAX_MSG_LEN);
+
+		std::string res = msg;
+		if (res.ends_with("\n"))
+			res = res.substr(0, res.length() - 1);
+		return res;
+	}
+#endif
+
+#ifdef SENC_WINDOWS
 	SocketInitializer::~SocketInitializer()
 	{
 		try { WSACleanup(); }
 		catch (...) { }
 	}
+#else
+	SocketInitializer::~SocketInitializer()
+	{
+		// nothing to do
+	}
+#endif
 
+#ifdef SENC_WINDOWS
 	SocketInitializer::SocketInitializer()
 	{
 		WSADATA wsa_data{};
 		if (0 != WSAStartup(MAKEWORD(2, 2), &wsa_data))
 			throw SocketException("WSAStartup failed", SocketUtils::get_last_sock_err());
 	}
+#else
+	SocketInitializer::SocketInitializer()
+	{
+		// nothing to do
+	}
+#endif
 	
 	Socket::~Socket()
 	{
@@ -234,7 +268,14 @@ namespace senc::utils
 
 	void Socket::close()
 	{
-		try { ::closesocket(this->_sock); }
+		try
+		{
+#ifdef SENC_WINDOWS
+			::closesocket(this->_sock);
+#else
+			::close(this->_sock);
+#endif
+		}
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
 		this->_isConnected = false;
@@ -251,6 +292,7 @@ namespace senc::utils
 		return outputSize;
 	}
 
+#ifdef SENC_WINDOWS
 	bool Socket::underlying_has_data(Underlying sock)
 	{
 		fd_set rfds{};
@@ -266,4 +308,19 @@ namespace senc::utils
 			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		return r != 0; // true if data is available
 	}
+#else
+	bool Socket::underlying_has_data(Underlying sock)
+	{
+		pollfd pfd{};
+		pfd.fd = sock;
+		pfd.events = POLLIN;
+
+		int r = poll(&pfd, 1, 0); // timeout = 0 -> poll
+
+		if (r < 0)
+			throw SocketException("Failed to receive", SocketUtils::get_last_sock_err());
+
+		return (pfd.revents & POLLIN) != 0;
+	}
+#endif
 }

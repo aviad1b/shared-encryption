@@ -8,9 +8,21 @@
 
 #pragma once
 
+#include "env.hpp"
+
+#ifdef SENC_WINDOWS
 #include <WinSock2.h> // has to be before <Windows.h>
 #include <Windows.h>
 #include <ws2ipdef.h>
+#else
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <cerrno>
+#endif
+
 #include <concepts>
 #include <cstddef>
 #include <string>
@@ -514,8 +526,13 @@ namespace senc::utils
 		void recv_connected_values(Tpl& values);
 
 	protected:
+#ifdef SENC_WINDOWS
 		using Underlying = SOCKET;
 		static constexpr Underlying UNDERLYING_NO_SOCK = INVALID_SOCKET;
+#else
+		using Underlying = int;
+		static constexpr Underlying UNDERLYING_NO_SOCK = -1;
+#endif
 
 		Underlying _sock;
 		bool _isConnected;

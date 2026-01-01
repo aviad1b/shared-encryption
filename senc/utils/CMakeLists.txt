@@ -1,4 +1,5 @@
 ﻿add_library(senc_utils
+	"env.hpp"
 	"bytes.hpp"
 	"bytes.cpp"
 	"strs.hpp"
@@ -40,7 +41,12 @@
 	"uuid_impl.hpp"
 )
 
-target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
-target_link_libraries(senc_utils PUBLIC cryptopp::cryptopp)
+if (WIN32)
+	target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
+else()
+	target_link_libraries(senc_utils PUBLIC libuuid)
+endif()
+
+target_link_libraries(senc_utils PUBLIC cryptopp)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
