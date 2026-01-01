@@ -266,7 +266,14 @@ namespace senc::utils
 
 	void Socket::close()
 	{
-		try { ::closesocket(this->_sock); }
+		try
+		{
+#ifdef SENC_WINDOWS
+			::closesocket(this->_sock);
+#else
+			::close(this->_sock);
+#endif
+		}
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
 		this->_isConnected = false;
