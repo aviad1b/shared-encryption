@@ -46,6 +46,6 @@ target_link_libraries(senc_utils PRIVATE ws2_32 Rpcrt4)
 else()
 target_link_libraries(senc_utils PUBLIC uuid)
 endif()
-target_link_libraries(senc_utils PUBLIC cryptopp::cryptopp)
+target_link_libraries(senc_utils PUBLIC cryptopp)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
