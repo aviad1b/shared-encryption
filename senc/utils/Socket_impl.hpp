@@ -116,7 +116,7 @@ namespace senc::utils
 
 			// if last chunk, append until null-terination; else, append all
 			if (lastChunk)
-				res += chunk;
+				res.append(static_cast<const C*>(chunk), pNullChrInChunk);
 			else
 				res.append(chunk, chunkSize);
 		}
