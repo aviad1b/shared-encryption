@@ -98,7 +98,7 @@ namespace senc::utils
 		C chunk[chunkSize] = {0};
 		const C* pNullChrInChunk = nullptr;
 		const C* chunkEnd = chunk + chunkSize;
-		std::size_t elemsRead = 0;
+		std::size_t bytesRead = 0;
 		bool lastChunk = false;
 		Str res{};
 
@@ -106,7 +106,7 @@ namespace senc::utils
 		while (!lastChunk)
 		{
 			// get current chunk
-			elemsRead = recv_connected_into(chunk, chunkSize * sizeof(C)) / sizeof(C);
+			bytesRead = recv_connected_into(chunk, chunkSize * sizeof(C));
 
 			// look for null termination
 			pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr);
@@ -121,15 +121,16 @@ namespace senc::utils
 				res.append(chunk, chunkSize);
 		}
 
-		const C* dataEnd = chunk + elemsRead; // end of read data in last chunk
+		// end of read data in last chunk
+		const byte* dataEnd = 
+			reinterpret_cast<const byte*>(static_cast<const C*>(chunk)) + bytesRead;
 
 		// res now has string, with `pNullChrInChunk` pointing to null termination
 		// extra bytes are after null termination
-		const std::size_t extraBytesCount = (dataEnd - pNullChrInChunk - 1) * sizeof(C);
 		const byte* extraBytesStart = reinterpret_cast<const byte*>(pNullChrInChunk + 1);
 
 		// append extra bytes to `_buffer`:
-		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
+		this->_buffer.insert(this->_buffer.end(), extraBytesStart, dataEnd);
 
 		return res;
 	}
