@@ -205,12 +205,10 @@ namespace senc::utils
 		using Point = ECP::Point;
 
 		// static constants
-		static Distribution<BigInt> DIST;                            // distribution for sampling
-		static const CryptoPP::DL_GroupParameters_EC<ECP> EC_PARAMS; // eliptic curve parameters
-		static const ECP EC_CURVE;                                   // elliptic curve itself
-		static const Point EC_BASE_POINT;                            // base point of curve
-		static const Self GENERATOR;
-		static const Self IDENTITY;
+		static Distribution<BigInt>& dist();                            // distribution for sampling
+		static const CryptoPP::DL_GroupParameters_EC<ECP>& ec_params(); // eliptic curve parameters
+		static const ECP& ec_curve();                                   // elliptic curve itself
+		static const Point& ec_base_point();                            // base point of curve
 
 		// instance fields
 		Point _point;
