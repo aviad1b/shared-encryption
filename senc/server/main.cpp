@@ -12,6 +12,12 @@ namespace senc::server
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
+
+	template <utils::IPType IP>
+	void start_server(Port port, InteractiveConsole& console, Schema& schema,
+				  IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+				  UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
+
 	void run_server(IServer& server, InteractiveConsole& console);
 
 	int main(int argc, char** argv)
@@ -44,18 +50,12 @@ namespace senc::server
 		ShortTermServerStorage storage;
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
-		Server<utils::IPv4> server(
-			port,
-			[&console](const std::string& msg) { console->print("[info] " + msg); },
-			schema,
-			storage,
-			receiver,
-			sender,
-			updateManager,
-			decryptionsManager
+		
+		start_server<utils::IPv4>(
+			port, *console, schema, storage,
+			receiver, sender,
+			updateManager, decryptionsManager
 		);
-
-		run_server(server, *console);
 
 		return 0;
 	}
@@ -64,6 +64,25 @@ namespace senc::server
 	{
 		(void)console;
 		return cmd == "stop"; // stop if command is "stop"
+	}
+
+	template <utils::IPType IP>
+	void start_server(Port port, InteractiveConsole& console, Schema& schema,
+					  IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+					  UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
+	{
+		Server<IP> server(
+			port,
+			[&console](const std::string& msg) { console.print("[info] " + msg); },
+			schema,
+			storage,
+			receiver,
+			sender,
+			updateManager,
+			decryptionsManager
+		);
+
+		run_server(server, console);
 	}
 
 	void run_server(IServer& server, InteractiveConsole& console)
