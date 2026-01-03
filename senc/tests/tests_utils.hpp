@@ -34,14 +34,20 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 	std::promise<TcpSocket<IP>> p;
 	std::future<TcpSocket<IP>> f = p.get_future();
 
-	// try selecting port `CONN_RETRY_COUNT` times
+	// try selecting port `CONN_RETRY_COUNT-1` times
 	std::optional<Port> port;
-	for (std::size_t i = 0; i < CONN_RETRY_COUNT && !port.has_value(); ++i)
+	for (std::size_t i = 1; i < CONN_RETRY_COUNT && !port.has_value(); ++i)
 	{
 		port = Random<Port>::sample_from_range(49152, 65535);
 
 		try { listenSock.bind(*port); }
 		catch (const senc::utils::SocketException&) { port.reset(); }
+	}
+	// if still failed, try another time, this time without a `try` block
+	if (!port.has_value())
+	{
+		port = Random<Port>::sample_from_range(49152, 65535);
+		listenSock.bind(*port);
 	}
 	listenSock.listen();
 
