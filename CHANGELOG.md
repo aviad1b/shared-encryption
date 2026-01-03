@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1
+
+### Added or Changed
+- Added Linux support to both client and server (and potentially Mac, but not tested).
+- Added IPv6 support to both client and server.
+
+
 ## v1.0.0
 
 ### Added or Changed
