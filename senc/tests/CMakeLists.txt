@@ -11,7 +11,6 @@ add_executable(senc_tests
     "test_common.cpp"
     "test_strs.cpp"
     "tests_utils.hpp"
-    "tests_utils.cpp"
     "test_storage.cpp"
     "test_server.cpp"
     "../server/ClientHandlerFactory.cpp"
