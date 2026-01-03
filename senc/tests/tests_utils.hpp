@@ -14,6 +14,7 @@
 #include <thread>
 #include <tuple>
 #include "../utils/concepts.hpp"
+#include "../utils/Random.hpp"
 #include "../utils/Socket.hpp"
 #include "../utils/hash.hpp"
 
@@ -24,11 +25,16 @@ template <senc::utils::IPType IP = senc::utils::IPv4>
 std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 {
 	using senc::utils::TcpSocket;
+	using senc::utils::Random;
+	using senc::utils::Port;
+
 	TcpSocket<IP> listenSock, sendSock;
 	std::promise<TcpSocket<IP>> p;
 	std::future<TcpSocket<IP>> f = p.get_future();
 
-	listenSock.bind(4350);
+	auto port = Random<Port>::sample_from_range(49152, 65535);
+
+	listenSock.bind(port);
 	listenSock.listen();
 
 	std::jthread t(
@@ -39,7 +45,7 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 		}
 	);
 
-	sendSock.connect(IP::loopback(), 4350);
+	sendSock.connect(IP::loopback(), port);
 
 	TcpSocket<IP> recvSock = f.get();
 
