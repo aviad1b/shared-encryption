@@ -433,9 +433,9 @@ Server responds.
 
 - [x] Version 1.0.0
 	- [x] Basic client &amp; server.
-- [ ] Version 1.0.1
-	- [ ] Linux support.
-	- [ ] IPv6 support.
+- [x] Version 1.0.1
+	- [x] Linux support.
+	- [x] IPv6 support.
 - [ ] Version 1.1.0
     - [ ] User authentication.
 - [ ] Version 1.1.1
