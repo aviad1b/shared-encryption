@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 #include <algorithm>
+#include <future>
+#include <thread>
 #include <tuple>
 #include "../utils/concepts.hpp"
 #include "../utils/Socket.hpp"
@@ -18,7 +20,31 @@
 /**
  * @brief Prepares local TCP connection for test.
  */
-std::tuple<senc::utils::TcpSocket<senc::utils::IPv4>, senc::utils::TcpSocket<senc::utils::IPv4>> prepare_tcp();
+template <senc::utils::IPType IP = senc::utils::IPv4>
+std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
+{
+	using senc::utils::TcpSocket;
+	TcpSocket<IP> listenSock, sendSock;
+	std::promise<TcpSocket<IP>> p;
+	std::future<TcpSocket<IP>> f = p.get_future();
+
+	listenSock.bind(4350);
+	listenSock.listen();
+
+	std::jthread t(
+		[&listenSock, &p]()
+		{
+			try { p.set_value(listenSock.accept().first); }
+			catch (...) { p.set_exception(std::current_exception()); }
+		}
+	);
+
+	sendSock.connect("127.0.0.1", 4350);
+
+	TcpSocket<IP> recvSock = f.get();
+
+	return { std::move(sendSock), std::move(recvSock) };
+}
 
 /**
  * @brief Checks if two vectors have the same elements, regardless of order.
