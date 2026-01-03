@@ -10,6 +10,7 @@
 
 #include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
+#include "IServer.hpp"
 #include <condition_variable>
 #include <functional>
 #include <atomic>
@@ -20,7 +21,7 @@ namespace senc::server
 	/**
 	 * @brief Server class, manages server logic.
 	 */
-	class Server
+	class Server : public IServer
 	{
 	public:
 		using Self = Server;
@@ -66,20 +67,11 @@ namespace senc::server
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
-		/**
-		 * @brief Starts the server (without waiting).
-		 */
-		void start();
+		void start() override;
 
-		/**
-		 * @brief Stops server sun.
-		 */
-		void stop();
+		void stop() override;
 
-		/**
-		 * @brief Waits for server to stop running.
-		 */
-		void wait();
+		void wait() override;
 
 	private:
 		Socket _listenSock;

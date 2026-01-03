@@ -24,6 +24,7 @@ using senc::server::IServerStorage;
 using senc::server::UpdateManager;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
+using senc::server::IServer;
 using senc::server::Server;
 using senc::PacketReceiver;
 using senc::DecryptionPart;
@@ -51,6 +52,10 @@ using senc::utils::views::zip;
 using StorageFactory = std::function<std::unique_ptr<IServerStorage>()>;
 using ReceiverFactory = std::function<std::unique_ptr<PacketReceiver>()>;
 using SenderFactory = std::function<std::unique_ptr<PacketSender>()>;
+using ServerFactory = std::function<std::unique_ptr<IServer>(
+	Port, Schema&, IServerStorage&, PacketReceiver&, PacketSender&,
+	UpdateManager&, DecryptionsManager&
+)>;
 
 struct CycleParams
 {
@@ -65,6 +70,7 @@ struct CycleParams
 
 struct ServerTestParams
 {
+	ServerFactory serverFactory;
 	StorageFactory storageFactory;
 	ReceiverFactory receiverFactory;
 	SenderFactory senderFactory;
@@ -80,7 +86,7 @@ protected:
 	std::unique_ptr<IServerStorage> storage;
 	std::unique_ptr<PacketReceiver> receiver;
 	std::unique_ptr<PacketSender> sender;
-	std::unique_ptr<Server> server;
+	std::unique_ptr<IServer> server;
 
 	virtual const ServerTestParams& get_server_test_params() = 0;
 
@@ -91,7 +97,7 @@ protected:
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
-		server = std::make_unique<Server>(
+		server = params.serverFactory(
 			port,
 			schema,
 			*storage,
@@ -1570,6 +1576,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 const auto SERVER_IMPLS = testing::Values(
 	ServerTestParams{
+		[](auto&&... args) { return std::make_unique<Server>(args...); },
 		std::make_unique<ShortTermServerStorage>,
 		std::make_unique<InlinePacketReceiver>,
 		std::make_unique<InlinePacketSender>
