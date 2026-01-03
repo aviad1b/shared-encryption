@@ -19,13 +19,16 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::Server
 	 * @brief Server class, manages server logic.
+	 * @tparam IP IP type used for communication.
 	 */
+	template <utils::IPType IP>
 	class Server : public IServer
 	{
 	public:
 		using Self = Server;
-		using Socket = utils::TcpSocket<utils::IPv4>;
+		using Socket = utils::TcpSocket<IP>;
 
 		/**
 		 * @brief Constructs a new server instance.
@@ -67,6 +70,8 @@ namespace senc::server
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
+		utils::Port port() const override;
+
 		void start() override;
 
 		void stop() override;
@@ -97,7 +102,7 @@ namespace senc::server
 		 * @param port Client's port.
 		 * @param msg Message to output.
 		 */
-		void log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg);
+		void log(LogType logType, const IP& ip, utils::Port port, const std::string& msg);
 		
 		/**
 		 * @brief Outputs server log message.
@@ -106,7 +111,7 @@ namespace senc::server
 		 * @param username Client username.
 		 * @param msg Message to output.
 		 */
-		void log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg);
+		void log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg);
 
 		/**
 		 * @brief Accepts new clients in a loop.
@@ -119,7 +124,7 @@ namespace senc::server
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port);
+		void handle_new_client(Socket sock, IP ip, utils::Port port);
 
 		/**
 		 * @brief Handles client requests in a loop.
@@ -129,3 +134,5 @@ namespace senc::server
 		void client_loop(Socket& sock, const std::string& username);
 	};
 }
+
+#include "Server_impl.hpp"
