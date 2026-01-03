@@ -22,16 +22,38 @@ namespace senc::server
 
 	int main(int argc, char** argv)
 	{
-		if (argc > 2)
-			std::cout << "Usage: " << argv[0] << " [port]" << std::endl;
+		if (argc > 3)
+			std::cout << "Usage: " << argv[0] << " [IPv4|IPv6] [port]" << std::endl;
+
+		std::vector<std::string> args(argv + 1, argv + argc);
+		bool isIPv6 = false;
+
+		// pop if has either "IPv4" or "IPv6", for "IPv6" set isIPv6 to true:
+		auto itIPv4 = std::find(args.begin(), args.end(), "IPv4");
+		auto itIPv6 = std::find(args.begin(), args.end(), "IPv6");
+		if (itIPv4 != args.end() || itIPv6 != args.end()) // if has either IPv4 or IPv6
+		{
+			if (itIPv6 == args.end()) // if has IPv4 and not IPv6
+				args.erase(itIPv4);
+			else if (itIPv4 == args.end()) // if has IPv6 and not IPv4
+			{
+				args.erase(itIPv6);
+				isIPv6 = true;
+			}
+			else
+			{
+				std::cout << "Usage: " << argv[0] << " [IPv4|IPv6] [port]" << std::endl;
+				return 1;
+			}
+		}
 
 		Port port = DEFAULT_LISTEN_PORT;
-		if (argc >= 2)
+		if (args.size() >= 1)
 		{
-			try { port = std::stoi(argv[1]); }
+			try { port = std::stoi(args[0]); }
 			catch (const std::exception&)
 			{
-				std::cerr << "Bad port: " << argv[1] << std::endl;
+				std::cerr << "Bad port: " << args[0] << std::endl;
 				return 1;
 			}
 		}
@@ -51,11 +73,22 @@ namespace senc::server
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
 		
-		start_server<utils::IPv4>(
-			port, *console, schema, storage,
-			receiver, sender,
-			updateManager, decryptionsManager
-		);
+		if (isIPv6)
+		{
+			start_server<utils::IPv6>(
+				port, *console, schema, storage,
+				receiver, sender,
+				updateManager, decryptionsManager
+			);
+		}
+		else
+		{
+			start_server<utils::IPv4>(
+				port, *console, schema, storage,
+				receiver, sender,
+				updateManager, decryptionsManager
+			);
+		}
 
 		return 0;
 	}
