@@ -39,7 +39,8 @@ TEST(IPTests, IPv6ConstructsFromString)
 template <IPType IP_>
 struct SocketTests : public testing::Test { };
 
-TYPED_TEST_CASE(SocketTests, testing::Types<IPv4>);
+using IPTypes = testing::Types<IPv4, IPv6>;
+TYPED_TEST_CASE(SocketTests, IPTypes);
 
 /**
  * @brief Tests basic UDP send and recieve.
@@ -53,7 +54,7 @@ TYPED_TEST(SocketTests, UdpSendsAndReceivesData)
 
 	sock1.bind(4350);
 
-	sock2.send_to(sendData, "127.0.0.1", 4350);
+	sock2.send_to(sendData, IP::loopback(), 4350);
 
 	auto recvData = sock1.recv_from(sendData.size()).data;
 	EXPECT_EQ(sendData, recvData);

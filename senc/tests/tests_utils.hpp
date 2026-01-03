@@ -39,7 +39,7 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 		}
 	);
 
-	sendSock.connect("127.0.0.1", 4350);
+	sendSock.connect(IP::loopback(), 4350);
 
 	TcpSocket<IP> recvSock = f.get();
 
