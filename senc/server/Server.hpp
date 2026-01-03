@@ -19,6 +19,7 @@
 namespace senc::server
 {
 	/**
+	 * @class senc::server::Server
 	 * @brief Server class, manages server logic.
 	 */
 	class Server : public IServer
