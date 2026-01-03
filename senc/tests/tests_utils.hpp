@@ -40,7 +40,7 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 	{
 		port = Random<Port>::sample_from_range(49152, 65535);
 
-		try { listenSock.bind(port); }
+		try { listenSock.bind(*port); }
 		catch (const senc::utils::SocketException&) { port.reset(); }
 	}
 	listenSock.listen();
@@ -53,7 +53,7 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 		}
 	);
 
-	sendSock.connect(IP::loopback(), port);
+	sendSock.connect(IP::loopback(), *port);
 
 	TcpSocket<IP> recvSock = f.get();
 
