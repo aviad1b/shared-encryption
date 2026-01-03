@@ -73,6 +73,9 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 template <senc::utils::IPType IP>
 std::unique_ptr<senc::server::IServer> new_server(auto&&... args)
 {
+	using senc::utils::Random;
+	using senc::utils::Port;
+
 	// try selecting port `CONN_RETRY_COUNT-1` times
 	for (std::size_t i = 1; i < CONN_RETRY_COUNT; ++i)
 	{
