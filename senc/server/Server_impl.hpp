@@ -14,31 +14,34 @@
 
 namespace senc::server
 {
-	inline Server::Server(utils::Port listenPort,
-						  std::optional<std::function<void(const std::string&)>> logInfo,
-						  Schema& schema,
-						  IServerStorage& storage,
-						  PacketReceiver& receiver,
-						  PacketSender& sender,
-						  UpdateManager& updateManager,
-						  DecryptionsManager& decryptionsManager)
+	template <utils::IPType IP>
+	inline Server<IP>::Server(utils::Port listenPort,
+							  std::optional<std::function<void(const std::string&)>> logInfo,
+							  Schema& schema,
+							  IServerStorage& storage,
+							  PacketReceiver& receiver,
+							  PacketSender& sender,
+							  UpdateManager& updateManager,
+							  DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logInfo(logInfo),
 		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
 
-	inline Server::Server(utils::Port listenPort,
-						  Schema& schema,
-						  IServerStorage& storage,
-						  PacketReceiver& receiver,
-						  PacketSender& sender,
-						  UpdateManager& updateManager,
-						  DecryptionsManager& decryptionsManager)
+	template <utils::IPType IP>
+	inline Server<IP>::Server(utils::Port listenPort,
+							  Schema& schema,
+							  IServerStorage& storage,
+							  PacketReceiver& receiver,
+							  PacketSender& sender,
+							  UpdateManager& updateManager,
+							  DecryptionsManager& decryptionsManager)
 		: Self(listenPort, std::nullopt, schema, storage,
 			   receiver, sender, updateManager, decryptionsManager) { }
 
-	inline void Server::start()
+	template <utils::IPType IP>
+	inline void Server<IP>::start()
 	{
 		if (_isRunning.exchange(true))
 			throw ServerException("Server is already running");
@@ -49,7 +52,8 @@ namespace senc::server
 		acceptThread.detach();
 	}
 
-	inline void Server::stop()
+	template <utils::IPType IP>
+	inline void Server<IP>::stop()
 	{
 		if (!_isRunning.exchange(false))
 			throw ServerException("Server is not running");
@@ -59,35 +63,40 @@ namespace senc::server
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
-	inline void Server::wait()
+	template <utils::IPType IP>
+	inline void Server<IP>::wait()
 	{
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
 	}
 
-	inline void Server::log(LogType logType, const std::string& msg)
+	template <utils::IPType IP>
+	inline void Server<IP>::log(LogType logType, const std::string& msg)
 	{
 		(void)logType;
 		if (_logInfo.has_value())
 			(*_logInfo)(msg);
 	}
 
-	inline void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg)
+	template <utils::IPType IP>
+	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& msg)
 	{
 		log(logType, "Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
 	}
 
-	inline void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
+	template <utils::IPType IP>
+	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg)
 	{
 		log(logType, ip, port, "(\"" + username + "\") " + msg);
 	}
 
-	inline void Server::accept_loop()
+	template <utils::IPType IP>
+	inline void Server<IP>::accept_loop()
 	{
 		while (_isRunning)
 		{
-			std::optional<std::pair<Socket, std::tuple<utils::IPv4, utils::Port>>> acceptRet;
+			std::optional<std::pair<Socket, std::tuple<IP, utils::Port>>> acceptRet;
 			try { acceptRet = _listenSock.accept(); }
 			catch (const utils::SocketException&) { continue; }
 			// silently ignores failed accepts - might be due to server stop
@@ -105,7 +114,8 @@ namespace senc::server
 		}
 	}
 
-	inline void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
+	template <utils::IPType IP>
+	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
 		bool connected = false;
@@ -133,7 +143,8 @@ namespace senc::server
 		}
 	}
 
-	inline void Server::client_loop(Socket& sock, const std::string& username)
+	template <utils::IPType IP>
+	inline void Server<IP>::client_loop(Socket& sock, const std::string& username)
 	{
 		auto handler = _clientHandlerFactory.make_connected_client_handler(sock, username);
 		handler.loop();

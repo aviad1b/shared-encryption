@@ -43,7 +43,7 @@ namespace senc::server
 		ShortTermServerStorage storage;
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
-		Server server(
+		Server<utils::IPv4> server(
 			port,
 			[&console](const std::string& msg) { console->print("[info] " + msg); },
 			schema,
