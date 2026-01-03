@@ -41,6 +41,12 @@ namespace senc::server
 			   receiver, sender, updateManager, decryptionsManager) { }
 
 	template <utils::IPType IP>
+	inline utils::Port Server<IP>::port() const
+	{
+		return this->_listenPort;
+	}
+
+	template <utils::IPType IP>
 	inline void Server<IP>::start()
 	{
 		if (_isRunning.exchange(true))

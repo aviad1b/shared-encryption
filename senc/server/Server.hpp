@@ -70,6 +70,8 @@ namespace senc::server
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
+		utils::Port port() const override;
+
 		void start() override;
 
 		void stop() override;

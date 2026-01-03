@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "../utils/Socket.hpp"
+
 namespace senc::server
 {
 	/**
@@ -17,6 +19,11 @@ namespace senc::server
 	class IServer
 	{
 	public:
+		/**
+		 * @brief Gets server listen port.
+		 */
+		virtual utils::Port port() const = 0;
+
 		/**
 		 * @brief Starts the server (without waiting).
 		 */
