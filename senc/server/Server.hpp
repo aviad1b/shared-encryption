@@ -129,3 +129,5 @@ namespace senc::server
 		void client_loop(Socket& sock, const std::string& username);
 	};
 }
+
+#include "Server_impl.hpp"

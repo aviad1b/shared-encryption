@@ -17,7 +17,7 @@ add_executable(senc_tests
     "../server/ConnectedClientHandler.cpp"
     "../server/ConnectingClientHandler.cpp"
     "../server/DecryptionsManager.cpp"
-    "../server/Server.cpp"
+    "../server/Server_impl.hpp"
     "../server/ShortTermServerStorage.cpp"
     "../server/UpdateManager.cpp"
 )

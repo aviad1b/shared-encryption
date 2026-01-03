@@ -1,9 +1,9 @@
 /*********************************************************************
- * \file   Server.cpp
+ * \file   Server_impl.hpp
  * \brief  Implementation of Server class.
  * 
  * \author aviad1b
- * \date   December 2025, Kislev 5786
+ * \date   January 2026, Teveth 5786
  *********************************************************************/
 
 #include "Server.hpp"
@@ -14,31 +14,31 @@
 
 namespace senc::server
 {
-	Server::Server(utils::Port listenPort,
-				   std::optional<std::function<void(const std::string&)>> logInfo,
-				   Schema& schema,
-				   IServerStorage& storage,
-				   PacketReceiver& receiver,
-				   PacketSender& sender,
-				   UpdateManager& updateManager,
-				   DecryptionsManager& decryptionsManager)
+	inline Server::Server(utils::Port listenPort,
+						  std::optional<std::function<void(const std::string&)>> logInfo,
+						  Schema& schema,
+						  IServerStorage& storage,
+						  PacketReceiver& receiver,
+						  PacketSender& sender,
+						  UpdateManager& updateManager,
+						  DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logInfo(logInfo),
 		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
 
-	Server::Server(utils::Port listenPort,
-				   Schema& schema,
-				   IServerStorage& storage,
-				   PacketReceiver& receiver,
-				   PacketSender& sender,
-				   UpdateManager& updateManager,
-				   DecryptionsManager& decryptionsManager)
+	inline Server::Server(utils::Port listenPort,
+						  Schema& schema,
+						  IServerStorage& storage,
+						  PacketReceiver& receiver,
+						  PacketSender& sender,
+						  UpdateManager& updateManager,
+						  DecryptionsManager& decryptionsManager)
 		: Self(listenPort, std::nullopt, schema, storage,
 			   receiver, sender, updateManager, decryptionsManager) { }
 
-	void Server::start()
+	inline void Server::start()
 	{
 		if (_isRunning.exchange(true))
 			throw ServerException("Server is already running");
@@ -49,7 +49,7 @@ namespace senc::server
 		acceptThread.detach();
 	}
 
-	void Server::stop()
+	inline void Server::stop()
 	{
 		if (!_isRunning.exchange(false))
 			throw ServerException("Server is not running");
@@ -59,31 +59,31 @@ namespace senc::server
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
-	void Server::wait()
+	inline void Server::wait()
 	{
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
 	}
 
-	void Server::log(LogType logType, const std::string& msg)
+	inline void Server::log(LogType logType, const std::string& msg)
 	{
 		(void)logType;
 		if (_logInfo.has_value())
 			(*_logInfo)(msg);
 	}
 
-	void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg)
+	inline void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& msg)
 	{
 		log(logType, "Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
 	}
 
-	void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
+	inline void Server::log(LogType logType, const utils::IPv4& ip, utils::Port port, const std::string& username, const std::string& msg)
 	{
 		log(logType, ip, port, "(\"" + username + "\") " + msg);
 	}
 
-	void Server::accept_loop()
+	inline void Server::accept_loop()
 	{
 		while (_isRunning)
 		{
@@ -105,7 +105,7 @@ namespace senc::server
 		}
 	}
 
-	void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
+	inline void Server::handle_new_client(Socket sock, utils::IPv4 ip, utils::Port port)
 	{
 		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
 		bool connected = false;
@@ -133,7 +133,7 @@ namespace senc::server
 		}
 	}
 
-	void Server::client_loop(Socket& sock, const std::string& username)
+	inline void Server::client_loop(Socket& sock, const std::string& username)
 	{
 		auto handler = _clientHandlerFactory.make_connected_client_handler(sock, username);
 		handler.loop();
