@@ -109,6 +109,7 @@ protected:
 			decryptionsManager
 		);
 		server->start();
+		port = server->port();
 	}
 
 	void TearDown() override
