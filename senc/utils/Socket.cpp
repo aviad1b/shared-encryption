@@ -21,7 +21,11 @@ namespace senc::utils
 {
 	const SocketInitializer SocketInitializer::SOCKET_INITIALIZER;
 
-	const IPv4::Self IPv4::ANY("0.0.0.0");
+	const IPv4::Self& IPv4::any()
+	{
+		static const Self ANY("0.0.0.0");
+		return ANY;
+	}
 
 	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
 	{
@@ -64,7 +68,11 @@ namespace senc::utils
 		out->sin_addr = this->_addr;
 	}
 
-	const IPv6::Self IPv6::ANY("::");
+	const IPv6::Self& IPv6::any()
+	{
+		static const Self ANY("::");
+		return ANY;
+	}
 
 	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
 	{

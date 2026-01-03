@@ -211,7 +211,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::bind(Port port)
 	{
-		this->bind(IPv4::ANY, port);
+		this->bind(IPv4::any(), port);
 	}
 
 	template <IPType IP>
