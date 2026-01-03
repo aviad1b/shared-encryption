@@ -57,6 +57,7 @@ namespace senc::utils
 		{
 			{ Self::UNDERLYING_ADDRESS_FAMILY } -> std::convertible_to<int>;
 			{ Self::any() } -> std::convertible_to<const Self&>;
+			{ Self::loopback() } -> std::convertible_to<const Self&>;
 			{ self.as_str() } noexcept -> std::convertible_to<const std::string&>;
 			{ self.init_underlying(out, std::declval<Port>()) } noexcept;
 			{ Self::from_underlying_sock_addr(underlyingSockAddr) } -> std::same_as<std::tuple<Self, Port>>;
@@ -78,6 +79,11 @@ namespace senc::utils
 		 * @brief Gets IP used for binding socket to any address.
 		 */
 		static const Self& any();
+
+		/**
+		 * @brief Gets IP used for loopback.
+		 */
+		static const Self& loopback();
 
 		/**
 		 * @brief Constructs an IPv4 address from underlying struct.
@@ -174,6 +180,11 @@ namespace senc::utils
 		 * @brief Gets IP used for binding socket to any address.
 		 */
 		static const Self& any();
+
+		/**
+		 * @brief Gets IP used for loopback.
+		 */
+		static const Self& loopback();
 
 		/**
 		 * @brief Constructs an IPv6 address from underlying struct.

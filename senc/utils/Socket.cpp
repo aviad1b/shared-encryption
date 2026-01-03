@@ -27,6 +27,12 @@ namespace senc::utils
 		return ANY;
 	}
 
+	const IPv4::Self& IPv4::loopback()
+	{
+		static const Self& LOOPBACK("127.0.0.1");
+		return LOOPBACK;
+	}
+
 	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
 	{
 		char addrStr[INET_ADDRSTRLEN] = "";
@@ -72,6 +78,12 @@ namespace senc::utils
 	{
 		static const Self ANY("::");
 		return ANY;
+	}
+
+	const IPv6::Self& IPv6::loopback()
+	{
+		static const Self& LOOPBACK("::1");
+		return LOOPBACK;
 	}
 
 	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
