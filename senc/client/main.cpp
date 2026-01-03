@@ -20,6 +20,7 @@ namespace senc::client
 	using utils::Socket;
 	using utils::Buffer;
 	using utils::IPv4;
+	using utils::IPv6;
 	using utils::Port;
 	using std::vector;
 	using std::string;
@@ -60,6 +61,7 @@ namespace senc::client
 		SockFunc func;
 	};
 
+	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str);
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -145,6 +147,22 @@ namespace senc::client
 		run_client(*sock);
 
 		return 0;
+	}
+
+	/**
+	 * @brief Parses IP instance from string representation.
+	 * @param str String representation of IP address.
+	 * @return IP instance, or `std::nullopt` if invalid.
+	 */
+	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str)
+	{
+		try { return IPv4(str); }
+		catch (const Exception&) { }
+
+		try { return IPv6(str); }
+		catch (const Exception&) { }
+
+		return std::nullopt;
 	}
 
 	/**
