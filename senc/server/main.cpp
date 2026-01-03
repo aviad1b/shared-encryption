@@ -11,6 +11,8 @@ namespace senc::server
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
+	std::tuple<bool, Port> parse_args(int argc, char** argv);
+
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
@@ -22,40 +24,13 @@ namespace senc::server
 
 	int main(int argc, char** argv)
 	{
-		if (argc > 3)
-			std::cout << "Usage: " << argv[0] << " [IPv4|IPv6] [port]" << std::endl;
-
-		std::vector<std::string> args(argv + 1, argv + argc);
 		bool isIPv6 = false;
-
-		// pop if has either "IPv4" or "IPv6", for "IPv6" set isIPv6 to true:
-		auto itIPv4 = std::find(args.begin(), args.end(), "IPv4");
-		auto itIPv6 = std::find(args.begin(), args.end(), "IPv6");
-		if (itIPv4 != args.end() || itIPv6 != args.end()) // if has either IPv4 or IPv6
+		Port port{};
+		try { std::tie(isIPv6, port) = parse_args(argc, argv); }
+		catch (const std::exception& e)
 		{
-			if (itIPv6 == args.end()) // if has IPv4 and not IPv6
-				args.erase(itIPv4);
-			else if (itIPv4 == args.end()) // if has IPv6 and not IPv4
-			{
-				args.erase(itIPv6);
-				isIPv6 = true;
-			}
-			else
-			{
-				std::cout << "Usage: " << argv[0] << " [IPv4|IPv6] [port]" << std::endl;
-				return 1;
-			}
-		}
-
-		Port port = DEFAULT_LISTEN_PORT;
-		if (args.size() >= 1)
-		{
-			try { port = std::stoi(args[0]); }
-			catch (const std::exception&)
-			{
-				std::cerr << "Bad port: " << args[0] << std::endl;
-				return 1;
-			}
+			std::cerr << e.what() << std::endl;
+			return 1;
 		}
 
 		std::optional<InteractiveConsole> console;
@@ -91,6 +66,48 @@ namespace senc::server
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @brief Parses program arguments.
+	 * @return isIPv6, port
+	 * @throw utils::Exception On error.
+	 */
+	std::tuple<bool, Port> parse_args(int argc, char** argv)
+	{
+		static const std::string USAGE = std::string("Usage: ") + argv[0] + " [IPv4|IPv6] [port]";
+		if (argc > 3)
+			throw utils::Exception(USAGE);
+
+		std::vector<std::string> args(argv + 1, argv + argc);
+		bool isIPv6 = false;
+
+		// pop if has either "IPv4" or "IPv6", for "IPv6" set isIPv6 to true:
+		auto itIPv4 = std::find(args.begin(), args.end(), "IPv4");
+		auto itIPv6 = std::find(args.begin(), args.end(), "IPv6");
+		if (itIPv4 != args.end() || itIPv6 != args.end()) // if has either IPv4 or IPv6
+		{
+			if (itIPv6 == args.end()) // if has IPv4 and not IPv6
+				args.erase(itIPv4);
+			else if (itIPv4 == args.end()) // if has IPv6 and not IPv4
+			{
+				args.erase(itIPv6);
+				isIPv6 = true;
+			}
+			else throw utils::Exception(USAGE);
+		}
+
+		Port port = DEFAULT_LISTEN_PORT;
+		if (args.size() >= 1)
+		{
+			try { port = std::stoi(args[0]); }
+			catch (const std::exception&)
+			{
+				throw utils::Exception("Bad port: " + args[0]);
+			}
+		}
+
+		return { isIPv6, port };
 	}
 
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
