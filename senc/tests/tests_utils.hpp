@@ -13,6 +13,7 @@
 #include <future>
 #include <thread>
 #include <tuple>
+#include "../server/Server.hpp"
 #include "../utils/concepts.hpp"
 #include "../utils/Random.hpp"
 #include "../utils/Socket.hpp"
@@ -64,6 +65,24 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 	TcpSocket<IP> recvSock = f.get();
 
 	return { std::move(sendSock), std::move(recvSock) };
+}
+
+/**
+ * @brief Makes new server, given all args except for port.
+ */
+template <senc::utils::IPType IP>
+senc::server::Server<IP> new_server(auto&&... args)
+{
+	// try selecting port `CONN_RETRY_COUNT-1` times
+	for (std::size_t i = 1; i < CONN_RETRY_COUNT; ++i)
+	{
+		auto port = Random<Port>::sample_from_range(49152, 65535);
+		try { return std::make_unique<senc::server::Server<IP>>(port, args...); }
+		catch (const senc::utils::SocketException&) { }
+	}
+	// if still failed, try another time, this time without a `try` block
+	auto port = Random<Port>::sample_from_range(49152, 65535);
+	return std::make_unique<senc::server::Server<IP>>(port, args...);
 }
 
 /**
