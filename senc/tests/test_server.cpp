@@ -36,6 +36,7 @@ using senc::PacketSender;
 using senc::OperationID;
 using senc::utils::Port;
 using senc::utils::IPv4;
+using senc::utils::IPv6;
 using senc::Schema;
 
 using Socket = senc::utils::TcpSocket<senc::utils::IPv4>;
@@ -1578,6 +1579,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 const auto SERVER_IMPLS = testing::Values(
 	ServerTestParams{
 		[](auto&&... args) { return std::make_unique<Server<IPv4>>(args...); },
+		std::make_unique<ShortTermServerStorage>,
+		std::make_unique<InlinePacketReceiver>,
+		std::make_unique<InlinePacketSender>
+	},
+	ServerTestParams{
+		[](auto&&... args) { return std::make_unique<Server<IPv6>>(args...); },
 		std::make_unique<ShortTermServerStorage>,
 		std::make_unique<InlinePacketReceiver>,
 		std::make_unique<InlinePacketSender>
