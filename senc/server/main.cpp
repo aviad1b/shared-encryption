@@ -12,6 +12,7 @@ namespace senc::server
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
+	void run_server(IServer& server, InteractiveConsole& console);
 
 	int main(int argc, char** argv)
 	{
@@ -54,15 +55,7 @@ namespace senc::server
 			decryptionsManager
 		);
 
-		server.start();
-
-		console->print("[info] Server listening at port " + std::to_string(port) + ".");
-		console->print("[info] Use \"stop\" to stop server.");
-
-		console->start_inputs(); // start input loop
-
-		server.stop();
-		server.wait();
+		run_server(server, *console);
 
 		return 0;
 	}
@@ -71,6 +64,19 @@ namespace senc::server
 	{
 		(void)console;
 		return cmd == "stop"; // stop if command is "stop"
+	}
+
+	void run_server(IServer& server, InteractiveConsole& console)
+	{
+		server.start();
+
+		console.print("[info] Server listening at port " + std::to_string(server.port()) + ".");
+		console.print("[info] Use \"stop\" to stop server.");
+
+		console.start_inputs(); // start input loop
+
+		server.stop();
+		server.wait();
 	}
 }
 
