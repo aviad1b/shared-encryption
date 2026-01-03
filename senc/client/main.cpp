@@ -19,6 +19,7 @@ namespace senc::client
 	using utils::TcpSocket;
 	using utils::Socket;
 	using utils::Buffer;
+	using utils::IPType;
 	using utils::IPv4;
 	using utils::IPv6;
 	using utils::Port;
@@ -62,6 +63,7 @@ namespace senc::client
 	};
 
 	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str);
+	int start_client(const IPType auto& ip, Port port);
 	void run_client(Socket& sock);
 	bool login_menu(Socket& sock);
 	void main_menu(Socket& sock);
@@ -117,9 +119,8 @@ namespace senc::client
 			return 1;
 		}
 
-		std::optional<IPv4> ip;
-		try { ip = argv[1]; }
-		catch (const std::exception&)
+		auto ip = parse_ip(argv[1]);
+		if (!ip.has_value())
 		{
 			cout << "Bad IP: " << argv[1] << endl;
 			return 1;
@@ -136,17 +137,10 @@ namespace senc::client
 			}
 		}
 
-		std::optional<TcpSocket<IPv4>> sock;
-		try { sock.emplace(*ip, port); }
-		catch (const std::exception& e)
-		{
-			cout << "Failed to connect to server: " << e.what() << endl;
-			return 1;
-		}
-
-		run_client(*sock);
-
-		return 0;
+		return std::visit(
+			[port](const auto& x) { return start_client(x, port); },
+			*ip
+		);
 	}
 
 	/**
@@ -163,6 +157,29 @@ namespace senc::client
 		catch (const Exception&) { }
 
 		return std::nullopt;
+	}
+
+	/**
+	 * @brief Starts client, connecting to server at given IP and port.
+	 * @param ip Server IP
+	 * @param port Server port.
+	 * @return Program exit code.
+	 */
+	int start_client(const IPType auto& ip, Port port)
+	{
+		using IP = std::remove_cvref_t<decltype(ip)>;
+
+		std::optional<TcpSocket<IP>> sock;
+		try { sock.emplace(ip, port); }
+		catch (const std::exception& e)
+		{
+			cout << "Failed to connect to server: " << e.what() << endl;
+			return 1;
+		}
+
+		run_client(*sock);
+
+		return 0;
 	}
 
 	/**
