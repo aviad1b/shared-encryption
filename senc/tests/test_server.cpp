@@ -53,7 +53,7 @@ using StorageFactory = std::function<std::unique_ptr<IServerStorage>()>;
 using ReceiverFactory = std::function<std::unique_ptr<PacketReceiver>()>;
 using SenderFactory = std::function<std::unique_ptr<PacketSender>()>;
 using ServerFactory = std::function<std::unique_ptr<IServer>(
-	Port, Schema&, IServerStorage&, PacketReceiver&, PacketSender&,
+	Schema&, IServerStorage&, PacketReceiver&, PacketSender&,
 	UpdateManager&, DecryptionsManager&
 )>;
 
@@ -96,13 +96,11 @@ protected:
 
 	void SetUp() override
 	{
-		port = Random<Port>::sample_from_range(49152, 65535);
 		const auto& params = get_server_test_params();
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
 		server = params.serverFactory(
-			port,
 			schema,
 			*storage,
 			*receiver,
@@ -111,6 +109,7 @@ protected:
 			decryptionsManager
 		);
 		server->start();
+		port = server->port();
 	}
 
 	void TearDown() override
@@ -1586,14 +1585,14 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 const auto SERVER_IMPLS = testing::Values(
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
-		[](auto&&... args) { return std::make_unique<Server<IPv4>>(args...); },
+		[](auto&&... args) { return new_server<IPv4>(args...); },
 		std::make_unique<ShortTermServerStorage>,
 		std::make_unique<InlinePacketReceiver>,
 		std::make_unique<InlinePacketSender>
 	},
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv6>>(IPv6::loopback(), port); },
-		[](auto&&... args) { return std::make_unique<Server<IPv6>>(args...); },
+		[](auto&&... args) { return new_server<IPv6>(args...); },
 		std::make_unique<ShortTermServerStorage>,
 		std::make_unique<InlinePacketReceiver>,
 		std::make_unique<InlinePacketSender>
