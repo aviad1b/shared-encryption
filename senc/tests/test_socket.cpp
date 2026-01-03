@@ -12,6 +12,7 @@
 
 using senc::utils::UdpSocket;
 using senc::utils::TcpSocket;
+using senc::utils::IPType;
 using senc::utils::Buffer;
 using senc::utils::byte;
 using senc::utils::IPv4;
@@ -35,13 +36,20 @@ TEST(IPTests, IPv6ConstructsFromString)
 	EXPECT_EQ(ip.as_str(), "fd30:cb0a:c87a:0157:a1b2:c3d4:e5f6:7890");
 }
 
+template <IPType IP_>
+struct SocketTests : public testing::Test { };
+
+TYPED_TEST_CASE(SocketTests, testing::Types<IPv4>);
+
 /**
  * @brief Tests basic UDP send and recieve.
  */
-TEST(SocketTests, UdpSendsAndReceivesData)
+TYPED_TEST(SocketTests, UdpSendsAndReceivesData)
 {
+	using IP = TypeParam;
+
 	const Buffer sendData { byte(1), byte(2), byte(3) };
-	UdpSocket<IPv4> sock1, sock2;
+	UdpSocket<IP> sock1, sock2;
 
 	sock1.bind(4350);
 
@@ -54,9 +62,10 @@ TEST(SocketTests, UdpSendsAndReceivesData)
 /**
  * @brief Tests basic TCP send and recieve.
  */
-TEST(SocketTests, TcpSendsAndReceivesData)
+TYPED_TEST(SocketTests, TcpSendsAndReceivesData)
 {
-	auto [sendSock, recvSock] = prepare_tcp();
+	using IP = TypeParam;
+	auto [sendSock, recvSock] = prepare_tcp<IP>();
 	
 	const Buffer sendData { byte(1), byte(2), byte(3) };
 
@@ -68,9 +77,10 @@ TEST(SocketTests, TcpSendsAndReceivesData)
 /**
  * @brief Tests send and recv of strings over TCP.
  */
-TEST(SocketTests, TcpSendsAndReceivesStrings)
+TYPED_TEST(SocketTests, TcpSendsAndReceivesStrings)
 {
-	auto [sendSock, recvSock] = prepare_tcp();
+	using IP = TypeParam;
+	auto [sendSock, recvSock] = prepare_tcp<IP>();
 
 	const std::string sendStr = "abcd";
 	const Buffer sendBytes = { 1, 2, 3 };
@@ -78,7 +88,7 @@ TEST(SocketTests, TcpSendsAndReceivesStrings)
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recvStr = recvSock.recv_connected_str<std::string, 3>();
+	auto recvStr = recvSock.template recv_connected_str<std::string, 3>();
 
 	auto recvBytes = recvSock.recv_connected(3);
 
@@ -90,7 +100,7 @@ TEST(SocketTests, TcpSendsAndReceivesStrings)
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recvWStr = recvSock.recv_connected_str<std::wstring, 3>();
+	auto recvWStr = recvSock.template recv_connected_str<std::wstring, 3>();
 
 	recvBytes = recvSock.recv_connected(3);
 
@@ -98,9 +108,10 @@ TEST(SocketTests, TcpSendsAndReceivesStrings)
 	EXPECT_EQ(sendBytes, recvBytes);
 }
 
-TEST(SocketTests, TcpReceivesExactByteCount)
+TYPED_TEST(SocketTests, TcpReceivesExactByteCount)
 {
-	auto [sendSock, recvSock] = prepare_tcp();
+	using IP = TypeParam;
+	auto [sendSock, recvSock] = prepare_tcp<IP>();
 
 	const Buffer five = { 1, 2, 3, 4, 5 };
 	const Buffer four = { 1, 2, 3, 4 };
@@ -112,9 +123,10 @@ TEST(SocketTests, TcpReceivesExactByteCount)
 	EXPECT_EQ(recvLast, last);
 }
 
-TEST(SocketTests, TcpSerializesAndDeserializesTuples)
+TYPED_TEST(SocketTests, TcpSerializesAndDeserializesTuples)
 {
-	auto [sendSock, recvSock] = prepare_tcp();
+	using IP = TypeParam;
+	auto [sendSock, recvSock] = prepare_tcp<IP>();
 	auto sendTpl = std::make_tuple(Buffer{1, 2, 3}, std::string("hello"), 5);
 	auto recvTpl = std::make_tuple(Buffer(3, byte(0)), std::string(), 0);
 
