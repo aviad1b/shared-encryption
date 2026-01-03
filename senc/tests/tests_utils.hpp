@@ -18,6 +18,8 @@
 #include "../utils/Socket.hpp"
 #include "../utils/hash.hpp"
 
+constexpr std::size_t CONN_RETRY_COUNT = 10;
+
 /**
  * @brief Prepares local TCP connection for test.
  */
@@ -32,9 +34,15 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 	std::promise<TcpSocket<IP>> p;
 	std::future<TcpSocket<IP>> f = p.get_future();
 
-	auto port = Random<Port>::sample_from_range(49152, 65535);
+	// try selecting port `CONN_RETRY_COUNT` times
+	std::optional<Port> port;
+	for (std::size_t i = 0; i < CONN_RETRY_COUNT && !port.has_value(); ++i)
+	{
+		port = Random<Port>::sample_from_range(49152, 65535);
 
-	listenSock.bind(port);
+		try { listenSock.bind(port); }
+		catch (const senc::utils::SocketException&) { port.reset(); }
+	}
 	listenSock.listen();
 
 	std::jthread t(
