@@ -110,12 +110,28 @@ namespace senc::server
 		return { isIPv6, port };
 	}
 
+	/**
+	 * @brief Handles a server command input.
+	 * @param console Server console (by ref).
+	 * @param cmd Inputed command.
+	 * @return `true` if server should stop, otherwise `false`.
+	 */
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
 	{
 		(void)console;
 		return cmd == "stop"; // stop if command is "stop"
 	}
 
+	/**
+	 * @brief Starts up server (and waits for it to finish runnings).
+	 * @param port Server's listen port.
+	 * @param schema Server's encryption schema instance (by ref).
+	 * @param storage Server's storage instance (by ref).
+	 * @param receiver Server's packet receiver instance (by ref).
+	 * @param sender Server's packet sender instance (by ref).
+	 * @param updateManager Server's update manager instance (by ref).
+	 * @param decryptionsManager Server's decryptions manager instance (by ref).
+	 */
 	template <utils::IPType IP>
 	void start_server(Port port, InteractiveConsole& console, Schema& schema,
 					  IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
@@ -135,6 +151,11 @@ namespace senc::server
 		run_server(server, console);
 	}
 
+	/**
+	 * @brief Runs server (and waits for it to finish running).
+	 * @param server Server to run (by ref).
+	 * @param console Server console (by ref).
+	 */
 	void run_server(IServer& server, InteractiveConsole& console)
 	{
 		server.start();
