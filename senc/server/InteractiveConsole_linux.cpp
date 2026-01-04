@@ -88,9 +88,9 @@ namespace senc::server
 
 	void InteractiveConsole::input_loop()
 	{
-		fd_set readfds;
-		struct timeval tv;
-		char ch;
+		fd_set readfds{};
+		struct timeval tv{};
+		char ch = 0;
 
 		while (_running)
 		{
