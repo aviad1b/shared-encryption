@@ -20,17 +20,17 @@ namespace senc::server
 {
 	InteractiveConsole::InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput)
 		: _handleInput(handleInput),
-		_running(false),
-		_handlingInput(false),
-		_stdin_fd(STDIN_FILENO),
-		_stdout_fd(STDOUT_FILENO)
+		 _running(false),
+		 _handlingInput(false),
+		 _stdin_fd(STDIN_FILENO),
+		 _stdout_fd(STDOUT_FILENO)
 	{
 		if (!isatty(_stdin_fd) || !isatty(_stdout_fd))
-			throw utils::Exception("Failed to initialize console: not a TTY");
+			throw utils::Exception("Failed to initialize console: Terminal not found");
 
 		// save original terminal settings
 		if (tcgetattr(_stdin_fd, &_original_termios) < 0)
-			throw utils::Exception("Failed to get terminal attributes");
+			throw utils::Exception("Failed to initialize console: Failed to get terminal attributes");
 	}
 
 	InteractiveConsole::~InteractiveConsole()
@@ -50,7 +50,7 @@ namespace senc::server
 		raw.c_cc[VTIME] = 0; // no timeout
 
 		if (tcsetattr(_stdin_fd, TCSAFLUSH, &raw) < 0)
-			throw utils::Exception("Failed to set raw mode");
+			throw utils::Exception("Failed to start input loop: Failed to set raw mode");
 
 		// display initial prompt
 		display_prompt();
@@ -88,9 +88,9 @@ namespace senc::server
 
 	void InteractiveConsole::input_loop()
 	{
-		fd_set readfds;
-		struct timeval tv;
-		char ch;
+		fd_set readfds{};
+		struct timeval tv{};
+		char ch = 0;
 
 		while (_running)
 		{
@@ -140,7 +140,7 @@ namespace senc::server
 			if (_running) // only show prompt if still running
 				display_prompt();
 		}
-		else if (ch == 127 || ch == 8) // backspace (DEL or BS)
+		else if (ch == '\x7F' || ch == '\b') // backspace or delete
 		{
 			if (!_curIn.empty())
 			{
@@ -149,11 +149,11 @@ namespace senc::server
 				write_to_console("\b \b");
 			}
 		}
-		else if (ch == 27) // escape sequence (arrow keys, etc.)
+		else if (ch == '\x1B') // escape sequence (arrow keys, etc.)
 		{
 			// read the rest of the escape sequence and ignore for now
 			// this prevents arrow keys from printing garbage
-			char seq[2];
+			char seq[2] = {0};
 			if (read(_stdin_fd, &seq[0], 1) > 0 && seq[0] == '[')
 			{
 				read(_stdin_fd, &seq[1], 1);

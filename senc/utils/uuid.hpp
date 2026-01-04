@@ -59,6 +59,8 @@ namespace senc::utils
 	 */
 	class UUID
 	{
+		static constexpr std::size_t SIZE = 16;
+
 	public:
 		using Self = UUID;
 #ifdef SENC_WINDOWS
@@ -146,7 +148,7 @@ namespace senc::utils
 		 * @brief Gets (byte) size of UUID value.
 		 * @return Size of UUID value.
 		 */
-		constexpr std::size_t size() const { return 16; }
+		static constexpr std::size_t size() { return SIZE; }
 
 		/**
 		 * @brief Gets pointer to byte data of UUID.
@@ -164,13 +166,13 @@ namespace senc::utils
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 
 	private:
-		std::array<byte, 16> _bytes{};
+		std::array<byte, SIZE> _bytes{};
 
 		UUID(const Underlying& value);
 
-		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
+		static void bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying);
 
-		static void underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes);
+		static void underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes);
 	};
 }
 

@@ -110,7 +110,7 @@ namespace senc::utils
 	}
 
 #ifdef SENC_WINDOWS
-	void UUID::bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying)
+	void UUID::bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying)
 	{
 		// get bytes (RFC-4122 order)
 
@@ -129,14 +129,14 @@ namespace senc::utils
 			out[8 + i] = underlying.Data4[i];
 	}
 #else
-	void UUID::bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying)
+	void UUID::bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying)
 	{
-		std::memcpy(out.data(), underlying, 16);
+		std::memcpy(out.data(), underlying, SIZE);
 	}
 #endif
 
 #ifdef SENC_WINDOWS
-	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes)
+	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes)
 	{
 		out.Data1 = (static_cast<std::uint32_t>(bytes[0]) << 24) |
 			(static_cast<std::uint32_t>(bytes[1]) << 16) |
@@ -153,9 +153,9 @@ namespace senc::utils
 			out.Data4[i] = bytes[8 + i];
 	}
 #else
-	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes)
+	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes)
 	{
-		std::memcpy(out, bytes.data(), 16);
+		std::memcpy(out, bytes.data(), SIZE);
 	}
 #endif
 

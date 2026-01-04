@@ -10,11 +10,11 @@
 
 #ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
+#include <experimental/scope> // only used in windows variation of get_last_sock_err
 #else
 #include <poll.h>
 #endif
 
-#include <experimental/scope>
 #include <cstring>
 
 namespace senc::utils

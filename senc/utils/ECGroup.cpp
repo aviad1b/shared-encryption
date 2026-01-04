@@ -1,7 +1,3 @@
-#include "ECGroup.hpp"
-#include "ECGroup.hpp"
-#include "ECGroup.hpp"
-#include "ECGroup.hpp"
 /*********************************************************************
  * \file   ECGroup.cpp
  * \brief  Implementation of ECGroup class.
