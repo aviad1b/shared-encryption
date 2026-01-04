@@ -140,7 +140,7 @@ namespace senc::server
 			if (_running) // only show prompt if still running
 				display_prompt();
 		}
-		else if (ch == 127 || ch == 8) // backspace (DEL or BS)
+		else if (ch == '\x7F' || ch == '\b') // backspace or delete
 		{
 			if (!_curIn.empty())
 			{
@@ -149,7 +149,7 @@ namespace senc::server
 				write_to_console("\b \b");
 			}
 		}
-		else if (ch == 27) // escape sequence (arrow keys, etc.)
+		else if (ch == '\x1B') // escape sequence (arrow keys, etc.)
 		{
 			// read the rest of the escape sequence and ignore for now
 			// this prevents arrow keys from printing garbage
