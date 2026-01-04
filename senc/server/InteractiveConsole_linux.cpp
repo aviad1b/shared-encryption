@@ -153,7 +153,7 @@ namespace senc::server
 		{
 			// read the rest of the escape sequence and ignore for now
 			// this prevents arrow keys from printing garbage
-			char seq[2];
+			char seq[2] = {0};
 			if (read(_stdin_fd, &seq[0], 1) > 0 && seq[0] == '[')
 			{
 				read(_stdin_fd, &seq[1], 1);
