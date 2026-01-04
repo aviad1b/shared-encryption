@@ -26,11 +26,11 @@ namespace senc::server
 		 _stdout_fd(STDOUT_FILENO)
 	{
 		if (!isatty(_stdin_fd) || !isatty(_stdout_fd))
-			throw utils::Exception("Failed to initialize console: not a TTY");
+			throw utils::Exception("Failed to initialize console: Terminal not found");
 
 		// save original terminal settings
 		if (tcgetattr(_stdin_fd, &_original_termios) < 0)
-			throw utils::Exception("Failed to get terminal attributes");
+			throw utils::Exception("Failed to initialize console: Failed to get terminal attributes");
 	}
 
 	InteractiveConsole::~InteractiveConsole()
@@ -50,7 +50,7 @@ namespace senc::server
 		raw.c_cc[VTIME] = 0; // no timeout
 
 		if (tcsetattr(_stdin_fd, TCSAFLUSH, &raw) < 0)
-			throw utils::Exception("Failed to set raw mode");
+			throw utils::Exception("Failed to start input loop: Failed to set raw mode");
 
 		// display initial prompt
 		display_prompt();
