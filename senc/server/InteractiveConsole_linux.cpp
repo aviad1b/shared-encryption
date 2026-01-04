@@ -20,10 +20,10 @@ namespace senc::server
 {
 	InteractiveConsole::InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput)
 		: _handleInput(handleInput),
-		_running(false),
-		_handlingInput(false),
-		_stdin_fd(STDIN_FILENO),
-		_stdout_fd(STDOUT_FILENO)
+		 _running(false),
+		 _handlingInput(false),
+		 _stdin_fd(STDIN_FILENO),
+		 _stdout_fd(STDOUT_FILENO)
 	{
 		if (!isatty(_stdin_fd) || !isatty(_stdout_fd))
 			throw utils::Exception("Failed to initialize console: not a TTY");
