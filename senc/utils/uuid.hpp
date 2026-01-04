@@ -146,7 +146,7 @@ namespace senc::utils
 		 * @brief Gets (byte) size of UUID value.
 		 * @return Size of UUID value.
 		 */
-		constexpr std::size_t size() const { return 16; }
+		static constexpr std::size_t size() { return 16; }
 
 		/**
 		 * @brief Gets pointer to byte data of UUID.
