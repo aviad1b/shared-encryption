@@ -100,7 +100,7 @@ namespace senc::utils
 	inline void Socket::send_connected_values(const TupleLike auto& values)
 	{
 		std::apply(
-			[this](auto&... args) { (send_connected_value<endianess>(args), ...); },
+			[this](auto&... args) { (this->send_connected_value<endianess>(args), ...); },
 			values
 		);
 	}
@@ -221,7 +221,10 @@ namespace senc::utils
 		std::apply(
 			[this](auto&... args)
 			{
-				(recv_connected_value<std::remove_cvref_t<decltype(args)>, endianess, chunkSize>(args), ...);
+				(this->recv_connected_value<
+					std::remove_cvref_t<decltype(args)>,
+					endianess,
+					chunkSize>(args), ...);
 			},
 			values
 		);
