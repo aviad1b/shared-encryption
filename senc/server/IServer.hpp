@@ -19,6 +19,8 @@ namespace senc::server
 	class IServer
 	{
 	public:
+		virtual ~IServer() = default;
+
 		/**
 		 * @brief Gets server listen port.
 		 */
