@@ -6,6 +6,8 @@
  * \date   November 2025, Kislev 5786
  *********************************************************************/
 
+#include "../utils/winapi_patch.hpp"
+
 #include "uuid.hpp"
 
 #include <cstdint>
