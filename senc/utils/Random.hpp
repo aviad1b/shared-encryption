@@ -285,7 +285,7 @@ namespace senc::utils
 		requires DistVal<T>;
 
 	private:
-		static thread_local std::mt19937& engine() noexcept
+		static std::mt19937& engine() noexcept
 		{
 			static thread_local std::mt19937 eng(
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
@@ -293,7 +293,7 @@ namespace senc::utils
 			return eng;
 		}
 
-		static thread_local CryptoPP::RandomNumberGenerator& engine_crypto()
+		static CryptoPP::RandomNumberGenerator& engine_crypto()
 		{
 			static thread_local CryptoPP::AutoSeededRandomPool rng;
 			return rng;
