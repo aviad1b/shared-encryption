@@ -811,6 +811,10 @@ namespace senc::utils
 	};
 }
 
+
+#define SENC_CAT(a, b) SENC_CAT_IMPL(a, b)
+#define SENC_CAT_IMPL(a, b) a##b
+
 // extracts concept from a concept-types pack
 #define SENC_CONCEPT_NAME(pack) SENC_CONCEPT_NAME_IMPL pack
 #define SENC_CONCEPT_NAME_IMPL(con, ...) con
@@ -822,7 +826,7 @@ namespace senc::utils
 // creates noexcept check for concept (appends `NoExcept` to concept name)
 #define SENC_NOEXCEPT_CHECK(pack) SENC_NOEXCEPT_CHECK_EXPAND(SENC_CONCEPT_NAME(pack), SENC_CONCEPT_TYPES(pack))
 #define SENC_NOEXCEPT_CHECK_EXPAND(con, ...) SENC_NOEXCEPT_CHECK_IMPL(con, __VA_ARGS__)
-#define SENC_NOEXCEPT_CHECK_IMPL(con, ...) con##NoExcept<__VA_ARGS__>
+#define SENC_NOEXCEPT_CHECK_IMPL(con, ...) SENC_CAT(con, NoExcept<__VA_ARGS__>)
 
 // creates requires check for concept
 #define SENC_REQUIRES_CHECK(pack) SENC_REQUIRES_CHECK_EXPAND(SENC_CONCEPT_NAME(pack), SENC_CONCEPT_TYPES(pack))
