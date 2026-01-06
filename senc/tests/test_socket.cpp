@@ -40,7 +40,7 @@ template <IPType IP_>
 struct SocketTests : public testing::Test { };
 
 using IPTypes = testing::Types<IPv4, IPv6>;
-TYPED_TEST_CASE(SocketTests, IPTypes);
+TYPED_TEST_SUITE(SocketTests, IPTypes);
 
 /**
  * @brief Tests basic UDP send and recieve.

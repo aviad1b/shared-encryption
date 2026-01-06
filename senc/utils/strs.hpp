@@ -76,7 +76,7 @@ namespace senc::utils
 		else
 		{
 			T res{};
-			std::stringstream s = str;
+			std::stringstream s(str);
 			s >> res;
 			return res;
 		}

@@ -58,6 +58,16 @@
             }
         },
         {
+            "name": "clang-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+            }
+        },
+        {
             "name": "windows-x64-gcc-base",
             "hidden": true,
             "inherits": [ "windows-base", "x64-base", "gcc-base" ],
@@ -87,7 +97,11 @@
             "inherits": [ "linux-base", "x64-base", "gcc-base" ],
             "vendor": {
                 "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "linux-gcc-x64"
+                    "intelliSenseMode": "linux-gcc-x64",
+                    "additionalCompilerArguments": "-std=c++20",
+                    "defines": {
+                        "__cplusplus": "202002L"
+                    }
                 }
             }
         },
@@ -100,6 +114,30 @@
             "name": "linux-x64-gcc-release",
             "displayName": "gcc x64 Release",
             "inherits": [ "linux-x64-gcc-base", "release-base" ]
+        },
+        {
+            "name": "linux-x64-clang-base",
+            "hidden": true,
+            "inherits": [ "linux-base", "x64-base", "clang-base" ],
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "linux-gcc-x64",
+                    "additionalCompilerArguments": "-std=c++20",
+                    "defines": {
+                        "__cplusplus": "202002L"
+                    }
+                }
+            }
+        },
+        {
+            "name": "linux-x64-clang-debug",
+            "displayName": "clang x64 Debug",
+            "inherits": [ "linux-x64-clang-base", "debug-base" ]
+        },
+        {
+            "name": "linux-x64-clang-release",
+            "displayName": "clang x64 Release",
+            "inherits": [ "linux-x64-clang-base", "release-base" ]
         }
     ]
 }
