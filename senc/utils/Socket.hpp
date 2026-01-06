@@ -11,8 +11,7 @@
 #include "env.hpp"
 
 #ifdef SENC_WINDOWS
-#include <WinSock2.h> // has to be before <Windows.h>
-#include <Windows.h>
+#include "../utils/winapi_patch.hpp"
 #include <ws2ipdef.h>
 #else
 #include <sys/socket.h>

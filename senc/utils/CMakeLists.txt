@@ -1,5 +1,6 @@
 ﻿add_library(senc_utils
 	"env.hpp"
+	"winapi_patch.hpp"
 	"bytes.hpp"
 	"bytes.cpp"
 	"strs.hpp"

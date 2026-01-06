@@ -11,6 +11,7 @@
 #include "env.hpp"
 
 #ifdef SENC_WINDOWS
+#include "../utils/winapi_patch.hpp" // needed because rpc.h uses WinAPI
 #include <rpc.h>
 #else
 #include <uuid/uuid.h>

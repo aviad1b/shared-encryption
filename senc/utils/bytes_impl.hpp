@@ -8,10 +8,13 @@
 
 #include "bytes.hpp"
 
-#include <cstring>
+// this include is needed because CryptoPP uses WinAPI
+#include "../utils/winapi_patch.hpp"
+
 #include <cryptopp/filters.h>
 #include <cryptopp/base64.h>
 #include <cryptopp/queue.h>
+#include <cstring>
 
 #include "Exception.hpp"
 
