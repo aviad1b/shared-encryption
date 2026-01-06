@@ -71,13 +71,14 @@ namespace senc::utils
 		send_connected(obj.to_bytes());
 	}
 
-	template <typename T>
-	requires (HasByteData<T> || StringType<T> ||
-			std::is_fundamental_v<T> || std::is_enum_v<T> ||
-			ModIntType<T> ||
-			HasToBytes<T> ||
-			TupleLike<T>)
-	inline void Socket::send_connected_value(const T& value)
+	inline void Socket::send_connected_value(const auto& value)
+	requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
+		StringType<std::remove_cvref_t<decltype(value)>> ||
+		std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>> ||
+		ModIntType<std::remove_cvref_t<decltype(value)>> ||
+		HasToBytes<std::remove_cvref_t<decltype(value)>> ||
+		TupleLike<std::remove_cvref_t<decltype(value)>>)
 	{
 		if constexpr (StringType<T>)
 			send_connected_str(value);
@@ -93,8 +94,7 @@ namespace senc::utils
 			send_connected(value);
 	}
 
-	template <TupleLike Tpl>
-	inline void Socket::send_connected_values(const Tpl& values)
+	inline void Socket::send_connected_values(const TupleLike auto& values)
 	{
 		std::apply(
 			[this](auto&... args) { (send_connected_value(args), ...); },

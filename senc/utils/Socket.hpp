@@ -415,21 +415,21 @@ namespace senc::utils
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
-		requires (HasByteData<T> || StringType<T> ||
-			std::is_fundamental_v<T> || std::is_enum_v<T> ||
-			ModIntType<T> ||
-			HasToBytes<T> ||
-			TupleLike<T>)
-		void send_connected_value(const T& value);
+		void send_connected_value(const auto& value)
+		requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
+			StringType<std::remove_cvref_t<decltype(value)>> ||
+			std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+			std::is_enum_v<std::remove_cvref_t<decltype(value)>> ||
+			ModIntType<std::remove_cvref_t<decltype(value)>> ||
+			HasToBytes<std::remove_cvref_t<decltype(value)>> ||
+			TupleLike<std::remove_cvref_t<decltype(value)>>);
 
 		/**
 		 * @brief Sends values through (a connected) socket, using the fitting method for each.
 		 * @param values Values to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <TupleLike Tpl>
-		void send_connected_values(const Tpl& values);
+		void send_connected_values(const TupleLike auto& values);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
