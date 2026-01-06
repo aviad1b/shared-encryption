@@ -376,25 +376,23 @@ namespace senc::utils
 		 * @param data String data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <StringType Str>
-		void send_connected_str(const Str& data);
+		void send_connected_str(const StringType auto& data);
 
 		/**
 		 * @brief Sends a simple value through (a connected) socket.
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
-		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
-		void send_connected_primitive(T value);
+		void send_connected_primitive(auto value)
+		requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
+			std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
 
 		/**
 		 * @brief Sends a ModInt value through (a connected) socket.
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <ModIntType T>
-		void send_connected_modint(const T& value);
+		void send_connected_modint(const ModIntType auto& value);
 
 		/**
 		 * @brief Sends an object instance throught (a connected) socket.

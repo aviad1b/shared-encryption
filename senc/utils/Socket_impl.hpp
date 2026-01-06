@@ -22,23 +22,23 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
-	template <StringType Str>
-	inline void Socket::send_connected_str(const Str& data)
+	inline void Socket::send_connected_str(const StringType auto& data)
 	{
+		using Str = std::remove_cvref_t<decltype(data)>;
 		using C = typename Str::value_type;
 		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
 	}
 
-	template <typename T>
-	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
-	inline void Socket::send_connected_primitive(T value)
+	inline void Socket::send_connected_primitive(auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{
 		send_connected(&value, sizeof(value));
 	}
 
-	template <ModIntType T>
-	inline void Socket::send_connected_modint(const T& value)
+	inline void Socket::send_connected_modint(const ModIntType auto& value)
 	{
+		using T = std::remove_cvref_t<decltype(value)>;
 		using Int = typename T::Int;
 		send_connected_primitive(static_cast<Int>(value));
 	}
