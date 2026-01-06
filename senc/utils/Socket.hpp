@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <bit>
 
 #include "Exception.hpp"
 #include "ModInt.hpp"
@@ -336,6 +337,8 @@ namespace senc::utils
 	public:
 		using Self = Socket;
 
+		static constexpr std::endian DEFAULT_ENDIANESS = std::endian::big;
+
 		Socket(const Self&) = delete;
 
 		Self& operator=(const Self&) = delete;
@@ -373,28 +376,32 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends string data through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param data String data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <StringType Str>
-		void send_connected_str(const Str& data);
+		template <std::endian endianess = DEFAULT_ENDIANESS>
+		void send_connected_str(const StringType auto& data);
 
 		/**
 		 * @brief Sends a simple value through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
-		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
-		void send_connected_primitive(T value);
+		template <std::endian endianess = DEFAULT_ENDIANESS>
+		void send_connected_primitive(auto value)
+		requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
+			std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
 
 		/**
 		 * @brief Sends a ModInt value through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <ModIntType T>
-		void send_connected_modint(const T& value);
+		template <std::endian endianess = DEFAULT_ENDIANESS>
+		void send_connected_modint(const ModIntType auto& value);
 
 		/**
 		 * @brief Sends an object instance throught (a connected) socket.
@@ -407,24 +414,28 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends a value through (a connected) socket, using the fitting method.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
-		requires (HasByteData<T> || StringType<T> ||
-			std::is_fundamental_v<T> || std::is_enum_v<T> ||
-			ModIntType<T> ||
-			HasToBytes<T> ||
-			TupleLike<T>)
-		void send_connected_value(const T& value);
+		template <std::endian endianess = DEFAULT_ENDIANESS>
+		void send_connected_value(const auto& value)
+		requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
+			StringType<std::remove_cvref_t<decltype(value)>> ||
+			std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+			std::is_enum_v<std::remove_cvref_t<decltype(value)>> ||
+			ModIntType<std::remove_cvref_t<decltype(value)>> ||
+			HasToBytes<std::remove_cvref_t<decltype(value)>> ||
+			TupleLike<std::remove_cvref_t<decltype(value)>>);
 
 		/**
 		 * @brief Sends values through (a connected) socket, using the fitting method for each.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param values Values to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <TupleLike Tpl>
-		void send_connected_values(const Tpl& values);
+		template <std::endian endianess = DEFAULT_ENDIANESS>
+		void send_connected_values(const TupleLike auto& values);
 
 		/**
 		 * @brief Recieves binary data through (a connected) socket.
@@ -479,30 +490,35 @@ namespace senc::utils
 		/**
 		 * @brief Recieves string data through (a connected) socket.
 		 * @tparam Str String data type to recieve (same as one sent on other end).
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @return Read string data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <StringType Str = std::string, std::size_t chunkSize = 32>
+		template <StringType Str = std::string,
+				  std::endian endianess = std::endian::native,
+				  std::size_t chunkSize = 32>
 		Str recv_connected_str();
 
 		/**
 		 * @brief Recieves simple value through (a connected) socket.
+		 * @tparam endianess Endianess to use while receiving (`big` to keep as-is, `little` to reverse).
 		 * @tparam T Value type (fundamental or enum).
 		 * @return Read value.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
+		template <typename T, std::endian endianess = DEFAULT_ENDIANESS>
 		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		T recv_connected_primitive();
 
 		/**
 		 * @brief Receives a ModInt instance.
+		 * @tparam endianess Endianess to use while receiving (`big` to keep as-is, `little` to reverse).
 		 * @tparam T ModInt type.
 		 * @return Read value.
 		 * @throw senc::utils::ModException if valie is invalid.
 		 * @throw senc::utils::SocketException On other failure.
 		 */
-		template <ModIntType T>
+		template <ModIntType T, std::endian endianess = DEFAULT_ENDIANESS>
 		T recv_connected_modint();
 
 		/**
@@ -518,9 +534,12 @@ namespace senc::utils
 		/**
 		 * @brief Recieves value through (a connected) socket, using the fitting method.
 		 * @tparam T Value type.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param out Reference to store read value to.
 		 */
-		template <typename T, std::size_t chunkSize = 32>
+		template <typename T,
+				  std::endian endianess = DEFAULT_ENDIANESS,
+				  std::size_t chunkSize = 32>
 		requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
 			ModIntType<T> ||
@@ -533,7 +552,9 @@ namespace senc::utils
 		 * @param out Reference to store read values to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <TupleLike Tpl, std::size_t chunkSize = 32>
+		template <TupleLike Tpl,
+				  std::endian endianess = DEFAULT_ENDIANESS,
+				  std::size_t chunkSize = 32>
 		void recv_connected_values(Tpl& values);
 
 	protected:
