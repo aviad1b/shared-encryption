@@ -392,9 +392,11 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends a ModInt value through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
+		template <std::endian endianess = std::endian::big>
 		void send_connected_modint(const ModIntType auto& value);
 
 		/**
@@ -499,12 +501,13 @@ namespace senc::utils
 
 		/**
 		 * @brief Receives a ModInt instance.
+		 * @tparam endianess Endianess to use while receiving (`big` to keep as-is, `little` to reverse).
 		 * @tparam T ModInt type.
 		 * @return Read value.
 		 * @throw senc::utils::ModException if valie is invalid.
 		 * @throw senc::utils::SocketException On other failure.
 		 */
-		template <ModIntType T>
+		template <ModIntType T, std::endian endianess = std::endian::big>
 		T recv_connected_modint();
 
 		/**

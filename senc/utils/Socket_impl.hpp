@@ -47,11 +47,12 @@ namespace senc::utils
 		}
 	}
 
+	template <std::endian endianess>
 	inline void Socket::send_connected_modint(const ModIntType auto& value)
 	{
 		using T = std::remove_cvref_t<decltype(value)>;
 		using Int = typename T::Int;
-		send_connected_primitive(static_cast<Int>(value));
+		send_connected_primitive<endianess>(static_cast<Int>(value));
 	}
 
 	template <HasToBytes Obj>
@@ -160,11 +161,11 @@ namespace senc::utils
 		return res;
 	}
 
-	template <ModIntType T>
+	template <ModIntType T, std::endian endianess>
 	inline T Socket::recv_connected_modint()
 	{
 		using Int = typename T::Int;
-		return T(recv_connected_primitive<Int>());
+		return T(recv_connected_primitive<Int, endianess>());
 	}
 
 	template <HasFromBytes T>
