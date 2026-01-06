@@ -16,9 +16,9 @@ namespace senc::server
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
-	void start_server(Port port, InteractiveConsole& console, Schema& schema,
-				  IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
-				  UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
+	int start_server(Port port, InteractiveConsole& console, Schema& schema,
+					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, InteractiveConsole& console);
 
@@ -49,23 +49,17 @@ namespace senc::server
 		DecryptionsManager decryptionsManager;
 		
 		if (isIPv6)
-		{
-			start_server<utils::IPv6>(
+			return start_server<utils::IPv6>(
 				port, *console, schema, storage,
 				receiver, sender,
 				updateManager, decryptionsManager
 			);
-		}
 		else
-		{
-			start_server<utils::IPv4>(
+			return start_server<utils::IPv4>(
 				port, *console, schema, storage,
 				receiver, sender,
 				updateManager, decryptionsManager
 			);
-		}
-
-		return 0;
 	}
 
 	/**
@@ -131,11 +125,12 @@ namespace senc::server
 	 * @param sender Server's packet sender instance (by ref).
 	 * @param updateManager Server's update manager instance (by ref).
 	 * @param decryptionsManager Server's decryptions manager instance (by ref).
+	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
-	void start_server(Port port, InteractiveConsole& console, Schema& schema,
-					  IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
-					  UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
+	int start_server(Port port, InteractiveConsole& console, Schema& schema,
+					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
 		Server<IP> server(
 			port,
@@ -149,6 +144,8 @@ namespace senc::server
 		);
 
 		run_server(server, console);
+
+		return 0;
 	}
 
 	/**
