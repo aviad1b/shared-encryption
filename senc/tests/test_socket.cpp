@@ -89,7 +89,7 @@ TYPED_TEST(SocketTests, TcpSendsAndReceivesStrings)
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recvStr = recvSock.template recv_connected_str<std::string, 3>();
+	auto recvStr = recvSock.template recv_connected_str<std::string, std::endian::big, 3>();
 
 	auto recvBytes = recvSock.recv_connected(3);
 
@@ -101,7 +101,7 @@ TYPED_TEST(SocketTests, TcpSendsAndReceivesStrings)
 	sendSock.send_connected(sendBytes);
 
 	// recieve string with three chars at a time, causing the beggining of next input to be leftover
-	auto recvWStr = recvSock.template recv_connected_str<std::wstring, 3>();
+	auto recvWStr = recvSock.template recv_connected_str<std::wstring, std::endian::big, 3>();
 
 	recvBytes = recvSock.recv_connected(3);
 

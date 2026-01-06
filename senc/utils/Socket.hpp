@@ -374,9 +374,11 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends string data through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param data String data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
+		template <std::endian endianess = std::endian::big>
 		void send_connected_str(const StringType auto& data);
 
 		/**
@@ -482,10 +484,13 @@ namespace senc::utils
 		/**
 		 * @brief Recieves string data through (a connected) socket.
 		 * @tparam Str String data type to recieve (same as one sent on other end).
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @return Read string data.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <StringType Str = std::string, std::size_t chunkSize = 32>
+		template <StringType Str = std::string,
+				  std::endian endianess = std::endian::native,
+				  std::size_t chunkSize = 32>
 		Str recv_connected_str();
 
 		/**

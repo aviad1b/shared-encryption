@@ -22,11 +22,21 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
+	template <std::endian endianess>
 	inline void Socket::send_connected_str(const StringType auto& data)
 	{
 		using Str = std::remove_cvref_t<decltype(data)>;
 		using C = typename Str::value_type;
-		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
+
+		// if endianess same as native (or elem size is one meaning no need to reverse)
+		if constexpr (std::endian::native == endianess)
+			return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
+
+		// otherwise, reverse each elem then send
+		Str copy = data;
+		for (C& c : copy)
+			std::reverse(reinterpret_cast<byte*>(&c), reinterpret_cast<byte*>(&c + 1));
+		return send_connected(copy.c_str(), (copy.size() + 1) * sizeof(C));
 	}
 
 	template <std::endian endianess>
@@ -102,7 +112,7 @@ namespace senc::utils
 		return recv_connected_exact_into(out.data(), out.size());
 	}
 
-	template <StringType Str, std::size_t chunkSize>
+	template <StringType Str, std::endian endianess, std::size_t chunkSize>
 	inline Str Socket::recv_connected_str()
 	{
 		using C = typename Str::value_type;
@@ -144,6 +154,11 @@ namespace senc::utils
 		// append extra bytes to `_buffer`:
 		this->_buffer.insert(this->_buffer.end(), extraBytesStart, dataEnd);
 
+		// if required endianess is not same as native, reverse each elem
+		if constexpr (std::endian::native != endianess)
+			for (C& c : res)
+				std::reverse(reinterpret_cast<byte*>(&c), reinterpret_cast<byte*>(&c + 1));
+
 		return res;
 	}
 
@@ -184,7 +199,7 @@ namespace senc::utils
 	inline void Socket::recv_connected_value(T& out)
 	{
 		if constexpr (StringType<T>)
-			out = recv_connected_str<T, chunkSize>();
+			out = recv_connected_str<T, std::endian::native, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
 			out = recv_connected_primitive<T>();
 		else if constexpr (ModIntType<T>)
