@@ -132,18 +132,27 @@ namespace senc::server
 					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
-		Server<IP> server(
-			port,
-			[&console](const std::string& msg) { console.print("[info] " + msg); },
-			schema,
-			storage,
-			receiver,
-			sender,
-			updateManager,
-			decryptionsManager
-		);
+		std::optional<Server<IP>> server;
+		try
+		{
+			server.emplace(
+				port,
+				[&console](const std::string& msg) { console.print("[info] " + msg); },
+				schema,
+				storage,
+				receiver,
+				sender,
+				updateManager,
+				decryptionsManager
+			);
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Error initializing server: " << e.what() << std::endl;
+			return 1;
+		}
 
-		run_server(server, console);
+		run_server(*server, console);
 
 		return 0;
 	}
