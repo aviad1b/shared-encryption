@@ -337,6 +337,8 @@ namespace senc::utils
 	public:
 		using Self = Socket;
 
+		static constexpr std::endian DEFAULT_ENDIANESS = std::endian::big;
+
 		Socket(const Self&) = delete;
 
 		Self& operator=(const Self&) = delete;
@@ -378,7 +380,7 @@ namespace senc::utils
 		 * @param data String data to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <std::endian endianess = std::endian::big>
+		template <std::endian endianess = DEFAULT_ENDIANESS>
 		void send_connected_str(const StringType auto& data);
 
 		/**
@@ -387,7 +389,7 @@ namespace senc::utils
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <std::endian endianess = std::endian::big>
+		template <std::endian endianess = DEFAULT_ENDIANESS>
 		void send_connected_primitive(auto value)
 		requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
 			std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
@@ -398,7 +400,7 @@ namespace senc::utils
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <std::endian endianess = std::endian::big>
+		template <std::endian endianess = DEFAULT_ENDIANESS>
 		void send_connected_modint(const ModIntType auto& value);
 
 		/**
@@ -416,7 +418,7 @@ namespace senc::utils
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <std::endian endianess = std::endian::big>
+		template <std::endian endianess = DEFAULT_ENDIANESS>
 		void send_connected_value(const auto& value)
 		requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
 			StringType<std::remove_cvref_t<decltype(value)>> ||
@@ -432,7 +434,7 @@ namespace senc::utils
 		 * @param values Values to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <std::endian endianess = std::endian::big>
+		template <std::endian endianess = DEFAULT_ENDIANESS>
 		void send_connected_values(const TupleLike auto& values);
 
 		/**
@@ -504,7 +506,7 @@ namespace senc::utils
 		 * @return Read value.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T, std::endian endianess = std::endian::big>
+		template <typename T, std::endian endianess = DEFAULT_ENDIANESS>
 		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		T recv_connected_primitive();
 
@@ -516,7 +518,7 @@ namespace senc::utils
 		 * @throw senc::utils::ModException if valie is invalid.
 		 * @throw senc::utils::SocketException On other failure.
 		 */
-		template <ModIntType T, std::endian endianess = std::endian::big>
+		template <ModIntType T, std::endian endianess = DEFAULT_ENDIANESS>
 		T recv_connected_modint();
 
 		/**
@@ -536,7 +538,7 @@ namespace senc::utils
 		 * @param out Reference to store read value to.
 		 */
 		template <typename T,
-				  std::endian endianess = std::endian::big,
+				  std::endian endianess = DEFAULT_ENDIANESS,
 				  std::size_t chunkSize = 32>
 		requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
@@ -551,7 +553,7 @@ namespace senc::utils
 		 * @throw senc::utils::SocketException On failure.
 		 */
 		template <TupleLike Tpl,
-				  std::endian endianess = std::endian::big,
+				  std::endian endianess = DEFAULT_ENDIANESS,
 				  std::size_t chunkSize = 32>
 		void recv_connected_values(Tpl& values);
 
