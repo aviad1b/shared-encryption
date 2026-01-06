@@ -81,6 +81,7 @@ namespace senc::utils
 		HasToBytes<std::remove_cvref_t<decltype(value)>> ||
 		TupleLike<std::remove_cvref_t<decltype(value)>>)
 	{
+		using T = std::remove_cvref_t<decltype(value)>;
 		if constexpr (StringType<T>)
 			send_connected_str<endianess>(value);
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
