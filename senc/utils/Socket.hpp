@@ -412,9 +412,11 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends a value through (a connected) socket, using the fitting method.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
+		template <std::endian endianess = std::endian::big>
 		void send_connected_value(const auto& value)
 		requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
 			StringType<std::remove_cvref_t<decltype(value)>> ||
@@ -426,9 +428,11 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends values through (a connected) socket, using the fitting method for each.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param values Values to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
+		template <std::endian endianess = std::endian::big>
 		void send_connected_values(const TupleLike auto& values);
 
 		/**
@@ -528,9 +532,12 @@ namespace senc::utils
 		/**
 		 * @brief Recieves value through (a connected) socket, using the fitting method.
 		 * @tparam T Value type.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param out Reference to store read value to.
 		 */
-		template <typename T, std::size_t chunkSize = 32>
+		template <typename T,
+				  std::endian endianess = std::endian::big,
+				  std::size_t chunkSize = 32>
 		requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
 			ModIntType<T> ||
@@ -543,7 +550,9 @@ namespace senc::utils
 		 * @param out Reference to store read values to.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <TupleLike Tpl, std::size_t chunkSize = 32>
+		template <TupleLike Tpl,
+				  std::endian endianess = std::endian::big,
+				  std::size_t chunkSize = 32>
 		void recv_connected_values(Tpl& values);
 
 	protected:

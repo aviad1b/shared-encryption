@@ -71,6 +71,7 @@ namespace senc::utils
 		send_connected(obj.to_bytes());
 	}
 
+	template <std::endian endianess>
 	inline void Socket::send_connected_value(const auto& value)
 	requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
 		StringType<std::remove_cvref_t<decltype(value)>> ||
@@ -81,23 +82,24 @@ namespace senc::utils
 		TupleLike<std::remove_cvref_t<decltype(value)>>)
 	{
 		if constexpr (StringType<T>)
-			send_connected_str(value);
+			send_connected_str<endianess>(value);
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
-			send_connected_primitive(value);
+			send_connected_primitive<endianess>(value);
 		else if constexpr (ModIntType<T>)
-			send_connected_modint(value);
+			send_connected_modint<endianess>(value);
 		else if constexpr (HasToBytes<T>)
 			send_connected_object(value);
 		else if constexpr (TupleLike<T>)
-			send_connected_values(value);
+			send_connected_values<endianess>(value);
 		else
 			send_connected(value);
 	}
 
+	template <std::endian endianess>
 	inline void Socket::send_connected_values(const TupleLike auto& values)
 	{
 		std::apply(
-			[this](auto&... args) { (send_connected_value(args), ...); },
+			[this](auto&... args) { (send_connected_value<endianess>(args), ...); },
 			values
 		);
 	}
@@ -190,7 +192,7 @@ namespace senc::utils
 		return T::from_bytes(recv_connected_exact(T::bytes_size()));
 	}
 
-	template <typename T, std::size_t chunkSize>
+	template <typename T, std::endian endianess, std::size_t chunkSize>
 	requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
 			ModIntType<T> ||
@@ -199,26 +201,26 @@ namespace senc::utils
 	inline void Socket::recv_connected_value(T& out)
 	{
 		if constexpr (StringType<T>)
-			out = recv_connected_str<T, std::endian::native, chunkSize>();
+			out = recv_connected_str<T, endianess, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
-			out = recv_connected_primitive<T>();
+			out = recv_connected_primitive<T, endianess>();
 		else if constexpr (ModIntType<T>)
-			out = recv_connected_modint<T>();
+			out = recv_connected_modint<T, endianess>();
 		else if constexpr (HasFromBytes<T> && HasFixedBytesSize<T>)
-			out = recv_connected_obj<T>();
+			out = recv_connected_obj<T, endianess>();
 		else if constexpr (TupleLike<T>)
-			recv_connected_values<T, chunkSize>(out);
+			recv_connected_values<T, endianess, chunkSize>(out);
 		else
 			recv_connected_exact_into(out);
 	}
 
-	template <TupleLike Tpl, std::size_t chunkSize>
+	template <TupleLike Tpl, std::endian endianess, std::size_t chunkSize>
 	inline void Socket::recv_connected_values(Tpl& values)
 	{
 		std::apply(
 			[this](auto&... args)
 			{
-				(recv_connected_value<std::remove_cvref_t<decltype(args)>, chunkSize>(args), ...);
+				(recv_connected_value<std::remove_cvref_t<decltype(args)>, endianess, chunkSize>(args), ...);
 			},
 			values
 		);
