@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <bit>
 
 #include "Exception.hpp"
 #include "ModInt.hpp"
@@ -380,9 +381,11 @@ namespace senc::utils
 
 		/**
 		 * @brief Sends a simple value through (a connected) socket.
+		 * @tparam endianess Endianess to use while sending (`big` to keep as-is, `little` to reverse).
 		 * @param value Value to send.
 		 * @throw senc::utils::SocketException On failure.
 		 */
+		template <std::endian endianess = std::endian::big>
 		void send_connected_primitive(auto value)
 		requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
 			std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
@@ -485,11 +488,12 @@ namespace senc::utils
 
 		/**
 		 * @brief Recieves simple value through (a connected) socket.
+		 * @tparam endianess Endianess to use while receiving (`big` to keep as-is, `little` to reverse).
 		 * @tparam T Value type (fundamental or enum).
 		 * @return Read value.
 		 * @throw senc::utils::SocketException On failure.
 		 */
-		template <typename T>
+		template <typename T, std::endian endianess = std::endian::big>
 		requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 		T recv_connected_primitive();
 

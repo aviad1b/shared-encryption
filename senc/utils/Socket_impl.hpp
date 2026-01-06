@@ -29,11 +29,22 @@ namespace senc::utils
 		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
 	}
 
+	template <std::endian endianess>
 	inline void Socket::send_connected_primitive(auto value)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{
-		send_connected(&value, sizeof(value));
+		using T = std::remove_cvref_t<decltype(value)>;
+
+		// if endianess same as native, simply send
+		if constexpr (std::endian::native == endianess)
+			send_connected(&value, sizeof(value));
+		else // if endianess diff from native, reverse and then send
+		{
+			T copy = value;
+			std::reverse(reinterpret_cast<byte*>(&copy), reinterpret_cast<byte*>(&copy + 1));
+			send_connected(&copy, sizeof(copy));
+		}
 	}
 
 	inline void Socket::send_connected_modint(const ModIntType auto& value)
@@ -135,12 +146,17 @@ namespace senc::utils
 		return res;
 	}
 
-	template <typename T>
+	template <typename T, std::endian endianess>
 	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 	inline T Socket::recv_connected_primitive()
 	{
 		T res{};
 		recv_connected_exact_into(&res, sizeof(T));
+
+		// if endianess not native, reverse
+		if constexpr (std::endian::native != endianess)
+			std::reverse(reinterpret_cast<byte*>(&res), reinterpret_cast<byte*>(&res + 1));
+
 		return res;
 	}
 
