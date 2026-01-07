@@ -324,8 +324,16 @@ namespace senc::utils
 		addr.init_underlying(&sa, port);
 
 		// Note: We assume here that size does not surpass int limit.
-		if (static_cast<int>(size) != ::sendto(this->_sock, (const char*)data, size, 0, (struct sockaddr*)&sa, sizeof(sa)))
+		if (static_cast<int>(size) != ::sendto(
+			this->_sock,
+			(const char*)data,
+			static_cast<int>(size),
+			0,
+			(struct sockaddr*)&sa, sizeof(sa))
+		)
+		{
 			throw SocketException("Failed to send", SocketUtils::get_last_sock_err());
+		}
 	}
 
 	template <IPType IP>
