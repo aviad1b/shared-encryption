@@ -17,9 +17,21 @@
 
 #include <cstring>
 
+#include "StrParseException.hpp"
+
 namespace senc::utils
 {
 	const SocketInitializer SocketInitializer::SOCKET_INITIALIZER;
+
+	Port parse_port(const std::string& str)
+	{
+		int port = 0;
+		try { port = std::stoi(str); }
+		catch (const std::exception&) { throw StrParseException("Bad port: " + str); }
+		if (port < std::numeric_limits<Port>::min() || port > std::numeric_limits<Port>::max())
+			throw StrParseException("Bad port: " + str);
+		return static_cast<Port>(port);
+	}
 
 	const IPv4::Self& IPv4::any()
 	{
