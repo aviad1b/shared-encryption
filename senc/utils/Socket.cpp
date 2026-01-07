@@ -10,7 +10,7 @@
 
 #ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
-#include <experimental/scope> // only used in windows variation of get_last_sock_err
+#include "../utils/AtScopeExit.hpp"
 #else
 #include <poll.h>
 #endif
@@ -133,7 +133,7 @@ namespace senc::utils
 		DWORD err = WSAGetLastError();
 
 		LPSTR msg = nullptr;
-		auto guard = std::experimental::scope_exit{
+		const auto guard = AtScopeExit{
 			[&msg] { if (msg) LocalFree(msg); }
 		};
 

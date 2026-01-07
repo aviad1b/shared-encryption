@@ -1,6 +1,8 @@
 ﻿add_library(senc_utils
 	"env.hpp"
 	"winapi_patch.hpp"
+	"AtScopeExit.hpp"
+	"AtScopeExit.cpp"
 	"bytes.hpp"
 	"bytes.cpp"
 	"strs.hpp"
