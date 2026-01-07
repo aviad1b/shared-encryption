@@ -108,14 +108,14 @@ namespace senc::utils
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(Callable<bool, const Self&> auto&& existsPred);
+		static Self generate_not_pred(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
 		 * @brief Generates a unique (random) UUID.
 		 * @param container An object containing UUIDs, to check if already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(const HasContainsMethod<Self> auto& container);
+		static Self generate_not_in(const HasContainsMethod<Self> auto& container);
 
 		/**
 		 * @brief Compares this UUID to another.
