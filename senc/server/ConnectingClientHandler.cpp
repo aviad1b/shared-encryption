@@ -58,7 +58,7 @@ namespace senc::server
 		ConnectingClientHandler::handle_request(const pkt::SignupRequest signup)
 	{
 		try { _storage.new_user(signup.username); }
-		catch (const UserExistsException& e)
+		catch (const UserExistsException&)
 		{
 			_sender.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
 			return { Status::Error, "" };

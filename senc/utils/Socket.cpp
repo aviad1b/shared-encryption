@@ -10,16 +10,28 @@
 
 #ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
-#include <experimental/scope> // only used in windows variation of get_last_sock_err
+#include "../utils/AtScopeExit.hpp"
 #else
 #include <poll.h>
 #endif
 
 #include <cstring>
 
+#include "StrParseException.hpp"
+
 namespace senc::utils
 {
 	const SocketInitializer SocketInitializer::SOCKET_INITIALIZER;
+
+	Port parse_port(const std::string& str)
+	{
+		int port = 0;
+		try { port = std::stoi(str); }
+		catch (const std::exception&) { throw StrParseException("Bad port: " + str); }
+		if (port < std::numeric_limits<Port>::min() || port > std::numeric_limits<Port>::max())
+			throw StrParseException("Bad port: " + str);
+		return static_cast<Port>(port);
+	}
 
 	const IPv4::Self& IPv4::any()
 	{
@@ -133,7 +145,7 @@ namespace senc::utils
 		DWORD err = WSAGetLastError();
 
 		LPSTR msg = nullptr;
-		auto guard = std::experimental::scope_exit{
+		const auto guard = AtScopeExit{
 			[&msg] { if (msg) LocalFree(msg); }
 		};
 

@@ -1,6 +1,15 @@
 ﻿cmake_minimum_required(VERSION 3.14)
 
-project("senc")
+project("senc" LANGUAGES CXX)
+
+if(MSVC)
+    # enable MASM for CryptoPP
+    enable_language(ASM_MASM)
+
+    # force GoogleTest to use dynamic runtime
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -59,6 +68,17 @@ if(NOT cryptopp_POPULATED)
         endif()
     endforeach()
     
+    # add assembly files for MSVC x64
+    if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(CRYPTOPP_ASM_SOURCES
+            "${cryptopp_SOURCE_DIR}/x64dll.asm"
+            "${cryptopp_SOURCE_DIR}/x64masm.asm"
+        )
+        # explicitly set the language for assembly files
+        set_source_files_properties(${CRYPTOPP_ASM_SOURCES} PROPERTIES LANGUAGE ASM_MASM)
+        list(APPEND CRYPTOPP_SOURCES_FILTERED ${CRYPTOPP_ASM_SOURCES})
+    endif()
+    
     add_library(cryptopp STATIC ${CRYPTOPP_SOURCES_FILTERED})
     
     # include both the source dir (for internal includes) and wrapper dir (for external includes)
@@ -84,7 +104,7 @@ if(NOT cryptopp_POPULATED)
     )
 endif()
 
-# download libuuid for linux only
+# use libuuid in linux only
 if (WIN32)
 else()
     find_path(UUID_INCLUDE_DIR uuid/uuid.h)
@@ -100,7 +120,11 @@ else()
     target_link_libraries(libuuid INTERFACE ${UUID_LIBRARY})
 endif()
 
-add_compile_options(-Werror -Wall -Wextra -Wvla)
+if(MSVC)
+    # add_compile_options(/W4) # warning level 4
+else()
+    add_compile_options(-Werror -Wall -Wextra -Wvla)
+endif()
 
 add_subdirectory("utils")
 add_subdirectory("common")

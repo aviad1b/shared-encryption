@@ -165,7 +165,7 @@ namespace senc::utils
 			this->_num = -this->_num;
 		}
 
-		long long g = std::gcd(this->_num, this->_den);
+		Int g = static_cast<Int>(std::gcd(this->_num, this->_den));
 		this->_num /= g;
 		this->_den /= g;
 	}

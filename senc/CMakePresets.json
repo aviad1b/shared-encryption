@@ -48,6 +48,16 @@
             }
         },
         {
+            "name": "msvc-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+            }
+        },
+        {
             "name": "gcc-base",
             "hidden": true,
             "cacheVariables": {
@@ -66,6 +76,30 @@
                 "CMAKE_CXX_STANDARD": "20",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON"
             }
+        },
+        {
+            "name": "windows-x64-msvc-base",
+            "hidden": true,
+            "inherits": [ "windows-base", "x64-base", "msvc-base" ],
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-msvc-x64",
+                    "additionalCompilerArguments": "/std:c++20",
+                    "defines": {
+                        "__cplusplus": "202002L"
+                    }
+                }
+            }
+        },
+        {
+            "name": "windows-x64-msvc-debug",
+            "displayName": "MSVC x64 Debug",
+            "inherits": [ "windows-x64-msvc-base", "debug-base" ]
+        },
+        {
+            "name": "windows-x64-msvc-release",
+            "displayName": "MSVC x64 Release",
+            "inherits": [ "windows-x64-msvc-base", "release-base" ]
         },
         {
             "name": "windows-x64-gcc-base",

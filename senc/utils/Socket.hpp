@@ -11,8 +11,7 @@
 #include "env.hpp"
 
 #ifdef SENC_WINDOWS
-#include <WinSock2.h> // has to be before <Windows.h>
-#include <Windows.h>
+#include "../utils/winapi_patch.hpp"
 #include <ws2ipdef.h>
 #else
 #include <sys/socket.h>
@@ -25,6 +24,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -40,7 +40,15 @@ namespace senc::utils
 	 * @typedef senc::utils::port
 	 * @brief Represents a transport port number.
 	 */
-	using Port = int;
+	using Port = std::uint16_t;
+
+	/**
+	 * @brief Parses port from string.
+	 * @param str Port string to parse.
+	 * @return Parsed port.
+	 * @throw StrParseException If failed to parse (invalid port string).
+	 */
+	Port parse_port(const std::string& str);
 
 	/**
 	 * @concept senc::utils::IPType

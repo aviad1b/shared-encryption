@@ -94,7 +94,7 @@ namespace senc::server
 		Port port = DEFAULT_LISTEN_PORT;
 		if (args.size() >= 1)
 		{
-			try { port = std::stoi(args[0]); }
+			try { port = utils::parse_port(args[0]); }
 			catch (const std::exception&)
 			{
 				throw utils::Exception("Bad port: " + args[0]);

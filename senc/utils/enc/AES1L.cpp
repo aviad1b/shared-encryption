@@ -1,5 +1,8 @@
 #include "AES1L.hpp"
 
+// this include is needed because CryptoPP uses WinAPI
+#include "../../utils/winapi_patch.hpp"
+
 #include <cryptopp/filters.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/aes.h>

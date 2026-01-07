@@ -11,8 +11,7 @@
 #include "../utils/env.hpp"
 
 #ifdef SENC_WINDOWS
-#include <WinSock2.h> // has to be before <Windows.h> (to be able to use sockets in other files)
-#include <Windows.h>
+#include "../utils/winapi_patch.hpp"
 #else
 #include <termios.h>
 #endif

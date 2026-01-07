@@ -129,7 +129,7 @@ namespace senc::client
 		Port port = DEFAULT_LISTEN_PORT;
 		if (argc >= 3)
 		{
-			try { port = std::stoi(argv[2]); }
+			try { port = utils::parse_port(argv[2]); }
 			catch (const std::exception&)
 			{
 				cout << "Bad port: " << argv[2] << endl;
