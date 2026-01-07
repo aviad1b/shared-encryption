@@ -1,3 +1,11 @@
+/*********************************************************************
+ * \file   winapi_patch.hpp
+ * \brief  Used for ensuring WinAPI is included safely.
+ * 
+ * \author aviad1b
+ * \date   January 2026, Teveth 5786
+ *********************************************************************/
+
 #pragma once
 
 #include "env.hpp"
