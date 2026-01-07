@@ -401,9 +401,10 @@ namespace senc::utils
 	private:
 		static std::mt19937& engine() noexcept
 		{
-			static thread_local std::mt19937 eng(
+			static thread_local const unsigned int seed = static_cast<unsigned int>(
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
 			);
+			static thread_local std::mt19937 eng(seed);
 			return eng;
 		}
 
