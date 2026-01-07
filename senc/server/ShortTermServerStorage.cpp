@@ -64,7 +64,7 @@ namespace senc::server
 			setID = UserSetID::generate(_usersets);
 
 			// move info into map, change pInfo to point at map element
-			auto it = _usersets.insert(std::make_pair(
+			const auto& it = _usersets.insert(std::make_pair(
 				setID,
 				std::move(*pInfo)
 			)).first;
