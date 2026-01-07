@@ -124,7 +124,7 @@ namespace senc::utils
 
 		Self& operator=(Self&&) = default;
 
-		T operator()(auto& engine) const
+		T operator()(auto& engine)
 		{
 			return static_cast<T>(_base(engine));
 		}
