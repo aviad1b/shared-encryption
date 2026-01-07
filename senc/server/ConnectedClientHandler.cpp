@@ -321,7 +321,7 @@ namespace senc::server
 		if (opPrepRecord.has_value())
 		{
 			try { continue_operation(request.op_id, *opPrepRecord); }
-			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
+			catch (const ServerException&) { /* TODO: Should probably inform operation initiator? */ }
 		}
 
 		// finally, send ack (ask client to send decryption part next (in fitting update), or tell if not needed)
@@ -375,7 +375,7 @@ namespace senc::server
 		if (opCollRecord.has_value())
 		{
 			try { finish_operation(request.op_id, std::move(*opCollRecord)); }
-			catch (const ServerException& e) { /* TODO: Should probably inform operation initiator? */ }
+			catch (const ServerException&) { /* TODO: Should probably inform operation initiator? */ }
 		}
 
 		// finally, send ack
