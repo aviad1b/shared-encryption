@@ -126,7 +126,7 @@ namespace senc::utils
 
 		T operator()(auto& engine) const
 		{
-			return static_cast<T>(_base()(engine));
+			return static_cast<T>(_base(engine));
 		}
 
 	private:
