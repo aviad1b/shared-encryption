@@ -39,7 +39,7 @@ namespace senc::utils
 	 * @typedef senc::utils::port
 	 * @brief Represents a transport port number.
 	 */
-	using Port = int;
+	using Port = unsigned short;
 
 	/**
 	 * @concept senc::utils::IPType
