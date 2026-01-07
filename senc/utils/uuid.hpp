@@ -108,16 +108,14 @@ namespace senc::utils
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(Callable<bool, const Self&> auto&& existsPred)
-			noexcept(CallableNoExcept<std::remove_cvref_t<decltype(existsPred)>, bool, const Self&>);
+		static Self generate(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
 		 * @brief Generates a unique (random) UUID.
 		 * @param container An object containing UUIDs, to check if already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(const HasContainsMethod<Self> auto& container)
-			noexcept(HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, Self>);
+		static Self generate(const HasContainsMethod<Self> auto& container);
 
 		/**
 		 * @brief Compares this UUID to another.
