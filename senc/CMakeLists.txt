@@ -34,6 +34,20 @@ set(CRYPTOPP_BUILD_TESTING OFF CACHE BOOL "Disable cryptopp tests" FORCE)
 set(CRYPTOPP_BUILD_DOCUMENTATION OFF CACHE BOOL "Disable cryptopp docs" FORCE)
 FetchContent_MakeAvailable(cryptopp-cmake)
 
+# remove VS project files from the fetched cryptopp source to prevent VS confusion
+FetchContent_GetProperties(cryptopp-cmake)
+if(cryptopp-cmake_POPULATED)
+    set(CRYPTOPP_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/cryptopp-cmake-build/cryptopp")
+    file(GLOB VS_FILES 
+        "${CRYPTOPP_SOURCE_DIR}/*.sln"
+        "${CRYPTOPP_SOURCE_DIR}/*.vcxproj"
+        "${CRYPTOPP_SOURCE_DIR}/*.vcxproj.filters"
+    )
+    if(VS_FILES)
+        file(REMOVE ${VS_FILES})
+    endif()
+endif()
+
 # use libuuid in linux only
 if (WIN32)
 else()
