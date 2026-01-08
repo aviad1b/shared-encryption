@@ -3,9 +3,6 @@
 project("senc" LANGUAGES CXX)
 
 if(MSVC)
-    # enable MASM for CryptoPP
-    enable_language(ASM_MASM)
-
     # force GoogleTest to use dynamic runtime
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
@@ -25,83 +22,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-# download crypto++
+# download cryptopp-modern
 FetchContent_Declare(
-    cryptopp
-    GIT_REPOSITORY https://github.com/weidai11/cryptopp.git
+    cryptopp-cmake
+    GIT_REPOSITORY https://github.com/abdes/cryptopp-cmake.git
     GIT_TAG CRYPTOPP_8_9_0
 )
 
-FetchContent_GetProperties(cryptopp)
-if(NOT cryptopp_POPULATED)
-    FetchContent_Populate(cryptopp)
-    
-    # remove any VS project files from CryptoPP source
+# disable cryptopp tests & make cryptopp available
+set(CRYPTOPP_BUILD_TESTING OFF CACHE BOOL "Disable cryptopp tests" FORCE)
+set(CRYPTOPP_BUILD_DOCUMENTATION OFF CACHE BOOL "Disable cryptopp docs" FORCE)
+FetchContent_MakeAvailable(cryptopp-cmake)
+
+# remove VS project files from the fetched cryptopp source to prevent VS confusion
+FetchContent_GetProperties(cryptopp-cmake)
+if(cryptopp-cmake_POPULATED)
+    set(CRYPTOPP_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/cryptopp-cmake-build/cryptopp")
     file(GLOB VS_FILES 
-        "${cryptopp_SOURCE_DIR}/*.sln"
-        "${cryptopp_SOURCE_DIR}/*.vcxproj"
-        "${cryptopp_SOURCE_DIR}/*.vcxproj.filters"
+        "${CRYPTOPP_SOURCE_DIR}/*.sln"
+        "${CRYPTOPP_SOURCE_DIR}/*.vcxproj"
+        "${CRYPTOPP_SOURCE_DIR}/*.vcxproj.filters"
     )
     if(VS_FILES)
         file(REMOVE ${VS_FILES})
     endif()
-    
-    # create a cryptopp subdirectory wrapper for proper includes
-    set(CRYPTOPP_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/cryptopp_include")
-    file(MAKE_DIRECTORY "${CRYPTOPP_INCLUDE_DIR}/cryptopp")
-    
-    # copy all headers to cryptopp/ subdirectory
-    file(GLOB CRYPTOPP_HEADERS "${cryptopp_SOURCE_DIR}/*.h")
-    foreach(header ${CRYPTOPP_HEADERS})
-        get_filename_component(header_name ${header} NAME)
-        configure_file(${header} "${CRYPTOPP_INCLUDE_DIR}/cryptopp/${header_name}" COPYONLY)
-    endforeach()
-    
-    # get all cpp files
-    file(GLOB CRYPTOPP_SOURCES "${cryptopp_SOURCE_DIR}/*.cpp")
-    
-    # filter out test and bench files
-    foreach(source_file ${CRYPTOPP_SOURCES})
-        get_filename_component(filename ${source_file} NAME)
-        if(NOT filename MATCHES "^(test|bench|valid|dlltest|datatest)")
-            list(APPEND CRYPTOPP_SOURCES_FILTERED ${source_file})
-        endif()
-    endforeach()
-    
-    # add assembly files for MSVC x64
-    if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(CRYPTOPP_ASM_SOURCES
-            "${cryptopp_SOURCE_DIR}/x64dll.asm"
-            "${cryptopp_SOURCE_DIR}/x64masm.asm"
-        )
-        # explicitly set the language for assembly files
-        set_source_files_properties(${CRYPTOPP_ASM_SOURCES} PROPERTIES LANGUAGE ASM_MASM)
-        list(APPEND CRYPTOPP_SOURCES_FILTERED ${CRYPTOPP_ASM_SOURCES})
-    endif()
-    
-    add_library(cryptopp STATIC ${CRYPTOPP_SOURCES_FILTERED})
-    
-    # include both the source dir (for internal includes) and wrapper dir (for external includes)
-    target_include_directories(cryptopp 
-        PRIVATE ${cryptopp_SOURCE_DIR}
-        PUBLIC ${CRYPTOPP_INCLUDE_DIR}
-    )
-    
-    # add SIMD compiler flags for GCC/MinGW
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(cryptopp PRIVATE
-            -march=native
-            -maes -msse4.1 -msse4.2 -mssse3 -mpclmul
-        )
-    elseif(MSVC)
-        target_compile_options(cryptopp PRIVATE /arch:AVX2)
-    endif()
-    
-    set_target_properties(cryptopp PROPERTIES 
-        FOLDER "ThirdParty"
-        EXCLUDE_FROM_ALL TRUE
-        EXCLUDE_FROM_DEFAULT_BUILD TRUE
-    )
 endif()
 
 # use libuuid in linux only
