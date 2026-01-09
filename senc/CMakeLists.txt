@@ -22,6 +22,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+add_compile_definitions(CRYPTOPP_DISABLE_ASM)
+
 # download cryptopp-modern
 FetchContent_Declare(
     cryptopp-cmake
