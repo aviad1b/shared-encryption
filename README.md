@@ -84,7 +84,8 @@ Below are instructions on how to clone, compile and run the project.
 ### Requirements
 
 - CMake ≥ 3.14
-- A C++20-compatible gcc compiler (GCC 10+)
+- A C++20-compatible compiler (GCC 10+, Clang 12+, or MSVC 2022)
+  - Clang on Windows is currently not supported.
 - For non-Windows environments, the installation of `uuid-dev` is required. For instance, using `apt-get`:
   ```bash
   sudo apt-get install uuid-dev
@@ -438,6 +439,7 @@ Server responds.
 	- [x] IPv6 support.
 - [ ] Version 1.1.0
     - [ ] User authentication.
+    - [ ] Packet encryption.
 - [ ] Version 1.1.1
 	- [ ] Server long term storage.
 	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.
