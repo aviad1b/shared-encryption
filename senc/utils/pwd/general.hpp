@@ -6,6 +6,8 @@
  * \date   January 2026, Teveth 5786
  *********************************************************************/
 
+#pragma once
+
 #include <concepts>
 #include <string>
 
