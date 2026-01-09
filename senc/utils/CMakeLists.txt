@@ -42,6 +42,7 @@
 	"uuid.hpp"
 	"uuid.cpp"
 	"uuid_impl.hpp"
+	"pwd/general.hpp"
 )
 
 if (WIN32)
