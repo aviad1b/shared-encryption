@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 #include <vector>
+#include <array>
 
 #include "../utils/ranges.hpp"
 
@@ -33,7 +34,7 @@ TEST_P(RangeSumTest, ComputesCorrectly)
 	EXPECT_EQ(sumRet, sumCalc);
 }
 
-INSTANTIATE_TEST_CASE_P(SampleData, RangeSumTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(SampleData, RangeSumTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
@@ -49,7 +50,7 @@ TEST_P(RangeProductTest, ComputesCorrectly)
 	EXPECT_EQ(prodRet, prodCalc);
 }
 
-INSTANTIATE_TEST_CASE_P(SampleData, RangeProductTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(SampleData, RangeProductTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })
@@ -69,7 +70,7 @@ TEST_P(RangeEnumerateTest, ComputesCorrectly)
 	}
 }
 
-INSTANTIATE_TEST_CASE_P(SampleData, RangeEnumerateTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(SampleData, RangeEnumerateTest, testing::Values(
 	std::vector<int>({ 1, 1, 1, 1, 1 }),
 	std::vector<int>({ 1, 2, 3, 4, 5 }),
 	std::vector<int>({ 234, 124, 12 })

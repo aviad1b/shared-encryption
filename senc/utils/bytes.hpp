@@ -8,6 +8,9 @@
 
 #pragma once
 
+// this include is needed because CryptoPP uses WinAPI
+#include "../utils/winapi_patch.hpp"
+
 #include <cryptopp/config_int.h>
 #include <vector>
 #include <string>

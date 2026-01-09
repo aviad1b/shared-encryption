@@ -6,6 +6,8 @@
  * \date   November 2025, Kislev 5786
  *********************************************************************/
 
+#include "../utils/winapi_patch.hpp"
+
 #include "uuid.hpp"
 
 #include <cstdint>
@@ -14,6 +16,7 @@ namespace senc::utils
 {
 	UUID::UUID(const char* value) : Self(std::string(value)) { }
 
+#ifdef SENC_WINDOWS
 	UUID::UUID(const std::string& value)
 	{
 		Underlying underlying{};
@@ -22,13 +25,32 @@ namespace senc::utils
 
 		bytes_from_underlying(this->_bytes, underlying);
 	}
+#else
+	UUID::UUID(const std::string& value)
+	{
+		Underlying underlying{};
+		if (0 != uuid_parse(value.c_str(), underlying))
+			throw UUIDException("Bad UUID", value);
 
+		bytes_from_underlying(this->_bytes, underlying);
+	}
+#endif
+
+#ifdef SENC_WINDOWS
 	UUID::Self UUID::generate()
 	{
 		Underlying uuid{};
 		UuidCreate(&uuid);
 		return Self(uuid);
 	}
+#else
+	UUID::Self UUID::generate()
+	{
+		Underlying uuid{};
+		uuid_generate(uuid);
+		return Self(uuid);
+	}
+#endif
 
 	bool UUID::operator==(const Self& other) const noexcept
 	{
@@ -40,6 +62,7 @@ namespace senc::utils
 		return this->_bytes < other._bytes;
 	}
 
+#ifdef SENC_WINDOWS
 	std::string UUID::to_string() const
 	{
 		Underlying underlying{};
@@ -53,6 +76,18 @@ namespace senc::utils
 		RpcStringFreeA((RPC_CSTR*)&str);
 		return res;
 	}
+#else
+	std::string UUID::to_string() const
+	{
+		char res[sizeof("00000000-0000-0000-0000-000000000000")] = "";
+		Underlying underlying{};
+
+		underlying_from_bytes(underlying, this->_bytes);
+		uuid_unparse(underlying, res);
+
+		return res;
+	}
+#endif
 
 	std::size_t UUID::hash() const noexcept
 	{
@@ -76,7 +111,8 @@ namespace senc::utils
 		bytes_from_underlying(this->_bytes, value);
 	}
 
-	void UUID::bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying)
+#ifdef SENC_WINDOWS
+	void UUID::bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying)
 	{
 		// get bytes (RFC-4122 order)
 
@@ -94,8 +130,15 @@ namespace senc::utils
 		for (std::size_t i = 0; i < 8; i++)
 			out[8 + i] = underlying.Data4[i];
 	}
+#else
+	void UUID::bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying)
+	{
+		std::memcpy(out.data(), underlying, SIZE);
+	}
+#endif
 
-	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes)
+#ifdef SENC_WINDOWS
+	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes)
 	{
 		out.Data1 = (static_cast<std::uint32_t>(bytes[0]) << 24) |
 			(static_cast<std::uint32_t>(bytes[1]) << 16) |
@@ -111,6 +154,12 @@ namespace senc::utils
 		for (std::size_t i = 0; i < 8; i++)
 			out.Data4[i] = bytes[8 + i];
 	}
+#else
+	void UUID::underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes)
+	{
+		std::memcpy(out, bytes.data(), SIZE);
+	}
+#endif
 
 	std::ostream& operator<<(std::ostream& os, const UUID& uuid)
 	{

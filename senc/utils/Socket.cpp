@@ -8,15 +8,42 @@
 
 #include "Socket.hpp"
 
-#include <experimental/scope>
+#ifdef SENC_WINDOWS
 #include <ws2tcpip.h>
+#include "../utils/AtScopeExit.hpp"
+#else
+#include <poll.h>
+#endif
+
 #include <cstring>
+
+#include "StrParseException.hpp"
 
 namespace senc::utils
 {
 	const SocketInitializer SocketInitializer::SOCKET_INITIALIZER;
 
-	const IPv4::Self IPv4::ANY("0.0.0.0");
+	Port parse_port(const std::string& str)
+	{
+		int port = 0;
+		try { port = std::stoi(str); }
+		catch (const std::exception&) { throw StrParseException("Bad port: " + str); }
+		if (port < std::numeric_limits<Port>::min() || port > std::numeric_limits<Port>::max())
+			throw StrParseException("Bad port: " + str);
+		return static_cast<Port>(port);
+	}
+
+	const IPv4::Self& IPv4::any()
+	{
+		static const Self ANY("0.0.0.0");
+		return ANY;
+	}
+
+	const IPv4::Self& IPv4::loopback()
+	{
+		static const Self& LOOPBACK("127.0.0.1");
+		return LOOPBACK;
+	}
 
 	IPv4::IPv4(const Underlying& underlying) : _addr(underlying)
 	{
@@ -59,7 +86,17 @@ namespace senc::utils
 		out->sin_addr = this->_addr;
 	}
 
-	const IPv6::Self IPv6::ANY("::");
+	const IPv6::Self& IPv6::any()
+	{
+		static const Self ANY("::");
+		return ANY;
+	}
+
+	const IPv6::Self& IPv6::loopback()
+	{
+		static const Self& LOOPBACK("::1");
+		return LOOPBACK;
+	}
 
 	IPv6::IPv6(const Underlying& underlying) : _addr(underlying)
 	{
@@ -102,12 +139,13 @@ namespace senc::utils
 		out->sin6_addr = this->_addr;
 	}
 
+#ifdef SENC_WINDOWS
 	std::string SocketUtils::get_last_sock_err()
 	{
 		DWORD err = WSAGetLastError();
 
 		LPSTR msg = nullptr;
-		auto guard = std::experimental::scope_exit{
+		const auto guard = AtScopeExit{
 			[&msg] { if (msg) LocalFree(msg); }
 		};
 
@@ -128,19 +166,47 @@ namespace senc::utils
 			res = res.substr(0, res.length() - 1);
 		return res;
 	}
+#else
+	std::string SocketUtils::get_last_sock_err()
+	{
+		static constexpr std::size_t MAX_MSG_LEN = 256;
+		char msg[MAX_MSG_LEN] = "";
 
+		strerror_r(errno, msg, MAX_MSG_LEN);
+
+		std::string res = msg;
+		if (res.ends_with("\n"))
+			res = res.substr(0, res.length() - 1);
+		return res;
+	}
+#endif
+
+#ifdef SENC_WINDOWS
 	SocketInitializer::~SocketInitializer()
 	{
 		try { WSACleanup(); }
 		catch (...) { }
 	}
+#else
+	SocketInitializer::~SocketInitializer()
+	{
+		// nothing to do
+	}
+#endif
 
+#ifdef SENC_WINDOWS
 	SocketInitializer::SocketInitializer()
 	{
 		WSADATA wsa_data{};
 		if (0 != WSAStartup(MAKEWORD(2, 2), &wsa_data))
 			throw SocketException("WSAStartup failed", SocketUtils::get_last_sock_err());
 	}
+#else
+	SocketInitializer::SocketInitializer()
+	{
+		// nothing to do
+	}
+#endif
 	
 	Socket::~Socket()
 	{
@@ -234,7 +300,14 @@ namespace senc::utils
 
 	void Socket::close()
 	{
-		try { ::closesocket(this->_sock); }
+		try
+		{
+#ifdef SENC_WINDOWS
+			::closesocket(this->_sock);
+#else
+			::close(this->_sock);
+#endif
+		}
 		catch (...) { }
 		this->_sock = UNDERLYING_NO_SOCK;
 		this->_isConnected = false;
@@ -251,6 +324,7 @@ namespace senc::utils
 		return outputSize;
 	}
 
+#ifdef SENC_WINDOWS
 	bool Socket::underlying_has_data(Underlying sock)
 	{
 		fd_set rfds{};
@@ -266,4 +340,19 @@ namespace senc::utils
 			throw SocketException("Failed to recieve", SocketUtils::get_last_sock_err());
 		return r != 0; // true if data is available
 	}
+#else
+	bool Socket::underlying_has_data(Underlying sock)
+	{
+		pollfd pfd{};
+		pfd.fd = sock;
+		pfd.events = POLLIN;
+
+		int r = poll(&pfd, 1, 0); // timeout = 0 -> poll
+
+		if (r < 0)
+			throw SocketException("Failed to receive", SocketUtils::get_last_sock_err());
+
+		return (pfd.revents & POLLIN) != 0;
+	}
+#endif
 }

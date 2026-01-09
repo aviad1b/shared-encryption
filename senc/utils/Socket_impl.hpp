@@ -8,6 +8,10 @@
 
 #include "Socket.hpp"
 
+#ifdef SENC_WINDOWS
+#include <ws2tcpip.h>
+#endif
+
 #include <algorithm>
 
 namespace senc::utils
@@ -18,25 +22,47 @@ namespace senc::utils
 		return send_connected(data.data(), data.size());
 	}
 
-	template <StringType Str>
-	inline void Socket::send_connected_str(const Str& data)
+	template <std::endian endianess>
+	inline void Socket::send_connected_str(const StringType auto& data)
 	{
+		using Str = std::remove_cvref_t<decltype(data)>;
 		using C = typename Str::value_type;
-		return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
+
+		// if endianess same as native (or elem size is one meaning no need to reverse)
+		if constexpr (std::endian::native == endianess)
+			return send_connected(data.c_str(), (data.size() + 1) * sizeof(C));
+
+		// otherwise, reverse each elem then send
+		Str copy = data;
+		for (C& c : copy)
+			std::reverse(reinterpret_cast<byte*>(&c), reinterpret_cast<byte*>(&c + 1));
+		return send_connected(copy.c_str(), (copy.size() + 1) * sizeof(C));
 	}
 
-	template <typename T>
-	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
-	inline void Socket::send_connected_primitive(T value)
+	template <std::endian endianess>
+	inline void Socket::send_connected_primitive(auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> || 
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{
-		send_connected(&value, sizeof(value));
+		using T = std::remove_cvref_t<decltype(value)>;
+
+		// if endianess same as native, simply send
+		if constexpr (std::endian::native == endianess)
+			send_connected(&value, sizeof(value));
+		else // if endianess diff from native, reverse and then send
+		{
+			T copy = value;
+			std::reverse(reinterpret_cast<byte*>(&copy), reinterpret_cast<byte*>(&copy + 1));
+			send_connected(&copy, sizeof(copy));
+		}
 	}
 
-	template <ModIntType T>
-	inline void Socket::send_connected_modint(const T& value)
+	template <std::endian endianess>
+	inline void Socket::send_connected_modint(const ModIntType auto& value)
 	{
+		using T = std::remove_cvref_t<decltype(value)>;
 		using Int = typename T::Int;
-		send_connected_primitive(static_cast<Int>(value));
+		send_connected_primitive<endianess>(static_cast<Int>(value));
 	}
 
 	template <HasToBytes Obj>
@@ -45,33 +71,36 @@ namespace senc::utils
 		send_connected(obj.to_bytes());
 	}
 
-	template <typename T>
-	requires (HasByteData<T> || StringType<T> ||
-			std::is_fundamental_v<T> || std::is_enum_v<T> ||
-			ModIntType<T> ||
-			HasToBytes<T> ||
-			TupleLike<T>)
-	inline void Socket::send_connected_value(const T& value)
+	template <std::endian endianess>
+	inline void Socket::send_connected_value(const auto& value)
+	requires (HasByteData<std::remove_cvref_t<decltype(value)>> ||
+		StringType<std::remove_cvref_t<decltype(value)>> ||
+		std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>> ||
+		ModIntType<std::remove_cvref_t<decltype(value)>> ||
+		HasToBytes<std::remove_cvref_t<decltype(value)>> ||
+		TupleLike<std::remove_cvref_t<decltype(value)>>)
 	{
+		using T = std::remove_cvref_t<decltype(value)>;
 		if constexpr (StringType<T>)
-			send_connected_str(value);
+			send_connected_str<endianess>(value);
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
-			send_connected_primitive(value);
+			send_connected_primitive<endianess>(value);
 		else if constexpr (ModIntType<T>)
-			send_connected_modint(value);
+			send_connected_modint<endianess>(value);
 		else if constexpr (HasToBytes<T>)
 			send_connected_object(value);
 		else if constexpr (TupleLike<T>)
-			send_connected_values(value);
+			send_connected_values<endianess>(value);
 		else
 			send_connected(value);
 	}
 
-	template <TupleLike Tpl>
-	inline void Socket::send_connected_values(const Tpl& values)
+	template <std::endian endianess>
+	inline void Socket::send_connected_values(const TupleLike auto& values)
 	{
 		std::apply(
-			[this](auto&... args) { (send_connected_value(args), ...); },
+			[this](auto&... args) { (this->send_connected_value<endianess>(args), ...); },
 			values
 		);
 	}
@@ -86,7 +115,7 @@ namespace senc::utils
 		return recv_connected_exact_into(out.data(), out.size());
 	}
 
-	template <StringType Str, std::size_t chunkSize>
+	template <StringType Str, std::endian endianess, std::size_t chunkSize>
 	inline Str Socket::recv_connected_str()
 	{
 		using C = typename Str::value_type;
@@ -94,7 +123,7 @@ namespace senc::utils
 		C chunk[chunkSize] = {0};
 		const C* pNullChrInChunk = nullptr;
 		const C* chunkEnd = chunk + chunkSize;
-		std::size_t elemsRead = 0;
+		std::size_t bytesRead = 0;
 		bool lastChunk = false;
 		Str res{};
 
@@ -102,7 +131,7 @@ namespace senc::utils
 		while (!lastChunk)
 		{
 			// get current chunk
-			elemsRead = recv_connected_into(chunk, chunkSize * sizeof(C)) / sizeof(C);
+			bytesRead = recv_connected_into(chunk, chunkSize * sizeof(C));
 
 			// look for null termination
 			pNullChrInChunk = std::find<const C*>(chunk, chunkEnd, nullchr);
@@ -112,38 +141,49 @@ namespace senc::utils
 
 			// if last chunk, append until null-terination; else, append all
 			if (lastChunk)
-				res += chunk;
+				res.append(static_cast<const C*>(chunk), pNullChrInChunk);
 			else
 				res.append(chunk, chunkSize);
 		}
 
-		const C* dataEnd = chunk + elemsRead; // end of read data in last chunk
+		// end of read data in last chunk
+		const byte* dataEnd = 
+			reinterpret_cast<const byte*>(static_cast<const C*>(chunk)) + bytesRead;
 
 		// res now has string, with `pNullChrInChunk` pointing to null termination
 		// extra bytes are after null termination
-		const std::size_t extraBytesCount = (dataEnd - pNullChrInChunk - 1) * sizeof(C);
 		const byte* extraBytesStart = reinterpret_cast<const byte*>(pNullChrInChunk + 1);
 
 		// append extra bytes to `_buffer`:
-		this->_buffer.insert(this->_buffer.end(), extraBytesStart, extraBytesStart + extraBytesCount);
+		this->_buffer.insert(this->_buffer.end(), extraBytesStart, dataEnd);
+
+		// if required endianess is not same as native, reverse each elem
+		if constexpr (std::endian::native != endianess)
+			for (C& c : res)
+				std::reverse(reinterpret_cast<byte*>(&c), reinterpret_cast<byte*>(&c + 1));
 
 		return res;
 	}
 
-	template <typename T>
+	template <typename T, std::endian endianess>
 	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 	inline T Socket::recv_connected_primitive()
 	{
 		T res{};
 		recv_connected_exact_into(&res, sizeof(T));
+
+		// if endianess not native, reverse
+		if constexpr (std::endian::native != endianess)
+			std::reverse(reinterpret_cast<byte*>(&res), reinterpret_cast<byte*>(&res + 1));
+
 		return res;
 	}
 
-	template <ModIntType T>
+	template <ModIntType T, std::endian endianess>
 	inline T Socket::recv_connected_modint()
 	{
 		using Int = typename T::Int;
-		return T(recv_connected_primitive<Int>());
+		return T(recv_connected_primitive<Int, endianess>());
 	}
 
 	template <HasFromBytes T>
@@ -153,7 +193,7 @@ namespace senc::utils
 		return T::from_bytes(recv_connected_exact(T::bytes_size()));
 	}
 
-	template <typename T, std::size_t chunkSize>
+	template <typename T, std::endian endianess, std::size_t chunkSize>
 	requires (HasMutableByteData<T> || StringType<T> || 
 			std::is_fundamental_v<T> || std::is_enum_v<T> ||
 			ModIntType<T> ||
@@ -162,26 +202,29 @@ namespace senc::utils
 	inline void Socket::recv_connected_value(T& out)
 	{
 		if constexpr (StringType<T>)
-			out = recv_connected_str<T, chunkSize>();
+			out = recv_connected_str<T, endianess, chunkSize>();
 		else if constexpr (std::is_fundamental_v<T> || std::is_enum_v<T>)
-			out = recv_connected_primitive<T>();
+			out = recv_connected_primitive<T, endianess>();
 		else if constexpr (ModIntType<T>)
-			out = recv_connected_modint<T>();
+			out = recv_connected_modint<T, endianess>();
 		else if constexpr (HasFromBytes<T> && HasFixedBytesSize<T>)
-			out = recv_connected_obj<T>();
+			out = recv_connected_obj<T, endianess>();
 		else if constexpr (TupleLike<T>)
-			recv_connected_values<T, chunkSize>(out);
+			recv_connected_values<T, endianess, chunkSize>(out);
 		else
 			recv_connected_exact_into(out);
 	}
 
-	template <TupleLike Tpl, std::size_t chunkSize>
+	template <TupleLike Tpl, std::endian endianess, std::size_t chunkSize>
 	inline void Socket::recv_connected_values(Tpl& values)
 	{
 		std::apply(
 			[this](auto&... args)
 			{
-				(recv_connected_value<std::remove_cvref_t<decltype(args)>, chunkSize>(args), ...);
+				(this->recv_connected_value<
+					std::remove_cvref_t<decltype(args)>,
+					endianess,
+					chunkSize>(args), ...);
 			},
 			values
 		);
@@ -206,7 +249,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void ConnectableSocket<IP>::bind(Port port)
 	{
-		this->bind(IPv4::ANY, port);
+		this->bind(IP::any(), port);
 	}
 
 	template <IPType IP>
@@ -245,7 +288,7 @@ namespace senc::utils
 		TcpSocket<IP>::accept()
 	{
 		typename IP::UnderlyingSockAddr clientAddr{};
-		int clientAddrLen = sizeof(clientAddr);
+		socklen_t clientAddrLen = sizeof(clientAddr);
 
 		auto sock = ::accept(this->_sock, (struct sockaddr*)&clientAddr, &clientAddrLen);
 		if (Socket::UNDERLYING_NO_SOCK == sock)
@@ -267,7 +310,7 @@ namespace senc::utils
 	template <IPType IP>
 	inline void UdpSocket<IP>::disconnect()
 	{
-		struct sockaddr_in addr = {0};
+		struct sockaddr_in addr{};
 		addr.sin_family = AF_UNSPEC;
 		if (::connect(this->_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 			throw SocketException("Failed to disconnect", SocketUtils::get_last_sock_err());
@@ -281,8 +324,16 @@ namespace senc::utils
 		addr.init_underlying(&sa, port);
 
 		// Note: We assume here that size does not surpass int limit.
-		if (static_cast<int>(size) != ::sendto(this->_sock, (const char*)data, size, 0, (struct sockaddr*)&sa, sizeof(sa)))
+		if (static_cast<int>(size) != ::sendto(
+			this->_sock,
+			(const char*)data,
+			static_cast<int>(size),
+			0,
+			(struct sockaddr*)&sa, sizeof(sa))
+		)
+		{
 			throw SocketException("Failed to send", SocketUtils::get_last_sock_err());
+		}
 	}
 
 	template <IPType IP>
@@ -303,7 +354,7 @@ namespace senc::utils
 	inline UdpSocket<IP>::recv_from_into_ret_t UdpSocket<IP>::recv_from_into(void* out, std::size_t maxsize)
 	{
 		typename IP::UnderlyingSockAddr addr{};
-		int addrLen = sizeof(addr);
+		socklen_t addrLen = sizeof(addr);
 		const int count = ::recvfrom(
 			this->_sock, (char*)out, (int)maxsize, 0,
 			(struct sockaddr*)&addr, &addrLen

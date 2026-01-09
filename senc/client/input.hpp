@@ -41,7 +41,7 @@ namespace senc::client
 		struct num_inputable_int<T> { using type = typename T::Int; };
 
 		template <>
-		struct num_inputable_int<utils::BigInt> { using type = long long; };
+		struct num_inputable_int<utils::BigInt> { using type = long; };
 	}
 
 	/**

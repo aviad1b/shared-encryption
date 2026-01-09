@@ -10,8 +10,7 @@
 
 namespace senc::utils
 {
-	inline UUID::Self UUID::generate(Callable<bool, const Self&> auto&& existsPred)
-		noexcept(CallableNoExcept<std::remove_cvref_t<decltype(existsPred)>, bool, const Self&>)
+	inline UUID::Self UUID::generate_not_pred(Callable<bool, const Self&> auto&& existsPred)
 	{
 		Self res = generate();
 		while (existsPred(res))
@@ -19,9 +18,8 @@ namespace senc::utils
 		return res;
 	}
 
-	inline UUID::Self UUID::generate(const HasContainsMethod<Self> auto& container)
-		noexcept(HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, Self>)
+	inline UUID::Self UUID::generate_not_in(const HasContainsMethod<Self> auto& container)
 	{
-		return generate([&container](const Self& self) { return container.contains(self); });
+		return generate_not_pred([&container](const Self& self) { return container.contains(self); });
 	}
 }

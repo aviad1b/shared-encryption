@@ -8,8 +8,13 @@
 
 #pragma once
 
-#include <WinSock2.h> // has to be before <Windows.h> (to be able to use sockets in other files)
-#include <Windows.h>
+#include "../utils/env.hpp"
+
+#ifdef SENC_WINDOWS
+#include "../utils/winapi_patch.hpp"
+#else
+#include <termios.h>
+#endif
 
 #include <functional>
 #include <atomic>
@@ -60,8 +65,14 @@ namespace senc::server
 		bool _handlingInput;
 		std::mutex _mtxOut;
 
+#ifdef SENC_WINDOWS
 		HANDLE _hStdin;
 		HANDLE _hStdout;
+#else
+		int _stdin_fd;
+		int _stdout_fd;
+		struct termios _original_termios;
+#endif
 
 		std::string _curIn;
 
@@ -71,11 +82,19 @@ namespace senc::server
 		 */
 		void input_loop();
 
+#ifdef SENC_WINDOWS
 		/**
 		 * @brief Handles console key event.
 		 * @param keyEvent Key event params.
 		 */
 		void handle_key_event(const KEY_EVENT_RECORD& keyEvent);
+#else
+		/**
+		 * @brief Handles console key event.
+		 * @param ch Character representing pressed key.
+		 */
+		void handle_key_event(char ch);
+#endif
 
 		/**
 		 * @brief Displays input prompt.

@@ -13,31 +13,20 @@
 
 namespace senc::utils
 {
-	const CryptoPP::DL_GroupParameters_EC<ECGroup::ECP> ECGroup::EC_PARAMS = 
-		CryptoPP::DL_GroupParameters_EC<ECP>(CryptoPP::ASN1::secp256r1());
-
-	const ECGroup::ECP ECGroup::EC_CURVE = EC_PARAMS.GetCurve();
-
-	const ECGroup::Point ECGroup::EC_BASE_POINT = EC_PARAMS.GetSubgroupGenerator();
-
-	const ECGroup::Self ECGroup::GENERATOR = Self(EC_BASE_POINT);
-
-	const ECGroup::Self ECGroup::IDENTITY = Self(true); // isIdentity=true
-
-	Distribution<BigInt> ECGroup::DIST = Random<BigInt>::get_dist_below(order());
-
 	GroupOrder ECGroup::order()
 	{
-		return EC_PARAMS.GetSubgroupOrder();
+		return ec_params().GetSubgroupOrder();
 	}
 
 	ECGroup::Self ECGroup::generator()
 	{
+		static const auto GENERATOR = Self(ec_base_point());
 		return GENERATOR;
 	}
 
 	ECGroup::Self ECGroup::identity()
 	{
+		static const auto IDENTITY = Self(true); // isIdentity=true
 		return IDENTITY;
 	}
 
@@ -52,13 +41,13 @@ namespace senc::utils
 	ECGroup::Self ECGroup::from_scalar(const BigInt& scalar)
 	{
 		if (scalar.IsZero())
-			return IDENTITY;
-		return Self(EC_CURVE.Multiply(scalar, EC_BASE_POINT));
+			return identity();
+		return Self(ec_curve().Multiply(scalar, ec_base_point()));
 	}
 
 	ECGroup::Self ECGroup::sample()
 	{
-		return from_scalar(DIST());
+		return from_scalar(dist()());
 	}
 
 	ECGroup::Self ECGroup::from_bytes(const Buffer& bytes)
@@ -67,7 +56,7 @@ namespace senc::utils
 			bytes.data()
 		);
 		if (!xSize) // if no x size, means no contents, means identity
-			return IDENTITY;
+			return identity();
 
 		const bigint_size_t ySize = *reinterpret_cast<const bigint_size_t*>(
 			bytes.data() + sizeof(bigint_size_t)
@@ -114,7 +103,7 @@ namespace senc::utils
 
 		// check for identity representative
 		if ("IDENTITY" == str)
-			return IDENTITY;
+			return identity();
 
 		auto commaIdx = str.find(',');
 		if (commaIdx == std::string::npos)
@@ -166,8 +155,8 @@ namespace senc::utils
 	ECGroup::Self ECGroup::inverse() const
 	{
 		if (this->is_identity())
-			return IDENTITY;
-		BigInt p = EC_CURVE.GetField().GetModulus();
+			return identity();
+		BigInt p = ec_curve().GetField().GetModulus();
 		BigInt negY = (p - this->_point.y) % p;
 		return Self(this->_point.x, negY);
 	}
@@ -178,7 +167,7 @@ namespace senc::utils
 			return other;
 		if (other.is_identity())
 			return *this;
-		return Self(EC_CURVE.Add(this->_point, other._point));
+		return Self(ec_curve().Add(this->_point, other._point));
 	}
 
 	ECGroup::Self& ECGroup::operator*=(const Self& other)
@@ -187,7 +176,7 @@ namespace senc::utils
 			return *this;
 		if (this->is_identity())
 			return *this = other;
-		this->_point = EC_CURVE.Add(this->_point, other._point);
+		this->_point = ec_curve().Add(this->_point, other._point);
 		return *this;
 	}
 
@@ -209,7 +198,31 @@ namespace senc::utils
 		if (exp.IsNegative())
 			return this->inverse().pow(-exp);
 
-		return Self(EC_CURVE.Multiply(exp, this->_point));
+		return Self(ec_curve().Multiply(exp, this->_point));
+	}
+
+	Distribution<BigInt>& ECGroup::dist()
+	{
+		static auto DIST = Random<BigInt>::get_dist_below(order());
+		return DIST;
+	}
+
+	const CryptoPP::DL_GroupParameters_EC<ECGroup::ECP>& ECGroup::ec_params()
+	{
+		static const auto EC_PARAMS = CryptoPP::DL_GroupParameters_EC<ECP>(CryptoPP::ASN1::secp256r1());
+		return EC_PARAMS;
+	}
+
+	const ECGroup::ECP& ECGroup::ec_curve()
+	{
+		static const ECP EC_CURVE = ec_params().GetCurve();
+		return EC_CURVE;
+	}
+
+	const ECGroup::Point& ECGroup::ec_base_point()
+	{
+		static const Point EC_BASE_POINT = ec_params().GetSubgroupGenerator();
+		return EC_BASE_POINT;
 	}
 
 	ECGroup::ECGroup(bool isIdentity) : _isIdentity(isIdentity) { }

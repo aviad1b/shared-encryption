@@ -8,10 +8,18 @@
 
 #pragma once
 
+#include "env.hpp"
+
+#ifdef SENC_WINDOWS
+#include "../utils/winapi_patch.hpp" // needed because rpc.h uses WinAPI
+#include <rpc.h>
+#else
+#include <uuid/uuid.h>
+#endif
+
 #include <ostream>
 #include <string>
 #include <array>
-#include <rpc.h>
 #include "Exception.hpp"
 #include "concepts.hpp"
 #include "bytes.hpp"
@@ -52,9 +60,15 @@ namespace senc::utils
 	 */
 	class UUID
 	{
+		static constexpr std::size_t SIZE = 16;
+
 	public:
 		using Self = UUID;
+#ifdef SENC_WINDOWS
 		using Underlying = ::UUID;
+#else
+		using Underlying = uuid_t;
+#endif
 
 		/**
 		 * @brief Constructs a zero-value UUID.
@@ -94,16 +108,14 @@ namespace senc::utils
 		 * @param existsPred A predicate function checking if UUID already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(Callable<bool, const Self&> auto&& existsPred)
-			noexcept(CallableNoExcept<std::remove_cvref_t<decltype(existsPred)>, bool, const Self&>);
+		static Self generate_not_pred(Callable<bool, const Self&> auto&& existsPred);
 
 		/**
 		 * @brief Generates a unique (random) UUID.
 		 * @param container An object containing UUIDs, to check if already exists.
 		 * @return Generated UUID.
 		 */
-		static Self generate(const HasContainsMethod<Self> auto& container)
-			noexcept(HasContainsMethodNoExcept<std::remove_cvref_t<decltype(container)>, Self>);
+		static Self generate_not_in(const HasContainsMethod<Self> auto& container);
 
 		/**
 		 * @brief Compares this UUID to another.
@@ -135,7 +147,7 @@ namespace senc::utils
 		 * @brief Gets (byte) size of UUID value.
 		 * @return Size of UUID value.
 		 */
-		constexpr std::size_t size() const { return 16; }
+		static constexpr std::size_t size() { return SIZE; }
 
 		/**
 		 * @brief Gets pointer to byte data of UUID.
@@ -153,13 +165,13 @@ namespace senc::utils
 		friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 
 	private:
-		std::array<byte, 16> _bytes{};
+		std::array<byte, SIZE> _bytes{};
 
 		UUID(const Underlying& value);
 
-		static void bytes_from_underlying(std::array<byte, 16>& out, const Underlying& underlying);
+		static void bytes_from_underlying(std::array<byte, SIZE>& out, const Underlying& underlying);
 
-		static void underlying_from_bytes(Underlying& out, const std::array<byte, 16>& bytes);
+		static void underlying_from_bytes(Underlying& out, const std::array<byte, SIZE>& bytes);
 	};
 }
 

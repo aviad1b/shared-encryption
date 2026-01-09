@@ -71,7 +71,7 @@ TEST_P(ShareModIntTest, SharesAndRestoresSecret)
 	}
 }
 
-INSTANTIATE_TEST_CASE_P(IntegerSharing, ShareIntTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(IntegerSharing, ShareIntTest, testing::Values(
 	// Basic valid cases
 	ShareIntTestParams{ 42, 1, 3, true },      // Simple case: 2-of-3
 	ShareIntTestParams{ 0, 1, 2, true },       // Secret is zero
@@ -100,7 +100,7 @@ INSTANTIATE_TEST_CASE_P(IntegerSharing, ShareIntTest, testing::Values(
 	ShareIntTestParams{ -1, 1, 2, true }       // Small negative
 ));
 
-INSTANTIATE_TEST_CASE_P(ModularIntSharing, ShareModIntTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(ModularIntSharing, ShareModIntTest, testing::Values(
 	// Basic valid cases (secrets in range [0, 6])
 	ShareModIntTestParams{ 3, 1, 3, true },    // Simple case: 2-of-3
 	ShareModIntTestParams{ 0, 1, 2, true },    // Secret is zero

@@ -8,6 +8,9 @@
 
 #pragma once
 
+// this include is needed because CryptoPP uses WinAPI
+#include "../utils/winapi_patch.hpp"
+
 #include <cryptopp/integer.h>
 #include <cryptopp/osrng.h>
 #include <functional>
@@ -19,6 +22,117 @@
 
 namespace senc::utils
 {
+	namespace sfinae
+	{
+		// used for converting a premitive into a "canon" randomizable type
+		// (based on its size)
+		template <typename T>
+		struct fundamental_underlying_dist_value { };
+
+		template <typename T>
+		requires (
+			sizeof(T) <= sizeof(short) &&
+			std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = short; };
+
+		template <typename T>
+		requires (
+			sizeof(T) <= sizeof(unsigned short) &&
+			!std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = unsigned short; };
+
+		template <typename T>
+		requires (
+			sizeof(short) < sizeof(T) &&
+			sizeof(T) <= sizeof(int) &&
+			std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = int; };
+
+		template <typename T>
+		requires (
+			sizeof(unsigned short) < sizeof(T) &&
+			sizeof(T) <= sizeof(unsigned int) &&
+			!std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = unsigned int; };
+
+		template <typename T>
+		requires (
+			sizeof(int) < sizeof(T) &&
+			sizeof(T) <= sizeof(long) &&
+			std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = long; };
+
+		template <typename T>
+		requires (
+			sizeof(unsigned int) < sizeof(T) &&
+			sizeof(T) <= sizeof(unsigned long) &&
+			!std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = unsigned long; };
+
+		template <typename T>
+		requires (
+			sizeof(long) < sizeof(T) &&
+			sizeof(T) <= sizeof(long long) &&
+			std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = long long; };
+
+		template <typename T>
+		requires (
+			sizeof(unsigned long) < sizeof(T) &&
+			sizeof(T) <= sizeof(unsigned long long) &&
+			!std::signed_integral<T>
+		)
+		struct fundamental_underlying_dist_value<T> { using type = unsigned long long; };
+	}
+
+	/**
+	 * @concept senc::utils::PrimitiveSamplable
+	 * @brief Looks for a primitive (fundamental / enum) typename that can be sampled.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept PrimitiveSamplable = requires
+	{
+		typename sfinae::fundamental_underlying_dist_value<Self>::type;
+	};
+
+	/**
+	 * @brief Underlying class used for sampling fundamental/enum types.
+	 */
+	template <PrimitiveSamplable T>
+	class PrimitiveUnderlyingDist
+	{
+	public:
+		using Self = PrimitiveUnderlyingDist<T>;
+		using BaseVal = typename sfinae::fundamental_underlying_dist_value<T>::type;
+
+		PrimitiveUnderlyingDist(T min, T max)
+			: _base(static_cast<BaseVal>(min), static_cast<BaseVal>(max)) { }
+
+		PrimitiveUnderlyingDist(const Self&) = default;
+
+		Self& operator=(const Self&) = default;
+
+		PrimitiveUnderlyingDist(Self&&) = default;
+
+		Self& operator=(Self&&) = default;
+
+		T operator()(auto& engine)
+		{
+			return static_cast<T>(_base(engine));
+		}
+
+	private:
+		std::uniform_int_distribution<BaseVal> _base;
+	};
+
 	/**
 	 * @brief Underlying class used for sampling `BigInt`.
 	 */
@@ -57,7 +171,7 @@ namespace senc::utils
 		template <typename T>
 		struct dist_engine { };
 
-		template <std::integral T>
+		template <PrimitiveSamplable T>
 		struct dist_engine<T> { using type = std::mt19937; };
 
 		template <>
@@ -66,8 +180,8 @@ namespace senc::utils
 		template <typename T>
 		struct underlying_dist { };
 
-		template <std::integral T>
-		struct underlying_dist<T> { using type = std::uniform_int_distribution<T>; };
+		template <PrimitiveSamplable T>
+		struct underlying_dist<T> { using type = PrimitiveUnderlyingDist<T>; };
 
 		template <>
 		struct underlying_dist<BigInt> { using type = BigIntUnderlyingDist; };
@@ -285,15 +399,16 @@ namespace senc::utils
 		requires DistVal<T>;
 
 	private:
-		static thread_local std::mt19937& engine() noexcept
+		static std::mt19937& engine() noexcept
 		{
-			static thread_local std::mt19937 eng(
+			static thread_local const unsigned int seed = static_cast<unsigned int>(
 				std::chrono::high_resolution_clock::now().time_since_epoch().count()
 			);
+			static thread_local std::mt19937 eng(seed);
 			return eng;
 		}
 
-		static thread_local CryptoPP::RandomNumberGenerator& engine_crypto()
+		static CryptoPP::RandomNumberGenerator& engine_crypto()
 		{
 			static thread_local CryptoPP::AutoSeededRandomPool rng;
 			return rng;

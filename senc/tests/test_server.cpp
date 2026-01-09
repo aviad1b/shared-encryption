@@ -24,6 +24,7 @@ using senc::server::IServerStorage;
 using senc::server::UpdateManager;
 using senc::InlinePacketReceiver;
 using senc::InlinePacketSender;
+using senc::server::IServer;
 using senc::server::Server;
 using senc::PacketReceiver;
 using senc::DecryptionPart;
@@ -34,9 +35,9 @@ using senc::PrivKeyShard;
 using senc::PacketSender;
 using senc::OperationID;
 using senc::utils::Port;
+using senc::utils::IPv4;
+using senc::utils::IPv6;
 using senc::Schema;
-
-using Socket = senc::utils::TcpSocket<senc::utils::IPv4>;
 
 using senc::member_count_t;
 
@@ -51,6 +52,13 @@ using senc::utils::views::zip;
 using StorageFactory = std::function<std::unique_ptr<IServerStorage>()>;
 using ReceiverFactory = std::function<std::unique_ptr<PacketReceiver>()>;
 using SenderFactory = std::function<std::unique_ptr<PacketSender>()>;
+using ServerFactory = std::function<std::unique_ptr<IServer>(
+	Schema&, IServerStorage&, PacketReceiver&, PacketSender&,
+	UpdateManager&, DecryptionsManager&
+)>;
+
+using ClientSockPtr = std::unique_ptr<senc::utils::Socket>;
+using ClientFactory = std::function<ClientSockPtr(Port)>;
 
 struct CycleParams
 {
@@ -65,6 +73,8 @@ struct CycleParams
 
 struct ServerTestParams
 {
+	ClientFactory clientFactory;
+	ServerFactory serverFactory;
 	StorageFactory storageFactory;
 	ReceiverFactory receiverFactory;
 	SenderFactory senderFactory;
@@ -80,19 +90,17 @@ protected:
 	std::unique_ptr<IServerStorage> storage;
 	std::unique_ptr<PacketReceiver> receiver;
 	std::unique_ptr<PacketSender> sender;
-	std::unique_ptr<Server> server;
+	std::unique_ptr<IServer> server;
 
 	virtual const ServerTestParams& get_server_test_params() = 0;
 
 	void SetUp() override
 	{
-		port = Random<Port>::sample_from_range(49152, 65535);
 		const auto& params = get_server_test_params();
 		storage = params.storageFactory();
 		receiver = params.receiverFactory();
 		sender = params.senderFactory();
-		server = std::make_unique<Server>(
-			port,
+		server = params.serverFactory(
 			schema,
 			*storage,
 			*receiver,
@@ -101,6 +109,7 @@ protected:
 			decryptionsManager
 		);
 		server->start();
+		port = server->port();
 	}
 
 	void TearDown() override
@@ -112,18 +121,23 @@ protected:
 		server.reset();
 	}
 
-	void make_connection(senc::utils::Socket& sock) const
+	ClientSockPtr new_client()
 	{
-		sender->send_connection_request(sock);
-		const bool validConn = receiver->recv_connection_response(sock);
+		return get_server_test_params().clientFactory(port);
+	}
+
+	void make_connection(ClientSockPtr& sock) const
+	{
+		sender->send_connection_request(*sock);
+		const bool validConn = receiver->recv_connection_response(*sock);
 		EXPECT_TRUE(validConn);
 	}
 
 	template <typename Response>
-	auto post(senc::utils::Socket& sock, const auto& request) const
+	auto post(ClientSockPtr& sock, const auto& request) const
 	{
-		sender->send_request(sock, request);
-		return receiver->recv_response<Response>(sock);
+		sender->send_request(*sock, request);
+		return receiver->recv_response<Response>(*sock);
 	}
 };
 
@@ -153,7 +167,7 @@ protected:
 
 TEST_P(ServerTest, LogoutWithoutLogin)
 {
-	auto client = Socket("127.0.0.1", port);
+	auto client = new_client();
 	make_connection(client);
 	auto lo = post<pkt::LogoutResponse>(client, pkt::LogoutRequest{});
 	EXPECT_TRUE(lo.has_value());
@@ -161,8 +175,8 @@ TEST_P(ServerTest, LogoutWithoutLogin)
 
 TEST_P(ServerTest, SignupAndLogin)
 {
-	auto avi = Socket("127.0.0.1", port);
-	auto batya = Socket("127.0.0.1", port);
+	auto avi = new_client();
+	auto batya = new_client();
 
 	make_connection(avi);
 	make_connection(batya);
@@ -184,8 +198,8 @@ TEST_P(ServerTest, SignupAndLogin)
 	EXPECT_TRUE(lo2.has_value());
 
 	// log back in
-	avi = Socket("127.0.0.1", port);
-	batya = Socket("127.0.0.1", port);
+	avi = new_client();
+	batya = new_client();
 	make_connection(avi);
 	make_connection(batya);
 	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi" });
@@ -202,9 +216,9 @@ TEST_P(ServerTest, SignupAndLogin)
 
 TEST_P(ServerTest, MakeSetGetMembers)
 {
-	auto client1 = Socket("127.0.0.1", port);
-	auto client2 = Socket("127.0.0.1", port);
-	auto client3 = Socket("127.0.0.1", port);
+	auto client1 = new_client();
+	auto client2 = new_client();
+	auto client3 = new_client();
 
 	make_connection(client1);
 	make_connection(client2);
@@ -263,9 +277,9 @@ TEST_P(ServerTest, MakeSetGetMembers)
 
 TEST_P(ServerTest, MakeSetCheckKey)
 {
-	auto client1 = Socket("127.0.0.1", port);
-	auto client2 = Socket("127.0.0.1", port);
-	auto client3 = Socket("127.0.0.1", port);
+	auto client1 = new_client();
+	auto client2 = new_client();
+	auto client3 = new_client();
 
 	make_connection(client1);
 	make_connection(client2);
@@ -355,7 +369,7 @@ TEST_P(ServerTest, MakeSetCheckKey)
 
 TEST_P(ServerTest, EmptyUpdateCycle)
 {
-	auto client = Socket("127.0.0.1", port);
+	auto client = new_client();
 
 	make_connection(client);
 
@@ -379,8 +393,8 @@ TEST_P(ServerTest, EmptyUpdateCycle)
 
 TEST_P(ServerTest, DecryptFlowSimple)
 {
-	auto owner = Socket("127.0.0.1", port);
-	auto member = Socket("127.0.0.1", port);
+	auto owner = new_client();
+	auto member = new_client();
 
 	make_connection(owner);
 	make_connection(member);
@@ -520,9 +534,9 @@ TEST_P(ServerTest, DecryptFlowSimple)
 
 TEST_P(ServerTest, DecryptFlowTwoMembers)
 {
-	auto owner = Socket("127.0.0.1", port);
-	auto member = Socket("127.0.0.1", port);
-	auto member2 = Socket("127.0.0.1", port);
+	auto owner = new_client();
+	auto member = new_client();
+	auto member2 = new_client();
 
 	make_connection(owner);
 	make_connection(member);
@@ -713,9 +727,9 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 
 TEST_P(ServerTest, DecryptFlowExtraMember)
 {
-	auto owner = Socket("127.0.0.1", port);
-	auto member = Socket("127.0.0.1", port);
-	auto extra = Socket("127.0.0.1", port);
+	auto owner = new_client();
+	auto member = new_client();
+	auto extra = new_client();
 
 	make_connection(owner);
 	make_connection(member);
@@ -869,9 +883,9 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 
 TEST_P(ServerTest, DecryptFlow2L)
 {
-	auto owner = Socket("127.0.0.1", port);
-	auto member = Socket("127.0.0.1", port);
-	auto owner2 = Socket("127.0.0.1", port);
+	auto owner = new_client();
+	auto member = new_client();
+	auto owner2 = new_client();
 
 	make_connection(owner);
 	make_connection(member);
@@ -1055,9 +1069,9 @@ TEST_P(ServerTest, DecryptFlow2L)
 
 TEST_P(ServerTest, DecryptFlowOwnersOnly)
 {
-	auto owner = Socket("127.0.0.1", port);
-	auto owner2 = Socket("127.0.0.1", port);
-	auto owner3 = Socket("127.0.0.1", port);
+	auto owner = new_client();
+	auto owner2 = new_client();
+	auto owner3 = new_client();
 
 	make_connection(owner);
 	make_connection(owner2);
@@ -1242,11 +1256,11 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 {
 	auto makeusers = [this](std::size_t size, const char* prefix)
 	{
-		std::vector<Socket> sockets;
+		std::vector<ClientSockPtr> sockets;
 		std::vector<std::string> usernames;
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			sockets.emplace_back("127.0.0.1", port);
+			sockets.emplace_back(new_client());
 			usernames.push_back(prefix + std::to_string(i));
 		}
 		return std::make_tuple(
@@ -1265,8 +1279,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	// - remaining (uninvolved) owners and non-owners to fill up params
 	// - non-members
 
-	std::vector<Socket> creatorSocksVec;
-	creatorSocksVec.emplace_back("127.0.0.1", port);
+	std::vector<ClientSockPtr> creatorSocksVec;
+	creatorSocksVec.emplace_back(new_client());
 	std::vector<std::string> creatorUsernamesVec = { "creator" };
 
 	auto creatorSocks = creatorSocksVec | std::views::all;
@@ -1570,6 +1584,15 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 const auto SERVER_IMPLS = testing::Values(
 	ServerTestParams{
+		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
+		[](auto&&... args) { return new_server<IPv4>(args...); },
+		std::make_unique<ShortTermServerStorage>,
+		std::make_unique<InlinePacketReceiver>,
+		std::make_unique<InlinePacketSender>
+	},
+	ServerTestParams{
+		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv6>>(IPv6::loopback(), port); },
+		[](auto&&... args) { return new_server<IPv6>(args...); },
 		std::make_unique<ShortTermServerStorage>,
 		std::make_unique<InlinePacketReceiver>,
 		std::make_unique<InlinePacketSender>
@@ -1639,7 +1662,7 @@ INSTANTIATE_TEST_SUITE_P(
 	SERVER_IMPLS
 );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
 	ServerMultiCycle,
 	MultiCycleServerTest,
 	testing::Combine(SERVER_IMPLS, CYCLE_PARAMS)

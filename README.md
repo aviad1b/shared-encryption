@@ -80,13 +80,16 @@ The decryption schema used is a hybrid schema of AES and El-Gamal.
 ## Getting Started
 
 Below are instructions on how to clone, compile and run the project.  
-**Note:** for now, this project only runs on Windows.
 
 ### Requirements
 
 - CMake ≥ 3.14
-- A C++20-compatible gcc compiler (GCC 10+)
-- Windows environment
+- A C++20-compatible compiler (GCC 10+, Clang 12+, or MSVC 2022)
+  - Clang on Windows is currently not supported.
+- For non-Windows environments, the installation of `uuid-dev` is required. For instance, using `apt-get`:
+  ```bash
+  sudo apt-get install uuid-dev
+  ```
 
 ### Installation
 
@@ -122,11 +125,18 @@ To run the server, first change your working directory to the one of the server'
 Then, running the server is done with the command:
 
 ```
-senc_server [port]
+senc_server [IPv4|IPv6] [port]
 ```
 
 With `port` being the TCP port on which the server will listen.
-If not provided, `port` defaults to `4435`.  
+If the IPv4|IPv6 argument is not provided, server defaults to using IPv4.  
+If not provided, `port` defaults to `4435`.
+
+For instance, the following command runs the server using IPv6, listening on port 4354:
+```
+senc_server IPv6 4354
+```
+
 After running the server, an interactive console will show server logs while allowing to type in commands:
 
 ![Server Screen Shot][server-screenshot]
@@ -144,7 +154,8 @@ Then, running the client is done with the command:
 senc_client <IP> [port]
 ```
 
-With `IP` being the IPv4 address on which the server is listening, and `port` being its TCP listen port.
+With `IP` being the IP address on which the server is listening, and `port` being its TCP listen port.  
+`IP` can be either an IPv4 or an IPv6 address (detected automatically).  
 If not provided, `port` defaults to `4435`.  
 As a first stage, user has to either login or signup:
 
@@ -423,11 +434,12 @@ Server responds.
 
 - [x] Version 1.0.0
 	- [x] Basic client &amp; server.
-- [ ] Version 1.0.1
-	- [ ] Linux support.
-	- [ ] IPv6 support.
+- [x] Version 1.0.1
+	- [x] Linux support.
+	- [x] IPv6 support.
 - [ ] Version 1.1.0
     - [ ] User authentication.
+    - [ ] Packet encryption.
 - [ ] Version 1.1.1
 	- [ ] Server long term storage.
 	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.

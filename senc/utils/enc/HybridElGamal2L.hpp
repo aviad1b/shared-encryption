@@ -11,7 +11,7 @@
 #include <tuple>
 
 #include "../concepts.hpp"
-#include "../random.hpp"
+#include "../Random.hpp"
 #include "../Group.hpp"
 #include "../math.hpp"
 #include "general.hpp"
@@ -30,8 +30,8 @@ namespace senc::utils::enc
 	{
 	public:
 		using Self = HybridElGamal2L<G, S, KDF>;
-		using Plaintext = Plaintext<S>;
-		using Ciphertext = std::tuple<G, G, Ciphertext<S>>;
+		using Plaintext = enc::Plaintext<S>;
+		using Ciphertext = std::tuple<G, G, enc::Ciphertext<S>>;
 		using PubKey = G;
 		using PrivKey = BigInt;
 

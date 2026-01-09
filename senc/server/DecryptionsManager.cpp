@@ -27,7 +27,7 @@ namespace senc::server
 	OperationID DecryptionsManager::new_operation()
 	{
 		const std::unique_lock<std::mutex> lock(_mtxAllOpIDs);
-		auto opid = OperationID::generate(_allOpIDs);
+		auto opid = OperationID::generate_not_in(_allOpIDs);
 		_allOpIDs.insert(opid);
 		return opid;
 	}

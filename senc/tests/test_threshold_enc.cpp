@@ -78,7 +78,7 @@ TEST_P(ThresholdEncTest, ThresholdEnc)
 	EXPECT_EQ(data, decrypted);
 }
 
-INSTANTIATE_TEST_CASE_P(VariousThresholds, ThresholdEncTest, testing::Values(
+INSTANTIATE_TEST_SUITE_P(VariousThresholds, ThresholdEncTest, testing::Values(
 	// Arbitrary values, exactly above threshold
 	ThresholdEncTestParams{ Buffer{0x00, 0x11, 0x22}, 5, 4, 6, 5 },
 	ThresholdEncTestParams{ Buffer{0xFF, 0xFF, 0xFF}, 4, 5, 5, 6 },

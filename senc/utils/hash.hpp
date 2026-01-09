@@ -8,6 +8,9 @@
 
 #pragma once
 
+// this include is needed because CryptoPP uses WinAPI
+#include "../utils/winapi_patch.hpp"
+
 #include <cryptopp/sha.h>
 #include <unordered_map>
 #include <unordered_set>
