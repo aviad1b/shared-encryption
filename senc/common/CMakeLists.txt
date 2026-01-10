@@ -7,6 +7,10 @@ add_library(senc_common
 	"InlinePacketSender.cpp"
 	"InlinePacketReceiver.hpp"
 	"InlinePacketReceiver.cpp"
+	"EncryptedPacketSender.hpp"
+	"EncryptedPacketSender.cpp"
+	"EncryptedPacketReceiver.hpp"
+	"EncryptedPacketReceiver.cpp"
 )
 
 target_link_libraries(senc_common PRIVATE senc_utils)
