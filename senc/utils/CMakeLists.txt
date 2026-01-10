@@ -35,6 +35,8 @@
 	"enc/HybridElGamal2L_impl.hpp"
 	"enc/AES1L.hpp"
 	"enc/AES1L.cpp"
+	"enc/ECHKDF1L.hpp"
+	"enc/ECHKDF1L.cpp"
 	"enc/ECHKDF2L.hpp"
 	"enc/ECHKDF2L.cpp"
 	"Shamir.hpp"
