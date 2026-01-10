@@ -1,4 +1,5 @@
 add_executable (senc_server
+	"aliases.hpp"
 	"ServerException.hpp"
 	"IServerStorage.hpp"
 	"ShortTermServerStorage.hpp"
