@@ -197,14 +197,18 @@ TEST_P(ServerTest, SignupAndLogin)
 	auto lo2 = post<pkt::LogoutResponse>(batya, pkt::LogoutRequest{});
 	EXPECT_TRUE(lo2.has_value());
 
-	// log back in
+	// log back in (wrong password)
 	avi = new_client();
 	batya = new_client();
 	make_connection(avi);
 	make_connection(batya);
-	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi", "pass123" });
+	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi", "AAAA" });
+	EXPECT_TRUE(li1.has_value() && li1->status == pkt::LoginResponse::Status::BadLogin);
+
+	// log back in (correct password)
+	li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi" , "pass123" });
 	EXPECT_TRUE(li1.has_value() && li1->status == pkt::LoginResponse::Status::Success);
-	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya", "pass123" });
+	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya" , "pass123" });
 	EXPECT_TRUE(li2.has_value() && li2->status == pkt::LoginResponse::Status::Success);
 
 	// logout
