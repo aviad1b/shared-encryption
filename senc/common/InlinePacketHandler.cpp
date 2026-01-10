@@ -12,29 +12,30 @@
 
 namespace senc
 {
-	void InlinePacketHandler::send_connection_request(utils::Socket& sock)
+	std::pair<bool, std::string> InlinePacketHandler::establish_connection_client_side(utils::Socket& sock)
 	{
 		// send protocol version
 		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
+
+		// receive flag indicating whether protocol version is OK
+		const bool isProtocolVersoinOK = sock.recv_connected_primitive<bool>();
+		if (!isProtocolVersoinOK)
+			return { false, "Bad protocol version" };
+		return { true, "" }; // success
 	}
 
-	bool InlinePacketHandler::recv_connection_request(utils::Socket& sock)
+	std::pair<bool, std::string> InlinePacketHandler::establish_connection_server_side(utils::Socket& sock)
 	{
 		// receive & check protocol version
 		auto protocolVersion = sock.recv_connected_primitive<std::uint8_t>();
-		return (protocolVersion == pkt::PROTOCOL_VERSION);
-	}
-
-	void InlinePacketHandler::send_connection_response(utils::Socket& sock, bool isConnectionValid)
-	{
-		// send flag indicating whether connection is valid or not
-		sock.send_connected_primitive(isConnectionValid);
-	}
-
-	bool InlinePacketHandler::recv_connection_response(utils::Socket& sock)
-	{
-		// receive flag indicating whether connection is valid or not
-		return sock.recv_connected_primitive<bool>();
+		if (protocolVersion != pkt::PROTOCOL_VERSION)
+		{
+			sock.send_connected_primitive(false); // bad protocol version
+			return { false, "Bad protocol version" };
+		}
+		sock.send_connected_primitive(true); // protocol version OK
+		
+		return { true, "" }; // success
 	}
 
 	void InlinePacketHandler::send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet)

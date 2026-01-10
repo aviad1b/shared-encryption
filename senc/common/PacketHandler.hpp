@@ -26,31 +26,22 @@ namespace senc
 		virtual ~PacketHandler() { }
 
 		/**
-		 * @brief Sends initial requets to begin connection.
-		 * @param sock Socket to send through.
+		 * @brief Establishes connection on client side.
+		 * @param sock Client socket.
+		 * @return `true` if connection established successfully, otherwise `false`.
+		 *		   If failed, returns error message as well.
 		 */
-		virtual void send_connection_request(utils::Socket& sock) = 0;
-
+		virtual std::pair<bool, std::string> establish_connection_client_side
+		(utils::Socket& sock) = 0;
+		
 		/**
-		 * @brief Receives initial requets to begin connection.
-		 * @param sock Socket to send through.
-		 * @return `true` if connection is valid, otherwise `false`.
+		 * @brief Establishes connection on server side.
+		 * @param sock Server socket.
+		 * @return `true` if connection established successfully, otherwise `false`.
+		 *		   If failed, returns error message as well.
 		 */
-		virtual bool recv_connection_request(utils::Socket& sock) = 0;
-
-		/**
-		 * @brief Sends resposne to initial request to begin connection.
-		 * @param isConnectionValid `true` if conenction is valid, otherwise `false`.
-		 * @param sock Socket to send through.
-		 */
-		virtual void send_connection_response(utils::Socket& sock, bool isConnectionValid) = 0;
-
-		/**
-		 * @brief Receives resposne to initial request to begin connection.
-		 * @param sock Socket to send through.
-		 * @return `true` if connection is valid, otherwise `false`.
-		 */
-		virtual bool recv_connection_response(utils::Socket& sock) = 0;
+		virtual std::pair<bool, std::string> establish_connection_server_side
+		(utils::Socket& sock) = 0;
 
 		/**
 		 * @brief Sends given request with fitting code.
