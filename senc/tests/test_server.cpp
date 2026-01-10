@@ -119,8 +119,7 @@ protected:
 
 	void make_connection(ClientSockPtr& sock) const
 	{
-		packetHandler->send_connection_request(*sock);
-		const bool validConn = packetHandler->recv_connection_response(*sock);
+		const bool validConn = packetHandler->establish_connection_client_side(*sock).first;
 		EXPECT_TRUE(validConn);
 	}
 

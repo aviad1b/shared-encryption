@@ -18,11 +18,8 @@ namespace senc
 		using Self = EncryptedPacketHandler;
 		using Base = PacketHandler;
 
-		void send_connection_request(utils::Socket& sock) override;
-		bool recv_connection_request(utils::Socket& sock) override;
-
-		void send_connection_response(utils::Socket& sock, bool isConnectionValid) override;
-		bool recv_connection_response(utils::Socket& sock) override;
+		std::pair<bool, std::string> establish_connection_client_side(utils::Socket& sock) override;
+		std::pair<bool, std::string> establish_connection_server_side(utils::Socket& sock) override;
 
 		void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
 		void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) override;

@@ -186,11 +186,10 @@ namespace senc::client
 	 */
 	void run_client(Socket& sock)
 	{
-		packetHandler.send_connection_request(sock);
-		const bool validConn = packetHandler.recv_connection_response(sock);
+		const auto [validConn, connErr] = packetHandler.establish_connection_client_side(sock);
 		if (!validConn)
 		{
-			cout << "Protocol version not supported by server, exiting." << endl;
+			cout << "Failed to connect to server: " << connErr << endl;
 			return;
 		}
 

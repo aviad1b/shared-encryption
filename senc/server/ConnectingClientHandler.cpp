@@ -17,8 +17,7 @@ namespace senc::server
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
-		const bool validConn = _packetHandler.recv_connection_request(_sock);
-		_packetHandler.send_connection_response(_sock, validConn);
+		const bool validConn = _packetHandler.establish_connection_server_side(_sock).first;
 		if (!validConn)
 			return { false, "" };
 
