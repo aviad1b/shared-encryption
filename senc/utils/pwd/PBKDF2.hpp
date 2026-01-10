@@ -55,4 +55,6 @@ namespace senc::utils::pwd
 		CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> _pbkdf2;
 		std::size_t _iterations;
 	};
+
+	static_assert(PwdHash<PBKDF2>);
 }
