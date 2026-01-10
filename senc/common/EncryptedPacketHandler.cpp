@@ -81,4 +81,31 @@ namespace senc
 
 		return { true, "" }; // success
 	}
+
+	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
+	{
+		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
+		const auto& [c1, c2] = encryptedData;
+		sock.send_connected_primitive(static_cast<std::uint64_t>(c1.size()));
+		sock.send_connected_primitive(static_cast<std::uint64_t>(c2.size()));
+		sock.send_connected(c1);
+		sock.send_connected(c2);
+	}
+
+	void EncryptedPacketHandler::recv_encrypted_data(utils::Socket& sock, utils::Buffer& out)
+	{
+		utils::enc::Ciphertext<Schema> encryptedData{};
+		auto& [c1, c2] = encryptedData;
+
+		const auto c1Size = sock.recv_connected_primitive<std::uint64_t>();
+		c1.resize(c1Size);
+
+		const auto c2Size = sock.recv_connected_primitive<std::uint64_t>();
+		c2.resize(c2Size);
+
+		sock.recv_connected_exact_into(c1);
+		sock.recv_connected_exact_into(c2);
+
+		out = _schema.decrypt(encryptedData, _key);
+	}
 }

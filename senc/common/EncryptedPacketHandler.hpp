@@ -97,5 +97,9 @@ namespace senc
 		Schema _schema;
 		KDF _kdf;
 		utils::enc::Key<Schema> _key;
+
+		void send_encrypted_data(utils::Socket& sock, const utils::Buffer& data);
+		
+		void recv_encrypted_data(utils::Socket& sock, utils::Buffer& out);
 	};
 }
