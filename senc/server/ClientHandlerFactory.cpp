@@ -12,11 +12,10 @@ namespace senc::server
 {
 	ClientHandlerFactory::ClientHandlerFactory(Schema& schema,
 											   IServerStorage& storage,
-											   PacketReceiver& receiver,
-											   PacketSender& sender,
+											   PacketHandler& packetHandler,
 											   UpdateManager& updateManager,
 											   DecryptionsManager& decryptionsManager)
-		: _schema(schema), _storage(storage), _receiver(receiver), _sender(sender),
+		: _schema(schema), _storage(storage), _packetHandler(packetHandler),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
 	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(utils::Socket& sock)
@@ -24,8 +23,7 @@ namespace senc::server
 		return ConnectingClientHandler(
 			sock,
 			_storage,
-			_receiver,
-			_sender
+			_packetHandler
 		);
 	}
 
@@ -36,8 +34,7 @@ namespace senc::server
 			username,
 			_schema,
 			_storage,
-			_receiver,
-			_sender,
+			_packetHandler,
 			_updateManager,
 			_decryptionsManager
 		);

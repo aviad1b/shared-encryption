@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include "../common/PacketReceiver.hpp"
-#include "../common/PacketSender.hpp"
+#include "../common/PacketHandler.hpp"
 #include "../utils/Socket.hpp"
 #include "DecryptionsManager.hpp"
 #include "ServerException.hpp"
@@ -33,18 +32,16 @@ namespace senc::server
 		 * @param username Connected client's username.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ConnectedClientHandler(utils::Socket& sock,
 										const std::string& username,
 										Schema& schema,
 										IServerStorage& storage,
-										PacketReceiver& receiver,
-										PacketSender& sender,
+										PacketHandler& packetHandler,
 										UpdateManager& updateManager,
 										DecryptionsManager& decryptionsManager);
 
@@ -58,8 +55,7 @@ namespace senc::server
 		const std::string& _username;
 		Schema& _schema;
 		IServerStorage& _storage;
-		PacketReceiver& _receiver;
-		PacketSender& _sender;
+		PacketHandler& _packetHandler;
 		UpdateManager& _updateManager;
 		DecryptionsManager& _decryptionsManager;
 

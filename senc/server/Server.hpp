@@ -36,18 +36,16 @@ namespace senc::server
 		 * @param logInfo A function used to output server log information messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
 						std::optional<std::function<void(const std::string&)>> logInfo,
 						Schema& schema,
 						IServerStorage& storage,
-						PacketReceiver& receiver,
-						PacketSender& sender,
+						PacketHandler& packetHandler,
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
@@ -56,17 +54,15 @@ namespace senc::server
 		 * @param listenPort Port for server to listen on.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
 						IServerStorage& storage,
-						PacketReceiver& receiver,
-						PacketSender& sender,
+						PacketHandler& packetHandler,
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 

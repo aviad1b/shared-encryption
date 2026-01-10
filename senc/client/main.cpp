@@ -1,8 +1,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
+#include "../common/InlinePacketHandler.hpp"
 #include "../utils/Socket.hpp"
 #include "output.hpp"
 #include "input.hpp"
@@ -108,8 +107,7 @@ namespace senc::client
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
-	static InlinePacketReceiver receiver;
-	static InlinePacketSender sender;
+	static InlinePacketHandler packetHandler;
 
 	int main(int argc, char** argv)
 	{
@@ -188,8 +186,8 @@ namespace senc::client
 	 */
 	void run_client(Socket& sock)
 	{
-		sender.send_connection_request(sock);
-		const bool validConn = receiver.recv_connection_response(sock);
+		packetHandler.send_connection_request(sock);
+		const bool validConn = packetHandler.recv_connection_response(sock);
 		if (!validConn)
 		{
 			cout << "Protocol version not supported by server, exiting." << endl;
@@ -302,8 +300,8 @@ namespace senc::client
 	template <typename Resp>
 	inline Resp post(Socket& sock, const auto& request)
 	{
-		sender.send_request(sock, request);
-		auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
+		packetHandler.send_request(sock, request);
+		auto resp = packetHandler.recv_response<Resp, pkt::ErrorResponse>(sock);
 		if (!resp.has_value())
 			throw Exception("Unexpected response received");
 		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
