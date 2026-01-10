@@ -8,28 +8,25 @@
 
 #include <gtest/gtest.h>
 #include "tests_utils.hpp"
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
+#include "../common/InlinePacketHandler.hpp"
 
 namespace pkt = senc::pkt;
-using senc::InlinePacketReceiver;
-using senc::InlinePacketSender;
+using senc::InlinePacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
 template <typename Request, typename Response>
 void cycle_flow(Socket& client, Socket& server, const Request& req, const Response& resp)
 {
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+	InlinePacketHandler packetHandler;
 
-	sender.send_request(client, req);
-	auto reqGot = receiver.recv_request<Request>(server);
+	packetHandler.send_request(client, req);
+	auto reqGot = packetHandler.recv_request<Request>(server);
 	EXPECT_TRUE(reqGot.has_value());
 	EXPECT_EQ(reqGot.value(), req);
 
-	sender.send_response(server, resp);
-	auto respGot = receiver.recv_response<Response>(client);
+	packetHandler.send_response(server, resp);
+	auto respGot = packetHandler.recv_response<Response>(client);
 	EXPECT_TRUE(respGot.has_value());
 	EXPECT_EQ(respGot.value(), resp);
 }
@@ -309,41 +306,40 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 {
 	auto [client, server] = prepare_tcp();
 
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+	InlinePacketHandler packetHandler;
 
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
 	pkt::LogoutResponse logoutResp{};
 
-	sender.send_request(client, req);
-	auto reqGot1 = receiver.recv_request<pkt::LoginRequest>(server);
+	packetHandler.send_request(client, req);
+	auto reqGot1 = packetHandler.recv_request<pkt::LoginRequest>(server);
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_EQ(reqGot1.value(), req);
 
-	sender.send_response(server, errResp);
-	auto respGot1 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	packetHandler.send_response(server, errResp);
+	auto respGot1 = packetHandler.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
 	EXPECT_TRUE(respGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::ErrorResponse>(*respGot1));
 	EXPECT_EQ(std::get<pkt::ErrorResponse>(*respGot1), errResp);
 
-	sender.send_request(client, req);
-	auto reqGot2 = receiver.recv_request<pkt::LoginRequest>(server);
+	packetHandler.send_request(client, req);
+	auto reqGot2 = packetHandler.recv_request<pkt::LoginRequest>(server);
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_EQ(reqGot2.value(), req);
 
-	sender.send_response(server, logoutResp);
-	auto respGot2 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	packetHandler.send_response(server, logoutResp);
+	auto respGot2 = packetHandler.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
 	EXPECT_FALSE(respGot2.has_value());
 
-	sender.send_request(client, req);
-	auto reqGot3 = receiver.recv_request<pkt::LoginRequest>(server);
+	packetHandler.send_request(client, req);
+	auto reqGot3 = packetHandler.recv_request<pkt::LoginRequest>(server);
 	EXPECT_TRUE(reqGot3.has_value());
 	EXPECT_EQ(reqGot3.value(), req);
 
-	sender.send_response(server, loginResp);
-	auto respGot3 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	packetHandler.send_response(server, loginResp);
+	auto respGot3 = packetHandler.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
 	EXPECT_TRUE(respGot3.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
 	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
@@ -353,26 +349,25 @@ TEST(CommonTests, TestRequestVariant)
 {
 	auto [client, server] = prepare_tcp();
 
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+	InlinePacketHandler packetHandler;
 
 	pkt::SignupRequest signupReq{ "username", "pass123" };
 	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
 
-	sender.send_request(client, signupReq);
-	auto reqGot1 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	packetHandler.send_request(client, signupReq);
+	auto reqGot1 = packetHandler.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::SignupRequest>(*reqGot1));
 	EXPECT_EQ(std::get<pkt::SignupRequest>(*reqGot1), signupReq);
 
-	sender.send_request(client, loginReq);
-	auto reqGot2 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	packetHandler.send_request(client, loginReq);
+	auto reqGot2 = packetHandler.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginRequest>(*reqGot2));
 	EXPECT_EQ(std::get<pkt::LoginRequest>(*reqGot2), loginReq);
 
-	sender.send_request(client, logoutReq);
-	auto reqGot3 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	packetHandler.send_request(client, logoutReq);
+	auto reqGot3 = packetHandler.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
 	EXPECT_FALSE(reqGot3.has_value());
 }

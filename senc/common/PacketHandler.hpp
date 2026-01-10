@@ -1,14 +1,13 @@
 /*********************************************************************
- * \file   PacketReceiver.hpp
- * \brief  Contains abstract class PacketReceiver.
+ * \file   PacketHandler.hpp
+ * \brief  Contains abstract class PacketHandler.
  * 
  * \author aviad1b
- * \date   November 2025, Kislev 5786
+ * \date   January 2026, Teveth 5786
  *********************************************************************/
 
 #pragma once
 
-#include <optional>
 #include "../utils/variants.hpp"
 #include "../utils/Socket.hpp"
 #include "packets.hpp"
@@ -16,15 +15,21 @@
 namespace senc
 {
 	/**
-	 * @class PacketReceiver
-	 * @brief Abstraction of packet receiving.
+	 * @class senc::PacketHandler
+	 * @brief Abstraction of packet sending & receiving.
 	 */
-	class PacketReceiver
+	class PacketHandler
 	{
 	public:
-		using Self = PacketReceiver;
+		using Self = PacketHandler;
 
-		virtual ~PacketReceiver() { }
+		virtual ~PacketHandler() { }
+
+		/**
+		 * @brief Sends initial requets to begin connection.
+		 * @param sock Socket to send through.
+		 */
+		virtual void send_connection_request(utils::Socket& sock) = 0;
 
 		/**
 		 * @brief Receives initial requets to begin connection.
@@ -32,13 +37,32 @@ namespace senc
 		 * @return `true` if connection is valid, otherwise `false`.
 		 */
 		virtual bool recv_connection_request(utils::Socket& sock) = 0;
-		
+
+		/**
+		 * @brief Sends resposne to initial request to begin connection.
+		 * @param isConnectionValid `true` if conenction is valid, otherwise `false`.
+		 * @param sock Socket to send through.
+		 */
+		virtual void send_connection_response(utils::Socket& sock, bool isConnectionValid) = 0;
+
 		/**
 		 * @brief Receives resposne to initial request to begin connection.
 		 * @param sock Socket to send through.
 		 * @return `true` if connection is valid, otherwise `false`.
 		 */
 		virtual bool recv_connection_response(utils::Socket& sock) = 0;
+
+		/**
+		 * @brief Sends given request with fitting code.
+		 * @param sock Socket to send through.
+		 * @param packet Packet to send.
+		 */
+		template <typename T>
+		inline void send_request(utils::Socket& sock, const T& packet)
+		{
+			sock.send_connected_primitive(T::CODE);
+			send_request_data(sock, packet);
+		}
 
 		/**
 		 * @brief Receives a request of one of the given types.
@@ -53,6 +77,18 @@ namespace senc
 		}
 
 		/**
+		 * @brief Sends given response with fitting code.
+		 * @param sock Socket to send through.
+		 * @param packet Packet to send.
+		 */
+		template <typename T>
+		inline void send_response(utils::Socket& sock, const T& packet)
+		{
+			sock.send_connected_primitive(T::CODE);
+			send_response_data(sock, packet);
+		}
+
+		/**
 		 * @brief Receives a response of one of the given types.
 		 * @tparam Ts Potential packet types (structs).
 		 * @return Received packet, or `std::nullopt` if was of wrong type.
@@ -64,36 +100,67 @@ namespace senc
 			return recv_packet<PacketKind::Response, Ts...>(sock);
 		}
 
+		virtual void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::SignupRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::SignupResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::LoginRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::LoginResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::LogoutRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::LogoutResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::MakeUserSetRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::GetUserSetsResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::GetMembersRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::GetMembersRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::GetMembersResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::GetMembersResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::DecryptRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::DecryptResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::UpdateRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::UpdateResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptParticipateRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptParticipateResponse& out) = 0;
 
+		virtual void send_request_data(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet) = 0;
 		virtual void recv_request_data(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) = 0;
+
+		virtual void send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) = 0;
 		virtual void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) = 0;
 
 	private:

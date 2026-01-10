@@ -19,12 +19,11 @@ namespace senc::server
 							  std::optional<std::function<void(const std::string&)>> logInfo,
 							  Schema& schema,
 							  IServerStorage& storage,
-							  PacketReceiver& receiver,
-							  PacketSender& sender,
+							  PacketHandler& packetHandler,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logInfo(logInfo),
-		  _clientHandlerFactory(schema, storage, receiver, sender, updateManager, decryptionsManager)
+		  _clientHandlerFactory(schema, storage, packetHandler, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
@@ -33,12 +32,11 @@ namespace senc::server
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
 							  IServerStorage& storage,
-							  PacketReceiver& receiver,
-							  PacketSender& sender,
+							  PacketHandler& packetHandler,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
 		: Self(listenPort, std::nullopt, schema, storage,
-			   receiver, sender, updateManager, decryptionsManager) { }
+			   packetHandler, updateManager, decryptionsManager) { }
 
 	template <utils::IPType IP>
 	inline utils::Port Server<IP>::port() const
