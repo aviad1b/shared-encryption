@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "../utils/enc/ECHKDF1L.hpp"
+#include "../utils/enc/AES1L.hpp"
+#include "../utils/Random.hpp"
 #include "PacketHandler.hpp"
 
 namespace senc
@@ -17,6 +20,11 @@ namespace senc
 	public:
 		using Self = EncryptedPacketHandler;
 		using Base = PacketHandler;
+		using Schema = utils::enc::AES1L;
+		using Group = utils::ECGroup;
+		using KDF = utils::enc::ECHKDF1L;
+
+		EncryptedPacketHandler();
 
 		std::pair<bool, std::string> establish_connection_client_side(utils::Socket& sock) override;
 		std::pair<bool, std::string> establish_connection_server_side(utils::Socket& sock) override;
@@ -83,5 +91,11 @@ namespace senc
 
 		void send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) override;
 		void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
+
+	private:
+		utils::Distribution<utils::BigInt> _powDist;
+		Schema _schema;
+		KDF _kdf;
+		utils::enc::Key<Schema> _key;
 	};
 }
