@@ -182,9 +182,9 @@ TEST_P(ServerTest, SignupAndLogin)
 	make_connection(batya);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi" });
+	auto su1 = post<pkt::SignupResponse>(avi, pkt::SignupRequest{ "avi", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya" });
+	auto su2 = post<pkt::SignupResponse>(batya, pkt::SignupRequest{ "batya", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
 
 	// check users exist
@@ -202,9 +202,9 @@ TEST_P(ServerTest, SignupAndLogin)
 	batya = new_client();
 	make_connection(avi);
 	make_connection(batya);
-	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi" });
+	auto li1 = post<pkt::LoginResponse>(avi, pkt::LoginRequest{ "avi", "pass123" });
 	EXPECT_TRUE(li1.has_value() && li1->status == pkt::LoginResponse::Status::Success);
-	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya" });
+	auto li2 = post<pkt::LoginResponse>(batya, pkt::LoginRequest{ "batya", "pass123" });
 	EXPECT_TRUE(li2.has_value() && li2->status == pkt::LoginResponse::Status::Success);
 
 	// logout
@@ -226,13 +226,13 @@ TEST_P(ServerTest, MakeSetGetMembers)
 
 	// signup
 	const auto u1 = "avi";
-	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1 });
+	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1, "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
 	const auto u2 = "batya";
-	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2 });
+	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2, "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
 	const auto u3 = "gal";
-	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3 });
+	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3, "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set
@@ -287,13 +287,13 @@ TEST_P(ServerTest, MakeSetCheckKey)
 
 	// signup
 	const auto u1 = "avi";
-	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1 });
+	auto su1 = post<pkt::SignupResponse>(client1, pkt::SignupRequest{ u1, "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
 	const auto u2 = "batya";
-	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2 });
+	auto su2 = post<pkt::SignupResponse>(client2, pkt::SignupRequest{ u2, "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
 	const auto u3 = "gal";
-	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3 });
+	auto su3 = post<pkt::SignupResponse>(client3, pkt::SignupRequest{ u3, "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set
@@ -374,7 +374,7 @@ TEST_P(ServerTest, EmptyUpdateCycle)
 	make_connection(client);
 
 	// signup
-	auto su = post<pkt::SignupResponse>(client, pkt::SignupRequest{ "avi" });
+	auto su = post<pkt::SignupResponse>(client, pkt::SignupRequest{ "avi", "pass123" });
 	EXPECT_TRUE(su.has_value() && su->status == pkt::SignupResponse::Status::Success);
 
 	// update
@@ -400,9 +400,9 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	make_connection(member);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member" });
+	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
 
 	// make set with threshold=1
@@ -543,11 +543,11 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	make_connection(member2);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member" });
+	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
-	auto su3 = post<pkt::SignupResponse>(member2, pkt::SignupRequest{ "member2" });
+	auto su3 = post<pkt::SignupResponse>(member2, pkt::SignupRequest{ "member2", "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set with threshold=1
@@ -736,11 +736,11 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	make_connection(extra);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member" });
+	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
-	auto su3 = post<pkt::SignupResponse>(extra, pkt::SignupRequest{ "extra" });
+	auto su3 = post<pkt::SignupResponse>(extra, pkt::SignupRequest{ "extra", "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set with threshold=1
@@ -892,11 +892,11 @@ TEST_P(ServerTest, DecryptFlow2L)
 	make_connection(owner2);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member" });
+	auto su2 = post<pkt::SignupResponse>(member, pkt::SignupRequest{ "member", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
-	auto su3 = post<pkt::SignupResponse>(owner2, pkt::SignupRequest{ "owner2" });
+	auto su3 = post<pkt::SignupResponse>(owner2, pkt::SignupRequest{ "owner2", "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set with threshold=1
@@ -1078,11 +1078,11 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	make_connection(owner3);
 
 	// signup
-	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner" });
+	auto su1 = post<pkt::SignupResponse>(owner, pkt::SignupRequest{ "owner", "pass123" });
 	EXPECT_TRUE(su1.has_value() && su1->status == pkt::SignupResponse::Status::Success);
-	auto su2 = post<pkt::SignupResponse>(owner2, pkt::SignupRequest{ "owner2" });
+	auto su2 = post<pkt::SignupResponse>(owner2, pkt::SignupRequest{ "owner2", "pass123" });
 	EXPECT_TRUE(su2.has_value() && su2->status == pkt::SignupResponse::Status::Success);
-	auto su3 = post<pkt::SignupResponse>(owner3, pkt::SignupRequest{ "owner3" });
+	auto su3 = post<pkt::SignupResponse>(owner3, pkt::SignupRequest{ "owner3", "pass123" });
 	EXPECT_TRUE(su3.has_value() && su3->status == pkt::SignupResponse::Status::Success);
 
 	// make set with threshold=2
@@ -1331,7 +1331,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	for (auto [sock, username] : zip(allSocks, allUsernames))
 	{
 		std::optional<pkt::SignupResponse> su = 
-			post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+			post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username, "pass123" });
 		EXPECT_TRUE(su.has_value());
 		EXPECT_EQ(su->status, pkt::SignupResponse::Status::Success);
 	}
