@@ -49,7 +49,7 @@ TEST(CommonTests, ErrorResponseTest)
 
 static void signup_cycle(Socket& client, Socket& server)
 {
-	pkt::SignupRequest req{ "username" };
+	pkt::SignupRequest req{ "username", "pass123" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
 	cycle_flow(client, server, req, resp);
 }
@@ -62,8 +62,8 @@ TEST(CommonTests, SignupCycleTest)
 
 static void login_cycle(Socket& client, Socket& server)
 {
-	pkt::LoginRequest req{ "username" };
-	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::LoginRequest req{ "username", "pass123" };
+	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
 	cycle_flow(client, server, req, resp);
 }
 
@@ -312,8 +312,8 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 	InlinePacketReceiver receiver;
 	InlinePacketSender sender;
 
-	pkt::LoginRequest req{ "username" };
-	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::LoginRequest req{ "username", "pass123" };
+	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
 	pkt::LogoutResponse logoutResp{};
 
@@ -356,8 +356,8 @@ TEST(CommonTests, TestRequestVariant)
 	InlinePacketReceiver receiver;
 	InlinePacketSender sender;
 
-	pkt::SignupRequest signupReq{ "username" };
-	pkt::LoginRequest loginReq{ "AAAAAAAA" };
+	pkt::SignupRequest signupReq{ "username", "pass123" };
+	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
 
 	sender.send_request(client, signupReq);

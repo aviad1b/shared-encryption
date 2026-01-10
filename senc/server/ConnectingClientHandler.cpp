@@ -57,7 +57,7 @@ namespace senc::server
 	std::tuple<ConnectingClientHandler::Status, std::string>
 		ConnectingClientHandler::handle_request(const pkt::SignupRequest signup)
 	{
-		try { _storage.new_user(signup.username); }
+		try { _storage.new_user(signup.username, signup.password); }
 		catch (const UserExistsException&)
 		{
 			_sender.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
@@ -76,9 +76,9 @@ namespace senc::server
 	std::tuple<ConnectingClientHandler::Status, std::string>
 		ConnectingClientHandler::handle_request(const pkt::LoginRequest login)
 	{
-		if (!_storage.user_exists(login.username))
+		if (!_storage.user_has_password(login.username, login.password))
 		{
-			_sender.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadUsername });
+			_sender.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadLogin });
 			return { Status::Error, "" };
 		}
 

@@ -17,7 +17,10 @@
 
 namespace senc::pkt
 {
-	constexpr std::uint8_t PROTOCOL_VERSION = 1; // v1.0.0+
+	// protocol versions:
+	// 1 : v1.0.0-v1.0.1
+	// 2 : v1.1.0+
+	constexpr std::uint8_t PROTOCOL_VERSION = 2; // v1.1.0+
 
 	/**
 	 * @enum Code
@@ -94,6 +97,9 @@ namespace senc::pkt
 
 		/// Desired username.
 		std::string username;
+
+		/// Password for login.
+		std::string password;
 	};
 
 	/**
@@ -136,6 +142,9 @@ namespace senc::pkt
 
 		/// Username to log in as.
 		std::string username;
+
+		/// Login password.
+		std::string password;
 	};
 
 	/**
@@ -156,7 +165,7 @@ namespace senc::pkt
 			/// Login succeeded.
 			Success,
 			/// Username does not exist.
-			BadUsername
+			BadLogin
 		} status; ///< Login status.
 	};
 

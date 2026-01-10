@@ -257,6 +257,19 @@ namespace senc::client
 	std::vector<std::string> input_usernames(const std::string& msg);
 
 	/**
+	 * @brief Gets password input.
+	 * @return Password input.
+	 */
+	std::string input_password();
+
+	/**
+	 * @brief Gets password input.
+	 * @param msg Message to print before input.
+	 * @return Password input.
+	 */
+	std::string input_password(const std::string& msg);
+
+	/**
 	 * @brief Gets threahold number input.
 	 * @return Threshold number input.
 	 */

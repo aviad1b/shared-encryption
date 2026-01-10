@@ -150,10 +150,11 @@ namespace senc::server
 		/**
 		 * @brief Registers new user.
 		 * @param username Username for user.
+		 * @param password User's password.
 		 * @throw UserExistsException If user already exists.
 		 * @throw ServerStorageException In case of other errors.
 		 */
-		virtual void new_user(const std::string& username) = 0;
+		virtual void new_user(const std::string& username, const std::string& password) = 0;
 
 		/**
 		 * @brief Checks if a user with a given username exists.
@@ -162,6 +163,16 @@ namespace senc::server
 		 * @throw ServerStorageException In case of error.
 		 */
 		virtual bool user_exists(const std::string& username) = 0;
+
+		/**
+		 * @brief Checks if a user with a given username exists and has the given password.
+		 * @param username Username to check if exists.
+		 * @param password Password to check if user with username `username` has.
+		 * @return `true` if user with username `username` exists and has password `password`,
+		 *         otherwise `false`.
+		 * @throw ServerStorageException In case of error.
+		 */
+		virtual bool user_has_password(const std::string& username, const std::string& password) = 0;
 
 		/**
 		 * @brief Registers a new userset.

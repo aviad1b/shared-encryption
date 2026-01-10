@@ -15,12 +15,13 @@ namespace senc::server
 	ShortTermServerStorage::ShortTermServerStorage()
 		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS)) { }
 
-	void ShortTermServerStorage::new_user(const std::string& username)
+	void ShortTermServerStorage::new_user(const std::string& username, const std::string& password)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
-		const bool inserted = _users.insert(std::make_pair(
-			username, std::set<UserSetID>{}
-		)).second;
+		const bool inserted = _users.try_emplace(
+			username,
+			_pwdHasher, password // call UserRecord c'tor with hasher and password
+		).second;
 		if (!inserted)
 			throw UserExistsException(username);
 	}
@@ -29,6 +30,17 @@ namespace senc::server
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		return _users.contains(username);
+	}
+
+	bool ShortTermServerStorage::user_has_password(const std::string& username, const std::string& password)
+	{
+		const auto it = _users.find(username);
+		if (it == _users.end())
+			return false; // no such user
+
+		// return true iff hash on input equals to stored hash
+		const auto inputPwdHash = _pwdHasher.hash(password, it->second.pwd_salt);
+		return inputPwdHash == it->second.pwd_hash;
 	}
 
 	UserSetID ShortTermServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
@@ -75,7 +87,7 @@ namespace senc::server
 
 		// insert userset's ID to each owner's owned usersets set
 		for (const auto& owner : pInfo->owners)
-			_users.at(owner).insert(setID);
+			_users.at(owner).usersets.insert(setID);
 
 		// register shard IDs for all members
 		{
@@ -104,7 +116,10 @@ namespace senc::server
 		const auto it = _users.find(owner);
 		if (it == _users.end())
 			throw UserNotFoundException(owner);
-		return std::vector<UserSetID>(it->second.begin(), it->second.end());
+		return std::vector<UserSetID>(
+			it->second.usersets.begin(),
+			it->second.usersets.end()
+		);
 	}
 
 	bool ShortTermServerStorage::user_owns_userset(const std::string& user, const UserSetID& userset)
@@ -113,7 +128,7 @@ namespace senc::server
 		const auto it = _users.find(user);
 		if (it == _users.end())
 			throw UserNotFoundException(user);
-		return it->second.contains(userset);
+		return it->second.usersets.contains(userset);
 	}
 
 	UserSetInfo ShortTermServerStorage::get_userset_info(const UserSetID& userset)

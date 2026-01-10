@@ -33,6 +33,7 @@ namespace senc
 	void InlinePacketReceiver::recv_request_data(utils::Socket& sock, pkt::SignupRequest& out)
 	{
 		sock.recv_connected_value(out.username);
+		sock.recv_connected_value(out.password);
 	}
 
 	void InlinePacketReceiver::recv_response_data(utils::Socket& sock, pkt::SignupResponse& out)
@@ -43,6 +44,7 @@ namespace senc
 	void InlinePacketReceiver::recv_request_data(utils::Socket& sock, pkt::LoginRequest& out)
 	{
 		sock.recv_connected_value(out.username);
+		sock.recv_connected_value(out.password);
 	}
 
 	void InlinePacketReceiver::recv_response_data(utils::Socket& sock, pkt::LoginResponse& out)

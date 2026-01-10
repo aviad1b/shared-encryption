@@ -30,6 +30,7 @@ namespace senc
 	void InlinePacketSender::send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet)
 	{
 		sock.send_connected_value(packet.username);
+		sock.send_connected_value(packet.password);
 	}
 
 	void InlinePacketSender::send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet)
@@ -40,6 +41,7 @@ namespace senc
 	void InlinePacketSender::send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet)
 	{
 		sock.send_connected_value(packet.username);
+		sock.send_connected_value(packet.password);
 	}
 
 	void InlinePacketSender::send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet)

@@ -314,9 +314,14 @@ namespace senc::client
 	ConnStatus signup(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
 		cout << endl << endl;
 
-		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{
+			username, password
+		});
 		if (resp.status == pkt::SignupResponse::Status::Success)
 		{
 			cout << "Signed up successfully as \"" << username << "\"." << endl;
@@ -334,16 +339,21 @@ namespace senc::client
 	ConnStatus login(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
 		cout << endl << endl;
 
-		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
+		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{
+			username, password
+		});
 		if (resp.status == pkt::LoginResponse::Status::Success)
 		{
 			cout << "Logged in successfully as \"" << username << "\"." << endl;
 			return ConnStatus::Connected;
 		}
 
-		if (resp.status == pkt::LoginResponse::Status::BadUsername)
+		if (resp.status == pkt::LoginResponse::Status::BadLogin)
 			cout << "Login failed: Bad username." << endl;
 		else
 			cout << "Login failed: Unknown error." << endl;
