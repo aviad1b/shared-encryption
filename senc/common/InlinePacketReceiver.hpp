@@ -60,9 +60,6 @@ namespace senc
 		void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
 
 	private:
-		bool recv_big_int(utils::Socket& sock, utils::BigInt& out);
-		void recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out);
-
 		void recv_pub_key(utils::Socket& sock, PubKey& out);
 		void recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out);
 		void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);

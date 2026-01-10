@@ -9,6 +9,7 @@
 #include "InlinePacketReceiver.hpp"
 
 #include "../utils/ranges.hpp"
+#include "SockUtils.hpp"
 
 namespace senc
 {
@@ -196,39 +197,14 @@ namespace senc
 		(void)out;
 	}
 
-	bool InlinePacketReceiver::recv_big_int(utils::Socket& sock, utils::BigInt& out)
-	{
-		const utils::bigint_size_t size = sock.recv_connected_primitive<utils::bigint_size_t>();
-		if (!size)
-			return false; // nullopt recv'd
-		utils::Buffer buff = sock.recv_connected_exact(size);
-		out.Decode(buff.data(), buff.size());
-		return true; // value recv'd
-	}
-
-	void InlinePacketReceiver::recv_ecgroup_elem(utils::Socket& sock, utils::ECGroup& out)
-	{
-		utils::BigInt x, y;
-
-		// if x is sent as nullopt then elem is identity (and y isn't sent)
-		if (!recv_big_int(sock, x))
-		{
-			out = utils::ECGroup::identity();
-			return;
-		}
-		recv_big_int(sock, y);
-
-		out = PubKey(std::move(x), std::move(y));
-	}
-
 	void InlinePacketReceiver::recv_pub_key(utils::Socket& sock, PubKey& out)
 	{
-		recv_ecgroup_elem(sock, out);
+		SockUtils::recv_ecgroup_elem(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out)
 	{
-		recv_big_int(sock, out);
+		SockUtils::recv_big_int(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out)
@@ -237,7 +213,7 @@ namespace senc
 		
 		// converting second from BigInt
 		utils::BigInt second;
-		recv_big_int(sock, second);
+		SockUtils::recv_big_int(sock, second);
 		out.second = second;
 	}
 
@@ -246,8 +222,8 @@ namespace senc
 		auto& [c1, c2, c3] = out;
 		auto& [c3a, c3b] = c3;
 
-		recv_ecgroup_elem(sock, c1);
-		recv_ecgroup_elem(sock, c2);
+		SockUtils::recv_ecgroup_elem(sock, c1);
+		SockUtils::recv_ecgroup_elem(sock, c2);
 
 		// c3: reserve space then read directly from socket
 		auto c3aSize = sock.recv_connected_primitive<buffer_size_t>();
@@ -260,7 +236,7 @@ namespace senc
 
 	void InlinePacketReceiver::recv_decryption_part(utils::Socket& sock, DecryptionPart& out)
 	{
-		recv_ecgroup_elem(sock, out);
+		SockUtils::recv_ecgroup_elem(sock, out);
 	}
 
 	void InlinePacketReceiver::recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out)

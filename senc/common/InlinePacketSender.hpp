@@ -60,9 +60,6 @@ namespace senc
 		void send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) override;
 
 	private:
-		void send_big_int(utils::Socket& sock, const std::optional<utils::BigInt>& value);
-		void send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem);
-
 		void send_pub_key(utils::Socket& sock, const PubKey& pubKey);
 		void send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID);
 		void send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard);

@@ -8,6 +8,8 @@
 
 #include "InlinePacketSender.hpp"
 
+#include "SockUtils.hpp"
+
 namespace senc
 {
 	void InlinePacketSender::send_connection_request(utils::Socket& sock)
@@ -179,47 +181,20 @@ namespace senc
 		(void)packet;
 	}
 
-	void InlinePacketSender::send_big_int(utils::Socket& sock, const std::optional<utils::BigInt>& value)
-	{
-		if (!value.has_value())
-		{
-			sock.send_connected_value(static_cast<utils::bigint_size_t>(0));
-			return;
-		}
-		
-		sock.send_connected_value(static_cast<utils::bigint_size_t>(value->MinEncodedSize()));
-
-		utils::Buffer buff(value->MinEncodedSize());
-		value->Encode(buff.data(), buff.size());
-		sock.send_connected(buff);
-	}
-
-	void InlinePacketSender::send_ecgroup_elem(utils::Socket& sock, const utils::ECGroup& elem)
-	{
-		// if x is sent as nullopt then elem is identity (and y isn't sent)
-		if (elem.is_identity())
-		{
-			send_big_int(sock, std::nullopt);
-			return;
-		}
-		send_big_int(sock, elem.x());
-		send_big_int(sock, elem.y());
-	}
-
 	void InlinePacketSender::send_pub_key(utils::Socket& sock, const PubKey& pubKey)
 	{
-		send_ecgroup_elem(sock, pubKey);
+		SockUtils::send_ecgroup_elem(sock, pubKey);
 	}
 
 	void InlinePacketSender::send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID)
 	{
-		send_big_int(sock, shardID);
+		SockUtils::send_big_int(sock, shardID);
 	}
 
 	void InlinePacketSender::send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard)
 	{
 		send_priv_key_shard_id(sock, shard.first);
-		send_big_int(sock, static_cast<const utils::BigInt&>(shard.second));
+		SockUtils::send_big_int(sock, static_cast<const utils::BigInt&>(shard.second));
 	}
 
 	void InlinePacketSender::send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext)
@@ -227,8 +202,8 @@ namespace senc
 		const auto& [c1, c2, c3] = ciphertext;
 		const auto& [c3a, c3b] = c3;
 
-		send_ecgroup_elem(sock, c1);
-		send_ecgroup_elem(sock, c2);
+		SockUtils::send_ecgroup_elem(sock, c1);
+		SockUtils::send_ecgroup_elem(sock, c2);
 		
 		sock.send_connected_value(static_cast<buffer_size_t>(c3a.size()));
 		sock.send_connected_value(static_cast<buffer_size_t>(c3b.size()));
@@ -237,7 +212,7 @@ namespace senc
 
 	void InlinePacketSender::send_decryption_part(utils::Socket& sock, const DecryptionPart& part)
 	{
-		send_ecgroup_elem(sock, part);
+		SockUtils::send_ecgroup_elem(sock, part);
 	}
 
 	void InlinePacketSender::send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsOwnerRecord& record)

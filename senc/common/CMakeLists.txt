@@ -1,4 +1,6 @@
 add_library(senc_common
+	"SockUtils.hpp"
+	"SockUtils.cpp"
 	"aliases.hpp"
 	"packets.hpp"
 	"PacketSender.hpp"
