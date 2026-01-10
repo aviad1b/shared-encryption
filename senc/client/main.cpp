@@ -314,6 +314,10 @@ namespace senc::client
 	ConnStatus signup(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
+		(void)password; // TODO: send to server when packet has this field
 		cout << endl << endl;
 
 		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
@@ -334,6 +338,10 @@ namespace senc::client
 	ConnStatus login(Socket& sock)
 	{
 		string username = input_username("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
+		(void)password; // TODO: send to server when packet has this field
 		cout << endl << endl;
 
 		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });

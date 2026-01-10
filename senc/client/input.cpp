@@ -76,6 +76,17 @@ namespace senc::client
 		return input_usernames();
 	}
 
+	std::string input_password()
+	{
+		return input();
+	}
+
+	std::string input_password(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_password();
+	}
+
 	member_count_t input_threshold()
 	{
 		return input_num<member_count_t>();
