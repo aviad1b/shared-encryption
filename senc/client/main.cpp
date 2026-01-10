@@ -317,10 +317,11 @@ namespace senc::client
 		cout << endl;
 
 		string password = input_password("Enter password: ");
-		(void)password; // TODO: send to server when packet has this field
 		cout << endl << endl;
 
-		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{
+			username, password
+		});
 		if (resp.status == pkt::SignupResponse::Status::Success)
 		{
 			cout << "Signed up successfully as \"" << username << "\"." << endl;
@@ -341,10 +342,11 @@ namespace senc::client
 		cout << endl;
 
 		string password = input_password("Enter password: ");
-		(void)password; // TODO: send to server when packet has this field
 		cout << endl << endl;
 
-		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
+		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{
+			username, password
+		});
 		if (resp.status == pkt::LoginResponse::Status::Success)
 		{
 			cout << "Logged in successfully as \"" << username << "\"." << endl;
