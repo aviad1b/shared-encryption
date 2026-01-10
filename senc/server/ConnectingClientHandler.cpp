@@ -76,7 +76,7 @@ namespace senc::server
 	std::tuple<ConnectingClientHandler::Status, std::string>
 		ConnectingClientHandler::handle_request(const pkt::LoginRequest login)
 	{
-		if (!_storage.user_exists(login.username))
+		if (!_storage.user_has_password(login.username, login.password))
 		{
 			_sender.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadLogin });
 			return { Status::Error, "" };
