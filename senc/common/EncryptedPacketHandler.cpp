@@ -82,6 +82,20 @@ namespace senc
 		return { true, "" }; // success
 	}
 
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet)
+	{
+		utils::Buffer data(packet.msg.begin(), packet.msg.end());
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+
+		out.msg = std::string(data.begin(), data.end());
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
