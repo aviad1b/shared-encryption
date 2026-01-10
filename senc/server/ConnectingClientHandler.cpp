@@ -57,7 +57,7 @@ namespace senc::server
 	std::tuple<ConnectingClientHandler::Status, std::string>
 		ConnectingClientHandler::handle_request(const pkt::SignupRequest signup)
 	{
-		try { _storage.new_user(signup.username); }
+		try { _storage.new_user(signup.username, signup.password); }
 		catch (const UserExistsException&)
 		{
 			_sender.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "IServerStorage.hpp"
+#include "aliases.hpp"
 #include <mutex>
 #include <set>
 
@@ -25,9 +26,11 @@ namespace senc::server
 
 		ShortTermServerStorage();
 
-		void new_user(const std::string& username) override;
+		void new_user(const std::string& username, const std::string& password) override;
 
 		bool user_exists(const std::string& username) override;
+
+		bool user_has_password(const std::string& username, const std::string& password) override;
 
 		UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 							  utils::ranges::StringViewRange&& regMembers,
@@ -53,6 +56,8 @@ namespace senc::server
 
 		utils::Distribution<PrivKeyShardID> _shardsDist;
 
+		PwdHasher _pwdHasher;
+
 		PrivKeyShardID sample_shard_id(const utils::HasContainsMethod<PrivKeyShardID> auto& container)
 		{
 			return _shardsDist(container);
@@ -61,9 +66,20 @@ namespace senc::server
 			// zero-value shard ID should be done here.
 		}
 
-		// map user to owned sets
+		// map user to password salt, password hash and owned sets
+		struct UserRecord
+		{
+			PwdSalt pwd_salt;
+			PwdHash pwd_hash;
+			std::set<UserSetID> usersets;
+
+			// constructs user record from password (username is map key)
+			UserRecord(PwdHasher& pwdHasher, const std::string& password)
+				: pwd_salt(pwdHasher.generate_salt()),
+				  pwd_hash(pwdHasher.hash(password, pwd_salt)) { }
+		};
 		std::mutex _mtxUsers;
-		utils::HashMap<std::string, std::set<UserSetID>> _users;
+		utils::HashMap<std::string, UserRecord> _users;
 
 		// map userset to info
 		std::mutex _mtxUsersets;
