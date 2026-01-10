@@ -56,5 +56,5 @@ namespace senc::utils::pwd
 		std::size_t _iterations;
 	};
 
-	static_assert(PwdHash<PBKDF2>);
+	static_assert(PwdHasher<PBKDF2>);
 }

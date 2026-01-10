@@ -14,13 +14,13 @@
 namespace senc::utils::pwd
 {
 	/**
-	 * @concept senc::utils::pwrd::PwdHash
+	 * @concept senc::utils::pwrd::PwdHasher
 	 * @brief Looks for a password hash schema.
 	 * @tparam Self Examined typename.
 	 * @tparam Password Password type (defaults to `std::string`).
 	 */
 	template <typename Self, typename Password = std::string>
-	concept PwdHash = requires(Self self, const Password password, const typename Self::Salt salt)
+	concept PwdHasher = requires(Self self, const Password password, const typename Self::Salt salt)
 	{
 		typename Self::Salt;
 		typename Self::Output;
