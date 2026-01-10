@@ -27,4 +27,20 @@ namespace senc::utils::pwd
 		{ self.generate_salt() } -> std::convertible_to<typename Self::Salt>;
 		{ self.hash(password, salt) } -> std::convertible_to<typename Self::Output>;
 	};
+
+	/**
+	 * @typedef senc::utils::pwd::Salt
+	 * @brief Type of password hasher's salt value.
+	 * @tparam PH Password hasher type.
+	 */
+	template <PwdHasher PH>
+	using Salt = typename PH::Salt;
+
+	/**
+	 * @typedef senc::utils::pwd::PwdHash
+	 * @brief Type of password hasher's hash output.
+	 * @tparam PH Password hasher type.
+	 */
+	template <PwdHasher PH>
+	using PwdHash = typename PH::Output;
 }
