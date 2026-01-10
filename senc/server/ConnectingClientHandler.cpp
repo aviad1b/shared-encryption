@@ -78,7 +78,7 @@ namespace senc::server
 	{
 		if (!_storage.user_exists(login.username))
 		{
-			_sender.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadUsername });
+			_sender.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadLogin });
 			return { Status::Error, "" };
 		}
 

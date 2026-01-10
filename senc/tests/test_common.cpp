@@ -63,7 +63,7 @@ TEST(CommonTests, SignupCycleTest)
 static void login_cycle(Socket& client, Socket& server)
 {
 	pkt::LoginRequest req{ "username", "pass123" };
-	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
 	cycle_flow(client, server, req, resp);
 }
 
@@ -313,7 +313,7 @@ TEST(CommonTests, LoginWithErrorsCycleTest)
 	InlinePacketSender sender;
 
 	pkt::LoginRequest req{ "username", "pass123" };
-	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
 	pkt::LogoutResponse logoutResp{};
 

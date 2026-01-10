@@ -353,7 +353,7 @@ namespace senc::client
 			return ConnStatus::Connected;
 		}
 
-		if (resp.status == pkt::LoginResponse::Status::BadUsername)
+		if (resp.status == pkt::LoginResponse::Status::BadLogin)
 			cout << "Login failed: Bad username." << endl;
 		else
 			cout << "Login failed: Unknown error." << endl;

@@ -165,7 +165,7 @@ namespace senc::pkt
 			/// Login succeeded.
 			Success,
 			/// Username does not exist.
-			BadUsername
+			BadLogin
 		} status; ///< Login status.
 	};
 
