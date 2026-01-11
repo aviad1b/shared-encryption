@@ -177,6 +177,30 @@ namespace senc
 		it = utils::read_bytes(out.status, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::LogoutRequest& packet)
+	{
+		(void)sock;
+		(void)packet;
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::LogoutResponse& packet)
+	{
+		(void)sock;
+		(void)packet;
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
