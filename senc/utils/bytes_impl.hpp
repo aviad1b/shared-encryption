@@ -117,7 +117,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, std::string& out)
+	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
 	{
 		const char* p = reinterpret_cast<const char*>(std::to_address(it));
 		const char* pEnd = reinterpret_cast<const char*>(std::to_address(it));
@@ -131,7 +131,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, auto& out)
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
 	{

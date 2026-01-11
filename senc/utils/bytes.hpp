@@ -210,24 +210,24 @@ namespace senc::utils
 	/**
 	 * @brief Reads a (null-terminated) string from bytes.
 	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
 	 * @param it Bytes iterator to start reading from.
 	 * @param end Bytes iterator to data end.
-	 * @param out Variable to store read value into.
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, std::string& out);
+	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end);
 
 	/**
 	 * @brief Reads a fundamental/enum value from bytes.
 	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
 	 * @param it Bytes iterator to start reading from.
 	 * @param end Bytes iterator to data end.
-	 * @param out Variable to store read value into.
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, auto& out)
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
 }
