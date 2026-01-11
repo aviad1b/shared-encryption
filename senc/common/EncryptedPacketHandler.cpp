@@ -619,11 +619,41 @@ namespace senc
 		if (!size)
 		{
 			out = std::nullopt;
-			return;
+			return it;
 		}
 
 		out = utils::BigInt{};
 		out->Decode(std::to_address(it), size);
+	}
+
+	void EncryptedPacketHandler::write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem)
+	{
+		// if x is written as nullopt then elem is identity (and y isn't written)
+		if (elem.is_identity())
+		{
+			write_big_int(out, std::nullopt);
+			return;
+		}
+		write_big_int(out, elem.x());
+		write_big_int(out, elem.y());
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_ecgroup_elem(utils::ECGroup& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		std::optional<utils::BigInt> x, y;
+
+		// if x is written as nullopt then elem is identity (and y isn't written)
+		it = read_big_int(x, it, end);
+		if (!x.has_value())
+		{
+			out = utils::ECGroup::identity();
+			return it;
+		}
+		it = read_big_int(y, it, end);
+
+		out = utils::ECGroup(std::move(*x), std::move(*y));
+
+		return it;
 	}
 
 	void EncryptedPacketHandler::write_pub_key(utils::Buffer& out, const PubKey& elem)
