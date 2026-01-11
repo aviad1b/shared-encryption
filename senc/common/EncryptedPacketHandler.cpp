@@ -614,7 +614,7 @@ namespace senc
 
 	utils::Buffer::iterator EncryptedPacketHandler::read_big_int(std::optional<utils::BigInt>& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
 	{
-		const utils::bigint_size_t size{};
+		utils::bigint_size_t size{};
 		it = utils::read_bytes(size, it, end);
 		if (!size)
 		{
