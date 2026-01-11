@@ -682,4 +682,21 @@ namespace senc
 
 		return it;
 	}
+
+	void EncryptedPacketHandler::write_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard)
+	{
+		write_priv_key_shard_id(out, shard.first);
+		write_big_int(out, shard.second);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_priv_key_shard(PrivKeyShard& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		it = read_priv_key_shard_id(out.first, it, end);
+
+		std::optional<utils::BigInt> value;
+		it = read_big_int(value, it, end);
+		out.second = *value;
+
+		return it;
+	}
 }
