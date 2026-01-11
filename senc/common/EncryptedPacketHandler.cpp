@@ -84,7 +84,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet)
 	{
-		utils::Buffer data(packet.msg.begin(), packet.msg.end());
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.msg);
 		send_encrypted_data(sock, data);
 	}
 
@@ -92,16 +93,18 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
 
-		out.msg = std::string(data.begin(), data.end());
+		it = utils::read_bytes(out.msg, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet)
 	{
 		utils::Buffer data{};
 
-		data.insert(data.end(), packet.username.begin(), packet.username.end());
-		data.insert(data.end(), packet.password.begin(), packet.password.end());
+		utils::write_bytes(data, packet.username);
+		utils::write_bytes(data, packet.password);
 
 		send_encrypted_data(sock, data);
 	}
@@ -110,13 +113,11 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
 
-		auto p = reinterpret_cast<const char*>(data.data());
-
-		// read first string (up to null termination) into username,
-		// and everything after that (up to next null termination) into password
-		out.username = p;
-		out.password = p + out.username.length() + 1;
+		it = utils::read_bytes(out.username, it, end);
+		it = utils::read_bytes(out.password, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet)
@@ -131,8 +132,10 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
 
-		out.status = *reinterpret_cast<const pkt::SignupResponse::Status*>(data.data());
+		it = utils::read_bytes(out.status, it, end);
 	}
 
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
