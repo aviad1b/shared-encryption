@@ -120,7 +120,7 @@ namespace senc::utils
 	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
 	{
 		const char* p = reinterpret_cast<const char*>(std::to_address(it));
-		const char* pEnd = reinterpret_cast<const char*>(std::to_address(it));
+		const char* pEnd = reinterpret_cast<const char*>(std::to_address(end));
 		const char* null = std::find(p, pEnd, 0);
 
 		// if has null termination, simply assign as string;
