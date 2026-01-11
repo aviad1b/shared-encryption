@@ -102,7 +102,7 @@ namespace senc
 		
 		void recv_encrypted_data(utils::Socket& sock, utils::Buffer& out);
 
-		void write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& pubKey);
+		void write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem);
 		utils::Buffer::iterator read_ecgroup_elem(utils::ECGroup& out,
 			utils::Buffer::iterator it, utils::Buffer::iterator end);
 

@@ -596,4 +596,14 @@ namespace senc
 
 		out = _schema.decrypt(encryptedData, _key);
 	}
+
+	void EncryptedPacketHandler::write_pub_key(utils::Buffer& out, const PubKey& elem)
+	{
+		return write_ecgroup_elem(out, elem);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_pub_key(PubKey& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		return read_ecgroup_elem(out, it, end);
+	}
 }
