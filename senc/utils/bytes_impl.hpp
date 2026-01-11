@@ -128,6 +128,12 @@ namespace senc::utils
 			readSize
 		);
 
+		if (std::endian::native != endianess)
+			std::reverse(
+				reinterpret_cast<byte*>(&out),
+				reinterpret_cast<byte*>(&out + 1),
+			);
+
 		it += readSize;
 	}
 }
