@@ -401,6 +401,104 @@ namespace senc
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::UpdateRequest& packet)
+	{
+		(void)sock;
+		(void)packet;
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::UpdateResponse& packet)
+	{
+		utils::Buffer data{};
+
+		// write vector lengths
+		utils::write_bytes(data, static_cast<userset_count_t>(packet.added_as_owner.size()));
+		utils::write_bytes(data, static_cast<userset_count_t>(packet.added_as_reg_member.size()));
+		utils::write_bytes(data, static_cast<lookup_count_t>(packet.on_lookup.size()));
+		utils::write_bytes(data, static_cast<pending_count_t>(packet.to_decrypt.size()));
+		utils::write_bytes(data, static_cast<res_count_t>(packet.finished_decryptions.size()));
+
+		// write added_as_owner records
+		for (const auto& record : packet.added_as_owner)
+			write_update_record(data, record);
+
+		// write added_as_reg_member records
+		for (const auto& record : packet.added_as_reg_member)
+			write_update_record(data, record);
+		
+		// write on_lookup records
+		for (const auto& record : packet.on_lookup)
+			utils::write_bytes(data, record);
+
+		// send to_decrypt records
+		for (const auto& record : packet.to_decrypt)
+			write_update_record(data, record);
+
+		// send finished_decryptions records
+		for (const auto& record : packet.finished_decryptions)
+			write_update_record(data, record);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		// read vector lengths
+
+		userset_count_t addedAsOwnerCount{};
+		it = utils::read_bytes(addedAsOwnerCount, it, end);
+
+		userset_count_t addedAsRegMemberCount{};
+		it = utils::read_bytes(addedAsRegMemberCount, it, end);
+
+		lookup_count_t onLookupCount{};
+		it = utils::read_bytes(onLookupCount, it, end);
+
+		pending_count_t toDecryptCount{};
+		it = utils::read_bytes(toDecryptCount, it, end);
+
+		res_count_t finishedDecryptionsCount{};
+		it = utils::read_bytes(finishedDecryptionsCount, it, end);
+
+		// end read vector lengths
+
+		// read added_as_owner records
+		out.added_as_owner.resize(addedAsOwnerCount);
+		for (auto& record : out.added_as_owner)
+			it = read_update_record(record, it, end);
+
+		// read added_as_reg_member records
+		out.added_as_reg_member.resize(addedAsRegMemberCount);
+		for (auto& record : out.added_as_reg_member)
+			it = read_update_record(record, it, end);
+
+		// read on_lookup records
+		out.on_lookup.resize(onLookupCount);
+		for (auto& record : out.on_lookup)
+			it = utils::read_bytes(record, it, end);
+
+		// read to_decrypt records
+		out.to_decrypt.resize(toDecryptCount);
+		for (auto& record : out.to_decrypt)
+			it = read_update_record(record, it, end);
+
+		// read finished_decryptions records
+		out.finished_decryptions.resize(finishedDecryptionsCount);
+		for (auto& record : out.finished_decryptions)
+			it = read_update_record(record, it, end);
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
