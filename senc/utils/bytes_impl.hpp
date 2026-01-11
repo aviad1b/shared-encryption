@@ -120,7 +120,7 @@ namespace senc::utils
 	void write_bytes(Buffer& bytes, const auto& value)
 	requires HasByteData<std::remove_cvref_t<decltype(value)>>
 	{
-		bytes.insert(bytes.end(), value.begin(), value.end());
+		bytes.insert(bytes.end(), value.data(), value.data() + value.size());
 	}
 
 	template <std::endian endianess>
