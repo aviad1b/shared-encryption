@@ -168,7 +168,7 @@ namespace senc::utils
 	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
 	{
-		const std::size_t size = std::min(std::distance(end, it), out.size());
+		const std::size_t size = std::min(std::distance(it, end), out.size());
 		std::memcpy(out.data(), std::to_address(it), size);
 		return it + size;
 	}
