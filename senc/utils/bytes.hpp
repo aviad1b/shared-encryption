@@ -185,6 +185,15 @@ namespace senc::utils
 	 * @return Buffer of bytes.
 	 */
 	Buffer bytes_from_base64(const std::string& base64);
+
+	/**
+	 * @brief Appends a primitive value to an array of bytes.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Primitive value to append its bytes.
+	 */
+	template <typename T>
+	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
+	void append_primitive_bytes(Buffer& bytes, T value);
 }
 
 #include "bytes_impl.hpp"

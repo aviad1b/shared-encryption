@@ -89,4 +89,14 @@ namespace senc::utils
 		);
 		return res;
 	}
+
+	template <typename T>
+	void append_primitive_bytes(Buffer& bytes, T value)
+	{
+		bytes.insert(
+			bytes.end(),
+			reinterpret_cast<const byte*>(&value),
+			reinterpret_cast<const byte*>(&value + 1)
+		);
+	}
 }
