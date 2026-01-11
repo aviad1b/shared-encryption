@@ -188,6 +188,15 @@ namespace senc::utils
 	Buffer bytes_from_base64(const std::string& base64);
 
 	/**
+	 * @brief Writes a string value to an array of bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Value to write.
+	 */
+	template <std::endian endianess = std::endian::big>
+	void write_bytes(Buffer& bytes, const std::string& value);
+
+	/**
 	 * @brief Writes a primitive value to an array of bytes.
 	 * @tparam endianess Endianess to use.
 	 * @param bytes Array of bytes to append to (by ref).

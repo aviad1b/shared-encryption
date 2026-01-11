@@ -91,6 +91,16 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const std::string& value)
+	{
+		bytes.insert(
+			bytes.end(),
+			value.begin(),
+			value.end()
+		);
+	}
+
+	template <std::endian endianess>
 	void write_bytes(Buffer& bytes, auto value)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
