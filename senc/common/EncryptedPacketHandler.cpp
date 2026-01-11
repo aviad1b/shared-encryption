@@ -624,6 +624,8 @@ namespace senc
 
 		out = utils::BigInt{};
 		out->Decode(std::to_address(it), size);
+
+		return it + size;
 	}
 
 	void EncryptedPacketHandler::write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem)
