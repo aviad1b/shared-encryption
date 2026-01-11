@@ -189,12 +189,14 @@ namespace senc::utils
 
 	/**
 	 * @brief Appends a primitive value to an array of bytes.
+	 * @tparam endianess Endianess to use.
 	 * @param bytes Array of bytes to append to (by ref).
 	 * @param value Primitive value to append its bytes.
 	 */
-	template <typename T>
-	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
-	void append_primitive_bytes(Buffer& bytes, T value);
+	template <std::endian endianess = std::endian::big>
+	void append_primitive_bytes(Buffer& bytes, auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
 
 	/**
 	 * @brief Reads a (null-terminated) string from bytes.

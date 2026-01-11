@@ -90,14 +90,20 @@ namespace senc::utils
 		return res;
 	}
 
-	template <typename T>
-	void append_primitive_bytes(Buffer& bytes, T value)
+	template <std::endian endianess>
+	void append_primitive_bytes(Buffer& bytes, auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{
+		auto oldEnd = bytes.end();
 		bytes.insert(
-			bytes.end(),
+			oldEnd,
 			reinterpret_cast<const byte*>(&value),
 			reinterpret_cast<const byte*>(&value + 1)
 		);
+
+		if constexpr (std::endian::native != endianess)
+			std::reverse(oldEnd, bytes.end());
 	}
 
 	template <std::endian endianess>
@@ -128,7 +134,7 @@ namespace senc::utils
 			readSize
 		);
 
-		if (std::endian::native != endianess)
+		if constexpr (std::endian::native != endianess)
 			std::reverse(
 				reinterpret_cast<byte*>(&out),
 				reinterpret_cast<byte*>(&out + 1),
