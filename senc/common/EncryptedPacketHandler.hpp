@@ -102,6 +102,10 @@ namespace senc
 		
 		void recv_encrypted_data(utils::Socket& sock, utils::Buffer& out);
 
+		void write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value);
+		utils::Buffer::iterator read_big_int(std::optional<utils::BigInt>& out,
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
+
 		void write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem);
 		utils::Buffer::iterator read_ecgroup_elem(utils::ECGroup& out,
 			utils::Buffer::iterator it, utils::Buffer::iterator end);

@@ -597,6 +597,35 @@ namespace senc
 		out = _schema.decrypt(encryptedData, _key);
 	}
 
+	void EncryptedPacketHandler::write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value)
+	{
+		if (!value.has_value())
+		{
+			utils::write_bytes(out, static_cast<utils::bigint_size_t>(0));
+			return;
+		}
+
+		utils::write_bytes(out, static_cast<utils::bigint_size_t>(value->MinEncodedSize()));
+
+		byte* outValue = out.data() + out.size();
+		out.resize(out.size() + value->MinEncodedSize());
+		value->Encode(outValue, value->MinEncodedSize());
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_big_int(std::optional<utils::BigInt>& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		const utils::bigint_size_t size{};
+		it = utils::read_bytes(size, it, end);
+		if (!size)
+		{
+			out = std::nullopt;
+			return;
+		}
+
+		out = utils::BigInt{};
+		out->Decode(std::to_address(it), size);
+	}
+
 	void EncryptedPacketHandler::write_pub_key(utils::Buffer& out, const PubKey& elem)
 	{
 		return write_ecgroup_elem(out, elem);
