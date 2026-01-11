@@ -101,5 +101,25 @@ namespace senc
 		void send_encrypted_data(utils::Socket& sock, const utils::Buffer& data);
 		
 		void recv_encrypted_data(utils::Socket& sock, utils::Buffer& out);
+
+		void write_pub_key(utils::Buffer& out, const PubKey& pubKey);
+		utils::Buffer::iterator read_pub_key(PubKey& out, 
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
+
+		void write_priv_key_shard_id(utils::Buffer& out, const PrivKeyShardID& shardID);
+		utils::Buffer::iterator read_priv_key_shard_id(PrivKeyShardID& out,
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
+
+		void write_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
+		utils::Buffer::iterator read_priv_key_shard(PrivKeyShard& out,
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
+
+		void write_ciphertext(utils::Buffer& out, const Ciphertext& ciphertext);
+		utils::Buffer::iterator read_ciphertext(Ciphertext& out,
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
+
+		void write_decryption_part(utils::Buffer& out, const DecryptionPart& part);
+		utils::Buffer::iterator read_decryption_part(DecryptionPart& out,
+			utils::Buffer::iterator it, utils::Buffer::iterator end);
 	};
 }
