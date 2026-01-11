@@ -667,4 +667,19 @@ namespace senc
 	{
 		return read_ecgroup_elem(out, it, end);
 	}
+
+	void EncryptedPacketHandler::write_priv_key_shard_id(utils::Buffer& out, const PrivKeyShardID& shardID)
+	{
+		return write_big_int(out, shardID);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_priv_key_shard_id(PrivKeyShardID& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		std::optional<utils::BigInt> value;
+		it = read_big_int(value, it, end);
+
+		out = *value;
+
+		return it;
+	}
 }
