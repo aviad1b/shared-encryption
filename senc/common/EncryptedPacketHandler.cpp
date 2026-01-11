@@ -10,6 +10,8 @@
 
 #include "SockUtils.hpp"
 
+// TODO: This file is quite messy, and requires refactoring for better error detection
+
 namespace senc
 {
 	EncryptedPacketHandler::EncryptedPacketHandler()
