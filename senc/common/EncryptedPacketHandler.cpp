@@ -201,6 +201,74 @@ namespace senc
 		(void)out;
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
+	{
+		utils::Buffer data{};
+
+		utils::write_bytes(data, packet.owners_threshold);
+		utils::write_bytes(data, packet.reg_members_threshold);
+		utils::write_bytes(data, static_cast<member_count_t>(packet.owners.size()));
+		utils::write_bytes(data, static_cast<member_count_t>(packet.reg_members.size()));
+		for (const auto& owner : packet.owners)
+			utils::write_bytes(data, owner);
+		for (const auto& regMember : packet.reg_members)
+			utils::write_bytes(data, regMember);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		it = utils::read_bytes(out.owners_threshold, it, end);
+		it = utils::read_bytes(out.reg_members_threshold, it, end);
+
+		member_count_t ownersCount{};
+		it = utils::read_bytes(ownersCount, it, end);
+		out.owners.resize(ownersCount);
+
+		member_count_t regMembersCount{};
+		it = utils::read_bytes(regMembersCount, it, end);
+		out.reg_members.resize(regMembersCount);
+
+		for (auto& owner : out.owners)
+			it = utils::read_bytes(owner, it, end);
+
+		for (auto& regMember : out.reg_members)
+			it = utils::read_bytes(regMember, it, end);
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
+	{
+		utils::Buffer data{};
+
+		utils::write_bytes(data, packet.user_set_id);
+		write_pub_key(data, packet.reg_layer_pub_key);
+		write_pub_key(data, packet.owner_layer_pub_key);
+		write_priv_key_shard(data, packet.reg_layer_priv_key_shard);
+		write_priv_key_shard(data, packet.owner_layer_priv_key_shard);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		it = utils::read_bytes(out.user_set_id, it, end);
+		it = read_pub_key(out.reg_layer_pub_key, it, end);
+		it = read_pub_key(out.owner_layer_pub_key, it, end);
+		it = read_priv_key_shard(out.reg_layer_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
