@@ -128,6 +128,8 @@ namespace senc::utils
 		out = std::string(p, std::min(null, pEnd));
 
 		it += out.length() + 1; // including null-termination
+
+		return it;
 	}
 
 	template <std::endian endianess>
@@ -151,5 +153,7 @@ namespace senc::utils
 			);
 
 		it += readSize;
+
+		return it;
 	}
 }
