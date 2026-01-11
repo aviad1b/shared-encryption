@@ -138,6 +138,45 @@ namespace senc
 		it = utils::read_bytes(out.status, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet)
+	{
+		utils::Buffer data{};
+
+		utils::write_bytes(data, packet.username);
+		utils::write_bytes(data, packet.password);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::LoginRequest& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		it = utils::read_bytes(out.username, it, end);
+		it = utils::read_bytes(out.password, it, end);
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.status);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::LoginResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		it = utils::read_bytes(out.status, it, end);
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
