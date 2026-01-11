@@ -122,7 +122,7 @@ namespace senc
 	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet)
 	{
 		utils::Buffer data{};
-		utils::append_primitive_bytes(data, packet.status);
+		utils::write_bytes(data, packet.status);
 
 		send_encrypted_data(sock, data);
 	}

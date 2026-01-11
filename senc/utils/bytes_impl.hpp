@@ -91,7 +91,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	void append_primitive_bytes(Buffer& bytes, auto value)
+	void write_bytes(Buffer& bytes, auto value)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{

@@ -188,13 +188,13 @@ namespace senc::utils
 	Buffer bytes_from_base64(const std::string& base64);
 
 	/**
-	 * @brief Appends a primitive value to an array of bytes.
+	 * @brief Writes a primitive value to an array of bytes.
 	 * @tparam endianess Endianess to use.
 	 * @param bytes Array of bytes to append to (by ref).
-	 * @param value Primitive value to append its bytes.
+	 * @param value Value to write.
 	 */
 	template <std::endian endianess = std::endian::big>
-	void append_primitive_bytes(Buffer& bytes, auto value)
+	void write_bytes(Buffer& bytes, auto value)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
 
@@ -204,7 +204,7 @@ namespace senc::utils
 	 * @param it Bytes iterator to start reading from.
 	 * @param end Bytes iterator to data end.
 	 * @param out Variable to store read value into.
-	 * @return Iterator pointer to after read value.
+	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
 	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, std::string& out);
@@ -215,7 +215,7 @@ namespace senc::utils
 	 * @param it Bytes iterator to start reading from.
 	 * @param end Bytes iterator to data end.
 	 * @param out Variable to store read value into.
-	 * @return Iterator pointer to after read value.
+	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
 	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, auto& out)
