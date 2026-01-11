@@ -269,6 +269,43 @@ namespace senc
 		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
+	{
+		(void)sock;
+		(void)packet;
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out)
+	{
+		(void)sock;
+		(void)out;
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
+	{
+		utils::Buffer data{};
+
+		utils::write_bytes(data, static_cast<userset_count_t>(packet.user_sets_ids.size()));
+		for (const auto& userSetID : packet.user_sets_ids)
+			utils::write_bytes(data, userSetID);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+		const auto end = data.end();
+		auto it = data.begin();
+
+		userset_count_t usersetsCount{};
+		it = utils::read_bytes(usersetsCount, it, end);
+		out.user_sets_ids.resize(usersetsCount);
+		for (auto& userSetID : out.user_sets_ids)
+			it = utils::read_bytes(userSetID, it, end);
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
