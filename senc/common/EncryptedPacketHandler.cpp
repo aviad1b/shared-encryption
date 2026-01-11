@@ -96,6 +96,45 @@ namespace senc
 		out.msg = std::string(data.begin(), data.end());
 	}
 
+	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet)
+	{
+		utils::Buffer data{};
+
+		data.insert(data.end(), packet.username.begin(), packet.username.end());
+		data.insert(data.end(), packet.password.begin(), packet.password.end());
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::SignupRequest& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+
+		auto p = reinterpret_cast<const char*>(data.data());
+
+		// read first string (up to null termination) into username,
+		// and everything after that (up to next null termination) into password
+		out.username = p;
+		out.password = p + out.username.length() + 1;
+	}
+
+	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet)
+	{
+		utils::Buffer data{};
+		utils::append_primitive_bytes(data, packet.status);
+
+		send_encrypted_data(sock, data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::SignupResponse& out)
+	{
+		utils::Buffer data{};
+		recv_encrypted_data(sock, data);
+
+		out.status = *reinterpret_cast<const pkt::SignupResponse::Status*>(data.data());
+	}
+
 	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
