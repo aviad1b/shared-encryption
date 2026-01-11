@@ -99,4 +99,35 @@ namespace senc::utils
 			reinterpret_cast<const byte*>(&value + 1)
 		);
 	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, std::string& out)
+	{
+		const char* p = reinterpret_cast<const char*>(std::to_address(it));
+		const char* pEnd = reinterpret_cast<const char*>(std::to_address(it));
+		const char* null = std::find(p, pEnd, 0);
+
+		// if has null termination, simply assign as string;
+		// otherwise, read everything untill end
+		out = std::string(p, std::min(null, pEnd));
+
+		it += out.length() + 1; // including null-termination
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, auto& out)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
+	{
+		using T = std::remove_cvref_t<decltype(out)>;
+		const std::size_t availableData = end - it;
+		const std::size_t readSize = std::min(sizeof(T), availableData);
+		std::memcpy(
+			&out,
+			std::to_address(it),
+			readSize
+		);
+
+		it += readSize;
+	}
 }

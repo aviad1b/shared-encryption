@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <ranges>
+#include <bit>
 
 #include "concepts.hpp"
 
@@ -194,6 +195,30 @@ namespace senc::utils
 	template <typename T>
 	requires (std::is_fundamental_v<T> || std::is_enum_v<T>)
 	void append_primitive_bytes(Buffer& bytes, T value);
+
+	/**
+	 * @brief Reads a (null-terminated) string from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @param out Variable to store read value into.
+	 * @return Iterator pointer to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, std::string& out);
+
+	/**
+	 * @brief Reads a fundamental/enum value from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @param out Variable to store read value into.
+	 * @return Iterator pointer to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(Buffer::iterator it, Buffer::iterator end, auto& out)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
 }
 
 #include "bytes_impl.hpp"
