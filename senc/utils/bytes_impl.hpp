@@ -149,7 +149,7 @@ namespace senc::utils
 		if constexpr (std::endian::native != endianess)
 			std::reverse(
 				reinterpret_cast<byte*>(&out),
-				reinterpret_cast<byte*>(&out + 1),
+				reinterpret_cast<byte*>(&out + 1)
 			);
 
 		it += readSize;
