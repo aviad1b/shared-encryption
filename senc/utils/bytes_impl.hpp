@@ -117,6 +117,13 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires HasByteData<std::remove_cvref_t<decltype(value)>>
+	{
+		bytes.insert(bytes.end(), value.begin(), value.end());
+	}
+
+	template <std::endian endianess>
 	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
 	{
 		const char* p = reinterpret_cast<const char*>(std::to_address(it));
@@ -155,5 +162,14 @@ namespace senc::utils
 		it += readSize;
 
 		return it;
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
+	{
+		const std::size_t size = std::min(end - it, out.size());
+		std::memcpy(out.data(), std::to_address(it), size);
+		return it + size;
 	}
 }

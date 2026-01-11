@@ -208,6 +208,16 @@ namespace senc::utils
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
 
 	/**
+	 * @brief Writes an object with bytes data to an array of bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Value to write.
+	 */
+	template <std::endian endianess = std::endian::big>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires HasByteData<std::remove_cvref_t<decltype(value)>>;
+
+	/**
 	 * @brief Reads a (null-terminated) string from bytes.
 	 * @tparam endianess Endianess to use.
 	 * @param out Variable to store read value into.
@@ -230,6 +240,18 @@ namespace senc::utils
 	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
+
+	/**
+	 * @brief Reads an object with bytes data from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @return Iterator pointing to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>;
 }
 
 #include "bytes_impl.hpp"
