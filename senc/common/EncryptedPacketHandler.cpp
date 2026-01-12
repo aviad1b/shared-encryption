@@ -750,4 +750,110 @@ namespace senc
 	{
 		return read_ecgroup_elem(out, it, end);
 	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsOwnerRecord& record)
+	{
+		write_update_record(
+			out,
+			reinterpret_cast<const pkt::UpdateResponse::AddedAsMemberRecord&>(record)
+		);
+		write_priv_key_shard(out, record.owner_layer_priv_key_shard);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		it = read_update_record(
+			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out),
+			it, end
+		);
+		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
+
+		return it;
+	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record)
+	{
+		utils::write_bytes(out, record.user_set_id);
+		write_pub_key(out, record.reg_layer_pub_key);
+		write_pub_key(out, record.owner_layer_pub_key);
+		write_priv_key_shard(out, record.reg_layer_priv_key_shard);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		it = utils::read_bytes(out.user_set_id, it, end);
+		it = read_pub_key(out.reg_layer_pub_key, it, end);
+		it = read_pub_key(out.owner_layer_pub_key, it, end);
+		it = read_priv_key_shard(out.reg_layer_priv_key_shard, it, end);
+		return it;
+	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToDecryptRecord& record)
+	{
+		utils::write_bytes(out, record.op_id);
+		write_ciphertext(out, record.ciphertext);
+		utils::write_bytes(out, static_cast<member_count_t>(record.shards_ids.size()));
+		for (const auto& shardID : record.shards_ids)
+			write_priv_key_shard_id(out, shardID);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_update_record(pkt::UpdateResponse::ToDecryptRecord& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		it = utils::read_bytes(out.op_id, it, end);
+		it = read_ciphertext(out.ciphertext, it, end);
+
+		member_count_t shardsIDsCount{};
+		it = utils::read_bytes(shardsIDsCount, it, end);
+		
+		out.shards_ids.resize(shardsIDsCount);
+		for (auto& shardID : out.shards_ids)
+			it = read_priv_key_shard_id(shardID, it, end);
+
+		return it;
+	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::FinishedDecryptionsRecord& record)
+	{
+		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
+		utils::write_bytes(out, static_cast<member_count_t>(record.reg_layer_parts.size()));
+		utils::write_bytes(out, static_cast<member_count_t>(record.owner_layer_parts.size()));
+		utils::write_bytes(out, record.op_id);
+		for (const auto& part : record.reg_layer_parts)
+			write_decryption_part(out, part);
+		for (const auto& part : record.owner_layer_parts)
+			write_decryption_part(out, part);
+		for (const auto& shardID : record.reg_layer_shards_ids)
+			write_priv_key_shard_id(out, shardID);
+		for (const auto& shardID : record.owner_layer_shards_ids)
+			write_priv_key_shard_id(out, shardID);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
+
+		// read sizes
+		member_count_t regLayerPartsCount{}, ownerLayerPartsCount{};
+		it = utils::read_bytes(regLayerPartsCount, it, end);
+		it = utils::read_bytes(ownerLayerPartsCount, it, end);
+		it = utils::read_bytes(out.op_id, it, end);
+
+		// read parts
+		out.reg_layer_parts.resize(regLayerPartsCount);
+		for (auto& part : out.reg_layer_parts)
+			it = read_decryption_part(part, it, end);
+		out.owner_layer_parts.resize(ownerLayerPartsCount);
+		for (auto& part : out.owner_layer_parts)
+			it = read_decryption_part(part, it, end);
+
+		// read shards IDs
+		out.reg_layer_shards_ids.resize(regLayerPartsCount + 1);
+		for (auto& shardID : out.reg_layer_shards_ids)
+			it = read_priv_key_shard_id(shardID, it, end);
+		out.owner_layer_shards_ids.resize(ownerLayerPartsCount + 1);
+		for (auto& shardID : out.owner_layer_shards_ids)
+			it = read_priv_key_shard_id(shardID, it, end);
+
+		return it;
+	}
 }
