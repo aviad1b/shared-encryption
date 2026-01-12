@@ -740,4 +740,14 @@ namespace senc
 
 		return it;
 	}
+
+	void EncryptedPacketHandler::write_decryption_part(utils::Buffer& out, const DecryptionPart& part)
+	{
+		write_ecgroup_elem(out, part);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_decryption_part(DecryptionPart& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		return read_ecgroup_elem(out, it, end);
+	}
 }
