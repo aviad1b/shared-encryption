@@ -701,4 +701,43 @@ namespace senc
 
 		return it;
 	}
+
+	void EncryptedPacketHandler::write_ciphertext(utils::Buffer& out, const Ciphertext& ciphertext)
+	{
+		const auto& [c1, c2, c3] = ciphertext;
+		const auto& [c3a, c3b] = c3;
+
+		write_ecgroup_elem(out, c1);
+		write_ecgroup_elem(out, c2);
+
+		utils::write_bytes(out, static_cast<buffer_size_t>(c3a.size()));
+		utils::write_bytes(out, static_cast<buffer_size_t>(c3b.size()));
+		utils::write_bytes(out, c3a);
+		utils::write_bytes(out, c3b);
+	}
+
+	utils::Buffer::iterator EncryptedPacketHandler::read_ciphertext(Ciphertext& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
+	{
+		auto& [c1, c2, c3] = out;
+		auto& [c3a, c3b] = c3;
+
+		it = read_ecgroup_elem(c1, it, end);
+		it = read_ecgroup_elem(c2, it, end);
+
+		// c3: reserve space then read directly from socket
+
+		buffer_size_t c3aSize{};
+		it = utils::read_bytes(c3aSize, it, end);
+
+		buffer_size_t c3bSize{};
+		it = utils::read_bytes(c3bSize, it, end);
+
+		c3a.resize(c3aSize);
+		it = utils::read_bytes(c3a, it, end);
+
+		c3b.resize(c3bSize);
+		it = utils::read_bytes(c3b, it, end);
+
+		return it;
+	}
 }
