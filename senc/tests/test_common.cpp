@@ -395,6 +395,10 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketsTest,
 	testing::Values(
 		std::make_unique<InlinePacketHandler>,
-		std::make_unique<EncryptedPacketHandler>
+		[]()
+		{
+			senc::EncryptedPacketHandler::Schema schema{};
+			return std::make_unique<EncryptedPacketHandler>(schema.keygen());
+		}
 	)
 );
