@@ -106,15 +106,14 @@ namespace senc::utils
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
 	{
-		auto oldEnd = bytes.end();
-		bytes.insert(
-			oldEnd,
+		auto it = bytes.insert(
+			bytes.end(),
 			reinterpret_cast<const byte*>(&value),
 			reinterpret_cast<const byte*>(&value + 1)
 		);
 
 		if constexpr (std::endian::native != endianess)
-			std::reverse(oldEnd, bytes.end());
+			std::reverse(it, bytes.end());
 	}
 
 	template <std::endian endianess>
