@@ -98,6 +98,7 @@ namespace senc::utils
 			value.begin(),
 			value.end()
 		);
+		bytes.push_back('\0');
 	}
 
 	template <std::endian endianess>
