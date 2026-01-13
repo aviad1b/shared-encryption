@@ -26,6 +26,8 @@ namespace senc
 
 		EncryptedPacketHandler();
 
+		EncryptedPacketHandler(utils::enc::Key<Schema>&& key);
+
 		std::pair<bool, std::string> establish_connection_client_side(utils::Socket& sock) override;
 		std::pair<bool, std::string> establish_connection_server_side(utils::Socket& sock) override;
 
