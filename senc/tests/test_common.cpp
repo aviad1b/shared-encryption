@@ -10,9 +10,11 @@
 #include <functional>
 #include <memory>
 #include "tests_utils.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "../common/InlinePacketHandler.hpp"
 
 namespace pkt = senc::pkt;
+using senc::EncryptedPacketHandler;
 using senc::InlinePacketHandler;
 using senc::PacketHandler;
 using senc::utils::ECGroup;
@@ -392,6 +394,7 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
-		std::make_unique<InlinePacketHandler>
+		std::make_unique<InlinePacketHandler>,
+		std::make_unique<EncryptedPacketHandler>
 	)
 );
