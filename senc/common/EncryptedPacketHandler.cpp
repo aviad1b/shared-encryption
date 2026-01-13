@@ -614,9 +614,9 @@ namespace senc
 
 		utils::write_bytes(out, static_cast<utils::bigint_size_t>(value->MinEncodedSize()));
 
-		byte* outValue = out.data() + out.size();
+		const auto oldSize = out.size();
 		out.resize(out.size() + value->MinEncodedSize());
-		value->Encode(outValue, value->MinEncodedSize());
+		value->Encode(out.data() + oldSize, value->MinEncodedSize());
 	}
 
 	utils::Buffer::iterator EncryptedPacketHandler::read_big_int(std::optional<utils::BigInt>& out, utils::Buffer::iterator it, utils::Buffer::iterator end)
