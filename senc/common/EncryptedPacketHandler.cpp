@@ -17,8 +17,7 @@ namespace senc
 	EncryptedPacketHandler::EncryptedPacketHandler()
 		: _powDist(utils::Random<utils::BigInt>::get_dist_below(Group::order())) { }
 
-	EncryptedPacketHandler::EncryptedPacketHandler(utils::enc::Key<Schema>&& key)
-		: Self()
+	EncryptedPacketHandler::EncryptedPacketHandler(Key&& key) : Self()
 	{
 		this->_key = std::move(key);
 	}

@@ -21,12 +21,13 @@ namespace senc
 		using Self = EncryptedPacketHandler;
 		using Base = PacketHandler;
 		using Schema = utils::enc::AES1L;
+		using Key = utils::enc::Key<Schema>;
 		using Group = utils::ECGroup;
 		using KDF = utils::enc::ECHKDF1L;
 
 		EncryptedPacketHandler();
 
-		EncryptedPacketHandler(utils::enc::Key<Schema>&& key);
+		EncryptedPacketHandler(Key&& key);
 
 		std::pair<bool, std::string> establish_connection_client_side(utils::Socket& sock) override;
 		std::pair<bool, std::string> establish_connection_server_side(utils::Socket& sock) override;
@@ -98,7 +99,7 @@ namespace senc
 		utils::Distribution<utils::BigInt> _powDist;
 		Schema _schema;
 		KDF _kdf;
-		utils::enc::Key<Schema> _key;
+		Key _key;
 
 		void send_encrypted_data(utils::Socket& sock, const utils::Buffer& data);
 		
