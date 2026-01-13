@@ -12,6 +12,7 @@
 #include "../utils/Socket.hpp" // has to be first because windows is stupid
 #include "tests_utils.hpp"
 #include "../server/ShortTermServerStorage.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "../common/InlinePacketHandler.hpp"
 #include "../server/Server.hpp"
 #include "../utils/Random.hpp"
@@ -21,6 +22,7 @@ using senc::server::ShortTermServerStorage;
 using senc::server::DecryptionsManager;
 using senc::server::IServerStorage;
 using senc::server::UpdateManager;
+using senc::EncryptedPacketHandler;
 using senc::InlinePacketHandler;
 using senc::server::IServer;
 using senc::server::Server;
@@ -1584,10 +1586,16 @@ const auto SERVER_IMPLS = testing::Values(
 		std::make_unique<InlinePacketHandler>
 	},
 	ServerTestParams{
+		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
+		[](auto&&... args) { return new_server<IPv4>(args...); },
+		std::make_unique<ShortTermServerStorage>,
+		std::make_unique<EncryptedPacketHandler>
+	},
+	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv6>>(IPv6::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv6>(args...); },
 		std::make_unique<ShortTermServerStorage>,
-		std::make_unique<InlinePacketHandler>
+		std::make_unique<EncryptedPacketHandler>
 	}
 );
 
