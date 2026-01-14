@@ -16,11 +16,6 @@ namespace senc
 {
 	EncryptedPacketHandler::EncryptedPacketHandler()
 		: _powDist(utils::Random<utils::BigInt>::get_dist_below(Group::order())) { }
-
-	EncryptedPacketHandler::EncryptedPacketHandler(Key&& key) : Self()
-	{
-		this->_key = std::move(key);
-	}
 	
 	std::pair<bool, std::string> EncryptedPacketHandler::establish_connection_client_side(utils::Socket& sock)
 	{
