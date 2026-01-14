@@ -26,86 +26,91 @@ class PacketsTest : public testing::TestWithParam<PacketHandlerFactory>
 {
 protected:
 	std::unique_ptr<PacketHandler> packetHandler;
+	std::unique_ptr<Socket> client, server;
 
 	void SetUp() override
 	{
+		auto [client, server] = prepare_tcp();
+		this->client = std::make_unique<decltype(client)>(std::move(client));
+		this->server = std::make_unique<decltype(server)>(std::move(server));
 		packetHandler = GetParam()();
 	}
 	
 	void TearDown() override
 	{
+		client.reset();
+		server.reset();
 		packetHandler.reset();
 	}
 
 public:
 	template <typename Request, typename Response>
-	void cycle_flow(Socket& client, Socket& server, const Request& req, const Response& resp)
+	void cycle_flow(const Request& req, const Response& resp)
 	{
-		packetHandler->send_request(client, req);
-		auto reqGot = packetHandler->recv_request<Request>(server);
+		packetHandler->send_request(*client, req);
+		auto reqGot = packetHandler->recv_request<Request>(*server);
 		EXPECT_TRUE(reqGot.has_value());
 		EXPECT_EQ(reqGot.value(), req);
 
-		packetHandler->send_response(server, resp);
-		auto respGot = packetHandler->recv_response<Response>(client);
+		packetHandler->send_response(*server, resp);
+		auto respGot = packetHandler->recv_response<Response>(*client);
 		EXPECT_TRUE(respGot.has_value());
 		EXPECT_EQ(respGot.value(), resp);
 	}
 };
 
-static void error_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void error_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::ErrorResponse resp{ "this is an error message..." };
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, ErrorResponseTest)
 {
-	auto [client, server] = prepare_tcp();
-	error_cycle(*this, client, server);
+	error_cycle(*this);
 }
 
-static void signup_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void signup_cycle(PacketsTest& test)
 {
 	pkt::SignupRequest req{ "username", "pass123" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, SignupCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	signup_cycle(*this, client, server);
+	signup_cycle(*this);
 }
 
-static void login_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void login_cycle(PacketsTest& test)
 {
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, LoginCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	login_cycle(*this, client, server);
+	login_cycle(*this);
 }
 
-static void logout_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void logout_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, LogoutCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	logout_cycle(*this, client, server);
+	logout_cycle(*this);
 }
 
-static void make_user_set_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void make_user_set_cycle(PacketsTest& test)
 {
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
@@ -122,16 +127,16 @@ static void make_user_set_cycle(PacketsTest& test, Socket& client, Socket& serve
 		senc::PrivKeyShard{ 2, 256 }
 	};
 
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, MakeUserSetCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	make_user_set_cycle(*this, client, server);
+	make_user_set_cycle(*this);
 }
 
-static void get_user_sets_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void get_user_sets_cycle(PacketsTest& test)
 {
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
@@ -141,32 +146,32 @@ static void get_user_sets_cycle(PacketsTest& test, Socket& client, Socket& serve
 			"57641e16-e02a-473b-8204-a809a9c435df"
 		}
 	};
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, GetUserSetsCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	get_user_sets_cycle(*this, client, server);
+	get_user_sets_cycle(*this);
 }
 
-static void get_members_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void get_members_cycle(PacketsTest& test)
 {
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
 	pkt::GetMembersResponse resp{
 		{ "a", "asfg", "user" },
 		{ "o1", "o2" }
 	};
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, GetMembersCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	get_members_cycle(*this, client, server);
+	get_members_cycle(*this);
 }
 
-static void decrypt_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void decrypt_cycle(PacketsTest& test)
 {
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
@@ -180,16 +185,16 @@ static void decrypt_cycle(PacketsTest& test, Socket& client, Socket& server)
 		}
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, DecryptCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	decrypt_cycle(*this, client, server);
+	decrypt_cycle(*this);
 }
 
-static void update_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void update_cycle(PacketsTest& test)
 {
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
@@ -270,58 +275,58 @@ static void update_cycle(PacketsTest& test, Socket& client, Socket& server)
 			}
 		}
 	};
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, UpdateCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	update_cycle(*this, client, server);
+	update_cycle(*this);
 }
 
-static void decrypt_participate_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void decrypt_participate_cycle(PacketsTest& test)
 {
 	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, DecryptParticipateCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	decrypt_participate_cycle(*this, client, server);
+	decrypt_participate_cycle(*this);
 }
 
-static void send_decryption_part_cycle(PacketsTest& test, Socket& client, Socket& server)
+static void send_decryption_part_cycle(PacketsTest& test)
 {
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
 		ECGroup::identity().pow(435)
 	};
 	pkt::SendDecryptionPartResponse resp{};
-	test.cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
 TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 {
 	auto [client, server] = prepare_tcp();
-	send_decryption_part_cycle(*this, client, server);
+	send_decryption_part_cycle(*this);
 }
 
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
 	auto [client, server] = prepare_tcp();
-	error_cycle(*this, client, server);
-	signup_cycle(*this, client, server);
-	login_cycle(*this, client, server);
-	make_user_set_cycle(*this, client, server);
-	get_user_sets_cycle(*this, client, server);
-	get_members_cycle(*this, client, server);
-	decrypt_cycle(*this, client, server);
-	update_cycle(*this, client, server);
-	decrypt_participate_cycle(*this, client, server);
-	send_decryption_part_cycle(*this, client, server);
-	logout_cycle(*this, client, server);
+	error_cycle(*this);
+	signup_cycle(*this);
+	login_cycle(*this);
+	make_user_set_cycle(*this);
+	get_user_sets_cycle(*this);
+	get_members_cycle(*this);
+	decrypt_cycle(*this);
+	update_cycle(*this);
+	decrypt_participate_cycle(*this);
+	send_decryption_part_cycle(*this);
+	logout_cycle(*this);
 }
 
 TEST_P(PacketsTest, LoginWithErrorsCycleTest)
