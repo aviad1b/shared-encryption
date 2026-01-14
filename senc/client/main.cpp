@@ -1,7 +1,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include "../common/InlinePacketHandler.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "../utils/Socket.hpp"
 #include "output.hpp"
 #include "input.hpp"
@@ -107,7 +107,7 @@ namespace senc::client
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
-	static InlinePacketHandler packetHandler;
+	static EncryptedPacketHandler packetHandler;
 
 	int main(int argc, char** argv)
 	{

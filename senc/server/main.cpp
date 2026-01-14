@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../common/InlinePacketHandler.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "ShortTermServerStorage.hpp"
 #include "InteractiveConsole.hpp"
 #include "Server.hpp"
@@ -41,7 +41,7 @@ namespace senc::server
 		}
 
 		Schema schema;
-		InlinePacketHandler packetHandler;
+		EncryptedPacketHandler packetHandler;
 		ShortTermServerStorage storage;
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
