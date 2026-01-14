@@ -34,6 +34,9 @@ protected:
 		this->client = std::make_unique<decltype(client)>(std::move(client));
 		this->server = std::make_unique<decltype(server)>(std::move(server));
 		packetHandler = GetParam()();
+		std::thread t([this]() { this->packetHandler->establish_connection_server_side(*this->server); });
+		packetHandler->establish_connection_client_side(*this->client);
+		t.join();
 	}
 	
 	void TearDown() override
@@ -400,10 +403,6 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketsTest,
 	testing::Values(
 		std::make_unique<InlinePacketHandler>,
-		[]()
-		{
-			senc::EncryptedPacketHandler::Schema schema{};
-			return std::make_unique<EncryptedPacketHandler>(schema.keygen());
-		}
+		std::make_unique<EncryptedPacketHandler>
 	)
 );
