@@ -3,6 +3,7 @@ add_library(senc_common
 	"SockUtils.cpp"
 	"aliases.hpp"
 	"packets.hpp"
+	"ConnEstablishException.hpp"
 	"PacketHandler.hpp"
 	"PacketHandlerFactory.hpp"
 	"InlinePacketHandler.hpp"
