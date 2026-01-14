@@ -27,14 +27,6 @@ namespace senc
 
 		virtual ~PacketHandlerFactory() { }
 
-	protected:
-		/**
-		 * @brief Constructor of packet handler factory.
-		 * @param f A function which constructs a packet handler instance from a socket reference.
-		 */
-		PacketHandlerFactory(std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> f)
-			: _f(f) { }
-
 		/**
 		 * @brief Constructs a new packet handler instance from a socket reference.
 		 * @param sock Reference to socket to send and receive packets through.
@@ -43,6 +35,14 @@ namespace senc
 		{
 			return _f(sock);
 		}
+
+	protected:
+		/**
+		 * @brief Constructor of packet handler factory.
+		 * @param f A function which constructs a packet handler instance from a socket reference.
+		 */
+		PacketHandlerFactory(std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> f)
+			: _f(f) { }
 
 	private:
 		std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> _f;
