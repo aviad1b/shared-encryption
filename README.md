@@ -215,7 +215,7 @@ which on its abstract form, the communication protocol is defined in `senc/commo
 In practice, the packets are passed in binary form, making this a binary, statefull protocol.  
 As said, each clients communicates with the server using the classic request-response model.
 In the case of an error, a direct error response containing an error message is returned.  
-List of possible (successfull) request-response cycles:
+The list below describes all possible (successfull) request-response cycles (as of protocol version 2, being used in release v1.1.0).
 
 
 
@@ -223,11 +223,12 @@ List of possible (successfull) request-response cycles:
 
 Signs up a new user. Requires client to be logged out.
 
-Client requests to signup with a given username.  
+Client requests to signup with a given username and password.  
 Server response with signup status.  
 
 - Request:
   - username
+  - password
   
 - Response:
   - status (success / username taken)
@@ -242,14 +243,15 @@ Server response with signup status.
 
 Logs in as an existing user. Requires client to be logged out.
 
-Client requests to login with a given username.  
+Client requests to login with a given username and password.  
 Server responds with login status.
 
 - Request:
   - username
+  - password
 
 - Response:
-  - status (success / bad username)
+  - status (success / bad login)
 
 
 
@@ -437,9 +439,9 @@ Server responds.
 - [x] Version 1.0.1
 	- [x] Linux support.
 	- [x] IPv6 support.
-- [ ] Version 1.1.0
-    - [ ] User authentication.
-    - [ ] Packet encryption.
+- [x] Version 1.1.0
+    - [x] User authentication.
+    - [x] Packet encryption.
 - [ ] Version 1.1.1
 	- [ ] Server long term storage.
 	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.

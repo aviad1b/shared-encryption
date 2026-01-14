@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0
+
+### Added or Changed
+- Added user authentication (password saved with PBKDF2 (password-based key deriviation function 2).
+- Added packet encryption (AES, key is exchanged on connection using Elliptic-Curve Diffie-Helman).
+
+
 ## v1.0.1
 
 ### Added or Changed
