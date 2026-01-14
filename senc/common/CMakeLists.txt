@@ -4,6 +4,7 @@ add_library(senc_common
 	"aliases.hpp"
 	"packets.hpp"
 	"PacketHandler.hpp"
+	"PacketHandlerFactory.hpp"
 	"InlinePacketHandler.hpp"
 	"InlinePacketHandler.cpp"
 	"EncryptedPacketHandler.hpp"
