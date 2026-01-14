@@ -14,13 +14,11 @@ namespace senc::server
 												   const std::string& username,
 												   Schema& schema,
 												   IServerStorage& storage,
-												   PacketReceiver& receiver,
-												   PacketSender& sender,
+												   PacketHandler& packetHandler,
 												   UpdateManager& updateManager,
 												   DecryptionsManager& decryptionsManager)
 		: _sock(sock), _username(username),
-		  _schema(schema), _storage(storage),
-		  _receiver(receiver), _sender(sender),
+		  _schema(schema), _storage(storage), _packetHandler(packetHandler),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
 	void ConnectedClientHandler::loop()
@@ -168,7 +166,7 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
-		auto req = _receiver.recv_request<
+		auto req = _packetHandler.recv_request<
 			pkt::LogoutRequest,
 			pkt::MakeUserSetRequest,
 			pkt::GetUserSetsRequest,
@@ -186,14 +184,14 @@ namespace senc::server
 			);
 
 		// if reached here, bad request
-		_sender.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
+		_packetHandler.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
 		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::LogoutRequest& request)
 	{
 		(void)request;
-		_sender.send_response(_sock, pkt::LogoutResponse{});
+		_packetHandler.send_response(_sock, pkt::LogoutResponse{});
 		return Status::Disconnected;
 	}
 
@@ -210,13 +208,13 @@ namespace senc::server
 		}
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to create userset: ") + e.what()
 			});
 			return Status::Connected;
 		}
 
-		_sender.send_response(_sock, response);
+		_packetHandler.send_response(_sock, response);
 		return Status::Connected;
 	}
 
@@ -228,13 +226,13 @@ namespace senc::server
 		try { usersets = _storage.get_usersets(_username); }
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch usersets: ") + e.what()
 			});
 			return Status::Connected;
 		}
 
-		_sender.send_response(_sock, pkt::GetUserSetsResponse{
+		_packetHandler.send_response(_sock, pkt::GetUserSetsResponse{
 			std::move(usersets)
 		});
 
@@ -247,13 +245,13 @@ namespace senc::server
 		try { info = _storage.get_userset_info(request.user_set_id); }
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch userset members: ") + e.what()
 			});
 			return Status::Connected;
 		}
 
-		_sender.send_response(_sock, pkt::GetMembersResponse{
+		_packetHandler.send_response(_sock, pkt::GetMembersResponse{
 			.reg_members = std::move(info.reg_members),
 			.owners = std::move(info.owners)
 		});
@@ -268,13 +266,13 @@ namespace senc::server
 		try { opid = initiate_decryption(request.user_set_id, std::move(request.ciphertext)); }
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to initiate decryption operation: ") + e.what()
 			});
 			return Status::Connected;
 		}
 
-		_sender.send_response(_sock, pkt::DecryptResponse{ opid });
+		_packetHandler.send_response(_sock, pkt::DecryptResponse{ opid });
 		return Status::Connected;
 	}
 
@@ -286,13 +284,13 @@ namespace senc::server
 		try { response = _updateManager.retrieve_updates(_username); }
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch updates: ") + e.what()
 			});
 			return Status::Connected;
 		}
 
-		_sender.send_response(_sock, response);
+		_packetHandler.send_response(_sock, response);
 		return Status::Connected;
 	}
 
@@ -311,7 +309,7 @@ namespace senc::server
 		}
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch operation: ") + e.what()
 			});
 			return Status::Connected;
@@ -328,17 +326,17 @@ namespace senc::server
 		switch (partRequirement)
 		{
 		case DecryptionsManager::PartRequirement::RegPart:
-			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+			_packetHandler.send_response(_sock, pkt::DecryptParticipateResponse{
 				pkt::DecryptParticipateResponse::Status::SendRegLayerPart
 			});
 			break;
 		case DecryptionsManager::PartRequirement::OwnerPart:
-			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+			_packetHandler.send_response(_sock, pkt::DecryptParticipateResponse{
 				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart
 			});
 			break;
 		default:
-			_sender.send_response(_sock, pkt::DecryptParticipateResponse{
+			_packetHandler.send_response(_sock, pkt::DecryptParticipateResponse{
 				pkt::DecryptParticipateResponse::Status::NotRequired
 			});
 			break;
@@ -365,7 +363,7 @@ namespace senc::server
 		}
 		catch (const ServerException& e)
 		{
-			_sender.send_response(_sock, pkt::ErrorResponse{
+			_packetHandler.send_response(_sock, pkt::ErrorResponse{
 				std::string("Failed to fetch operation: ") + e.what()
 			});
 			return Status::Connected;
@@ -379,7 +377,7 @@ namespace senc::server
 		}
 
 		// finally, send ack
-		_sender.send_response(_sock, pkt::SendDecryptionPartResponse{});
+		_packetHandler.send_response(_sock, pkt::SendDecryptionPartResponse{});
 
 		return Status::Connected;
 	}

@@ -89,4 +89,87 @@ namespace senc::utils
 		);
 		return res;
 	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const std::string& value)
+	{
+		bytes.insert(
+			bytes.end(),
+			value.begin(),
+			value.end()
+		);
+		bytes.push_back('\0');
+	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
+	{
+		auto it = bytes.insert(
+			bytes.end(),
+			reinterpret_cast<const byte*>(&value),
+			reinterpret_cast<const byte*>(&value + 1)
+		);
+
+		if constexpr (std::endian::native != endianess)
+			std::reverse(it, bytes.end());
+	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires HasByteData<std::remove_cvref_t<decltype(value)>>
+	{
+		bytes.insert(bytes.end(), value.data(), value.data() + value.size());
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
+	{
+		const char* p = reinterpret_cast<const char*>(std::to_address(it));
+		const char* pEnd = reinterpret_cast<const char*>(std::to_address(end));
+		const char* null = std::find(p, pEnd, 0);
+
+		// if has null termination, simply assign as string;
+		// otherwise, read everything untill end
+		out = std::string(p, std::min(null, pEnd));
+
+		it += out.length() + 1; // including null-termination
+
+		return it;
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
+	{
+		using T = std::remove_cvref_t<decltype(out)>;
+		const std::size_t availableData = end - it;
+		const std::size_t readSize = std::min(sizeof(T), availableData);
+		std::memcpy(
+			&out,
+			std::to_address(it),
+			readSize
+		);
+
+		if constexpr (std::endian::native != endianess)
+			std::reverse(
+				reinterpret_cast<byte*>(&out),
+				reinterpret_cast<byte*>(&out + 1)
+			);
+
+		it += readSize;
+
+		return it;
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
+	{
+		const std::size_t size = std::min<std::size_t>(std::distance(it, end), out.size());
+		std::memcpy(out.data(), std::to_address(it), size);
+		return it + size;
+	}
 }

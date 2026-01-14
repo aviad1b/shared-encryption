@@ -10,8 +10,7 @@
 
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
-#include "../common/PacketReceiver.hpp"
-#include "../common/PacketSender.hpp"
+#include "../common/PacketHandler.hpp"
 #include "../utils/Socket.hpp"
 #include "DecryptionsManager.hpp"
 #include "UpdateManager.hpp"
@@ -32,16 +31,14 @@ namespace senc::server
 		 * @brief Constructs a new client handler factory.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ClientHandlerFactory(Schema& schema,
 									  IServerStorage& storage,
-									  PacketReceiver& receiver,
-									  PacketSender& sender,
+									  PacketHandler& handler,
 									  UpdateManager& updateManager,
 									  DecryptionsManager& decryptionsManager);
 
@@ -62,8 +59,7 @@ namespace senc::server
 	private:
 		Schema& _schema;
 		IServerStorage& _storage;
-		PacketReceiver& _receiver;
-		PacketSender& _sender;
+		PacketHandler& _packetHandler;
 		UpdateManager& _updateManager;
 		DecryptionsManager& _decryptionsManager;
 	};

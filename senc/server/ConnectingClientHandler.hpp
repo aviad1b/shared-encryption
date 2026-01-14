@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include "../common/PacketReceiver.hpp"
-#include "../common/PacketSender.hpp"
+#include "../common/PacketHandler.hpp"
 #include "../utils/Socket.hpp"
 #include "ServerException.hpp"
 #include "IServerStorage.hpp"
@@ -30,14 +29,12 @@ namespace senc::server
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param sock Socket connected to client.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ConnectingClientHandler(utils::Socket& sock,
 										 IServerStorage& storage,
-										 PacketReceiver& receiver,
-										 PacketSender& sender);
+										 PacketHandler& packetHandler);
 
 		/**
 		 * @brief Connects client.
@@ -49,8 +46,7 @@ namespace senc::server
 	private:
 		utils::Socket& _sock;
 		IServerStorage& _storage;
-		PacketReceiver& _receiver;
-		PacketSender& _sender;
+		PacketHandler& _packetHandler;
 
 		enum class Status { Error, Disconnected, Connected };
 

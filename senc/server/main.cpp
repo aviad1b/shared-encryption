@@ -1,6 +1,5 @@
 #include <iostream>
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "ShortTermServerStorage.hpp"
 #include "InteractiveConsole.hpp"
 #include "Server.hpp"
@@ -17,7 +16,7 @@ namespace senc::server
 
 	template <utils::IPType IP>
 	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+					 IServerStorage& storage, PacketHandler& packetHandler,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, InteractiveConsole& console);
@@ -42,8 +41,7 @@ namespace senc::server
 		}
 
 		Schema schema;
-		InlinePacketReceiver receiver;
-		InlinePacketSender sender;
+		EncryptedPacketHandler packetHandler;
 		ShortTermServerStorage storage;
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
@@ -51,13 +49,13 @@ namespace senc::server
 		if (isIPv6)
 			return start_server<utils::IPv6>(
 				port, *console, schema, storage,
-				receiver, sender,
+				packetHandler,
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
 				port, *console, schema, storage,
-				receiver, sender,
+				packetHandler,
 				updateManager, decryptionsManager
 			);
 	}
@@ -121,15 +119,14 @@ namespace senc::server
 	 * @param port Server's listen port.
 	 * @param schema Server's encryption schema instance (by ref).
 	 * @param storage Server's storage instance (by ref).
-	 * @param receiver Server's packet receiver instance (by ref).
-	 * @param sender Server's packet sender instance (by ref).
+	 * @param packetHandler Server's packet handler instance (by ref).
 	 * @param updateManager Server's update manager instance (by ref).
 	 * @param decryptionsManager Server's decryptions manager instance (by ref).
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
 	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
+					 IServerStorage& storage, PacketHandler& packetHandler,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;
@@ -140,8 +137,7 @@ namespace senc::server
 				[&console](const std::string& msg) { console.print("[info] " + msg); },
 				schema,
 				storage,
-				receiver,
-				sender,
+				packetHandler,
 				updateManager,
 				decryptionsManager
 			);
