@@ -9,11 +9,11 @@
 #pragma once
 
 #include "InteractiveConsole.hpp"
-#include "ILogger.hpp"
+#include "Logger.hpp"
 
 namespace senc::server
 {
-	class ConsoleLogger : public ILogger
+	class ConsoleLogger : public Logger
 	{
 	public:
 		using Self = ConsoleLogger;

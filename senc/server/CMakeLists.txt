@@ -17,7 +17,7 @@ add_executable (senc_server
 	"InteractiveConsole.hpp"
 	"InteractiveConsole_windows.cpp"
 	"InteractiveConsole_linux.cpp"
-	"ILogger.hpp"
+	"Logger.hpp"
 	"ConsoleLogger.hpp"
 	"ConsoleLogger.cpp"
 	"IServer.hpp"

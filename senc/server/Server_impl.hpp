@@ -16,7 +16,7 @@ namespace senc::server
 {
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
-							  std::optional<std::reference_wrapper<ILogger>> logger,
+							  std::optional<std::reference_wrapper<Logger>> logger,
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
