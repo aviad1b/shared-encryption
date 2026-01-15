@@ -10,16 +10,18 @@
 
 namespace senc::server
 {
-	ClientHandlerFactory::ClientHandlerFactory(Schema& schema,
+	ClientHandlerFactory::ClientHandlerFactory(Logger& logger,
+											   Schema& schema,
 											   IServerStorage& storage,
 											   UpdateManager& updateManager,
 											   DecryptionsManager& decryptionsManager)
-		: _schema(schema), _storage(storage), _updateManager(updateManager),
+		: _logger(logger), _schema(schema), _storage(storage), _updateManager(updateManager),
 		  _decryptionsManager(decryptionsManager) { }
 
 	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(PacketHandler& packetHandler)
 	{
 		return ConnectingClientHandler(
+			_logger,
 			packetHandler,
 			_storage
 		);
@@ -28,6 +30,7 @@ namespace senc::server
 	ConnectedClientHandler ClientHandlerFactory::make_connected_client_handler(PacketHandler& packetHandler, const std::string& username)
 	{
 		return ConnectedClientHandler(
+			_logger,
 			packetHandler,
 			username,
 			_schema,

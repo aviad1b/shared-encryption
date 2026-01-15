@@ -15,6 +15,7 @@
 #include "DecryptionsManager.hpp"
 #include "UpdateManager.hpp"
 #include "IServerStorage.hpp"
+#include "Logger.hpp"
 
 namespace senc::server
 {
@@ -29,13 +30,15 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new client handler factory.
+		 * @param logger Implementation of `Logger` for logging server messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ClientHandlerFactory(Schema& schema,
+		explicit ClientHandlerFactory(Logger& logger,
+									  Schema& schema,
 									  IServerStorage& storage,
 									  UpdateManager& updateManager,
 									  DecryptionsManager& decryptionsManager);
@@ -55,6 +58,7 @@ namespace senc::server
 		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler, const std::string& username);
 
 	private:
+		Logger& _logger;
 		Schema& _schema;
 		IServerStorage& _storage;
 		UpdateManager& _updateManager;
