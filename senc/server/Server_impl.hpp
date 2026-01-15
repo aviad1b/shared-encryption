@@ -9,8 +9,8 @@
 #include "Server.hpp"
 
 #include <optional>
-#include "ConnectingLogger.hpp"
-#include "ConnectedLogger.hpp"
+#include "ConnectingClientLogger.hpp"
+#include "ConnectedClientLogger.hpp"
 
 namespace senc::server
 {
@@ -116,7 +116,7 @@ namespace senc::server
 		bool connected = false;
 		std::string username;
 
-		ConnectingLogger<IP> logger(_logger, ip, port);
+		ConnectingClientLogger<IP> logger(_logger, ip, port);
 		logger.log_info("Connected.");
 		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
 			packetHandler,
@@ -143,7 +143,7 @@ namespace senc::server
 										utils::Port port,
 										const std::string& username)
 	{
-		ConnectedLogger<IP> logger(_logger, ip, port, username);
+		ConnectedClientLogger<IP> logger(_logger, ip, port, username);
 		auto handler = _clientHandlerFactory.make_connected_client_handler(
 			packetHandler,
 			logger,

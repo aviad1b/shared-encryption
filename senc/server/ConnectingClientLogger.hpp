@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   ConnectingLogger.hpp
- * \brief  Contains ConnectingLogger class.
+ * \file   ConnectingClientLogger.hpp
+ * \brief  Contains ConnectingClientLogger class.
  * 
  * \author aviad1b
  * \date   January 2026, Teveth 5786
@@ -18,10 +18,10 @@ namespace senc::server
 	 * @brief Logger wrapper used for logging info about a connecting client.
 	 */
 	template <utils::IPType IP>
-	class ConnectingLogger : public ILogger
+	class ConnectingClientLogger : public ILogger
 	{
 	public:
-		using Self = ConnectingLogger;
+		using Self = ConnectingClientLogger;
 
 		/**
 		 * @brief Constructs a logger instance for a connecting client.
@@ -29,7 +29,7 @@ namespace senc::server
 		 * @param ip Connecting client's IP address.
 		 * @param port Connecting client's port number.
 		 */
-		ConnectingLogger(ILogger& base, const IP& ip, utils::Port port)
+		ConnectingClientLogger(ILogger& base, const IP& ip, utils::Port port)
 			: _base(base), _ip(ip), _port(port) { }
 
 		void log_info(const std::string& msg) override
