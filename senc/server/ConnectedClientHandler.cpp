@@ -19,13 +19,19 @@ namespace senc::server
 												   DecryptionsManager& decryptionsManager)
 		: _logger(logger), _packetHandler(packetHandler), _username(username),
 		  _schema(schema), _storage(storage),
-		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { (void)_logger; }
+		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
 	void ConnectedClientHandler::loop()
 	{
 		Status status = Status::Connected;
 		while (Status::Connected == status)
-			status = iteration();
+		{
+			try { status = iteration(); }
+			catch (const std::exception& e)
+			{
+				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
+			}
+		}
 	}
 
 	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
