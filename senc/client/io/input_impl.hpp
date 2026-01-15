@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace senc::client
+namespace senc::client::io
 {
 	template <std::string(*elemInput)()>
 	inline std::vector<std::string> input_vec()

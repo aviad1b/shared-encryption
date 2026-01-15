@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "../common/packets.hpp"
-#include "../utils/ModInt.hpp"
+#include "../../common/packets.hpp"
+#include "../../utils/ModInt.hpp"
 
-namespace senc::client
+namespace senc::client::io
 {
 	/**
 	 * @concept senc::client::NumInputable

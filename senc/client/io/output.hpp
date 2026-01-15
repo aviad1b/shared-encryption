@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "../common/aliases.hpp"
+#include "../../common/aliases.hpp"
 
-namespace senc::client
+namespace senc::client::io
 {
 	/**
 	 * @brief Prints public keys.
