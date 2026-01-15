@@ -79,27 +79,6 @@ namespace senc::server
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::log(LogType logType, const std::string& msg)
-	{
-		(void)logType;
-		_logger.log_info(msg);
-	}
-
-	template <utils::IPType IP>
-	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& msg)
-	{
-		(void)logType;
-		_logger.log_info(ip, port, msg);
-	}
-
-	template <utils::IPType IP>
-	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg)
-	{
-		(void)logType;
-		_logger.log_info(ip, port, username, msg);
-	}
-
-	template <utils::IPType IP>
 	inline void Server<IP>::accept_loop()
 	{
 		while (_isRunning)
@@ -112,7 +91,7 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			log(LogType::Info, ip, port, "connected");
+			_logger.log_info(ip, port, "connected");
 
 			std::thread handleClientThread(
 				&Self::handle_new_client, this,
@@ -133,22 +112,22 @@ namespace senc::server
 		try { std::tie(connected, username) = clientHandler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
-			log(LogType::Info, ip, port, std::string("lost connection: ") + e.what() + ".");
+			_logger.log_info(ip, port, std::string("lost connection: ") + e.what() + ".");
 		}
 
 		if (!connected)
-			log(LogType::Info, ip, port, "disconnected.");
+			_logger.log_info(ip, port, "disconnected.");
 		else
 		{
-			log(LogType::Info, ip, port, "logged in as \"" + username + "\".");
+			_logger.log_info(ip, port, "logged in as \"" + username + "\".");
 
 			try { client_loop(*packetHandler, username); }
 			catch (const utils::SocketException& e)
 			{
-				log(LogType::Info, ip, port, username, std::string("lost connection: ") + e.what());
+				_logger.log_info(ip, port, username, std::string("lost connection: ") + e.what());
 			}
 
-			log(LogType::Info, ip, port, username, "disconnected.");
+			_logger.log_info(ip, port, username, "disconnected.");
 		}
 	}
 

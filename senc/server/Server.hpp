@@ -90,31 +90,6 @@ namespace senc::server
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
-		enum class LogType { Info };
-
-		/**
-		 * @brief Outputs server log message.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const std::string& msg);
-
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& msg);
-		
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param username Client username.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg);
-
 		/**
 		 * @brief Accepts new clients in a loop.
 		 */
