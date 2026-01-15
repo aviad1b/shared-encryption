@@ -350,7 +350,7 @@ namespace senc::client
 		}
 
 		if (resp.status == pkt::LoginResponse::Status::BadLogin)
-			cout << "Login failed: Bad username." << endl;
+			cout << "Login failed: Bad username or password." << endl;
 		else
 			cout << "Login failed: Unknown error." << endl;
 
