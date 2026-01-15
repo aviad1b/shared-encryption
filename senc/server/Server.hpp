@@ -106,9 +106,14 @@ namespace senc::server
 		/**
 		 * @brief Handles client requests in a loop.
 		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
 		 * @param username Client's connected username.
 		 */
-		void client_loop(PacketHandler& packetHandler, const std::string& username);
+		void client_loop(PacketHandler& packetHandler,
+						 const IP& ip,
+						 utils::Port port,
+						 const std::string& username);
 	};
 }
 

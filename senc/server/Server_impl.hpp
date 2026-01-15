@@ -9,8 +9,8 @@
 #include "Server.hpp"
 
 #include <optional>
-#include "ConnectingClientHandler.hpp"
-#include "ConnectedClientHandler.hpp"
+#include "ConnectingLogger.hpp"
+#include "ConnectedLogger.hpp"
 
 namespace senc::server
 {
@@ -26,7 +26,7 @@ namespace senc::server
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
-		  _clientHandlerFactory(logger, schema, storage, updateManager, decryptionsManager)
+		  _clientHandlerFactory(schema, storage, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
@@ -91,8 +91,6 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			_logger.log_info(ip, port, "Connected");
-
 			std::thread handleClientThread(
 				&Self::handle_new_client, this,
 				std::move(sock), std::move(ip), port
@@ -105,36 +103,50 @@ namespace senc::server
 	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
 		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
-		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(*packetHandler);
 		bool connected = false;
 		std::string username;
 
-		try { std::tie(connected, username) = clientHandler.connect_client(); }
-		catch (const utils::SocketException& e)
 		{
-			_logger.log_info(ip, port, std::string("Lost connection: ") + e.what() + ".");
-		}
+			ConnectingLogger<IP> logger(_logger, ip, port);
+			logger.log_info("Connected.");
+			auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
+				*packetHandler,
+				logger
+			);
 
-		if (!connected)
-			_logger.log_info(ip, port, "Disconnected.");
-		else
-		{
-			_logger.log_info(ip, port, "Logged in as \"" + username + "\".");
-
-			try { client_loop(*packetHandler, username); }
+			try { std::tie(connected, username) = clientHandler.connect_client(); }
 			catch (const utils::SocketException& e)
 			{
-				_logger.log_info(ip, port, username, std::string("Lost connection: ") + e.what());
+				logger.log_info(std::string("Lost connection: ") + e.what() + ".");
 			}
 
-			_logger.log_info(ip, port, username, "Disconnected.");
+			if (connected)
+				logger.log_info("Logged in as \"" + username + "\".");
+			else
+				logger.log_info("Disconnected.");
 		}
+
+		if (connected)
+			client_loop(*packetHandler, ip, port, username);
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::client_loop(PacketHandler& packetHandler, const std::string& username)
+	inline void Server<IP>::client_loop(PacketHandler& packetHandler,
+										const IP& ip,
+										utils::Port port,
+										const std::string& username)
 	{
-		auto handler = _clientHandlerFactory.make_connected_client_handler(packetHandler, username);
-		handler.loop();
+		ConnectedLogger<IP> logger(_logger, ip, port, username);
+		auto handler = _clientHandlerFactory.make_connected_client_handler(
+			packetHandler,
+			logger,
+			username
+		);
+		try { handler.loop(); }
+		catch (const utils::SocketException& e)
+		{
+			logger.log_info(std::string("Lost connection: ") + e.what());
+		}
+		logger.log_info("Disconnected.");
 	}
 }

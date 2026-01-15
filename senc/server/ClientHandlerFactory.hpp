@@ -30,15 +30,13 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new client handler factory.
-		 * @param logger Implementation of `Logger` for logging server messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ClientHandlerFactory(Logger& logger,
-									  Schema& schema,
+		explicit ClientHandlerFactory(Schema& schema,
 									  IServerStorage& storage,
 									  UpdateManager& updateManager,
 									  DecryptionsManager& decryptionsManager);
@@ -46,19 +44,23 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param logger Implementation of `Logger` for logging server messages about client.
 		 * @return Constructed handler.
 		 */
-		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler);
+		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler,
+															   Logger& logger);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
 		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param logger Implementation of `Logger` for logging server messages about client.
 		 * @param username Connected client's username.
 		 */
-		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler, const std::string& username);
+		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler,
+															 Logger& logger,
+															 const std::string& username);
 
 	private:
-		Logger& _logger;
 		Schema& _schema;
 		IServerStorage& _storage;
 		UpdateManager& _updateManager;

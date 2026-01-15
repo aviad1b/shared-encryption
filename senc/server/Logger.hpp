@@ -23,15 +23,5 @@ namespace senc::server
 		virtual ~Logger() { }
 
 		virtual void log_info(const std::string& msg) = 0;
-
-		void log_info(const utils::IPType auto& ip, utils::Port port, const std::string& msg)
-		{
-			log_info("Client " + ip.as_str() + ":" + std::to_string(port) + ": " + msg);
-		}
-
-		void log_info(const utils::IPType auto& ip, utils::Port port, const std::string& username, const std::string& msg)
-		{
-			log_info("Client " + ip.as_str() + ":" + std::to_string(port) + " (\"" + username + "\"): " + msg);
-		}
 	};
 }

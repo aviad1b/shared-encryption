@@ -45,5 +45,6 @@ namespace senc::server
 		Logger& _base;
 		const IP& _ip;
 		utils::Port _port;
+		const std::string _username;
 	};
 }
