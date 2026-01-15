@@ -22,30 +22,35 @@ namespace senc::server
 		Status status{};
 		do
 		{
-			// connection request: Should be signup, login or logout (to disconnect)
-			auto connReq = _packetHandler.recv_request<
+			std::tie(status, username) = iteration();
+		} while (Status::Error == status);
+
+		return { Status::Connected == status, username };
+	}
+
+	std::tuple<ConnectingClientHandler::Status, std::string> ConnectingClientHandler::iteration()
+	{
+		// connection request: Should be signup, login or logout (to disconnect)
+		auto connReq = _packetHandler.recv_request<
+			pkt::SignupRequest,
+			pkt::LoginRequest,
+			pkt::LogoutRequest
+		>();
+		while (!connReq.has_value())
+		{
+			_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
+			connReq = _packetHandler.recv_request<
 				pkt::SignupRequest,
 				pkt::LoginRequest,
 				pkt::LogoutRequest
 			>();
-			while (!connReq.has_value())
-			{
-				_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
-				connReq = _packetHandler.recv_request<
-					pkt::SignupRequest,
-					pkt::LoginRequest,
-					pkt::LogoutRequest
-				>();
-			}
+		}
 
-			// call fitting client_loop implementation based on connection request
-			std::tie(status, username) = std::visit(
-				[this](const auto& req) { return handle_request(req); },
-				*connReq
-			);
-		} while (Status::Error == status);
-
-		return { Status::Connected == status, username };
+		// call fitting client_loop implementation based on connection request
+		return std::visit(
+			[this](const auto& req) { return handle_request(req); },
+			*connReq
+		);
 	}
 
 	std::tuple<ConnectingClientHandler::Status, std::string>
