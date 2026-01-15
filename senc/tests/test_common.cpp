@@ -11,52 +11,62 @@
 #include <memory>
 #include "tests_utils.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
+#include "../common/PacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
 
 namespace pkt = senc::pkt;
+using senc::PacketHandlerImplFactory;
 using senc::EncryptedPacketHandler;
+using senc::PacketHandlerFactory;
 using senc::InlinePacketHandler;
 using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-using PacketHandlerFactory = std::function<std::unique_ptr<PacketHandler>()>;
-
 class PacketsTest : public testing::TestWithParam<PacketHandlerFactory>
 {
 protected:
-	std::unique_ptr<PacketHandler> packetHandler;
+	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
 	std::unique_ptr<Socket> client, server;
 
 	void SetUp() override
 	{
+		auto& packetHandlerFactory = GetParam();
 		auto [client, server] = prepare_tcp();
 		this->client = std::make_unique<decltype(client)>(std::move(client));
 		this->server = std::make_unique<decltype(server)>(std::move(server));
-		packetHandler = GetParam()();
-		std::thread t([this]() { this->packetHandler->establish_connection_server_side(*this->server); });
-		packetHandler->establish_connection_client_side(*this->client);
-		t.join();
+		std::tie(clientPacketHandler, serverPacketHandler) =
+			prepare_for_sockets<std::unique_ptr<PacketHandler>>(
+				*this->client, [&packetHandlerFactory](Socket& sock)
+				{
+					return packetHandlerFactory.new_client_packet_handler(sock);
+				},
+				*this->server, [&packetHandlerFactory](Socket& sock)
+				{
+					return packetHandlerFactory.new_server_packet_handler(sock);
+				}
+			);
 	}
 	
 	void TearDown() override
 	{
 		client.reset();
 		server.reset();
-		packetHandler.reset();
+		clientPacketHandler.reset();
+		serverPacketHandler.reset();
 	}
 
 public:
 	template <typename Request, typename Response>
 	void cycle_flow(const Request& req, const Response& resp)
 	{
-		packetHandler->send_request(*client, req);
-		auto reqGot = packetHandler->recv_request<Request>(*server);
+		clientPacketHandler->send_request(req);
+		auto reqGot = serverPacketHandler->recv_request<Request>();
 		EXPECT_TRUE(reqGot.has_value());
 		EXPECT_EQ(reqGot.value(), req);
 
-		packetHandler->send_response(*server, resp);
-		auto respGot = packetHandler->recv_response<Response>(*client);
+		serverPacketHandler->send_response(resp);
+		auto respGot = clientPacketHandler->recv_response<Response>();
 		EXPECT_TRUE(respGot.has_value());
 		EXPECT_EQ(respGot.value(), resp);
 	}
@@ -341,33 +351,33 @@ TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 	pkt::ErrorResponse errResp{ "Some error message" };
 	pkt::LogoutResponse logoutResp{};
 
-	packetHandler->send_request(client, req);
-	auto reqGot1 = packetHandler->recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot1 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_EQ(reqGot1.value(), req);
 
-	packetHandler->send_response(server, errResp);
-	auto respGot1 = packetHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(errResp);
+	auto respGot1 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_TRUE(respGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::ErrorResponse>(*respGot1));
 	EXPECT_EQ(std::get<pkt::ErrorResponse>(*respGot1), errResp);
 
-	packetHandler->send_request(client, req);
-	auto reqGot2 = packetHandler->recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot2 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_EQ(reqGot2.value(), req);
 
-	packetHandler->send_response(server, logoutResp);
-	auto respGot2 = packetHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(logoutResp);
+	auto respGot2 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_FALSE(respGot2.has_value());
 
-	packetHandler->send_request(client, req);
-	auto reqGot3 = packetHandler->recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot3 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot3.has_value());
 	EXPECT_EQ(reqGot3.value(), req);
 
-	packetHandler->send_response(server, loginResp);
-	auto respGot3 = packetHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(loginResp);
+	auto respGot3 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_TRUE(respGot3.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
 	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
@@ -381,20 +391,20 @@ TEST_P(PacketsTest, TestRequestVariant)
 	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
 
-	packetHandler->send_request(client, signupReq);
-	auto reqGot1 = packetHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(signupReq);
+	auto reqGot1 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::SignupRequest>(*reqGot1));
 	EXPECT_EQ(std::get<pkt::SignupRequest>(*reqGot1), signupReq);
 
-	packetHandler->send_request(client, loginReq);
-	auto reqGot2 = packetHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(loginReq);
+	auto reqGot2 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginRequest>(*reqGot2));
 	EXPECT_EQ(std::get<pkt::LoginRequest>(*reqGot2), loginReq);
 
-	packetHandler->send_request(client, logoutReq);
-	auto reqGot3 = packetHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(logoutReq);
+	auto reqGot3 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_FALSE(reqGot3.has_value());
 }
 
@@ -402,7 +412,7 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
-		std::make_unique<InlinePacketHandler>,
-		std::make_unique<EncryptedPacketHandler>
+		PacketHandlerImplFactory<InlinePacketHandler>{},
+		PacketHandlerImplFactory<EncryptedPacketHandler>{}
 	)
 );

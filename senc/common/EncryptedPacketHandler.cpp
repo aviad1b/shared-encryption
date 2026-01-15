@@ -12,107 +12,112 @@
 
 namespace senc
 {
-	EncryptedPacketHandler::EncryptedPacketHandler()
-		: _powDist(utils::Random<utils::BigInt>::get_dist_below(Group::order())) { }
-	
-	std::pair<bool, std::string> EncryptedPacketHandler::establish_connection_client_side(utils::Socket& sock)
+	utils::Distribution<utils::BigInt> EncryptedPacketHandler::_powDist(
+		utils::Random<utils::BigInt>::get_dist_below(Group::order())
+	);
+
+	EncryptedPacketHandler::Self EncryptedPacketHandler::server(utils::Socket& sock)
 	{
+		Self res(sock);
+
+		// receive & check protocol version
+		auto protocolVersion = res._sock.recv_connected_primitive<std::uint8_t>();
+		if (protocolVersion != pkt::PROTOCOL_VERSION)
+		{
+			res._sock.send_connected_primitive(false); // bad protocol version
+			throw ConnEstablishException("Bad protocol version");
+		}
+		res._sock.send_connected_primitive(true); // protocol version OK
+
+		try
+		{
+			// receive gx for key exchange
+			Group gx{};
+			SockUtils::recv_ecgroup_elem(res._sock, gx);
+
+			// sample y and send gy for key exchange
+			const utils::BigInt y = _powDist();
+			const Group gy = Group::generator().pow(y);
+			SockUtils::send_ecgroup_elem(res._sock, gy);
+
+			// compute g^xy and dereive key
+			gx *= gy;
+			res._key = res._kdf(gx);
+		}
+		catch (const std::exception& e)
+		{
+			throw ConnEstablishException(std::string("Failed to exchange key: ") + e.what());
+		}
+
+		return res;
+	}
+
+	EncryptedPacketHandler::Self EncryptedPacketHandler::client(utils::Socket& sock)
+	{
+		Self res(sock);
+
 		// send protocol version
-		sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
+		res._sock.send_connected_primitive(pkt::PROTOCOL_VERSION);
 
 		// receive flag indicating whether protocol version is OK
-		const bool isProtocolVersoinOK = sock.recv_connected_primitive<bool>();
+		const bool isProtocolVersoinOK = res._sock.recv_connected_primitive<bool>();
 		if (!isProtocolVersoinOK)
-			return { false, "Bad protocol version" };
+			throw ConnEstablishException("Bad protocol version");
 
 		try
 		{
 			// sample x and send g^x for key exchange
 			const utils::BigInt x = _powDist();
 			const Group gx = Group::generator().pow(x);
-			SockUtils::send_ecgroup_elem(sock, gx);
+			SockUtils::send_ecgroup_elem(res._sock, gx);
 
 			// receive gy for key exchange
 			Group gy{};
-			SockUtils::recv_ecgroup_elem(sock, gy);
+			SockUtils::recv_ecgroup_elem(res._sock, gy);
 
 			// compute g^xy and dereive key
 			gy *= gx;
-			_key = _kdf(gy);
+			res._key = res._kdf(gy);
 		}
 		catch (const std::exception& e)
 		{
-			return { false, std::string("Failed to exchange key: ") + e.what() };
+			throw ConnEstablishException(std::string("Failed to exchange key: ") + e.what());
 		}
 
-		return { true, "" }; // success
+		return res;
 	}
 
-	std::pair<bool, std::string> EncryptedPacketHandler::establish_connection_server_side(utils::Socket& sock)
-	{
-		// receive & check protocol version
-		auto protocolVersion = sock.recv_connected_primitive<std::uint8_t>();
-		if (protocolVersion != pkt::PROTOCOL_VERSION)
-		{
-			sock.send_connected_primitive(false); // bad protocol version
-			return { false, "Bad protocol version" };
-		}
-		sock.send_connected_primitive(true); // protocol version OK
-
-		try
-		{
-			// receive gx for key exchange
-			Group gx{};
-			SockUtils::recv_ecgroup_elem(sock, gx);
-
-			// sample y and send gy for key exchange
-			const utils::BigInt y = _powDist();
-			const Group gy = Group::generator().pow(y);
-			SockUtils::send_ecgroup_elem(sock, gy);
-
-			// compute g^xy and dereive key
-			gx *= gy;
-			_key = _kdf(gx);
-		}
-		catch (const std::exception& e)
-		{
-			return { false, std::string("Failed to exchange key: ") + e.what() };
-		}
-
-		return { true, "" }; // success
-	}
-
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
 	{
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.msg);
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::ErrorResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.msg, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::SignupRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.username);
 		utils::write_bytes(data, packet.password);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::SignupRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::SignupRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -120,38 +125,38 @@ namespace senc
 		it = utils::read_bytes(out.password, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::SignupResponse& packet)
 	{
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.status);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::SignupResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::SignupResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::LoginRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.username);
 		utils::write_bytes(data, packet.password);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::LoginRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::LoginRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -159,49 +164,45 @@ namespace senc
 		it = utils::read_bytes(out.password, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::LoginResponse& packet)
 	{
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.status);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::LoginResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::LoginResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::LogoutRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::LogoutRequest& packet)
 	{
-		(void)sock;
 		(void)packet;
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::LogoutRequest& out)
 	{
-		(void)sock;
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::LogoutResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::LogoutResponse& packet)
 	{
-		(void)sock;
 		(void)packet;
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::LogoutResponse& out)
 	{
-		(void)sock;
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::MakeUserSetRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::MakeUserSetRequest& packet)
 	{
 		utils::Buffer data{};
 
@@ -214,13 +215,13 @@ namespace senc
 		for (const auto& regMember : packet.reg_members)
 			utils::write_bytes(data, regMember);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -242,7 +243,7 @@ namespace senc
 			it = utils::read_bytes(regMember, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::MakeUserSetResponse& packet)
 	{
 		utils::Buffer data{};
 
@@ -252,13 +253,13 @@ namespace senc
 		write_priv_key_shard(data, packet.reg_layer_priv_key_shard);
 		write_priv_key_shard(data, packet.owner_layer_priv_key_shard);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -269,19 +270,17 @@ namespace senc
 		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::GetUserSetsRequest& packet)
 	{
-		(void)sock;
 		(void)packet;
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
 	{
-		(void)sock;
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::GetUserSetsResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::GetUserSetsResponse& packet)
 	{
 		utils::Buffer data{};
 
@@ -289,13 +288,13 @@ namespace senc
 		for (const auto& userSetID : packet.user_sets_ids)
 			utils::write_bytes(data, userSetID);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -306,26 +305,26 @@ namespace senc
 			it = utils::read_bytes(userSetID, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::GetMembersRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::GetMembersRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.user_set_id);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::GetMembersRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::GetMembersRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::GetMembersResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::GetMembersResponse& packet)
 	{
 		utils::Buffer data{};
 
@@ -336,13 +335,13 @@ namespace senc
 		for (const auto& reg_member : packet.reg_members)
 			utils::write_bytes(data, reg_member);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::GetMembersResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::GetMembersResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -361,20 +360,20 @@ namespace senc
 			it = utils::read_bytes(regMember, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::DecryptRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::DecryptRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.user_set_id);
 		write_ciphertext(data, packet.ciphertext);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::DecryptRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -382,38 +381,36 @@ namespace senc
 		it = read_ciphertext(out.ciphertext, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::DecryptResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::DecryptResponse& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::DecryptResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::DecryptResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::UpdateRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::UpdateRequest& packet)
 	{
-		(void)sock;
 		(void)packet;
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::UpdateRequest& out)
 	{
-		(void)sock;
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::UpdateResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::UpdateResponse& packet)
 	{
 		utils::Buffer data{};
 
@@ -444,13 +441,13 @@ namespace senc
 		for (const auto& record : packet.finished_decryptions)
 			write_update_record(data, record);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::UpdateResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -499,58 +496,58 @@ namespace senc
 			it = read_update_record(record, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::DecryptParticipateRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::DecryptParticipateRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::DecryptParticipateRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::DecryptParticipateResponse& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.status);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::DecryptParticipateResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::DecryptParticipateResponse& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet)
+	void EncryptedPacketHandler::send_request_data(const pkt::SendDecryptionPartRequest& packet)
 	{
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
 		write_decryption_part(data, packet.decryption_part);
 
-		send_encrypted_data(sock, data);
+		send_encrypted_data(data);
 	}
 
-	void EncryptedPacketHandler::recv_request_data(utils::Socket& sock, pkt::SendDecryptionPartRequest& out)
+	void EncryptedPacketHandler::recv_request_data(pkt::SendDecryptionPartRequest& out)
 	{
 		utils::Buffer data{};
-		recv_encrypted_data(sock, data);
+		recv_encrypted_data(data);
 		const auto end = data.end();
 		auto it = data.begin();
 
@@ -558,41 +555,42 @@ namespace senc
 		it = read_decryption_part(out.decryption_part, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet)
+	void EncryptedPacketHandler::send_response_data(const pkt::SendDecryptionPartResponse& packet)
 	{
-		(void)sock;
 		(void)packet;
 	}
 
-	void EncryptedPacketHandler::recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out)
+	void EncryptedPacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
 	{
-		(void)sock;
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_encrypted_data(utils::Socket& sock, const utils::Buffer& data)
+	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
+		: Base(sock) { }
+
+	void EncryptedPacketHandler::send_encrypted_data(const utils::Buffer& data)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
 		const auto& [c1, c2] = encryptedData;
-		sock.send_connected_primitive(static_cast<std::uint64_t>(c1.size()));
-		sock.send_connected_primitive(static_cast<std::uint64_t>(c2.size()));
-		sock.send_connected(c1);
-		sock.send_connected(c2);
+		_sock.send_connected_primitive(static_cast<std::uint64_t>(c1.size()));
+		_sock.send_connected_primitive(static_cast<std::uint64_t>(c2.size()));
+		_sock.send_connected(c1);
+		_sock.send_connected(c2);
 	}
 
-	void EncryptedPacketHandler::recv_encrypted_data(utils::Socket& sock, utils::Buffer& out)
+	void EncryptedPacketHandler::recv_encrypted_data(utils::Buffer& out)
 	{
 		utils::enc::Ciphertext<Schema> encryptedData{};
 		auto& [c1, c2] = encryptedData;
 
-		const auto c1Size = sock.recv_connected_primitive<std::uint64_t>();
+		const auto c1Size = _sock.recv_connected_primitive<std::uint64_t>();
 		c1.resize(c1Size);
 
-		const auto c2Size = sock.recv_connected_primitive<std::uint64_t>();
+		const auto c2Size = _sock.recv_connected_primitive<std::uint64_t>();
 		c2.resize(c2Size);
 
-		sock.recv_connected_exact_into(c1);
-		sock.recv_connected_exact_into(c2);
+		_sock.recv_connected_exact_into(c1);
+		_sock.recv_connected_exact_into(c2);
 
 		out = _schema.decrypt(encryptedData, _key);
 	}

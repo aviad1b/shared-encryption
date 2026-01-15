@@ -10,17 +10,12 @@
 
 namespace senc::server
 {
-	ConnectingClientHandler::ConnectingClientHandler(utils::Socket& sock,
-													 IServerStorage& storage,
-													 PacketHandler& packetHandler)
-		: _sock(sock), _storage(storage), _packetHandler(packetHandler) { }
+	ConnectingClientHandler::ConnectingClientHandler(PacketHandler& packetHandler,
+													 IServerStorage& storage)
+		: _packetHandler(packetHandler), _storage(storage) { }
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
-		const bool validConn = _packetHandler.establish_connection_server_side(_sock).first;
-		if (!validConn)
-			return { false, "" };
-
 		// run login/signup loop
 		std::string username;
 		Status status{};
@@ -31,15 +26,15 @@ namespace senc::server
 				pkt::SignupRequest,
 				pkt::LoginRequest,
 				pkt::LogoutRequest
-			>(_sock);
+			>();
 			while (!connReq.has_value())
 			{
-				_packetHandler.send_response(_sock, pkt::ErrorResponse{ "Bad request" });
+				_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
 				connReq = _packetHandler.recv_request<
 					pkt::SignupRequest,
 					pkt::LoginRequest,
 					pkt::LogoutRequest
-				>(_sock);
+				>();
 			}
 
 			// call fitting client_loop implementation based on connection request
@@ -58,16 +53,16 @@ namespace senc::server
 		try { _storage.new_user(signup.username, signup.password); }
 		catch (const UserExistsException&)
 		{
-			_packetHandler.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
+			_packetHandler.send_response(pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
 			return { Status::Error, "" };
 		}
 		catch (const ServerException& e)
 		{
-			_packetHandler.send_response(_sock, pkt::ErrorResponse{ e.what() });
+			_packetHandler.send_response(pkt::ErrorResponse{ e.what() });
 			return { Status::Error, "" };
 		}
 
-		_packetHandler.send_response(_sock, pkt::SignupResponse{ pkt::SignupResponse::Status::Success });
+		_packetHandler.send_response(pkt::SignupResponse{ pkt::SignupResponse::Status::Success });
 		return { Status::Connected, signup.username };
 	}
 
@@ -76,11 +71,11 @@ namespace senc::server
 	{
 		if (!_storage.user_has_password(login.username, login.password))
 		{
-			_packetHandler.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::BadLogin });
+			_packetHandler.send_response(pkt::LoginResponse{ pkt::LoginResponse::Status::BadLogin });
 			return { Status::Error, "" };
 		}
 
-		_packetHandler.send_response(_sock, pkt::LoginResponse{ pkt::LoginResponse::Status::Success });
+		_packetHandler.send_response(pkt::LoginResponse{ pkt::LoginResponse::Status::Success });
 		return { Status::Connected, login.username }; // handled, connected
 	}
 
@@ -88,7 +83,7 @@ namespace senc::server
 		ConnectingClientHandler::handle_request(const pkt::LogoutRequest logout)
 	{
 		(void)logout;
-		_packetHandler.send_response(_sock, pkt::LogoutResponse{});
+		_packetHandler.send_response(pkt::LogoutResponse{});
 		return { Status::Disconnected, "" };
 	}
 }

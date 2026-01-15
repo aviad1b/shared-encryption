@@ -28,20 +28,18 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
-		 * @param sock Socket connected to client.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Connected client's username.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(utils::Socket& sock,
+		explicit ConnectedClientHandler(PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
 										IServerStorage& storage,
-										PacketHandler& packetHandler,
 										UpdateManager& updateManager,
 										DecryptionsManager& decryptionsManager);
 
@@ -51,11 +49,10 @@ namespace senc::server
 		void loop();
 
 	private:
-		utils::Socket& _sock;
+		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;
 		IServerStorage& _storage;
-		PacketHandler& _packetHandler;
 		UpdateManager& _updateManager;
 		DecryptionsManager& _decryptionsManager;
 

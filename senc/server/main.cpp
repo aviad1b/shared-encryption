@@ -16,7 +16,7 @@ namespace senc::server
 
 	template <utils::IPType IP>
 	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandler& packetHandler,
+					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, InteractiveConsole& console);
@@ -41,7 +41,7 @@ namespace senc::server
 		}
 
 		Schema schema;
-		EncryptedPacketHandler packetHandler;
+		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
 		ShortTermServerStorage storage;
 		UpdateManager updateManager;
 		DecryptionsManager decryptionsManager;
@@ -49,13 +49,13 @@ namespace senc::server
 		if (isIPv6)
 			return start_server<utils::IPv6>(
 				port, *console, schema, storage,
-				packetHandler,
+				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
 				port, *console, schema, storage,
-				packetHandler,
+				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
 	}
@@ -119,14 +119,14 @@ namespace senc::server
 	 * @param port Server's listen port.
 	 * @param schema Server's encryption schema instance (by ref).
 	 * @param storage Server's storage instance (by ref).
-	 * @param packetHandler Server's packet handler instance (by ref).
+	 * @param packetHandlerFactory Factory used for constructing packet handlers (by ref).
 	 * @param updateManager Server's update manager instance (by ref).
 	 * @param decryptionsManager Server's decryptions manager instance (by ref).
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
 	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandler& packetHandler,
+					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;
@@ -137,7 +137,7 @@ namespace senc::server
 				[&console](const std::string& msg) { console.print("[info] " + msg); },
 				schema,
 				storage,
-				packetHandler,
+				packetHandlerFactory,
 				updateManager,
 				decryptionsManager
 			);

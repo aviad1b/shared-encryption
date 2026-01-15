@@ -11,6 +11,7 @@
 #include "../utils/variants.hpp"
 #include "../utils/Socket.hpp"
 #include "packets.hpp"
+#include <concepts>
 
 namespace senc
 {
@@ -25,34 +26,17 @@ namespace senc
 
 		virtual ~PacketHandler() { }
 
-		/**
-		 * @brief Establishes connection on client side.
-		 * @param sock Client socket.
-		 * @return `true` if connection established successfully, otherwise `false`.
-		 *		   If failed, returns error message as well.
-		 */
-		virtual std::pair<bool, std::string> establish_connection_client_side
-		(utils::Socket& sock) = 0;
-		
-		/**
-		 * @brief Establishes connection on server side.
-		 * @param sock Server socket.
-		 * @return `true` if connection established successfully, otherwise `false`.
-		 *		   If failed, returns error message as well.
-		 */
-		virtual std::pair<bool, std::string> establish_connection_server_side
-		(utils::Socket& sock) = 0;
+		PacketHandler(Self&&) = default;
 
 		/**
 		 * @brief Sends given request with fitting code.
-		 * @param sock Socket to send through.
 		 * @param packet Packet to send.
 		 */
 		template <typename T>
-		inline void send_request(utils::Socket& sock, const T& packet)
+		inline void send_request(const T& packet)
 		{
-			sock.send_connected_primitive(T::CODE);
-			send_request_data(sock, packet);
+			_sock.send_connected_primitive(T::CODE);
+			send_request_data(packet);
 		}
 
 		/**
@@ -62,21 +46,20 @@ namespace senc
 		 * @note Assuming any valid packet was sent, `sock` is guarenteed to be clear after call.
 		 */
 		template <typename... Ts>
-		inline std::optional<utils::VariantOrSingular<Ts...>> recv_request(utils::Socket& sock)
+		inline std::optional<utils::VariantOrSingular<Ts...>> recv_request()
 		{
-			return recv_packet<PacketKind::Request, Ts...>(sock);
+			return recv_packet<PacketKind::Request, Ts...>();
 		}
 
 		/**
 		 * @brief Sends given response with fitting code.
-		 * @param sock Socket to send through.
 		 * @param packet Packet to send.
 		 */
 		template <typename T>
-		inline void send_response(utils::Socket& sock, const T& packet)
+		inline void send_response(const T& packet)
 		{
-			sock.send_connected_primitive(T::CODE);
-			send_response_data(sock, packet);
+			_sock.send_connected_primitive(T::CODE);
+			send_response_data(packet);
 		}
 
 		/**
@@ -86,73 +69,78 @@ namespace senc
 		 * @note Assuming any valid packet was sent, `sock` is guarenteed to be clear after call.
 		 */
 		template <typename... Ts>
-		inline std::optional<utils::VariantOrSingular<Ts...>> recv_response(utils::Socket& sock)
+		inline std::optional<utils::VariantOrSingular<Ts...>> recv_response()
 		{
-			return recv_packet<PacketKind::Response, Ts...>(sock);
+			return recv_packet<PacketKind::Response, Ts...>();
 		}
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) = 0;
+		virtual void send_response_data(const pkt::ErrorResponse& packet) = 0;
+		virtual void recv_response_data(pkt::ErrorResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::SignupRequest& out) = 0;
+		virtual void send_request_data(const pkt::SignupRequest& packet) = 0;
+		virtual void recv_request_data(pkt::SignupRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::SignupResponse& out) = 0;
+		virtual void send_response_data(const pkt::SignupResponse& packet) = 0;
+		virtual void recv_response_data(pkt::SignupResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::LoginRequest& out) = 0;
+		virtual void send_request_data(const pkt::LoginRequest& packet) = 0;
+		virtual void recv_request_data(pkt::LoginRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::LoginResponse& out) = 0;
+		virtual void send_response_data(const pkt::LoginResponse& packet) = 0;
+		virtual void recv_response_data(pkt::LoginResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::LogoutRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out) = 0;
+		virtual void send_request_data(const pkt::LogoutRequest& packet) = 0;
+		virtual void recv_request_data(pkt::LogoutRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::LogoutResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out) = 0;
+		virtual void send_response_data(const pkt::LogoutResponse& packet) = 0;
+		virtual void recv_response_data(pkt::LogoutResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::MakeUserSetRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out) = 0;
+		virtual void send_request_data(const pkt::MakeUserSetRequest& packet) = 0;
+		virtual void recv_request_data(pkt::MakeUserSetRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out) = 0;
+		virtual void send_response_data(const pkt::MakeUserSetResponse& packet) = 0;
+		virtual void recv_response_data(pkt::MakeUserSetResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out) = 0;
+		virtual void send_request_data(const pkt::GetUserSetsRequest& packet) = 0;
+		virtual void recv_request_data(pkt::GetUserSetsRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::GetUserSetsResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out) = 0;
+		virtual void send_response_data(const pkt::GetUserSetsResponse& packet) = 0;
+		virtual void recv_response_data(pkt::GetUserSetsResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::GetMembersRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::GetMembersRequest& out) = 0;
+		virtual void send_request_data(const pkt::GetMembersRequest& packet) = 0;
+		virtual void recv_request_data(pkt::GetMembersRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::GetMembersResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::GetMembersResponse& out) = 0;
+		virtual void send_response_data(const pkt::GetMembersResponse& packet) = 0;
+		virtual void recv_response_data(pkt::GetMembersResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::DecryptRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptRequest& out) = 0;
+		virtual void send_request_data(const pkt::DecryptRequest& packet) = 0;
+		virtual void recv_request_data(pkt::DecryptRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::DecryptResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptResponse& out) = 0;
+		virtual void send_response_data(const pkt::DecryptResponse& packet) = 0;
+		virtual void recv_response_data(pkt::DecryptResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::UpdateRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out) = 0;
+		virtual void send_request_data(const pkt::UpdateRequest& packet) = 0;
+		virtual void recv_request_data(pkt::UpdateRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::UpdateResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out) = 0;
+		virtual void send_response_data(const pkt::UpdateResponse& packet) = 0;
+		virtual void recv_response_data(pkt::UpdateResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::DecryptParticipateRequest& out) = 0;
+		virtual void send_request_data(const pkt::DecryptParticipateRequest& packet) = 0;
+		virtual void recv_request_data(pkt::DecryptParticipateRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::DecryptParticipateResponse& out) = 0;
+		virtual void send_response_data(const pkt::DecryptParticipateResponse& packet) = 0;
+		virtual void recv_response_data(pkt::DecryptParticipateResponse& out) = 0;
 
-		virtual void send_request_data(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet) = 0;
-		virtual void recv_request_data(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) = 0;
+		virtual void send_request_data(const pkt::SendDecryptionPartRequest& packet) = 0;
+		virtual void recv_request_data(pkt::SendDecryptionPartRequest& out) = 0;
 
-		virtual void send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) = 0;
-		virtual void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) = 0;
+		virtual void send_response_data(const pkt::SendDecryptionPartResponse& packet) = 0;
+		virtual void recv_response_data(pkt::SendDecryptionPartResponse& out) = 0;
+
+	protected:
+		utils::Socket& _sock;
+
+		PacketHandler(utils::Socket& sock) : _sock(sock) { }
 
 	private:
 		/**
@@ -169,13 +157,13 @@ namespace senc
 		 * @note Assumes valid input.
 		 */
 		template <PacketKind kind, typename T>
-		inline T recv_packet_data(utils::Socket& sock)
+		inline T recv_packet_data()
 		{
 			T ret{};
 			if constexpr (PacketKind::Request == kind)
-				recv_request_data(sock, ret);
+				recv_request_data(ret);
 			else
-				recv_response_data(sock, ret);
+				recv_response_data(ret);
 			return ret;
 		}
 
@@ -187,17 +175,17 @@ namespace senc
 		 * @note Assuming any valid packet was sent, `sock` is guarenteed to be clear after call.
 		 */
 		template <PacketKind kind, typename... Ts>
-		inline std::optional<utils::VariantOrSingular<Ts...>> recv_packet(utils::Socket& sock)
+		inline std::optional<utils::VariantOrSingular<Ts...>> recv_packet()
 		{
 			std::optional<utils::VariantOrSingular<Ts...>> ret;
-			const auto code = sock.recv_connected_primitive<pkt::Code>();
+			const auto code = _sock.recv_connected_primitive<pkt::Code>();
 
 			// for every type in Ts, check if its `CODE` is `code`, if so, set ret:
-			([this, &sock, &ret, code]
+			([this, &ret, code]
 			{
 				if (!ret.has_value() && Ts::CODE == code) // only check code if didn't get packet already
 				{
-					ret.emplace(recv_packet_data<kind, Ts>(sock));
+					ret.emplace(this->recv_packet_data<kind, Ts>());
 					return true;
 				}
 				return false;
@@ -206,4 +194,18 @@ namespace senc
 			return ret;
 		}
 	};
+
+	/**
+	 * @concept senc::PacketHandlerImpl
+	 * @brief Looks for a typename which implements `PacketHandler` for both client and server side.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept PacketHandlerImpl = std::derived_from<Self, PacketHandler> &&
+		std::move_constructible<Self> &&
+		requires(utils::Socket& sock)
+		{
+			{ Self::server(sock) } -> std::same_as<Self>;
+			{ Self::client(sock) } -> std::same_as<Self>;
+		};
 }

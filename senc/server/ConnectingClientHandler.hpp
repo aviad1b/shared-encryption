@@ -27,14 +27,12 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
-		 * @param sock Socket connected to client.
-		 * @param storage Implementation of `IServerStorage`.
 		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(utils::Socket& sock,
-										 IServerStorage& storage,
-										 PacketHandler& packetHandler);
+		explicit ConnectingClientHandler(PacketHandler& packetHandler,
+										 IServerStorage& storage);
 
 		/**
 		 * @brief Connects client.
@@ -44,9 +42,8 @@ namespace senc::server
 		std::tuple<bool, std::string> connect_client();
 
 	private:
-		utils::Socket& _sock;
-		IServerStorage& _storage;
 		PacketHandler& _packetHandler;
+		IServerStorage& _storage;
 
 		enum class Status { Error, Disconnected, Connected };
 

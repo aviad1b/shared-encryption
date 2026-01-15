@@ -68,6 +68,28 @@ std::tuple<senc::utils::TcpSocket<IP>, senc::utils::TcpSocket<IP>> prepare_tcp()
 }
 
 /**
+ * @brief Prepares objects using socket-based factories for client and server.
+ */
+template <typename T>
+std::tuple<T, T> prepare_for_sockets(
+	senc::utils::Socket& client, std::function<T(senc::utils::Socket&)> factoryForClient,
+	senc::utils::Socket& server, std::function<T(senc::utils::Socket&)> factoryForServer)
+{
+	std::promise<T> p;
+	std::future<T> f = p.get_future();
+
+	std::jthread t(
+		[&p, &server, &factoryForServer]()
+		{
+			try { p.set_value(factoryForServer(server)); }
+			catch (...) { p.set_exception(std::current_exception()); }
+		}
+	);
+
+	return { factoryForClient(client), f.get() };
+}
+
+/**
  * @brief Makes new server, given all args except for port.
  */
 template <senc::utils::IPType IP>
