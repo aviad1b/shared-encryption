@@ -15,8 +15,11 @@
 namespace senc::server
 {
 	template <utils::IPType IP>
+	DummyLogger Server<IP>::_dummyLogger;
+
+	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
-							  std::optional<std::reference_wrapper<Logger>> logger,
+							  Logger& logger,
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
@@ -35,7 +38,7 @@ namespace senc::server
 							  PacketHandlerFactory& packetHandlerFactory,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
-		: Self(listenPort, std::nullopt, schema, storage,
+		: Self(listenPort, _dummyLogger, schema, storage,
 			   packetHandlerFactory, updateManager, decryptionsManager) { }
 
 	template <utils::IPType IP>
@@ -79,24 +82,21 @@ namespace senc::server
 	inline void Server<IP>::log(LogType logType, const std::string& msg)
 	{
 		(void)logType;
-		if (_logger.has_value())
-			_logger->get().log_info(msg);
+		_logger.log_info(msg);
 	}
 
 	template <utils::IPType IP>
 	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& msg)
 	{
 		(void)logType;
-		if (_logger.has_value())
-			_logger->get().log_info(ip, port, msg);
+		_logger.log_info(ip, port, msg);
 	}
 
 	template <utils::IPType IP>
 	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg)
 	{
 		(void)logType;
-		if (_logger.has_value())
-			_logger->get().log_info(ip, port, username, msg);
+		_logger.log_info(ip, port, username, msg);
 	}
 
 	template <utils::IPType IP>
