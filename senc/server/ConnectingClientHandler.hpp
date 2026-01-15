@@ -52,6 +52,12 @@ namespace senc::server
 		enum class Status { Error, Disconnected, Connected };
 
 		/**
+		 * @brief Runs a single iteration of client conenction loop.
+		 * @return Status, and username (if succeeded).
+		 */
+		std::tuple<Status, std::string> iteration();
+
+		/**
 		 * @brief Handles signup request.
 		 * @param signup Request to handle.
 		 * @return Connection handle status and client's user name (if connected).

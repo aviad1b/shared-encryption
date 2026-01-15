@@ -40,6 +40,13 @@ namespace senc::server
 			);
 		}
 
+		void log_error(const std::string& msg) override
+		{
+			_base.log_error(
+				"Client " + _ip.as_str() + ":" + std::to_string(_port) + " (\"" + _username + "\"): " + msg
+			);
+		}
+
 	private:
 		ILogger& _base;
 		const IP& _ip;

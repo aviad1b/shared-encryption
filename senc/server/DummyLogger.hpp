@@ -18,5 +18,7 @@ namespace senc::server
 		using Self = DummyLogger;
 
 		void log_info(const std::string& msg) override { (void)msg; }
+		
+		void log_error(const std::string& msg) override { (void)msg; }
 	};
 }

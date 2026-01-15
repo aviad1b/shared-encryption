@@ -13,39 +13,49 @@ namespace senc::server
 	ConnectingClientHandler::ConnectingClientHandler(ILogger& logger,
 													 PacketHandler& packetHandler,
 													 IServerStorage& storage)
-		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { (void)_logger; }
+		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { }
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
 		// run login/signup loop
+		Status status = Status::Error;
 		std::string username;
-		Status status{};
-		do
+		while (Status::Error == status)
 		{
-			// connection request: Should be signup, login or logout (to disconnect)
-			auto connReq = _packetHandler.recv_request<
+			try { std::tie(status, username) = iteration(); }
+			catch (const utils::SocketException& e) { throw e; }
+			catch (const std::exception& e)
+			{
+				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
+			}
+		};
+
+		return { Status::Connected == status, username };
+	}
+
+	std::tuple<ConnectingClientHandler::Status, std::string> ConnectingClientHandler::iteration()
+	{
+		// connection request: Should be signup, login or logout (to disconnect)
+		auto connReq = _packetHandler.recv_request<
+			pkt::SignupRequest,
+			pkt::LoginRequest,
+			pkt::LogoutRequest
+		>();
+		while (!connReq.has_value())
+		{
+			_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
+			connReq = _packetHandler.recv_request<
 				pkt::SignupRequest,
 				pkt::LoginRequest,
 				pkt::LogoutRequest
 			>();
-			while (!connReq.has_value())
-			{
-				_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
-				connReq = _packetHandler.recv_request<
-					pkt::SignupRequest,
-					pkt::LoginRequest,
-					pkt::LogoutRequest
-				>();
-			}
+		}
 
-			// call fitting client_loop implementation based on connection request
-			std::tie(status, username) = std::visit(
-				[this](const auto& req) { return handle_request(req); },
-				*connReq
-			);
-		} while (Status::Error == status);
-
-		return { Status::Connected == status, username };
+		// call fitting client_loop implementation based on connection request
+		return std::visit(
+			[this](const auto& req) { return handle_request(req); },
+			*connReq
+		);
 	}
 
 	std::tuple<ConnectingClientHandler::Status, std::string>

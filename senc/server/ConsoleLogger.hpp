@@ -26,6 +26,8 @@ namespace senc::server
 		ConsoleLogger(InteractiveConsole& console);
 
 		void log_info(const std::string& msg) override;
+		
+		void log_error(const std::string& msg) override;
 
 	private:
 		InteractiveConsole& _console;
