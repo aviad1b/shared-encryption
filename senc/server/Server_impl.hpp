@@ -86,13 +86,17 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& msg)
 	{
-		log(logType, "Client " + ip.as_str() + ":" + std::to_string(port) + " " + msg);
+		(void)logType;
+		if (_logger.has_value())
+			_logger->get().log_info(ip, port, msg);
 	}
 
 	template <utils::IPType IP>
 	inline void Server<IP>::log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg)
 	{
-		log(logType, ip, port, "(\"" + username + "\") " + msg);
+		(void)logType;
+		if (_logger.has_value())
+			_logger->get().log_info(ip, port, username, msg);
 	}
 
 	template <utils::IPType IP>
