@@ -18,6 +18,8 @@ namespace senc::server
 	public:
 		using Self = ConsoleLogger;
 
+		ConsoleLogger(InteractiveConsole& console);
+
 		void log_info(const std::string& msg) override;
 
 	private:
