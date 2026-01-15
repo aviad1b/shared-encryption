@@ -10,6 +10,7 @@
 
 #include "InteractiveConsole.hpp"
 #include "ILogger.hpp"
+#include <mutex>
 
 namespace senc::server
 {
@@ -28,5 +29,6 @@ namespace senc::server
 
 	private:
 		InteractiveConsole& _console;
+		std::mutex _mtxConsole;
 	};
 }
