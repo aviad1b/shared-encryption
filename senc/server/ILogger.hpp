@@ -23,5 +23,7 @@ namespace senc::server
 		virtual ~ILogger() { }
 
 		virtual void log_info(const std::string& msg) = 0;
+
+		virtual void log_error(const std::string& msg) = 0;
 	};
 }
