@@ -19,7 +19,7 @@ namespace senc::server
 												   DecryptionsManager& decryptionsManager)
 		: _logger(logger), _packetHandler(packetHandler), _username(username),
 		  _schema(schema), _storage(storage),
-		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
+		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { (void)_logger; }
 
 	void ConnectedClientHandler::loop()
 	{
