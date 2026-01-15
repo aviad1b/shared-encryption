@@ -17,6 +17,7 @@ namespace senc::server
 	{
 	public:
 		using Self = ConsoleLogger;
+		using Base = Logger;
 
 		ConsoleLogger(InteractiveConsole& console);
 
