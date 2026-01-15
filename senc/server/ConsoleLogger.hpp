@@ -13,6 +13,10 @@
 
 namespace senc::server
 {
+	/**
+	 * @class senc::server::ConsoleLogger
+	 * @brief Logger implementation based on interactive console.
+	 */
 	class ConsoleLogger : public Logger
 	{
 	public:
