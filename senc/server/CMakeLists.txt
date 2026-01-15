@@ -21,6 +21,8 @@ add_executable (senc_server
 	"DummyLogger.hpp"
 	"ConsoleLogger.hpp"
 	"ConsoleLogger.cpp"
+	"ConnectingLogger.hpp"
+	"ConnectedLogger.hpp"
 	"IServer.hpp"
 	"Server.hpp"
 	"Server_impl.hpp"
