@@ -11,6 +11,7 @@
 #include "../common/PacketHandlerFactory.hpp"
 #include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
+#include "ILogger.hpp"
 #include "IServer.hpp"
 #include <condition_variable>
 #include <functional>
@@ -34,7 +35,7 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
-		 * @param logInfo A function used to output server log information messages.
+		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
@@ -43,7 +44,7 @@ namespace senc::server
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						std::optional<std::function<void(const std::string&)>> logInfo,
+						std::optional<std::reference_wrapper<ILogger>> logger,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
@@ -78,7 +79,7 @@ namespace senc::server
 	private:
 		Socket _listenSock;
 		utils::Port _listenPort;
-		std::optional<std::function<void(const std::string&)>> _logInfo;
+		std::optional<std::reference_wrapper<ILogger>> _logger;
 		PacketHandlerFactory _packetHandlerFactory;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;

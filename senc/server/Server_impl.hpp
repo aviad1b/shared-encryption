@@ -16,13 +16,13 @@ namespace senc::server
 {
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
-							  std::optional<std::function<void(const std::string&)>> logInfo,
+							  std::optional<std::reference_wrapper<ILogger>> logger,
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
-		: _listenPort(listenPort), _logInfo(logInfo), _packetHandlerFactory(packetHandlerFactory),
+		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
 		  _clientHandlerFactory(schema, storage, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
@@ -79,8 +79,8 @@ namespace senc::server
 	inline void Server<IP>::log(LogType logType, const std::string& msg)
 	{
 		(void)logType;
-		if (_logInfo.has_value())
-			(*_logInfo)(msg);
+		if (_logger.has_value())
+			_logger->get().log_info(msg);
 	}
 
 	template <utils::IPType IP>
