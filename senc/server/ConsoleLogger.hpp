@@ -9,7 +9,7 @@
 #pragma once
 
 #include "InteractiveConsole.hpp"
-#include "Logger.hpp"
+#include "ILogger.hpp"
 
 namespace senc::server
 {
@@ -17,11 +17,10 @@ namespace senc::server
 	 * @class senc::server::ConsoleLogger
 	 * @brief Logger implementation based on interactive console.
 	 */
-	class ConsoleLogger : public Logger
+	class ConsoleLogger : public ILogger
 	{
 	public:
 		using Self = ConsoleLogger;
-		using Base = Logger;
 
 		ConsoleLogger(InteractiveConsole& console);
 

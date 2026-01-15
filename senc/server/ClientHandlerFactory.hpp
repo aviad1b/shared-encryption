@@ -15,7 +15,7 @@
 #include "DecryptionsManager.hpp"
 #include "UpdateManager.hpp"
 #include "IServerStorage.hpp"
-#include "Logger.hpp"
+#include "ILogger.hpp"
 
 namespace senc::server
 {
@@ -44,20 +44,20 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param packetHandler Implementation of `PacketHandler`.
-		 * @param logger Implementation of `Logger` for logging server messages about client.
+		 * @param logger Implementation of `ILogger` for logging server messages about client.
 		 * @return Constructed handler.
 		 */
 		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler,
-															   Logger& logger);
+															   ILogger& logger);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
 		 * @param packetHandler Implementation of `PacketHandler`.
-		 * @param logger Implementation of `Logger` for logging server messages about client.
+		 * @param logger Implementation of `ILogger` for logging server messages about client.
 		 * @param username Connected client's username.
 		 */
 		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler,
-															 Logger& logger,
+															 ILogger& logger,
 															 const std::string& username);
 
 	private:

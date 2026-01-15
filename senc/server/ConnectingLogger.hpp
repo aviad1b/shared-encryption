@@ -9,7 +9,7 @@
 #pragma once
 
 #include "../utils/Socket.hpp"
-#include "Logger.hpp"
+#include "ILogger.hpp"
 
 namespace senc::server
 {
@@ -18,11 +18,10 @@ namespace senc::server
 	 * @brief Logger wrapper used for logging info about a connecting client.
 	 */
 	template <utils::IPType IP>
-	class ConnectingLogger : public Logger
+	class ConnectingLogger : public ILogger
 	{
 	public:
 		using Self = ConnectingLogger;
-		using Base = Logger;
 
 		/**
 		 * @brief Constructs a logger instance for a connecting client.
@@ -30,7 +29,7 @@ namespace senc::server
 		 * @param ip Connecting client's IP address.
 		 * @param port Connecting client's port number.
 		 */
-		ConnectingLogger(Logger& base, const IP& ip, utils::Port port)
+		ConnectingLogger(ILogger& base, const IP& ip, utils::Port port)
 			: _base(base), _ip(ip), _port(port) { }
 
 		void log_info(const std::string& msg) override
@@ -39,7 +38,7 @@ namespace senc::server
 		}
 
 	private:
-		Logger& _base;
+		ILogger& _base;
 		const IP& _ip;
 		utils::Port _port;
 	};

@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   ILogger.hpp
- * \brief  Contains abstract Logger class.
+ * \brief  Contains Logger interface.
  * 
  * \author aviad1b
  * \date   January 2026, Teveth 5786
@@ -14,13 +14,13 @@
 namespace senc::server
 {
 	/**
-	 * @class senc::server::ILogger
-	 * @brief Base class for server message logging.
+	 * @interface senc::server::ILogger
+	 * @brief Interface for server message logging.
 	 */
-	class Logger
+	class ILogger
 	{
 	public:
-		virtual ~Logger() { }
+		virtual ~ILogger() { }
 
 		virtual void log_info(const std::string& msg) = 0;
 	};

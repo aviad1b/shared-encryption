@@ -16,11 +16,11 @@ namespace senc::server
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
-	int start_server(Port port, Logger& Logger, InteractiveConsole& console, Schema& schema,
+	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
 					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
 
-	void run_server(IServer& server, Logger& logger, InteractiveConsole& console);
+	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console);
 
 	int main(int argc, char** argv)
 	{
@@ -120,7 +120,7 @@ namespace senc::server
 	/**
 	 * @brief Starts up server (and waits for it to finish runnings).
 	 * @param port Server's listen port.
-	 * @param logger ILogger instance used for logging server messages (by ref).
+	 * @param logger `ILogger` instance used for logging server messages (by ref).
 	 * @param console Server console (by ref).
 	 * @param schema Server's encryption schema instance (by ref).
 	 * @param storage Server's storage instance (by ref).
@@ -130,7 +130,7 @@ namespace senc::server
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
-	int start_server(Port port, Logger& logger, InteractiveConsole& console, Schema& schema,
+	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
 					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
@@ -161,10 +161,10 @@ namespace senc::server
 	/**
 	 * @brief Runs server (and waits for it to finish running).
 	 * @param server Server to run (by ref).
-	 * @param logger ILogger instance used for logs (by ref).
+	 * @param logger `ILogger` instance used for logs (by ref).
 	 * @param console Server console (by ref).
 	 */
-	void run_server(IServer& server, Logger& logger, InteractiveConsole& console)
+	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console)
 	{
 		server.start();
 

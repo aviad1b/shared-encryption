@@ -18,7 +18,7 @@ namespace senc::server
 		  _decryptionsManager(decryptionsManager) { }
 
 	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(PacketHandler& packetHandler,
-																				 Logger& logger)
+																				 ILogger& logger)
 	{
 		return ConnectingClientHandler(
 			logger,
@@ -28,7 +28,7 @@ namespace senc::server
 	}
 
 	ConnectedClientHandler ClientHandlerFactory::make_connected_client_handler(PacketHandler& packetHandler,
-																			   Logger& logger,
+																			   ILogger& logger,
 																			   const std::string& username)
 	{
 		return ConnectedClientHandler(

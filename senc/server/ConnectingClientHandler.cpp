@@ -10,7 +10,7 @@
 
 namespace senc::server
 {
-	ConnectingClientHandler::ConnectingClientHandler(Logger& logger,
+	ConnectingClientHandler::ConnectingClientHandler(ILogger& logger,
 													 PacketHandler& packetHandler,
 													 IServerStorage& storage)
 		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { }

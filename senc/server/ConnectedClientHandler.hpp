@@ -14,7 +14,7 @@
 #include "ServerException.hpp"
 #include "IServerStorage.hpp"
 #include "UpdateManager.hpp"
-#include "Logger.hpp"
+#include "ILogger.hpp"
 
 namespace senc::server
 {
@@ -29,7 +29,7 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
-		 * @param logger Implementation of `Logger` for logging server messages.
+		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Connected client's username.
 		 * @param schema Decryptions schema to use for decryptions.
@@ -38,7 +38,7 @@ namespace senc::server
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(Logger& logger,
+		explicit ConnectedClientHandler(ILogger& logger,
 										PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
@@ -52,7 +52,7 @@ namespace senc::server
 		void loop();
 
 	private:
-		Logger& _logger;
+		ILogger& _logger;
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;

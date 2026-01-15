@@ -8,15 +8,14 @@
 
 #pragma once
 
-#include "Logger.hpp"
+#include "ILogger.hpp"
 
 namespace senc::server
 {
-	class DummyLogger : public Logger
+	class DummyLogger : public ILogger
 	{
 	public:
 		using Self = DummyLogger;
-		using Base = Logger;
 
 		void log_info(const std::string& msg) override { (void)msg; }
 	};

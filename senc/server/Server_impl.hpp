@@ -19,7 +19,7 @@ namespace senc::server
 
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
-							  Logger& logger,
+							  ILogger& logger,
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,

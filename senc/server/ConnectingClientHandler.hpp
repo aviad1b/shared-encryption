@@ -12,7 +12,7 @@
 #include "../utils/Socket.hpp"
 #include "ServerException.hpp"
 #include "IServerStorage.hpp"
-#include "Logger.hpp"
+#include "ILogger.hpp"
 #include <tuple>
 
 namespace senc::server
@@ -28,12 +28,12 @@ namespace senc::server
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
-		 * @param logger Implementation of `Logger` for logging server messages.
+		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(Logger& logger,
+		explicit ConnectingClientHandler(ILogger& logger,
 										 PacketHandler& packetHandler,
 										 IServerStorage& storage);
 
@@ -45,7 +45,7 @@ namespace senc::server
 		std::tuple<bool, std::string> connect_client();
 
 	private:
-		Logger& _logger;
+		ILogger& _logger;
 		PacketHandler& _packetHandler;
 		IServerStorage& _storage;
 
