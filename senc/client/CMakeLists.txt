@@ -1,10 +1,10 @@
 add_executable(senc_client
 	"main.cpp"
-	"input.hpp"
-	"input.cpp"
-	"input_impl.hpp"
-	"output.hpp"
-	"output.cpp"
+	"io/input.hpp"
+	"io/input.cpp"
+	"io/input_impl.hpp"
+	"io/output.hpp"
+	"io/output.cpp"
 )
 
 set_property(TARGET senc_client PROPERTY CXX_STANDARD 20)

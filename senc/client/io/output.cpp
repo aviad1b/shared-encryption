@@ -8,13 +8,13 @@
 
 #include "output.hpp"
 
-#include "../utils/bytes.hpp"
+#include "../../utils/bytes.hpp"
 #include <iostream>
 
 using std::cout;
 using std::endl;
 
-namespace senc::client
+namespace senc::client::io
 {
 	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey)
 	{

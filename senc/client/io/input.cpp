@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace senc::client
+namespace senc::client::io
 {
 	std::string input()
 	{
