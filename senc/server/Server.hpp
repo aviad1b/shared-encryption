@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../common/PacketHandlerFactory.hpp"
 #include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
 #include "IServer.hpp"
@@ -36,7 +37,7 @@ namespace senc::server
 		 * @param logInfo A function used to output server log information messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
@@ -45,7 +46,7 @@ namespace senc::server
 						std::optional<std::function<void(const std::string&)>> logInfo,
 						Schema& schema,
 						IServerStorage& storage,
-						PacketHandler& packetHandler,
+						PacketHandlerFactory& packetHandlerFactory,
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
@@ -54,7 +55,7 @@ namespace senc::server
 		 * @param listenPort Port for server to listen on.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
@@ -62,7 +63,7 @@ namespace senc::server
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
 						IServerStorage& storage,
-						PacketHandler& packetHandler,
+						PacketHandlerFactory& packetHandlerFactory,
 						UpdateManager& updateManager,
 						DecryptionsManager& decryptionsManager);
 
@@ -78,6 +79,7 @@ namespace senc::server
 		Socket _listenSock;
 		utils::Port _listenPort;
 		std::optional<std::function<void(const std::string&)>> _logInfo;
+		PacketHandlerFactory _packetHandlerFactory;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
@@ -124,10 +126,10 @@ namespace senc::server
 
 		/**
 		 * @brief Handles client requests in a loop.
-		 * @param sock Socket connected to client.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Client's connected username.
 		 */
-		void client_loop(Socket& sock, const std::string& username);
+		void client_loop(PacketHandler& packetHandler, const std::string& username);
 	};
 }
 

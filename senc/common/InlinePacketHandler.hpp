@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "ConnEstablishException.hpp"
 #include "PacketHandler.hpp"
 
 namespace senc
@@ -22,98 +23,116 @@ namespace senc
 		using Self = InlinePacketHandler;
 		using Base = PacketHandler;
 
-		std::pair<bool, std::string> establish_connection_client_side(utils::Socket& sock) override;
-		std::pair<bool, std::string> establish_connection_server_side(utils::Socket& sock) override;
+		InlinePacketHandler(Self&&) = default;
 
-		void send_response_data(utils::Socket& sock, const pkt::ErrorResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::ErrorResponse& out) override;
+		/**
+		 * @brief Gets handler instance for server side.
+		 * @param sock Socket to send and receive packets through.
+		 * @throw ConnEstablishException If failed to establish connection.
+		 */
+		static Self server(utils::Socket& sock);
 
-		void send_request_data(utils::Socket& sock, const pkt::SignupRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::SignupRequest& out) override;
+		/**
+		 * @brief Gets handler instance for client side.
+		 * @param sock Socket to send and receive packets through.
+		 * @throw ConnEstablishException If failed to establish connection.
+		 */
+		static Self client(utils::Socket& sock);
 
-		void send_response_data(utils::Socket& sock, const pkt::SignupResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::SignupResponse& out) override;
+		void send_response_data(const pkt::ErrorResponse& packet) override;
+		void recv_response_data(pkt::ErrorResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::LoginRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::LoginRequest& out) override;
+		void send_request_data(const pkt::SignupRequest& packet) override;
+		void recv_request_data(pkt::SignupRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::LoginResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::LoginResponse& out) override;
+		void send_response_data(const pkt::SignupResponse& packet) override;
+		void recv_response_data(pkt::SignupResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::LogoutRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::LogoutRequest& out) override;
+		void send_request_data(const pkt::LoginRequest& packet) override;
+		void recv_request_data(pkt::LoginRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::LogoutResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::LogoutResponse& out) override;
+		void send_response_data(const pkt::LoginResponse& packet) override;
+		void recv_response_data(pkt::LoginResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::MakeUserSetRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::MakeUserSetRequest& out) override;
+		void send_request_data(const pkt::LogoutRequest& packet) override;
+		void recv_request_data(pkt::LogoutRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::MakeUserSetResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::MakeUserSetResponse& out) override;
+		void send_response_data(const pkt::LogoutResponse& packet) override;
+		void recv_response_data(pkt::LogoutResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::GetUserSetsRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::GetUserSetsRequest& out) override;
+		void send_request_data(const pkt::MakeUserSetRequest& packet) override;
+		void recv_request_data(pkt::MakeUserSetRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::GetUserSetsResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::GetUserSetsResponse& out) override;
+		void send_response_data(const pkt::MakeUserSetResponse& packet) override;
+		void recv_response_data(pkt::MakeUserSetResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::GetMembersRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::GetMembersRequest& out) override;
+		void send_request_data(const pkt::GetUserSetsRequest& packet) override;
+		void recv_request_data(pkt::GetUserSetsRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::GetMembersResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::GetMembersResponse& out) override;
+		void send_response_data(const pkt::GetUserSetsResponse& packet) override;
+		void recv_response_data(pkt::GetUserSetsResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::DecryptRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::DecryptRequest& out) override;
+		void send_request_data(const pkt::GetMembersRequest& packet) override;
+		void recv_request_data(pkt::GetMembersRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::DecryptResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::DecryptResponse& out) override;
+		void send_response_data(const pkt::GetMembersResponse& packet) override;
+		void recv_response_data(pkt::GetMembersResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::UpdateRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::UpdateRequest& out) override;
+		void send_request_data(const pkt::DecryptRequest& packet) override;
+		void recv_request_data(pkt::DecryptRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::UpdateResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::UpdateResponse& out) override;
+		void send_response_data(const pkt::DecryptResponse& packet) override;
+		void recv_response_data(pkt::DecryptResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::DecryptParticipateRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::DecryptParticipateRequest& out) override;
+		void send_request_data(const pkt::UpdateRequest& packet) override;
+		void recv_request_data(pkt::UpdateRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::DecryptParticipateResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::DecryptParticipateResponse& out) override;
+		void send_response_data(const pkt::UpdateResponse& packet) override;
+		void recv_response_data(pkt::UpdateResponse& out) override;
 
-		void send_request_data(utils::Socket& sock, const pkt::SendDecryptionPartRequest& packet) override;
-		void recv_request_data(utils::Socket& sock, pkt::SendDecryptionPartRequest& out) override;
+		void send_request_data(const pkt::DecryptParticipateRequest& packet) override;
+		void recv_request_data(pkt::DecryptParticipateRequest& out) override;
 
-		void send_response_data(utils::Socket& sock, const pkt::SendDecryptionPartResponse& packet) override;
-		void recv_response_data(utils::Socket& sock, pkt::SendDecryptionPartResponse& out) override;
+		void send_response_data(const pkt::DecryptParticipateResponse& packet) override;
+		void recv_response_data(pkt::DecryptParticipateResponse& out) override;
+
+		void send_request_data(const pkt::SendDecryptionPartRequest& packet) override;
+		void recv_request_data(pkt::SendDecryptionPartRequest& out) override;
+
+		void send_response_data(const pkt::SendDecryptionPartResponse& packet) override;
+		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
 	private:
-		void send_pub_key(utils::Socket& sock, const PubKey& pubKey);
-		void recv_pub_key(utils::Socket& sock, PubKey& out);
+		void send_pub_key(const PubKey& pubKey);
+		void recv_pub_key(PubKey& out);
 
-		void send_priv_key_shard_id(utils::Socket& sock, const PrivKeyShardID& shardID);
-		void recv_priv_key_shard_id(utils::Socket& sock, PrivKeyShardID& out);
+		void send_priv_key_shard_id(const PrivKeyShardID& shardID);
+		void recv_priv_key_shard_id(PrivKeyShardID& out);
 
-		void send_priv_key_shard(utils::Socket& sock, const PrivKeyShard& shard);
-		void recv_priv_key_shard(utils::Socket& sock, PrivKeyShard& out);
+		void send_priv_key_shard(const PrivKeyShard& shard);
+		void recv_priv_key_shard(PrivKeyShard& out);
 
-		void send_ciphertext(utils::Socket& sock, const Ciphertext& ciphertext);
-		void recv_ciphertext(utils::Socket& sock, Ciphertext& out);
+		void send_ciphertext(const Ciphertext& ciphertext);
+		void recv_ciphertext(Ciphertext& out);
 
-		void send_decryption_part(utils::Socket& sock, const DecryptionPart& part);
-		void recv_decryption_part(utils::Socket& sock, DecryptionPart& out);
+		void send_decryption_part(const DecryptionPart& part);
+		void recv_decryption_part(DecryptionPart& out);
 
-		void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsOwnerRecord& record);
-		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsOwnerRecord& out);
+		void send_update_record(const pkt::UpdateResponse::AddedAsOwnerRecord& record);
+		void recv_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out);
 
-		void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::AddedAsMemberRecord& record);
-		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::AddedAsMemberRecord& out);
+		void send_update_record(const pkt::UpdateResponse::AddedAsMemberRecord& record);
+		void recv_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out);
 
-		void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::ToDecryptRecord& record);
-		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::ToDecryptRecord& out);
+		void send_update_record(const pkt::UpdateResponse::ToDecryptRecord& record);
+		void recv_update_record(pkt::UpdateResponse::ToDecryptRecord& out);
 
-		void send_update_record(utils::Socket& sock, const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
-		void recv_update_record(utils::Socket& sock, pkt::UpdateResponse::FinishedDecryptionsRecord& out);
+		void send_update_record(const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
+		void recv_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out);
+
+		private:
+			InlinePacketHandler(utils::Socket& sock);
 	};
+
+	static_assert(PacketHandlerImpl<InlinePacketHandler>);
 }

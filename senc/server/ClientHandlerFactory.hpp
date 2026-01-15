@@ -31,35 +31,32 @@ namespace senc::server
 		 * @brief Constructs a new client handler factory.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ClientHandlerFactory(Schema& schema,
 									  IServerStorage& storage,
-									  PacketHandler& handler,
 									  UpdateManager& updateManager,
 									  DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
-		 * @param sock Socket connected to client.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @return Constructed handler.
 		 */
-		ConnectingClientHandler make_connecting_client_handler(utils::Socket& sock);
+		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
-		 * @param sock Socket connected to client.
+		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Connected client's username.
 		 */
-		ConnectedClientHandler make_connected_client_handler(utils::Socket& sock, const std::string& username);
+		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler, const std::string& username);
 
 	private:
 		Schema& _schema;
 		IServerStorage& _storage;
-		PacketHandler& _packetHandler;
 		UpdateManager& _updateManager;
 		DecryptionsManager& _decryptionsManager;
 	};

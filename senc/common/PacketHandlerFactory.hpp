@@ -28,24 +28,36 @@ namespace senc
 		virtual ~PacketHandlerFactory() { }
 
 		/**
-		 * @brief Constructs a new packet handler instance from a socket reference.
+		 * @brief Constructs a new server-side packet handler instance from a socket reference.
 		 * @param sock Reference to socket to send and receive packets through.
 		 */
-		std::unique_ptr<PacketHandler> new_packet_handler(utils::Socket& sock)
+		std::unique_ptr<PacketHandler> new_server_packet_handler(utils::Socket& sock) const
 		{
-			return _f(sock);
+			return _server(sock);
+		}
+
+		/**
+		 * @brief Constructs a new client-side packet handler instance from a socket reference.
+		 * @param sock Reference to socket to send and receive packets through.
+		 */
+		std::unique_ptr<PacketHandler> new_client_packet_handler(utils::Socket& sock) const
+		{
+			return _client(sock);
 		}
 
 	protected:
 		/**
 		 * @brief Constructor of packet handler factory.
-		 * @param f A function which constructs a packet handler instance from a socket reference.
+		 * @param server A function which constructs a server packet handler instance from a socket reference.
+		 * @param client A function which constructs a client packet handler instance from a socket reference.
 		 */
-		PacketHandlerFactory(std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> f)
-			: _f(f) { }
+		PacketHandlerFactory(
+			std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> server,
+			std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> client
+		) : _server(server), _client(client) { }
 
 	private:
-		std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> _f;
+		std::function<std::unique_ptr<PacketHandler>(utils::Socket&)> _server, _client;
 	};
 
 	/**
@@ -53,8 +65,7 @@ namespace senc
 	 * @brief Used for creating instances of a `PacketHandler` implementation.
 	 * @tparam T `PacketHandler` implementing type, of `PacketHandler` itself for base.
 	 */
-	template <std::derived_from<PacketHandler> T>
-	requires std::constructible_from<T, utils::Socket&>
+	template <PacketHandlerImpl T>
 	class PacketHandlerImplFactory : public PacketHandlerFactory
 	{
 	public:
@@ -64,6 +75,9 @@ namespace senc
 		/**
 		 * @brief Default constructor of packet handler factory.
 		 */
-		PacketHandlerFactory() : Base(std::make_unique<T>) { }
+		PacketHandlerImplFactory() : Base(
+			[](utils::Socket& sock) { return std::make_unique<T>(T::server(sock)); },
+			[](utils::Socket& sock) { return std::make_unique<T>(T::client(sock)); }
+		) { }
 	};
 }

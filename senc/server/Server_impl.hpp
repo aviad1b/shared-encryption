@@ -19,11 +19,11 @@ namespace senc::server
 							  std::optional<std::function<void(const std::string&)>> logInfo,
 							  Schema& schema,
 							  IServerStorage& storage,
-							  PacketHandler& packetHandler,
+							  PacketHandlerFactory& packetHandlerFactory,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
-		: _listenPort(listenPort), _logInfo(logInfo),
-		  _clientHandlerFactory(schema, storage, packetHandler, updateManager, decryptionsManager)
+		: _listenPort(listenPort), _logInfo(logInfo), _packetHandlerFactory(packetHandlerFactory),
+		  _clientHandlerFactory(schema, storage, updateManager, decryptionsManager)
 	{
 		_listenSock.bind(_listenPort);
 	}
@@ -32,11 +32,11 @@ namespace senc::server
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
 							  IServerStorage& storage,
-							  PacketHandler& packetHandler,
+							  PacketHandlerFactory& packetHandlerFactory,
 							  UpdateManager& updateManager,
 							  DecryptionsManager& decryptionsManager)
 		: Self(listenPort, std::nullopt, schema, storage,
-			   packetHandler, updateManager, decryptionsManager) { }
+			   packetHandlerFactory, updateManager, decryptionsManager) { }
 
 	template <utils::IPType IP>
 	inline utils::Port Server<IP>::port() const
@@ -121,11 +121,12 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
-		auto handler = _clientHandlerFactory.make_connecting_client_handler(sock);
+		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
+		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(*packetHandler);
 		bool connected = false;
 		std::string username;
 
-		try { std::tie(connected, username) = handler.connect_client(); }
+		try { std::tie(connected, username) = clientHandler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
 			log(LogType::Info, ip, port, std::string("lost connection: ") + e.what() + ".");
@@ -137,7 +138,7 @@ namespace senc::server
 		{
 			log(LogType::Info, ip, port, "logged in as \"" + username + "\".");
 
-			try { client_loop(sock, username); }
+			try { client_loop(*packetHandler, username); }
 			catch (const utils::SocketException& e)
 			{
 				log(LogType::Info, ip, port, username, std::string("lost connection: ") + e.what());
@@ -148,9 +149,9 @@ namespace senc::server
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::client_loop(Socket& sock, const std::string& username)
+	inline void Server<IP>::client_loop(PacketHandler& packetHandler, const std::string& username)
 	{
-		auto handler = _clientHandlerFactory.make_connected_client_handler(sock, username);
+		auto handler = _clientHandlerFactory.make_connected_client_handler(packetHandler, username);
 		handler.loop();
 	}
 }
