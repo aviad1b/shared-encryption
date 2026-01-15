@@ -2,6 +2,7 @@
 #include "../common/EncryptedPacketHandler.hpp"
 #include "ShortTermServerStorage.hpp"
 #include "InteractiveConsole.hpp"
+#include "ConsoleLogger.hpp"
 #include "Server.hpp"
 
 namespace senc::server
@@ -15,11 +16,11 @@ namespace senc::server
 	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
-	int start_server(Port port, InteractiveConsole& console, Schema& schema,
+	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
 					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
 
-	void run_server(IServer& server, InteractiveConsole& console);
+	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console);
 
 	int main(int argc, char** argv)
 	{
@@ -40,6 +41,8 @@ namespace senc::server
 			return 1;
 		}
 
+		ConsoleLogger logger(*console);
+
 		Schema schema;
 		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
 		ShortTermServerStorage storage;
@@ -48,13 +51,13 @@ namespace senc::server
 		
 		if (isIPv6)
 			return start_server<utils::IPv6>(
-				port, *console, schema, storage,
+				port, logger, *console, schema, storage,
 				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
-				port, *console, schema, storage,
+				port, logger, *console, schema, storage,
 				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
@@ -117,6 +120,8 @@ namespace senc::server
 	/**
 	 * @brief Starts up server (and waits for it to finish runnings).
 	 * @param port Server's listen port.
+	 * @param logger `ILogger` instance used for logging server messages (by ref).
+	 * @param console Server console (by ref).
 	 * @param schema Server's encryption schema instance (by ref).
 	 * @param storage Server's storage instance (by ref).
 	 * @param packetHandlerFactory Factory used for constructing packet handlers (by ref).
@@ -125,7 +130,7 @@ namespace senc::server
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
-	int start_server(Port port, InteractiveConsole& console, Schema& schema,
+	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
 					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
 	{
@@ -134,7 +139,7 @@ namespace senc::server
 		{
 			server.emplace(
 				port,
-				[&console](const std::string& msg) { console.print("[info] " + msg); },
+				logger,
 				schema,
 				storage,
 				packetHandlerFactory,
@@ -148,7 +153,7 @@ namespace senc::server
 			return 1;
 		}
 
-		run_server(*server, console);
+		run_server(*server, logger, console);
 
 		return 0;
 	}
@@ -156,14 +161,15 @@ namespace senc::server
 	/**
 	 * @brief Runs server (and waits for it to finish running).
 	 * @param server Server to run (by ref).
+	 * @param logger `ILogger` instance used for logs (by ref).
 	 * @param console Server console (by ref).
 	 */
-	void run_server(IServer& server, InteractiveConsole& console)
+	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console)
 	{
 		server.start();
 
-		console.print("[info] Server listening at port " + std::to_string(server.port()) + ".");
-		console.print("[info] Use \"stop\" to stop server.");
+		logger.log_info("Server listening at port " + std::to_string(server.port()) + ".");
+		logger.log_info("Use \"stop\" to stop server.");
 
 		console.start_inputs(); // start input loop
 

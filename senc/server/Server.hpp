@@ -11,7 +11,9 @@
 #include "../common/PacketHandlerFactory.hpp"
 #include "ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
+#include "DummyLogger.hpp"
 #include "IServer.hpp"
+#include "ILogger.hpp"
 #include <condition_variable>
 #include <functional>
 #include <atomic>
@@ -34,7 +36,7 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
-		 * @param logInfo A function used to output server log information messages.
+		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
@@ -43,7 +45,7 @@ namespace senc::server
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						std::optional<std::function<void(const std::string&)>> logInfo,
+						ILogger& logger,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
@@ -76,40 +78,17 @@ namespace senc::server
 		void wait() override;
 
 	private:
+		static DummyLogger _dummyLogger;
+
 		Socket _listenSock;
 		utils::Port _listenPort;
-		std::optional<std::function<void(const std::string&)>> _logInfo;
+		ILogger& _logger;
 		PacketHandlerFactory _packetHandlerFactory;
 		ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
-
-		enum class LogType { Info };
-
-		/**
-		 * @brief Outputs server log message.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const std::string& msg);
-
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& msg);
-		
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param username Client username.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg);
 
 		/**
 		 * @brief Accepts new clients in a loop.
@@ -125,11 +104,28 @@ namespace senc::server
 		void handle_new_client(Socket sock, IP ip, utils::Port port);
 
 		/**
+		 * @brief Handles client connection request(s).
+		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
+		 * @return A flag indicating if client successfully connected or not,
+		 *		   and client's username (if successfully connected).
+		 */
+		std::pair<bool, std::string> connect_client(PacketHandler& packetHandler,
+													const IP& ip,
+													utils::Port port);
+
+		/**
 		 * @brief Handles client requests in a loop.
 		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
 		 * @param username Client's connected username.
 		 */
-		void client_loop(PacketHandler& packetHandler, const std::string& username);
+		void client_loop(PacketHandler& packetHandler,
+						 const IP& ip,
+						 utils::Port port,
+						 const std::string& username);
 	};
 }
 

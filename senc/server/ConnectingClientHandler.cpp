@@ -10,9 +10,10 @@
 
 namespace senc::server
 {
-	ConnectingClientHandler::ConnectingClientHandler(PacketHandler& packetHandler,
+	ConnectingClientHandler::ConnectingClientHandler(ILogger& logger,
+													 PacketHandler& packetHandler,
 													 IServerStorage& storage)
-		: _packetHandler(packetHandler), _storage(storage) { }
+		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { (void)_logger; }
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
