@@ -19,6 +19,8 @@ namespace senc::server
 	class ILogger
 	{
 	public:
+		virtual ~ILogger() { }
+
 		virtual void log_info(const std::string& msg) = 0;
 	};
 }
