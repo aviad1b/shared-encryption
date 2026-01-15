@@ -119,7 +119,7 @@ namespace senc::server
 		ConnectingLogger<IP> logger(_logger, ip, port);
 		logger.log_info("Connected.");
 		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
-			*packetHandler,
+			packetHandler,
 			logger
 		);
 
