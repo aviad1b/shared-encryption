@@ -104,6 +104,18 @@ namespace senc::server
 		void handle_new_client(Socket sock, IP ip, utils::Port port);
 
 		/**
+		 * @brief Handles client connection request(s).
+		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
+		 * @return A flag indicating if client successfully connected or not,
+		 *		   and client's username (if successfully connected).
+		 */
+		std::pair<bool, std::string> connect_client(PacketHandler& packetHandler,
+													const IP& ip,
+													utils::Port port);
+
+		/**
 		 * @brief Handles client requests in a loop.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param ip Client's IP address.

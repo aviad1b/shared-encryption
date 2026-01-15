@@ -103,31 +103,38 @@ namespace senc::server
 	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
 		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
-		bool connected = false;
-		std::string username;
-
-		{
-			ConnectingLogger<IP> logger(_logger, ip, port);
-			logger.log_info("Connected.");
-			auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
-				*packetHandler,
-				logger
-			);
-
-			try { std::tie(connected, username) = clientHandler.connect_client(); }
-			catch (const utils::SocketException& e)
-			{
-				logger.log_info(std::string("Lost connection: ") + e.what() + ".");
-			}
-
-			if (connected)
-				logger.log_info("Logged in as \"" + username + "\".");
-			else
-				logger.log_info("Disconnected.");
-		}
+		
+		const auto [connected, username] = connect_client(*packetHandler, ip, port);
 
 		if (connected)
 			client_loop(*packetHandler, ip, port, username);
+	}
+
+	template <utils::IPType IP>
+	inline std::pair<bool, std::string> Server<IP>::connect_client(PacketHandler& packetHandler, const IP& ip, utils::Port port)
+	{
+		bool connected = false;
+		std::string username;
+
+		ConnectingLogger<IP> logger(_logger, ip, port);
+		logger.log_info("Connected.");
+		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
+			*packetHandler,
+			logger
+		);
+
+		try { std::tie(connected, username) = clientHandler.connect_client(); }
+		catch (const utils::SocketException& e)
+		{
+			logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+		}
+
+		if (connected)
+			logger.log_info("Logged in as \"" + username + "\".");
+		else
+			logger.log_info("Disconnected.");
+
+		return std::make_pair(connected, username);
 	}
 
 	template <utils::IPType IP>
@@ -142,11 +149,13 @@ namespace senc::server
 			logger,
 			username
 		);
+
 		try { handler.loop(); }
 		catch (const utils::SocketException& e)
 		{
 			logger.log_info(std::string("Lost connection: ") + e.what());
 		}
+
 		logger.log_info("Disconnected.");
 	}
 }
