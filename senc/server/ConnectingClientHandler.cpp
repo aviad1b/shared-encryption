@@ -13,17 +13,21 @@ namespace senc::server
 	ConnectingClientHandler::ConnectingClientHandler(ILogger& logger,
 													 PacketHandler& packetHandler,
 													 IServerStorage& storage)
-		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { (void)_logger; }
+		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { }
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
 	{
 		// run login/signup loop
+		Status status = Status::Error;
 		std::string username;
-		Status status{};
-		do
+		while (Status::Error == status)
 		{
-			std::tie(status, username) = iteration();
-		} while (Status::Error == status);
+			try { std::tie(status, username) = iteration(); }
+			catch (const std::exception& e)
+			{
+				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
+			}
+		};
 
 		return { Status::Connected == status, username };
 	}
