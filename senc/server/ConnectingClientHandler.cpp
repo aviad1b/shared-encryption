@@ -23,6 +23,7 @@ namespace senc::server
 		while (Status::Error == status)
 		{
 			try { std::tie(status, username) = iteration(); }
+			catch (const utils::SocketException& e) { throw e; }
 			catch (const std::exception& e)
 			{
 				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
