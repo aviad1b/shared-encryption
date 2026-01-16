@@ -82,7 +82,7 @@ namespace senc::pkt
 
 	// =================================================================
 	// Signup cycle
-	// Client requests to signup with a given username.
+	// Client requests to signup with a given username and password.
 	// Server response with signup status.
 	// =================================================================
 
@@ -127,7 +127,7 @@ namespace senc::pkt
 
 	// =================================================================
 	// Login cycle
-	// Client requests to login with a given username.
+	// Client requests to login with a given username and password.
 	// Server responds with login status.
 	// =================================================================
 
