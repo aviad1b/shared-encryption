@@ -98,6 +98,9 @@ namespace senc::client::io
 		// reset console mode
 		SetConsoleMode(hStdin, oldMode);
 
+		// manual newline since it was disabled with echoing
+		std::cout << std::endl;
+
 		return res;
 	}
 #else
@@ -114,6 +117,9 @@ namespace senc::client::io
 
 		// reset console mode
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldAttrs);
+
+		// manual newline since it was disabled with echoing
+		std::cout << std::endl;
 
 		return res;
 	}
