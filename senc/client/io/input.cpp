@@ -8,6 +8,14 @@
 
 #include "input.hpp"
 
+#include "../../utils/env.hpp"
+#ifdef SENC_WINDOWS
+#include "../../utils/winapi_patch.hpp"
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
 #include <iostream>
 
 namespace senc::client::io
@@ -76,10 +84,40 @@ namespace senc::client::io
 		return input_usernames();
 	}
 
+#ifdef SENC_WINDOWS
 	std::string input_password()
 	{
-		return input();
+		// set console input mode to no echo
+		HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+		DWORD oldMode = 0; // to restore console mode after
+		GetConsoleMode(hStdin, &oldMode);
+		SetConsoleMode(hStdin, oldMode & (~ENABLE_ECHO_INPUT)); // disable echo input
+
+		std::string res = input();
+
+		// reset console mode
+		SetConsoleMode(hStdin, oldMode);
+
+		return res;
 	}
+#else
+	std::string input_password()
+	{
+		// set console input attributes to no echo
+		termios oldAttrs{};
+		tcgetattr(STDIN_FILENO, &oldAttrs); // to restore attributes later
+		termios newAttrs = oldAttrs;
+		newAttrs.c_lflag &= ~ECHO; // disable echo input
+		tcsetattr(STDIN_FILENO, TCSANOW, &newAttrs);
+
+		std::string res = input();
+
+		// reset console mode
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldAttrs);
+
+		return res;
+	}
+#endif
 
 	std::string input_password(const std::string& msg)
 	{
