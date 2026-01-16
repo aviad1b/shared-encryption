@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "../utils/env.hpp"
+#include "../../utils/env.hpp"
 
 #ifdef SENC_WINDOWS
-#include "../utils/winapi_patch.hpp"
+#include "../../utils/winapi_patch.hpp"
 #else
 #include <termios.h>
 #endif
@@ -21,10 +21,10 @@
 #include <string>
 #include <mutex>
 
-namespace senc::server
+namespace senc::server::io
 {
 	/**
-	 * @class senc::server::InteractiveConsole
+	 * @class senc::server::io::InteractiveConsole
 	 * @brief Manages interactive console (with simultanious input and output).
 	 */
 	class InteractiveConsole

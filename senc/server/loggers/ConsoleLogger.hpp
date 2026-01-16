@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../InteractiveConsole.hpp"
+#include "../io/InteractiveConsole.hpp"
 #include "ILogger.hpp"
 #include <mutex>
 
@@ -23,14 +23,14 @@ namespace senc::server::loggers
 	public:
 		using Self = ConsoleLogger;
 
-		ConsoleLogger(InteractiveConsole& console);
+		ConsoleLogger(io::InteractiveConsole& console);
 
 		void log_info(const std::string& msg) override;
 		
 		void log_error(const std::string& msg) override;
 
 	private:
-		InteractiveConsole& _console;
+		io::InteractiveConsole& _console;
 		std::mutex _mtxConsole;
 	};
 }

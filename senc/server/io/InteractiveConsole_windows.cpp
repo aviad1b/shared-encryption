@@ -10,9 +10,9 @@
 
 #ifdef SENC_WINDOWS
 
-#include "../utils/Exception.hpp"
+#include "../../utils/Exception.hpp"
 
-namespace senc::server
+namespace senc::server::io
 {
 	InteractiveConsole::InteractiveConsole(std::function<bool(Self&, const std::string&)> handleInput)
 		: _handleInput(handleInput),

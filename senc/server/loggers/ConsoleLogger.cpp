@@ -10,7 +10,7 @@
 
 namespace senc::server::loggers
 {
-	ConsoleLogger::ConsoleLogger(InteractiveConsole& console)
+	ConsoleLogger::ConsoleLogger(io::InteractiveConsole& console)
 		: _console(console) { }
 
 	void ConsoleLogger::log_info(const std::string& msg)
