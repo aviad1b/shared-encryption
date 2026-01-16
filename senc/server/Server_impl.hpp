@@ -21,7 +21,7 @@ namespace senc::server
 	inline Server<IP>::Server(utils::Port listenPort,
 							  loggers::ILogger& logger,
 							  Schema& schema,
-							  IServerStorage& storage,
+							  storage::IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)
@@ -34,7 +34,7 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
-							  IServerStorage& storage,
+							  storage::IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)

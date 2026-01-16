@@ -47,7 +47,7 @@ namespace senc::server
 		explicit Server(utils::Port listenPort,
 						loggers::ILogger& logger,
 						Schema& schema,
-						IServerStorage& storage,
+						storage::IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);
@@ -64,7 +64,7 @@ namespace senc::server
 		 */
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
-						IServerStorage& storage,
+						storage::IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);

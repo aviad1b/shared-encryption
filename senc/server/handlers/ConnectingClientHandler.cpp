@@ -12,7 +12,7 @@ namespace senc::server::handlers
 {
 	ConnectingClientHandler::ConnectingClientHandler(loggers::ILogger& logger,
 													 PacketHandler& packetHandler,
-													 IServerStorage& storage)
+													 storage::IServerStorage& storage)
 		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { }
 
 	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
@@ -62,7 +62,7 @@ namespace senc::server::handlers
 		ConnectingClientHandler::handle_request(const pkt::SignupRequest signup)
 	{
 		try { _storage.new_user(signup.username, signup.password); }
-		catch (const UserExistsException&)
+		catch (const storage::UserExistsException&)
 		{
 			_packetHandler.send_response(pkt::SignupResponse{ pkt::SignupResponse::Status::UsernameTaken });
 			return { Status::Error, "" };

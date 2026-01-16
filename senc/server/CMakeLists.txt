@@ -1,9 +1,9 @@
 add_executable (senc_server
 	"aliases.hpp"
 	"ServerException.hpp"
-	"IServerStorage.hpp"
-	"ShortTermServerStorage.hpp"
-	"ShortTermServerStorage.cpp"
+	"storage/IServerStorage.hpp"
+	"storage/ShortTermServerStorage.hpp"
+	"storage/ShortTermServerStorage.cpp"
 	"handlers/ConnectingClientHandler.hpp"
 	"handlers/ConnectingClientHandler.cpp"
 	"handlers/ConnectedClientHandler.hpp"

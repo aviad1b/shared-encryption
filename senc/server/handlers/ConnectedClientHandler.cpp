@@ -14,7 +14,7 @@ namespace senc::server::handlers
 												   PacketHandler& packetHandler,
 												   const std::string& username,
 												   Schema& schema,
-												   IServerStorage& storage,
+												   storage::IServerStorage& storage,
 												   managers::UpdateManager& updateManager,
 												   managers::DecryptionsManager& decryptionsManager)
 		: _logger(logger), _packetHandler(packetHandler), _username(username),
@@ -248,7 +248,7 @@ namespace senc::server::handlers
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::GetMembersRequest& request)
 	{
-		UserSetInfo info{};
+		storage::UserSetInfo info{};
 		try { info = _storage.get_userset_info(request.user_set_id); }
 		catch (const ServerException& e)
 		{

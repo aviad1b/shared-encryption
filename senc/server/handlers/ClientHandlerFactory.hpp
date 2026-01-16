@@ -11,11 +11,11 @@
 #include "../../common/PacketHandler.hpp"
 #include "../managers/DecryptionsManager.hpp"
 #include "../managers/UpdateManager.hpp"
+#include "../storage/IServerStorage.hpp"
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
 #include "../loggers/ILogger.hpp"
 #include "../../utils/Socket.hpp"
-#include "../IServerStorage.hpp"
 
 namespace senc::server::handlers
 {
@@ -37,7 +37,7 @@ namespace senc::server::handlers
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ClientHandlerFactory(Schema& schema,
-									  IServerStorage& storage,
+									  storage::IServerStorage& storage,
 									  managers::UpdateManager& updateManager,
 									  managers::DecryptionsManager& decryptionsManager);
 
@@ -62,7 +62,7 @@ namespace senc::server::handlers
 
 	private:
 		Schema& _schema;
-		IServerStorage& _storage;
+		storage::IServerStorage& _storage;
 		managers::UpdateManager& _updateManager;
 		managers::DecryptionsManager& _decryptionsManager;
 	};

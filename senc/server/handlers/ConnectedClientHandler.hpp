@@ -10,11 +10,11 @@
 
 #include "../../common/PacketHandler.hpp"
 #include "../managers/DecryptionsManager.hpp"
+#include "../storage/IServerStorage.hpp"
 #include "../managers/UpdateManager.hpp"
-#include "../../utils/Socket.hpp"
 #include "../loggers/ILogger.hpp"
 #include "../ServerException.hpp"
-#include "../IServerStorage.hpp"
+#include "../../utils/Socket.hpp"
 
 namespace senc::server::handlers
 {
@@ -42,7 +42,7 @@ namespace senc::server::handlers
 										PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
-										IServerStorage& storage,
+										storage::IServerStorage& storage,
 										managers::UpdateManager& updateManager,
 										managers::DecryptionsManager& decryptionsManager);
 
@@ -56,7 +56,7 @@ namespace senc::server::handlers
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;
-		IServerStorage& _storage;
+		storage::IServerStorage& _storage;
 		managers::UpdateManager& _updateManager;
 		managers::DecryptionsManager& _decryptionsManager;
 

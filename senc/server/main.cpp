@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../common/EncryptedPacketHandler.hpp"
-#include "ShortTermServerStorage.hpp"
+#include "storage/ShortTermServerStorage.hpp"
 #include "loggers/ConsoleLogger.hpp"
 #include "io/InteractiveConsole.hpp"
 #include "Server.hpp"
@@ -17,7 +17,7 @@ namespace senc::server
 
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console);
@@ -45,7 +45,7 @@ namespace senc::server
 
 		Schema schema;
 		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
-		ShortTermServerStorage storage;
+		storage::ShortTermServerStorage storage;
 		managers::UpdateManager updateManager;
 		managers::DecryptionsManager decryptionsManager;
 		
@@ -131,7 +131,7 @@ namespace senc::server
 	 */
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;

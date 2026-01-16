@@ -11,7 +11,7 @@
 #include <memory>
 #include "../utils/Socket.hpp" // has to be first because windows is stupid
 #include "tests_utils.hpp"
-#include "../server/ShortTermServerStorage.hpp"
+#include "../server/storage/ShortTermServerStorage.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
 #include "../common/PacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
@@ -20,9 +20,9 @@
 
 namespace pkt = senc::pkt;
 using senc::server::managers::DecryptionsManager;
+using senc::server::storage::ShortTermServerStorage;
+using senc::server::storage::IServerStorage;
 using senc::server::managers::UpdateManager;
-using senc::server::ShortTermServerStorage;
-using senc::server::IServerStorage;
 using senc::PacketHandlerImplFactory;
 using senc::EncryptedPacketHandler;
 using senc::PacketHandlerFactory;
