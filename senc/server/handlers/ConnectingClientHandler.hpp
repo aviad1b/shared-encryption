@@ -11,8 +11,8 @@
 #include "../../common/PacketHandler.hpp"
 #include "../../utils/Socket.hpp"
 #include "../ServerException.hpp"
+#include "../loggers/ILogger.hpp"
 #include "../IServerStorage.hpp"
-#include "../ILogger.hpp"
 #include <tuple>
 
 namespace senc::server::handlers
@@ -33,7 +33,7 @@ namespace senc::server::handlers
 		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(ILogger& logger,
+		explicit ConnectingClientHandler(loggers::ILogger& logger,
 										 PacketHandler& packetHandler,
 										 IServerStorage& storage);
 
@@ -45,7 +45,7 @@ namespace senc::server::handlers
 		std::tuple<bool, std::string> connect_client();
 
 	private:
-		ILogger& _logger;
+		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		IServerStorage& _storage;
 

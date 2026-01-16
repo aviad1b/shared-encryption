@@ -11,10 +11,10 @@
 #include "../../common/PacketHandler.hpp"
 #include "../../utils/Socket.hpp"
 #include "../DecryptionsManager.hpp"
+#include "../loggers/ILogger.hpp"
 #include "../ServerException.hpp"
 #include "../IServerStorage.hpp"
 #include "../UpdateManager.hpp"
-#include "../ILogger.hpp"
 
 namespace senc::server::handlers
 {
@@ -38,7 +38,7 @@ namespace senc::server::handlers
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(ILogger& logger,
+		explicit ConnectedClientHandler(loggers::ILogger& logger,
 										PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
@@ -52,7 +52,7 @@ namespace senc::server::handlers
 		void loop();
 
 	private:
-		ILogger& _logger;
+		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;

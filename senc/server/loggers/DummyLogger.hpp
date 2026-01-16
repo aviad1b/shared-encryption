@@ -10,7 +10,7 @@
 
 #include "ILogger.hpp"
 
-namespace senc::server
+namespace senc::server::loggers
 {
 	class DummyLogger : public ILogger
 	{

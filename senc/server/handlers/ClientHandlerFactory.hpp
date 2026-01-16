@@ -12,10 +12,10 @@
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
 #include "../DecryptionsManager.hpp"
+#include "../loggers/ILogger.hpp"
 #include "../../utils/Socket.hpp"
 #include "../IServerStorage.hpp"
 #include "../UpdateManager.hpp"
-#include "../ILogger.hpp"
 
 namespace senc::server::handlers
 {
@@ -48,7 +48,7 @@ namespace senc::server::handlers
 		 * @return Constructed handler.
 		 */
 		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler,
-															   ILogger& logger);
+															   loggers::ILogger& logger);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
@@ -57,7 +57,7 @@ namespace senc::server::handlers
 		 * @param username Connected client's username.
 		 */
 		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler,
-															 ILogger& logger,
+															 loggers::ILogger& logger,
 															 const std::string& username);
 
 	private:

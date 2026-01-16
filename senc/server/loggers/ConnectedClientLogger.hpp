@@ -8,13 +8,13 @@
 
 #pragma once
 
-#include "../utils/Socket.hpp"
+#include "../../utils/Socket.hpp"
 #include "ILogger.hpp"
 
-namespace senc::server
+namespace senc::server::loggers
 {
 	/**
-	 * @class senc::server::ConnectedLogger
+	 * @class senc::server::loggers::ConnectedLogger
 	 * @brief Logger wrapper used for logging info about a connected client.
 	 */
 	template <utils::IPType IP>

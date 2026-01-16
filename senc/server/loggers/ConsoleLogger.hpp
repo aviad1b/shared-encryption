@@ -8,14 +8,14 @@
 
 #pragma once
 
-#include "InteractiveConsole.hpp"
+#include "../InteractiveConsole.hpp"
 #include "ILogger.hpp"
 #include <mutex>
 
-namespace senc::server
+namespace senc::server::loggers
 {
 	/**
-	 * @class senc::server::ConsoleLogger
+	 * @class senc::server::loggers::ConsoleLogger
 	 * @brief Logger implementation based on interactive console.
 	 */
 	class ConsoleLogger : public ILogger

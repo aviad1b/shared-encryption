@@ -10,7 +10,7 @@
 
 namespace senc::server::handlers
 {
-	ConnectedClientHandler::ConnectedClientHandler(ILogger& logger,
+	ConnectedClientHandler::ConnectedClientHandler(loggers::ILogger& logger,
 												   PacketHandler& packetHandler,
 												   const std::string& username,
 												   Schema& schema,

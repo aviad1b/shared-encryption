@@ -10,10 +10,10 @@
 
 #include "../common/PacketHandlerFactory.hpp"
 #include "handlers/ClientHandlerFactory.hpp"
+#include "loggers/DummyLogger.hpp"
+#include "loggers/ILogger.hpp"
 #include "ServerException.hpp"
-#include "DummyLogger.hpp"
 #include "IServer.hpp"
-#include "ILogger.hpp"
 #include <condition_variable>
 #include <functional>
 #include <atomic>
@@ -45,7 +45,7 @@ namespace senc::server
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						ILogger& logger,
+						loggers::ILogger& logger,
 						Schema& schema,
 						IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
@@ -78,11 +78,11 @@ namespace senc::server
 		void wait() override;
 
 	private:
-		static DummyLogger _dummyLogger;
+		static loggers::DummyLogger _dummyLogger;
 
 		Socket _listenSock;
 		utils::Port _listenPort;
-		ILogger& _logger;
+		loggers::ILogger& _logger;
 		PacketHandlerFactory _packetHandlerFactory;
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;

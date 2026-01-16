@@ -8,7 +8,7 @@
 
 #include "ConsoleLogger.hpp"
 
-namespace senc::server
+namespace senc::server::loggers
 {
 	ConsoleLogger::ConsoleLogger(InteractiveConsole& console)
 		: _console(console) { }
