@@ -9,13 +9,12 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>
-#include "../server/IServerStorage.hpp"
-#include "../server/ShortTermServerStorage.hpp"
+#include "../server/storage/ShortTermServerStorage.hpp"
 #include "tests_utils.hpp"
 
-using senc::server::ShortTermServerStorage;
-using senc::server::IServerStorage;
-using senc::server::UserSetInfo;
+using senc::server::storage::ShortTermServerStorage;
+using senc::server::storage::IServerStorage;
+using senc::server::storage::UserSetInfo;
 using senc::PrivKeyShardID;
 using senc::member_count_t;
 using senc::OperationID;

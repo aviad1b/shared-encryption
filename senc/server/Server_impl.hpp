@@ -9,22 +9,22 @@
 #include "Server.hpp"
 
 #include <optional>
-#include "ConnectingClientLogger.hpp"
-#include "ConnectedClientLogger.hpp"
+#include "loggers/ConnectingClientLogger.hpp"
+#include "loggers/ConnectedClientLogger.hpp"
 
 namespace senc::server
 {
 	template <utils::IPType IP>
-	DummyLogger Server<IP>::_dummyLogger;
+	loggers::DummyLogger Server<IP>::_dummyLogger;
 
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
-							  ILogger& logger,
+							  loggers::ILogger& logger,
 							  Schema& schema,
-							  IServerStorage& storage,
+							  storage::IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
-							  UpdateManager& updateManager,
-							  DecryptionsManager& decryptionsManager)
+							  managers::UpdateManager& updateManager,
+							  managers::DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
 		  _clientHandlerFactory(schema, storage, updateManager, decryptionsManager)
 	{
@@ -34,10 +34,10 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
-							  IServerStorage& storage,
+							  storage::IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
-							  UpdateManager& updateManager,
-							  DecryptionsManager& decryptionsManager)
+							  managers::UpdateManager& updateManager,
+							  managers::DecryptionsManager& decryptionsManager)
 		: Self(listenPort, _dummyLogger, schema, storage,
 			   packetHandlerFactory, updateManager, decryptionsManager) { }
 
@@ -116,7 +116,7 @@ namespace senc::server
 		bool connected = false;
 		std::string username;
 
-		ConnectingClientLogger<IP> logger(_logger, ip, port);
+		loggers::ConnectingClientLogger<IP> logger(_logger, ip, port);
 		logger.log_info("Connected.");
 		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
 			packetHandler,
@@ -143,7 +143,7 @@ namespace senc::server
 										utils::Port port,
 										const std::string& username)
 	{
-		ConnectedClientLogger<IP> logger(_logger, ip, port, username);
+		loggers::ConnectedClientLogger<IP> logger(_logger, ip, port, username);
 		auto handler = _clientHandlerFactory.make_connected_client_handler(
 			packetHandler,
 			logger,

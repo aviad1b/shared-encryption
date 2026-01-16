@@ -8,17 +8,17 @@
 
 #pragma once
 
-#include "../common/PacketHandler.hpp"
-#include "../utils/Socket.hpp"
-#include "ServerException.hpp"
-#include "IServerStorage.hpp"
-#include "ILogger.hpp"
+#include "../../common/PacketHandler.hpp"
+#include "../storage/IServerStorage.hpp"
+#include "../loggers/ILogger.hpp"
+#include "../ServerException.hpp"
+#include "../../utils/Socket.hpp"
 #include <tuple>
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	/**
-	 * @class senc::server::ConnectingClientHandler
+	 * @class senc::server::handlers::ConnectingClientHandler
 	 * @brief Handles requests of connecting client (not yet signed in).
 	 */
 	class ConnectingClientHandler
@@ -33,9 +33,9 @@ namespace senc::server
 		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(ILogger& logger,
+		explicit ConnectingClientHandler(loggers::ILogger& logger,
 										 PacketHandler& packetHandler,
-										 IServerStorage& storage);
+										 storage::IServerStorage& storage);
 
 		/**
 		 * @brief Connects client.
@@ -45,9 +45,9 @@ namespace senc::server
 		std::tuple<bool, std::string> connect_client();
 
 	private:
-		ILogger& _logger;
+		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
-		IServerStorage& _storage;
+		storage::IServerStorage& _storage;
 
 		enum class Status { Error, Disconnected, Connected };
 

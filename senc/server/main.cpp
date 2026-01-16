@@ -1,8 +1,8 @@
 #include <iostream>
 #include "../common/EncryptedPacketHandler.hpp"
-#include "ShortTermServerStorage.hpp"
-#include "InteractiveConsole.hpp"
-#include "ConsoleLogger.hpp"
+#include "storage/ShortTermServerStorage.hpp"
+#include "loggers/ConsoleLogger.hpp"
+#include "io/InteractiveConsole.hpp"
 #include "Server.hpp"
 
 namespace senc::server
@@ -13,14 +13,14 @@ namespace senc::server
 
 	std::tuple<bool, Port> parse_args(int argc, char** argv);
 
-	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
+	bool handle_cmd(io::InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
-	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
-					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
+	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager);
 
-	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console);
+	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console);
 
 	int main(int argc, char** argv)
 	{
@@ -33,7 +33,7 @@ namespace senc::server
 			return 1;
 		}
 
-		std::optional<InteractiveConsole> console;
+		std::optional<io::InteractiveConsole> console;
 		try { console.emplace(handle_cmd); }
 		catch (const std::exception&)
 		{
@@ -41,13 +41,13 @@ namespace senc::server
 			return 1;
 		}
 
-		ConsoleLogger logger(*console);
+		loggers::ConsoleLogger logger(*console);
 
 		Schema schema;
 		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
-		ShortTermServerStorage storage;
-		UpdateManager updateManager;
-		DecryptionsManager decryptionsManager;
+		storage::ShortTermServerStorage storage;
+		managers::UpdateManager updateManager;
+		managers::DecryptionsManager decryptionsManager;
 		
 		if (isIPv6)
 			return start_server<utils::IPv6>(
@@ -111,7 +111,7 @@ namespace senc::server
 	 * @param cmd Inputed command.
 	 * @return `true` if server should stop, otherwise `false`.
 	 */
-	bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
+	bool handle_cmd(io::InteractiveConsole& console, const std::string& cmd)
 	{
 		(void)console;
 		return cmd == "stop"; // stop if command is "stop"
@@ -130,9 +130,9 @@ namespace senc::server
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
-	int start_server(Port port, ILogger& logger, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
-					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
+	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;
 		try
@@ -164,7 +164,7 @@ namespace senc::server
 	 * @param logger `ILogger` instance used for logs (by ref).
 	 * @param console Server console (by ref).
 	 */
-	void run_server(IServer& server, ILogger& logger, InteractiveConsole& console)
+	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console)
 	{
 		server.start();
 

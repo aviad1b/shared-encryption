@@ -8,9 +8,9 @@
 
 #include "DecryptionsManager.hpp"
 
-#include "ServerException.hpp"
+#include "../ServerException.hpp"
 
-namespace senc::server
+namespace senc::server::managers
 {
 	bool DecryptionsManager::PrepareRecord::has_enough_participants() const
 	{

@@ -8,15 +8,15 @@
 
 #pragma once
 
-#include "../common/packets.hpp"
-#include "../common/aliases.hpp"
-#include "../utils/hash.hpp"
+#include "../../common/packets.hpp"
+#include "../../common/aliases.hpp"
+#include "../../utils/hash.hpp"
 #include <mutex>
 
-namespace senc::server
+namespace senc::server::managers
 {
 	/**
-	 * @class senc::server::UpdateManager
+	 * @class senc::server::managers::UpdateManager
 	 * @brief Managers registry of user updates (before sent).
 	 */
 	class UpdateManager

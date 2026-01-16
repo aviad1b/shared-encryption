@@ -8,9 +8,9 @@
 
 #include "ShortTermServerStorage.hpp"
 
-#include "../utils/ranges.hpp"
+#include "../../utils/ranges.hpp"
 
-namespace senc::server
+namespace senc::server::storage
 {
 	ShortTermServerStorage::ShortTermServerStorage()
 		: _shardsDist(utils::Random<PrivKeyShardID>::get_range_dist(1, MAX_MEMBERS)) { }

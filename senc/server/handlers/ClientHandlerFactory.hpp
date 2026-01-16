@@ -8,19 +8,19 @@
 
 #pragma once
 
+#include "../../common/PacketHandler.hpp"
+#include "../managers/DecryptionsManager.hpp"
+#include "../managers/UpdateManager.hpp"
+#include "../storage/IServerStorage.hpp"
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
-#include "../common/PacketHandler.hpp"
-#include "../utils/Socket.hpp"
-#include "DecryptionsManager.hpp"
-#include "UpdateManager.hpp"
-#include "IServerStorage.hpp"
-#include "ILogger.hpp"
+#include "../loggers/ILogger.hpp"
+#include "../../utils/Socket.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	/**
-	 * @class senc::server::ClientHandlerFactory
+	 * @class senc::server::handlers::ClientHandlerFactory
 	 * @brief Used for constructing client handlers.
 	 */
 	class ClientHandlerFactory
@@ -37,9 +37,9 @@ namespace senc::server
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit ClientHandlerFactory(Schema& schema,
-									  IServerStorage& storage,
-									  UpdateManager& updateManager,
-									  DecryptionsManager& decryptionsManager);
+									  storage::IServerStorage& storage,
+									  managers::UpdateManager& updateManager,
+									  managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
@@ -48,7 +48,7 @@ namespace senc::server
 		 * @return Constructed handler.
 		 */
 		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler,
-															   ILogger& logger);
+															   loggers::ILogger& logger);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
@@ -57,13 +57,13 @@ namespace senc::server
 		 * @param username Connected client's username.
 		 */
 		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler,
-															 ILogger& logger,
+															 loggers::ILogger& logger,
 															 const std::string& username);
 
 	private:
 		Schema& _schema;
-		IServerStorage& _storage;
-		UpdateManager& _updateManager;
-		DecryptionsManager& _decryptionsManager;
+		storage::IServerStorage& _storage;
+		managers::UpdateManager& _updateManager;
+		managers::DecryptionsManager& _decryptionsManager;
 	};
 }

@@ -8,17 +8,17 @@
 
 #include "ClientHandlerFactory.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	ClientHandlerFactory::ClientHandlerFactory(Schema& schema,
-											   IServerStorage& storage,
-											   UpdateManager& updateManager,
-											   DecryptionsManager& decryptionsManager)
+											   storage::IServerStorage& storage,
+											   managers::UpdateManager& updateManager,
+											   managers::DecryptionsManager& decryptionsManager)
 		: _schema(schema), _storage(storage), _updateManager(updateManager),
 		  _decryptionsManager(decryptionsManager) { }
 
 	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(PacketHandler& packetHandler,
-																				 ILogger& logger)
+																				 loggers::ILogger& logger)
 	{
 		return ConnectingClientHandler(
 			logger,
@@ -28,7 +28,7 @@ namespace senc::server
 	}
 
 	ConnectedClientHandler ClientHandlerFactory::make_connected_client_handler(PacketHandler& packetHandler,
-																			   ILogger& logger,
+																			   loggers::ILogger& logger,
 																			   const std::string& username)
 	{
 		return ConnectedClientHandler(

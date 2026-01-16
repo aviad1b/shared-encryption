@@ -8,16 +8,16 @@
 
 #pragma once
 
-#include "../common/aliases.hpp"
-#include "../common/sizes.hpp"
-#include "../utils/hash.hpp"
+#include "../../common/aliases.hpp"
+#include "../../common/sizes.hpp"
+#include "../../utils/hash.hpp"
 #include <optional>
 #include <mutex>
 
-namespace senc::server
+namespace senc::server::managers
 {
 	/**
-	 * @class senc::server::DecryptionsManager
+	 * @class senc::server::managers::DecryptionsManager
 	 * @brief Manages synchronized decryption operations.
 	 */
 	class DecryptionsManager

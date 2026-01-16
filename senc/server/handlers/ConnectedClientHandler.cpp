@@ -8,15 +8,15 @@
 
 #include "ConnectedClientHandler.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
-	ConnectedClientHandler::ConnectedClientHandler(ILogger& logger,
+	ConnectedClientHandler::ConnectedClientHandler(loggers::ILogger& logger,
 												   PacketHandler& packetHandler,
 												   const std::string& username,
 												   Schema& schema,
-												   IServerStorage& storage,
-												   UpdateManager& updateManager,
-												   DecryptionsManager& decryptionsManager)
+												   storage::IServerStorage& storage,
+												   managers::UpdateManager& updateManager,
+												   managers::DecryptionsManager& decryptionsManager)
 		: _logger(logger), _packetHandler(packetHandler), _username(username),
 		  _schema(schema), _storage(storage),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
@@ -104,7 +104,7 @@ namespace senc::server
 		if (0 == info.owners_threshold && 0 == info.reg_members_threshold)
 		{
 			// in this case, finish operation and return.
-			finish_operation(opid, DecryptionsManager::CollectedRecord(
+			finish_operation(opid, managers::DecryptionsManager::CollectedRecord(
 				_username, usersetID,
 				info.owners_threshold, info.reg_members_threshold
 			));
@@ -130,7 +130,7 @@ namespace senc::server
 	}
 
 	void ConnectedClientHandler::continue_operation(const OperationID& opid,
-													const DecryptionsManager::PrepareRecord& opPrepRecord)
+													const managers::DecryptionsManager::PrepareRecord& opPrepRecord)
 	{
 		// get shards IDs of all participants (including requester)
 		const auto requesterShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
@@ -157,7 +157,7 @@ namespace senc::server
 	}
 
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
-												  DecryptionsManager::CollectedRecord&& opCollRecord)
+												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
 		const auto requesterShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
 		opCollRecord.reg_layer_shards_ids.push_back(requesterShardID);
@@ -248,7 +248,7 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::GetMembersRequest& request)
 	{
-		UserSetInfo info{};
+		storage::UserSetInfo info{};
 		try { info = _storage.get_userset_info(request.user_set_id); }
 		catch (const ServerException& e)
 		{
@@ -303,8 +303,8 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::DecryptParticipateRequest& request)
 	{
-		std::optional<DecryptionsManager::PrepareRecord> opPrepRecord;
-		DecryptionsManager::PartRequirement partRequirement{};
+		std::optional<managers::DecryptionsManager::PrepareRecord> opPrepRecord;
+		managers::DecryptionsManager::PartRequirement partRequirement{};
 
 		try
 		{
@@ -332,12 +332,12 @@ namespace senc::server
 		// finally, send ack (ask client to send decryption part next (in fitting update), or tell if not needed)
 		switch (partRequirement)
 		{
-		case DecryptionsManager::PartRequirement::RegPart:
+		case managers::DecryptionsManager::PartRequirement::RegPart:
 			_packetHandler.send_response(pkt::DecryptParticipateResponse{
 				pkt::DecryptParticipateResponse::Status::SendRegLayerPart
 			});
 			break;
-		case DecryptionsManager::PartRequirement::OwnerPart:
+		case managers::DecryptionsManager::PartRequirement::OwnerPart:
 			_packetHandler.send_response(pkt::DecryptParticipateResponse{
 				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart
 			});
@@ -354,7 +354,7 @@ namespace senc::server
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::SendDecryptionPartRequest& request)
 	{
-		std::optional<DecryptionsManager::CollectedRecord> opCollRecord;
+		std::optional<managers::DecryptionsManager::CollectedRecord> opCollRecord;
 
 		try
 		{

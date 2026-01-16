@@ -8,18 +8,18 @@
 
 #pragma once
 
-#include "../common/PacketHandler.hpp"
-#include "../utils/Socket.hpp"
-#include "DecryptionsManager.hpp"
-#include "ServerException.hpp"
-#include "IServerStorage.hpp"
-#include "UpdateManager.hpp"
-#include "ILogger.hpp"
+#include "../../common/PacketHandler.hpp"
+#include "../managers/DecryptionsManager.hpp"
+#include "../storage/IServerStorage.hpp"
+#include "../managers/UpdateManager.hpp"
+#include "../loggers/ILogger.hpp"
+#include "../ServerException.hpp"
+#include "../../utils/Socket.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	/**
-	 * @class senc::server::ConnectedClientHandler
+	 * @class senc::server::handlers::ConnectedClientHandler
 	 * @brief Handles requests of connected client.
 	 */
 	class ConnectedClientHandler
@@ -38,13 +38,13 @@ namespace senc::server
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(ILogger& logger,
+		explicit ConnectedClientHandler(loggers::ILogger& logger,
 										PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
-										IServerStorage& storage,
-										UpdateManager& updateManager,
-										DecryptionsManager& decryptionsManager);
+										storage::IServerStorage& storage,
+										managers::UpdateManager& updateManager,
+										managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Runs client handlign loop.
@@ -52,13 +52,13 @@ namespace senc::server
 		void loop();
 
 	private:
-		ILogger& _logger;
+		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;
-		IServerStorage& _storage;
-		UpdateManager& _updateManager;
-		DecryptionsManager& _decryptionsManager;
+		storage::IServerStorage& _storage;
+		managers::UpdateManager& _updateManager;
+		managers::DecryptionsManager& _decryptionsManager;
 
 		enum class Status { Connected, Disconnected };
 
@@ -93,7 +93,7 @@ namespace senc::server
 		 * @param opPrepRecord Preperation record of operation from decryptions manager.
 		 */
 		void continue_operation(const OperationID& opid,
-								const DecryptionsManager::PrepareRecord& opPrepRecord);
+								const managers::DecryptionsManager::PrepareRecord& opPrepRecord);
 
 		/**
 		 * @brief Informed initiator that operation is complete.
@@ -101,7 +101,7 @@ namespace senc::server
 		 * @param opCollRecord Collection record of operation from decryptions manager.
 		 */
 		void finish_operation(const OperationID& opid,
-							  DecryptionsManager::CollectedRecord&& opCollRecord);
+							  managers::DecryptionsManager::CollectedRecord&& opCollRecord);
 
 		/**
 		 * @brief Runs a single iteration of the client loop.

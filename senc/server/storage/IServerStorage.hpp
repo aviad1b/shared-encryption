@@ -8,17 +8,17 @@
 
 #pragma once
 
-#include "../common/aliases.hpp"
-#include "../common/sizes.hpp"
-#include "../utils/ranges.hpp"
-#include "ServerException.hpp"
+#include "../../common/aliases.hpp"
+#include "../../common/sizes.hpp"
+#include "../../utils/ranges.hpp"
+#include "../ServerException.hpp"
 #include <string>
 #include <vector>
 
-namespace senc::server
+namespace senc::server::storage
 {
 	/**
-	 * @class senc::server::ServerStorageException
+	 * @class senc::server::storage::ServerStorageException
 	 * @brief Type of exceptions thrown on server storage errors.
 	 */
 	class ServerStorageException : public ServerException
@@ -45,7 +45,7 @@ namespace senc::server
 	};
 
 	/**
-	 * @class senc::server::UserExistsException
+	 * @class senc::server::storage::UserExistsException
 	 * @brief Type of exceptions thrown by server storage when
 	 *        trying to make user that already exists.
 	 */
@@ -73,7 +73,7 @@ namespace senc::server
 	};
 
 	/**
-	 * @class senc::server::UserNotFoundException
+	 * @class senc::server::storage::UserNotFoundException
 	 * @brief Type of exceptions thrown by server storage when user not found.
 	 */
 	class UserNotFoundException : public ServerStorageException
@@ -127,7 +127,7 @@ namespace senc::server
 	};
 
 	/**
-	 * @struct senc::server::UserSetInfo
+	 * @struct senc::server::storage::UserSetInfo
 	 * @brief Used for holding/returning information about a userset.
 	 */
 	struct UserSetInfo

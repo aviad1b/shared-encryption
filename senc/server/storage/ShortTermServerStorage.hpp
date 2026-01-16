@@ -9,14 +9,14 @@
 #pragma once
 
 #include "IServerStorage.hpp"
-#include "aliases.hpp"
+#include "../aliases.hpp"
 #include <mutex>
 #include <set>
 
-namespace senc::server
+namespace senc::server::storage
 {
 	/**
-	 * @class senc::server::ShortTermServerStorage
+	 * @class senc::server::storage::ShortTermServerStorage
 	 * @brief Implementation of `IServerStorage` which uses runtime memory only.
 	 */
 	class ShortTermServerStorage : public IServerStorage

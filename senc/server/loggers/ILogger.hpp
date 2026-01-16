@@ -8,13 +8,13 @@
 
 #pragma once
 
-#include "../utils/Socket.hpp"
+#include "../../utils/Socket.hpp"
 #include <string>
 
-namespace senc::server
+namespace senc::server::loggers
 {
 	/**
-	 * @interface senc::server::ILogger
+	 * @interface senc::server::loggers::ILogger
 	 * @brief Interface for server message logging.
 	 */
 	class ILogger
