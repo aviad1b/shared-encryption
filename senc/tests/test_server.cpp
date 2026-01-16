@@ -19,10 +19,10 @@
 #include "../utils/Random.hpp"
 
 namespace pkt = senc::pkt;
+using senc::server::managers::DecryptionsManager;
+using senc::server::managers::UpdateManager;
 using senc::server::ShortTermServerStorage;
-using senc::server::DecryptionsManager;
 using senc::server::IServerStorage;
-using senc::server::UpdateManager;
 using senc::PacketHandlerImplFactory;
 using senc::EncryptedPacketHandler;
 using senc::PacketHandlerFactory;

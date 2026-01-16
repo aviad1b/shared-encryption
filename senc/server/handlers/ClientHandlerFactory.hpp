@@ -9,13 +9,13 @@
 #pragma once
 
 #include "../../common/PacketHandler.hpp"
+#include "../managers/DecryptionsManager.hpp"
+#include "../managers/UpdateManager.hpp"
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
-#include "../DecryptionsManager.hpp"
 #include "../loggers/ILogger.hpp"
 #include "../../utils/Socket.hpp"
 #include "../IServerStorage.hpp"
-#include "../UpdateManager.hpp"
 
 namespace senc::server::handlers
 {
@@ -38,8 +38,8 @@ namespace senc::server::handlers
 		 */
 		explicit ClientHandlerFactory(Schema& schema,
 									  IServerStorage& storage,
-									  UpdateManager& updateManager,
-									  DecryptionsManager& decryptionsManager);
+									  managers::UpdateManager& updateManager,
+									  managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
@@ -63,7 +63,7 @@ namespace senc::server::handlers
 	private:
 		Schema& _schema;
 		IServerStorage& _storage;
-		UpdateManager& _updateManager;
-		DecryptionsManager& _decryptionsManager;
+		managers::UpdateManager& _updateManager;
+		managers::DecryptionsManager& _decryptionsManager;
 	};
 }

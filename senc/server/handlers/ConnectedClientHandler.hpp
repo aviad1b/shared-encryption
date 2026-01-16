@@ -9,12 +9,12 @@
 #pragma once
 
 #include "../../common/PacketHandler.hpp"
+#include "../managers/DecryptionsManager.hpp"
+#include "../managers/UpdateManager.hpp"
 #include "../../utils/Socket.hpp"
-#include "../DecryptionsManager.hpp"
 #include "../loggers/ILogger.hpp"
 #include "../ServerException.hpp"
 #include "../IServerStorage.hpp"
-#include "../UpdateManager.hpp"
 
 namespace senc::server::handlers
 {
@@ -43,8 +43,8 @@ namespace senc::server::handlers
 										const std::string& username,
 										Schema& schema,
 										IServerStorage& storage,
-										UpdateManager& updateManager,
-										DecryptionsManager& decryptionsManager);
+										managers::UpdateManager& updateManager,
+										managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Runs client handlign loop.
@@ -57,8 +57,8 @@ namespace senc::server::handlers
 		const std::string& _username;
 		Schema& _schema;
 		IServerStorage& _storage;
-		UpdateManager& _updateManager;
-		DecryptionsManager& _decryptionsManager;
+		managers::UpdateManager& _updateManager;
+		managers::DecryptionsManager& _decryptionsManager;
 
 		enum class Status { Connected, Disconnected };
 
@@ -93,7 +93,7 @@ namespace senc::server::handlers
 		 * @param opPrepRecord Preperation record of operation from decryptions manager.
 		 */
 		void continue_operation(const OperationID& opid,
-								const DecryptionsManager::PrepareRecord& opPrepRecord);
+								const managers::DecryptionsManager::PrepareRecord& opPrepRecord);
 
 		/**
 		 * @brief Informed initiator that operation is complete.
@@ -101,7 +101,7 @@ namespace senc::server::handlers
 		 * @param opCollRecord Collection record of operation from decryptions manager.
 		 */
 		void finish_operation(const OperationID& opid,
-							  DecryptionsManager::CollectedRecord&& opCollRecord);
+							  managers::DecryptionsManager::CollectedRecord&& opCollRecord);
 
 		/**
 		 * @brief Runs a single iteration of the client loop.

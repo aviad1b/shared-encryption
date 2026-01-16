@@ -16,10 +16,10 @@ add_executable(senc_tests
     "../server/handlers/ClientHandlerFactory.cpp"
     "../server/handlers/ConnectedClientHandler.cpp"
     "../server/handlers/ConnectingClientHandler.cpp"
-    "../server/DecryptionsManager.cpp"
+    "../server/managers/DecryptionsManager.cpp"
     "../server/Server_impl.hpp"
     "../server/ShortTermServerStorage.cpp"
-    "../server/UpdateManager.cpp"
+    "../server/managers/UpdateManager.cpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)

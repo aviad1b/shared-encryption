@@ -8,7 +8,7 @@
 
 #include "UpdateManager.hpp"
 
-namespace senc::server
+namespace senc::server::managers
 {
 	pkt::UpdateResponse UpdateManager::retrieve_updates(const std::string& username)
 	{

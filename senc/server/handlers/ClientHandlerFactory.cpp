@@ -12,8 +12,8 @@ namespace senc::server::handlers
 {
 	ClientHandlerFactory::ClientHandlerFactory(Schema& schema,
 											   IServerStorage& storage,
-											   UpdateManager& updateManager,
-											   DecryptionsManager& decryptionsManager)
+											   managers::UpdateManager& updateManager,
+											   managers::DecryptionsManager& decryptionsManager)
 		: _schema(schema), _storage(storage), _updateManager(updateManager),
 		  _decryptionsManager(decryptionsManager) { }
 

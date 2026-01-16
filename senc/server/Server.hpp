@@ -49,8 +49,8 @@ namespace senc::server
 						Schema& schema,
 						IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
-						UpdateManager& updateManager,
-						DecryptionsManager& decryptionsManager);
+						managers::UpdateManager& updateManager,
+						managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new server instance.
@@ -66,8 +66,8 @@ namespace senc::server
 						Schema& schema,
 						IServerStorage& storage,
 						PacketHandlerFactory& packetHandlerFactory,
-						UpdateManager& updateManager,
-						DecryptionsManager& decryptionsManager);
+						managers::UpdateManager& updateManager,
+						managers::DecryptionsManager& decryptionsManager);
 
 		utils::Port port() const override;
 

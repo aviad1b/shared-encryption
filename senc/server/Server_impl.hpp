@@ -23,8 +23,8 @@ namespace senc::server
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
-							  UpdateManager& updateManager,
-							  DecryptionsManager& decryptionsManager)
+							  managers::UpdateManager& updateManager,
+							  managers::DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
 		  _clientHandlerFactory(schema, storage, updateManager, decryptionsManager)
 	{
@@ -36,8 +36,8 @@ namespace senc::server
 							  Schema& schema,
 							  IServerStorage& storage,
 							  PacketHandlerFactory& packetHandlerFactory,
-							  UpdateManager& updateManager,
-							  DecryptionsManager& decryptionsManager)
+							  managers::UpdateManager& updateManager,
+							  managers::DecryptionsManager& decryptionsManager)
 		: Self(listenPort, _dummyLogger, schema, storage,
 			   packetHandlerFactory, updateManager, decryptionsManager) { }
 
