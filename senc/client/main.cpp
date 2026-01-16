@@ -313,7 +313,16 @@ namespace senc::client
 		cout << endl;
 
 		string password = io::input_password("Enter password: ");
+		cout << endl;
+
+		string confirmPassword = io::input_password("Confirm password: ");
 		cout << endl << endl;
+
+		if (password != confirmPassword)
+		{
+			cout << "Signup failed: Password confirmation doesn't match password." << endl;
+			return ConnStatus::NoChange;
+		}
 
 		auto resp = post<pkt::SignupResponse>(packetHandler, pkt::SignupRequest{
 			username, password
