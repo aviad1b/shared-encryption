@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "../../utils/Socket.hpp"
 #include <string>
 
 namespace senc::server::loggers

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../utils/Socket.hpp"
+#include "../../utils/ip.hpp"
 #include "ILogger.hpp"
 
 namespace senc::server::loggers

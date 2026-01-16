@@ -14,7 +14,6 @@
 #include "../managers/UpdateManager.hpp"
 #include "../loggers/ILogger.hpp"
 #include "../ServerException.hpp"
-#include "../../utils/Socket.hpp"
 
 namespace senc::server::handlers
 {

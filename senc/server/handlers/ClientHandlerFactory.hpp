@@ -15,7 +15,6 @@
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
 #include "../loggers/ILogger.hpp"
-#include "../../utils/Socket.hpp"
 
 namespace senc::server::handlers
 {
