@@ -8,19 +8,19 @@
 
 #pragma once
 
+#include "../../common/PacketHandler.hpp"
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
-#include "../common/PacketHandler.hpp"
-#include "../utils/Socket.hpp"
-#include "DecryptionsManager.hpp"
-#include "UpdateManager.hpp"
-#include "IServerStorage.hpp"
-#include "ILogger.hpp"
+#include "../DecryptionsManager.hpp"
+#include "../../utils/Socket.hpp"
+#include "../IServerStorage.hpp"
+#include "../UpdateManager.hpp"
+#include "../ILogger.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	/**
-	 * @class senc::server::ClientHandlerFactory
+	 * @class senc::server::handlers::ClientHandlerFactory
 	 * @brief Used for constructing client handlers.
 	 */
 	class ClientHandlerFactory

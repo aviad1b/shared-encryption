@@ -8,7 +8,7 @@
 
 #include "ClientHandlerFactory.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	ClientHandlerFactory::ClientHandlerFactory(Schema& schema,
 											   IServerStorage& storage,

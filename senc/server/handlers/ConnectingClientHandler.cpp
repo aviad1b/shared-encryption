@@ -8,7 +8,7 @@
 
 #include "ConnectingClientHandler.hpp"
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	ConnectingClientHandler::ConnectingClientHandler(ILogger& logger,
 													 PacketHandler& packetHandler,

@@ -8,17 +8,17 @@
 
 #pragma once
 
-#include "../common/PacketHandler.hpp"
-#include "../utils/Socket.hpp"
-#include "ServerException.hpp"
-#include "IServerStorage.hpp"
-#include "ILogger.hpp"
+#include "../../common/PacketHandler.hpp"
+#include "../../utils/Socket.hpp"
+#include "../ServerException.hpp"
+#include "../IServerStorage.hpp"
+#include "../ILogger.hpp"
 #include <tuple>
 
-namespace senc::server
+namespace senc::server::handlers
 {
 	/**
-	 * @class senc::server::ConnectingClientHandler
+	 * @class senc::server::handlers::ConnectingClientHandler
 	 * @brief Handles requests of connecting client (not yet signed in).
 	 */
 	class ConnectingClientHandler

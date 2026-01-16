@@ -9,7 +9,7 @@
 #pragma once
 
 #include "../common/PacketHandlerFactory.hpp"
-#include "ClientHandlerFactory.hpp"
+#include "handlers/ClientHandlerFactory.hpp"
 #include "ServerException.hpp"
 #include "DummyLogger.hpp"
 #include "IServer.hpp"
@@ -84,7 +84,7 @@ namespace senc::server
 		utils::Port _listenPort;
 		ILogger& _logger;
 		PacketHandlerFactory _packetHandlerFactory;
-		ClientHandlerFactory _clientHandlerFactory;
+		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
 		std::mutex _mtxWait;
