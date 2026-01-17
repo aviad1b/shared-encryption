@@ -93,7 +93,6 @@ static void signup_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, SignupCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	signup_cycle(*this);
 }
 
@@ -106,7 +105,6 @@ static void login_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, LoginCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	login_cycle(*this);
 }
 
@@ -119,7 +117,6 @@ static void logout_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, LogoutCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	logout_cycle(*this);
 }
 
@@ -145,7 +142,6 @@ static void make_user_set_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, MakeUserSetCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	make_user_set_cycle(*this);
 }
 
@@ -164,7 +160,6 @@ static void get_user_sets_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, GetUserSetsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	get_user_sets_cycle(*this);
 }
 
@@ -180,7 +175,6 @@ static void get_members_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, GetMembersCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	get_members_cycle(*this);
 }
 
@@ -203,7 +197,6 @@ static void decrypt_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, DecryptCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	decrypt_cycle(*this);
 }
 
@@ -293,7 +286,6 @@ static void update_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, UpdateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	update_cycle(*this);
 }
 
@@ -306,7 +298,6 @@ static void decrypt_participate_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, DecryptParticipateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	decrypt_participate_cycle(*this);
 }
 
@@ -322,13 +313,11 @@ static void send_decryption_part_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	send_decryption_part_cycle(*this);
 }
 
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
-	auto [client, server] = prepare_tcp();
 	error_cycle(*this);
 	signup_cycle(*this);
 	login_cycle(*this);
@@ -344,8 +333,6 @@ TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 
 TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
@@ -385,8 +372,6 @@ TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 
 TEST_P(PacketsTest, TestRequestVariant)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::SignupRequest signupReq{ "username", "pass123" };
 	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
