@@ -41,8 +41,8 @@ namespace senc
 			SockUtils::send_ecgroup_elem(res._sock, gy);
 
 			// compute g^xy and dereive key
-			gx *= gy;
-			res._key = res._kdf(gx);
+			const Group sharedSecret = gx.pow(y); // gx^y = g^(xy)
+			res._key = res._kdf(sharedSecret);
 		}
 		catch (const std::exception& e)
 		{
@@ -76,8 +76,8 @@ namespace senc
 			SockUtils::recv_ecgroup_elem(res._sock, gy);
 
 			// compute g^xy and dereive key
-			gy *= gx;
-			res._key = res._kdf(gy);
+			const Group sharedSecret = gy.pow(x); // gy^x = g^(xy)
+			res._key = res._kdf(sharedSecret);
 		}
 		catch (const std::exception& e)
 		{
@@ -85,6 +85,17 @@ namespace senc
 		}
 
 		return res;
+	}
+
+	bool EncryptedPacketHandler::validate_synchronization(const Base* other) const
+	{
+		// return false if other is not of same type as self
+		const Self* other2 = dynamic_cast<const Self*>(other);
+		if (!other2)
+			return false;
+
+		// check synchronized keys
+		return (this->_key == other2->_key);
 	}
 
 	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)

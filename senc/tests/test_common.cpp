@@ -46,6 +46,7 @@ protected:
 					return packetHandlerFactory.new_server_packet_handler(sock);
 				}
 			);
+		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
 	}
 	
 	void TearDown() override
@@ -93,7 +94,6 @@ static void signup_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, SignupCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	signup_cycle(*this);
 }
 
@@ -106,7 +106,6 @@ static void login_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, LoginCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	login_cycle(*this);
 }
 
@@ -119,7 +118,6 @@ static void logout_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, LogoutCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	logout_cycle(*this);
 }
 
@@ -134,8 +132,8 @@ static void make_user_set_cycle(PacketsTest& test)
 
 	pkt::MakeUserSetResponse resp{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-		ECGroup::identity().pow(435),
-		ECGroup::identity().pow(256),
+		ECGroup::generator().pow(435),
+		ECGroup::generator().pow(256),
 		senc::PrivKeyShard{ 1, 435 },
 		senc::PrivKeyShard{ 2, 256 }
 	};
@@ -145,7 +143,6 @@ static void make_user_set_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, MakeUserSetCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	make_user_set_cycle(*this);
 }
 
@@ -164,7 +161,6 @@ static void get_user_sets_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, GetUserSetsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	get_user_sets_cycle(*this);
 }
 
@@ -180,7 +176,6 @@ static void get_members_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, GetMembersCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	get_members_cycle(*this);
 }
 
@@ -189,8 +184,8 @@ static void decrypt_cycle(PacketsTest& test)
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
 		{
-			ECGroup::identity().pow(435),
-			ECGroup::identity().pow(256),
+			ECGroup::generator().pow(435),
+			ECGroup::generator().pow(256),
 			{
 				CryptoPP::SecByteBlock{},
 				{ 5, 6, 7, 8, 9 }
@@ -203,7 +198,6 @@ static void decrypt_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, DecryptCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	decrypt_cycle(*this);
 }
 
@@ -214,29 +208,29 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-				ECGroup::identity().pow(435),
-				ECGroup::identity().pow(256),
+				ECGroup::generator().pow(435),
+				ECGroup::generator().pow(256),
 				senc::PrivKeyShard{ 1, 435 }
 			},
 			{
 				"c7379469-4294-40b4-850c-fe665717d1ba",
-				ECGroup::identity().pow(534),
-				ECGroup::identity().pow(652),
+				ECGroup::generator().pow(534),
+				ECGroup::generator().pow(652),
 				senc::PrivKeyShard{ 2, 256 }
 			}
 		},
 		{
 			{
 				"57641e16-e02a-473b-8204-a809a9c435df",
-				ECGroup::identity().pow(111),
-				ECGroup::identity().pow(222),
+				ECGroup::generator().pow(111),
+				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
 				senc::PrivKeyShard{ 13, 131313 }
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
-				ECGroup::identity().pow(444),
-				ECGroup::identity().pow(555),
+				ECGroup::generator().pow(444),
+				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },
 				senc::PrivKeyShard{ 14, 161616 }
 			}
@@ -249,8 +243,8 @@ static void update_cycle(PacketsTest& test)
 			{
 				"663383cf-d302-4eaf-8680-e8abcf240d89",
 				{
-					ECGroup::identity().pow(5),
-					ECGroup::identity().pow(6),
+					ECGroup::generator().pow(5),
+					ECGroup::generator().pow(6),
 					{
 						CryptoPP::SecByteBlock{},
 						{ 5, 6, 7, 8, 9 }
@@ -261,8 +255,8 @@ static void update_cycle(PacketsTest& test)
 			{
 				"1349f2e2-df59-4a4e-82c5-a74e009a72f0",
 				{
-					ECGroup::identity().pow(43),
-					ECGroup::identity().pow(56),
+					ECGroup::generator().pow(43),
+					ECGroup::generator().pow(56),
 					{
 						CryptoPP::SecByteBlock{},
 						{ 8, 8, 8, 8, 8 }
@@ -274,14 +268,14 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
-				{ ECGroup::identity().pow(3), ECGroup::identity().pow(4) },
-				{ ECGroup::identity().pow(5), ECGroup::identity().pow(6) },
+				{ ECGroup::generator().pow(3), ECGroup::generator().pow(4) },
+				{ ECGroup::generator().pow(5), ECGroup::generator().pow(6) },
 				{ 1, 2, 100 },
 				{ 3, 4, 100 }
 			},
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
-				{ ECGroup::identity().pow(8) },
+				{ ECGroup::generator().pow(8) },
 				{ },
 				{ 5, 100 },
 				{ 100 }
@@ -293,7 +287,6 @@ static void update_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, UpdateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	update_cycle(*this);
 }
 
@@ -306,7 +299,6 @@ static void decrypt_participate_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, DecryptParticipateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	decrypt_participate_cycle(*this);
 }
 
@@ -314,7 +306,7 @@ static void send_decryption_part_cycle(PacketsTest& test)
 {
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
-		ECGroup::identity().pow(435)
+		ECGroup::generator().pow(435)
 	};
 	pkt::SendDecryptionPartResponse resp{};
 	test.cycle_flow(req, resp);
@@ -322,13 +314,11 @@ static void send_decryption_part_cycle(PacketsTest& test)
 
 TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 {
-	auto [client, server] = prepare_tcp();
 	send_decryption_part_cycle(*this);
 }
 
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
-	auto [client, server] = prepare_tcp();
 	error_cycle(*this);
 	signup_cycle(*this);
 	login_cycle(*this);
@@ -344,8 +334,6 @@ TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 
 TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
@@ -385,8 +373,6 @@ TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 
 TEST_P(PacketsTest, TestRequestVariant)
 {
-	auto [client, server] = prepare_tcp();
-
 	pkt::SignupRequest signupReq{ "username", "pass123" };
 	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
