@@ -46,6 +46,7 @@ protected:
 					return packetHandlerFactory.new_server_packet_handler(sock);
 				}
 			);
+		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
 	}
 	
 	void TearDown() override

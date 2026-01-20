@@ -29,6 +29,12 @@ namespace senc
 		PacketHandler(Self&&) = default;
 
 		/**
+		 * @brief Validates that another packet handler is synchronized with this one (for debugging purposes).
+		 * @return `true` if synchronized, otherwise `false`.
+		 */
+		virtual bool validate_synchronization(const Self* other) const = 0;
+
+		/**
 		 * @brief Sends given request with fitting code.
 		 * @param packet Packet to send.
 		 */

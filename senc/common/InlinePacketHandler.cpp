@@ -43,6 +43,12 @@ namespace senc
 		return res;
 	}
 
+	bool InlinePacketHandler::validate_synchronization(const Base* other) const
+	{
+		// return true iff other is of same type as self
+		return (nullptr != dynamic_cast<const Self*>(other));
+	}
+
 	void InlinePacketHandler::send_response_data(const pkt::ErrorResponse& packet)
 	{
 		_sock.send_connected_value(packet.msg);

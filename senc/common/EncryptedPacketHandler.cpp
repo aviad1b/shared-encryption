@@ -87,6 +87,17 @@ namespace senc
 		return res;
 	}
 
+	bool EncryptedPacketHandler::validate_synchronization(const Base* other) const
+	{
+		// return false if other is not of same type as self
+		const Self* other2 = dynamic_cast<const Self*>(other);
+		if (!other2)
+			return false;
+
+		// check synchronized keys
+		return (this->_key == other2->_key);
+	}
+
 	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
 	{
 		utils::Buffer data{};

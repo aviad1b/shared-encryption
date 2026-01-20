@@ -39,6 +39,8 @@ namespace senc
 		 */
 		static Self client(utils::Socket& sock);
 
+		bool validate_synchronization(const Base* other) const override;
+
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
 
