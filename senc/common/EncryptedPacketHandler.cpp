@@ -41,8 +41,8 @@ namespace senc
 			SockUtils::send_ecgroup_elem(res._sock, gy);
 
 			// compute g^xy and dereive key
-			gx *= gy;
-			res._key = res._kdf(gx);
+			const Group sharedSecret = gx.pow(y); // gx^y = g^(xy)
+			res._key = res._kdf(sharedSecret);
 		}
 		catch (const std::exception& e)
 		{
@@ -76,8 +76,8 @@ namespace senc
 			SockUtils::recv_ecgroup_elem(res._sock, gy);
 
 			// compute g^xy and dereive key
-			gy *= gx;
-			res._key = res._kdf(gy);
+			const Group sharedSecret = gy.pow(x); // gy^x = g^(xy)
+			res._key = res._kdf(sharedSecret);
 		}
 		catch (const std::exception& e)
 		{
