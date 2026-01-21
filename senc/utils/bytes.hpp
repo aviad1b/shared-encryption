@@ -176,6 +176,11 @@ namespace senc::utils
 	 */
 	std::string bytes_to_base64(const HasByteData auto& bytes);
 
+	/**
+	 * @brief Converts a range of bytes to base64 representation.
+	 * @param rng Range of bytes to encode in base64.
+	 * @return Base64 string.
+	 */
 	template <std::ranges::input_range R>
 	requires (std::same_as<std::ranges::range_value_t<R>, byte> && !HasByteData<R>)
 	std::string bytes_to_base64(R&& rng);
@@ -194,7 +199,8 @@ namespace senc::utils
 	 * @param value Value to write.
 	 */
 	template <std::endian endianess = std::endian::big>
-	void write_bytes(Buffer& bytes, const std::string& value);
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>;
 
 	/**
 	 * @brief Writes a primitive value to an array of bytes.
@@ -226,7 +232,8 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end);
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>;
 
 	/**
 	 * @brief Reads a fundamental/enum value from bytes.

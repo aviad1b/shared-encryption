@@ -19,6 +19,12 @@ namespace senc::server::loggers
 		this->_console.print("[info] " + msg);
 	}
 
+	void ConsoleLogger::log_warning(const std::string& msg)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxConsole);
+		this->_console.print("[warning] " + msg);
+	}
+
 	void ConsoleLogger::log_error(const std::string& msg)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxConsole);

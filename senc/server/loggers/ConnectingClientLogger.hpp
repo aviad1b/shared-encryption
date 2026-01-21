@@ -37,6 +37,11 @@ namespace senc::server::loggers
 			_base.log_info("Client " + _ip.as_str() + ":" + std::to_string(_port) + ": " + msg);
 		}
 
+		void log_warning(const std::string& msg) override
+		{
+			_base.log_error("Client " + _ip.as_str() + ":" + std::to_string(_port) + ": " + msg);
+		}
+
 		void log_error(const std::string& msg) override
 		{
 			_base.log_error("Client " + _ip.as_str() + ":" + std::to_string(_port) + ": " + msg);

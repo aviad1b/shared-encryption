@@ -10,6 +10,7 @@ add_executable(senc_tests
     "test_threshold_enc.cpp"
     "test_common.cpp"
     "test_strs.cpp"
+    "test_bytes.cpp"
     "tests_utils.hpp"
     "test_storage.cpp"
     "test_server.cpp"

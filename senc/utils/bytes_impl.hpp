@@ -91,14 +91,14 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	void write_bytes(Buffer& bytes, const std::string& value)
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>
 	{
-		bytes.insert(
-			bytes.end(),
-			value.begin(),
-			value.end()
-		);
-		bytes.push_back('\0');
+		using C = StringElem<std::remove_cvref_t<decltype(value)>>;
+		bytes.reserve(bytes.size() + ((value.length() + 1) * sizeof(C)));
+		for (C c : value)
+			write_bytes<endianess>(bytes, c);
+		write_bytes<endianess>(bytes, static_cast<C>(0)); // null termination
 	}
 
 	template <std::endian endianess>
@@ -124,17 +124,26 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>
 	{
-		const char* p = reinterpret_cast<const char*>(std::to_address(it));
-		const char* pEnd = reinterpret_cast<const char*>(std::to_address(end));
-		const char* null = std::find(p, pEnd, 0);
+		using Str = std::remove_cvref_t<decltype(out)>;
+		using C = StringElem<Str>;
+
+		const C* p = reinterpret_cast<const C*>(std::to_address(it));
+		const C* pEnd = reinterpret_cast<const C*>(std::to_address(end));
+		const C* null = std::find(p, pEnd, static_cast<C>(0));
 
 		// if has null termination, simply assign as string;
 		// otherwise, read everything untill end
-		out = std::string(p, std::min(null, pEnd));
+		const C* strEnd = std::min(null, pEnd);
+		const std::size_t len = strEnd - p;
 
-		it += out.length() + 1; // including null-termination
+		out.resize(len);
+		for (C& c : out)
+			it = read_bytes<endianess>(c, it, end);
+
+		it += sizeof(C); // including null-termination
 
 		return it;
 	}

@@ -21,7 +21,7 @@ namespace senc
 		Self res(sock);
 
 		// receive & check protocol version
-		auto protocolVersion = res._sock.recv_connected_primitive<std::uint8_t>();
+		auto protocolVersion = res._sock.recv_connected_primitive<pkt::protocol_version_t>();
 		if (protocolVersion != pkt::PROTOCOL_VERSION)
 		{
 			res._sock.send_connected_primitive(false); // bad protocol version
@@ -583,8 +583,10 @@ namespace senc
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
 		const auto& [c1, c2] = encryptedData;
-		_sock.send_connected_primitive(static_cast<std::uint64_t>(c1.size()));
-		_sock.send_connected_primitive(static_cast<std::uint64_t>(c2.size()));
+		if (c1.size() > MAX_ENCDATA_SIZE || c2.size() > MAX_ENCDATA_SIZE)
+			throw utils::Exception("Cant send: Packet too big");
+		_sock.send_connected_primitive(static_cast<encdata_size_t>(c1.size()));
+		_sock.send_connected_primitive(static_cast<encdata_size_t>(c2.size()));
 		_sock.send_connected(c1);
 		_sock.send_connected(c2);
 	}
@@ -594,10 +596,10 @@ namespace senc
 		utils::enc::Ciphertext<Schema> encryptedData{};
 		auto& [c1, c2] = encryptedData;
 
-		const auto c1Size = _sock.recv_connected_primitive<std::uint64_t>();
+		const auto c1Size = _sock.recv_connected_primitive<encdata_size_t>();
 		c1.resize(c1Size);
 
-		const auto c2Size = _sock.recv_connected_primitive<std::uint64_t>();
+		const auto c2Size = _sock.recv_connected_primitive<encdata_size_t>();
 		c2.resize(c2Size);
 
 		_sock.recv_connected_exact_into(c1);
