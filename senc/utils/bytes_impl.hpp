@@ -136,9 +136,14 @@ namespace senc::utils
 
 		// if has null termination, simply assign as string;
 		// otherwise, read everything untill end
-		out = Str(p, std::min(null, pEnd));
+		const C* strEnd = std::min(null, pEnd);
+		const std::size_t len = strEnd - p;
 
-		it += (out.length() + 1) * sizeof(C); // including null-termination
+		out.resize(len);
+		for (C& c : out)
+			it = read_bytes<endianess>(c, it, end);
+
+		it += sizeof(C); // including null-termination
 
 		return it;
 	}
