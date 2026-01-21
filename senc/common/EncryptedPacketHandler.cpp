@@ -21,7 +21,7 @@ namespace senc
 		Self res(sock);
 
 		// receive & check protocol version
-		auto protocolVersion = res._sock.recv_connected_primitive<std::uint8_t>();
+		auto protocolVersion = res._sock.recv_connected_primitive<pkt::protocol_version_t>();
 		if (protocolVersion != pkt::PROTOCOL_VERSION)
 		{
 			res._sock.send_connected_primitive(false); // bad protocol version
