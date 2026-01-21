@@ -91,14 +91,13 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	void write_bytes(Buffer& bytes, const std::string& value)
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>
 	{
-		bytes.insert(
-			bytes.end(),
-			value.begin(),
-			value.end()
-		);
-		bytes.push_back('\0');
+		using C = StringElem<std::remove_cvref_t<decltype(value)>>;
+		bytes.reserve(bytes.size() + (value.length() * sizeof(C)));
+		for (C c : value)
+			write_bytes<endianess>(bytes, c);
 	}
 
 	template <std::endian endianess>

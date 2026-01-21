@@ -194,7 +194,8 @@ namespace senc::utils
 	 * @param value Value to write.
 	 */
 	template <std::endian endianess = std::endian::big>
-	void write_bytes(Buffer& bytes, const std::string& value);
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>;
 
 	/**
 	 * @brief Writes a primitive value to an array of bytes.
