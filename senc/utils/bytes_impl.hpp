@@ -123,17 +123,21 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>
 	{
-		const char* p = reinterpret_cast<const char*>(std::to_address(it));
-		const char* pEnd = reinterpret_cast<const char*>(std::to_address(end));
-		const char* null = std::find(p, pEnd, 0);
+		using Str = std::remove_cvref_t<decltype(out)>;
+		using C = StringElem<Str>;
+
+		const C* p = reinterpret_cast<const C*>(std::to_address(it));
+		const C* pEnd = reinterpret_cast<const char*>(std::to_address(end));
+		const C* null = std::find(p, pEnd, static_cast<C>(0));
 
 		// if has null termination, simply assign as string;
 		// otherwise, read everything untill end
-		out = std::string(p, std::min(null, pEnd));
+		out = Str(p, std::min(null, pEnd));
 
-		it += out.length() + 1; // including null-termination
+		it += (out.length() + 1) * sizeof(C); // including null-termination
 
 		return it;
 	}

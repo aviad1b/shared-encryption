@@ -227,7 +227,8 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(std::string& out, Buffer::iterator it, Buffer::iterator end);
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>;
 
 	/**
 	 * @brief Reads a fundamental/enum value from bytes.
