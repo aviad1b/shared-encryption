@@ -23,6 +23,8 @@ namespace senc::server::loggers
 
 		void log_info(const std::string& msg) override { (void)msg; }
 		
+		void log_warning(const std::string& msg) override { (void)msg; }
+
 		void log_error(const std::string& msg) override { (void)msg; }
 	};
 }

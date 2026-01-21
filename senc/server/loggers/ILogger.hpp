@@ -28,6 +28,12 @@ namespace senc::server::loggers
 		virtual void log_info(const std::string& msg) = 0;
 
 		/**
+		 * @brief Logs a server warning message.
+		 * @param msg Server warning message to log.
+		 */
+		virtual void log_warning(const std::string& msg) = 0;
+
+		/**
 		 * @brief Logs a server error message.
 		 * @param msg Server error message to log.
 		 */
