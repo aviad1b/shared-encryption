@@ -95,7 +95,7 @@ namespace senc::utils
 	requires StringType<std::remove_cvref_t<decltype(value)>>
 	{
 		using C = StringElem<std::remove_cvref_t<decltype(value)>>;
-		bytes.reserve(bytes.size() + (value.length() * sizeof(C)));
+		bytes.reserve(bytes.size() + ((value.length() + 1) * sizeof(C)));
 		for (C c : value)
 			write_bytes<endianess>(bytes, c);
 		write_bytes<endianess>(bytes, static_cast<C>(0)); // null termination
