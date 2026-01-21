@@ -130,7 +130,7 @@ namespace senc::utils
 		using C = StringElem<Str>;
 
 		const C* p = reinterpret_cast<const C*>(std::to_address(it));
-		const C* pEnd = reinterpret_cast<const char*>(std::to_address(end));
+		const C* pEnd = reinterpret_cast<const C*>(std::to_address(end));
 		const C* null = std::find(p, pEnd, static_cast<C>(0));
 
 		// if has null termination, simply assign as string;
