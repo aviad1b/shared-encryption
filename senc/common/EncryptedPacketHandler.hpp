@@ -116,6 +116,12 @@ namespace senc
 		KDF _kdf;
 		Key _key;
 
+		/**
+		 * @typedef encdata_size_t
+		 * @brief Primitive used for size of encrypted packet data.
+		 */
+		using encdata_size_t = std::uint64_t;
+
 		void send_encrypted_data(const utils::Buffer& data);
 		
 		void recv_encrypted_data(utils::Buffer& out);
