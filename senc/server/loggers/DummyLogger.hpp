@@ -12,6 +12,10 @@
 
 namespace senc::server::loggers
 {
+	/**
+	 * @class senc::server::loggers::DummyLogger
+	 * @brief Empty logger implementation - does nothing.
+	 */
 	class DummyLogger : public ILogger
 	{
 	public:
