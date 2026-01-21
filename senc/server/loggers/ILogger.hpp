@@ -21,8 +21,16 @@ namespace senc::server::loggers
 	public:
 		virtual ~ILogger() { }
 
+		/**
+		 * @brief Logs a server info message.
+		 * @param msg Server info message to log.
+		 */
 		virtual void log_info(const std::string& msg) = 0;
 
+		/**
+		 * @brief Logs a server error message.
+		 * @param msg Server error message to log.
+		 */
 		virtual void log_error(const std::string& msg) = 0;
 	};
 }
