@@ -14,8 +14,25 @@ using senc::utils::write_bytes;
 using senc::utils::read_bytes;
 using senc::utils::Buffer;
 
-TEST(BytesTests, BufferWriteRead)
+template <typename Self>
+concept EndianessWrapper = requires
 {
+	{ Self::value } -> std::convertible_to<std::endian>;
+};
+
+template <EndianessWrapper E>
+struct BytesTests : public testing::Test { };
+
+using EndianessTypes = testing::Types<
+	std::integral_constant<std::endian, std::endian::big>,
+	std::integral_constant<std::endian, std::endian::little>
+>;
+TYPED_TEST_SUITE(BytesTests, EndianessTypes);
+
+TYPED_TEST(BytesTests, BufferWriteRead)
+{
+	constexpr std::endian endianess = TypeParam::value;
+
 	enum class MyEnum { A, B, C };
 
 	const std::string outStr = "abc";
@@ -25,11 +42,11 @@ TEST(BytesTests, BufferWriteRead)
 	Buffer outSubBuf{ 1, 2, 3 };
 
 	Buffer buff{};
-	write_bytes(buff, outStr);
-	write_bytes(buff, outWstr);
-	write_bytes(buff, outNum);
-	write_bytes(buff, outEnum);
-	write_bytes(buff, outSubBuf);
+	write_bytes<endianess>(buff, outStr);
+	write_bytes<endianess>(buff, outWstr);
+	write_bytes<endianess>(buff, outNum);
+	write_bytes<endianess>(buff, outEnum);
+	write_bytes<endianess>(buff, outSubBuf);
 
 	std::string inStr{};
 	std::wstring inWstr{};
@@ -40,23 +57,23 @@ TEST(BytesTests, BufferWriteRead)
 	const auto end = buff.end();
 	auto it = buff.begin();
 
-	it = read_bytes(inStr, it, end);
+	it = read_bytes<endianess>(inStr, it, end);
 	EXPECT_EQ(inStr, outStr);
 	EXPECT_NE(it, end);
 
-	it = read_bytes(inWstr, it, end);
+	it = read_bytes<endianess>(inWstr, it, end);
 	EXPECT_EQ(inWstr, outWstr);
 	EXPECT_NE(it, end);
 
-	it = read_bytes(inNum, it, end);
+	it = read_bytes<endianess>(inNum, it, end);
 	EXPECT_EQ(inNum, outNum);
 	EXPECT_NE(it, end);
 
-	it = read_bytes(inEnum, it, end);
+	it = read_bytes<endianess>(inEnum, it, end);
 	EXPECT_EQ(inEnum, outEnum);
 	EXPECT_NE(it, end);
 
-	it = read_bytes(inSubBuf, it, end);
+	it = read_bytes<endianess>(inSubBuf, it, end);
 	EXPECT_EQ(inSubBuf, outSubBuf);
 	EXPECT_EQ(it, end);
 }
