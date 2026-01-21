@@ -583,6 +583,8 @@ namespace senc
 	{
 		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
 		const auto& [c1, c2] = encryptedData;
+		if (c1.size() > MAX_ENCDATA_SIZE || c2.size() > MAX_ENCDATA_SIZE)
+			throw utils::Exception("Cant send: Packet too big");
 		_sock.send_connected_primitive(static_cast<encdata_size_t>(c1.size()));
 		_sock.send_connected_primitive(static_cast<encdata_size_t>(c2.size()));
 		_sock.send_connected(c1);

@@ -122,6 +122,11 @@ namespace senc
 		 */
 		using encdata_size_t = std::uint64_t;
 
+		/**
+		 * @brief Maximum size of encrypted packet data.
+		 */
+		static constexpr std::size_t MAX_ENCDATA_SIZE = std::numeric_limits<encdata_size_t>::max();
+
 		void send_encrypted_data(const utils::Buffer& data);
 		
 		void recv_encrypted_data(utils::Buffer& out);
