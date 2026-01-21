@@ -98,6 +98,7 @@ namespace senc::utils
 		bytes.reserve(bytes.size() + (value.length() * sizeof(C)));
 		for (C c : value)
 			write_bytes<endianess>(bytes, c);
+		write_bytes<endianess>(bytes, static_cast<C>(0)); // null termination
 	}
 
 	template <std::endian endianess>
