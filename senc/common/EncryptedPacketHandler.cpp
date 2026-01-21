@@ -12,10 +12,6 @@
 
 namespace senc
 {
-	utils::Distribution<utils::BigInt> EncryptedPacketHandler::_powDist(
-		utils::Random<utils::BigInt>::get_dist_below(Group::order())
-	);
-
 	EncryptedPacketHandler::Self EncryptedPacketHandler::server(utils::Socket& sock)
 	{
 		Self res(sock);
@@ -36,7 +32,7 @@ namespace senc
 			SockUtils::recv_ecgroup_elem(res._sock, gx);
 
 			// sample y and send gy for key exchange
-			const utils::BigInt y = _powDist();
+			const utils::BigInt y = sample_pow();
 			const Group gy = Group::generator().pow(y);
 			SockUtils::send_ecgroup_elem(res._sock, gy);
 
@@ -67,7 +63,7 @@ namespace senc
 		try
 		{
 			// sample x and send g^x for key exchange
-			const utils::BigInt x = _powDist();
+			const utils::BigInt x = sample_pow();
 			const Group gx = Group::generator().pow(x);
 			SockUtils::send_ecgroup_elem(res._sock, gx);
 

@@ -111,10 +111,17 @@ namespace senc
 		EncryptedPacketHandler(utils::Socket& sock);
 
 	private:
-		static utils::Distribution<utils::BigInt> _powDist;
 		Schema _schema;
 		KDF _kdf;
 		Key _key;
+
+		static utils::BigInt sample_pow()
+		{
+			static thread_local utils::Distribution<utils::BigInt> powDist(
+				utils::Random<utils::BigInt>::get_dist_below(Group::order())
+			);
+			return powDist();
+		}
 
 		/**
 		 * @typedef encdata_size_t
