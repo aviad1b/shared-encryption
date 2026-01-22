@@ -70,6 +70,8 @@ namespace senc::server
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
+		finish_all_conns(); // close all open connections
+
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
@@ -87,6 +89,13 @@ namespace senc::server
 		const std::lock_guard<std::mutex> lock(_mtxFinishedConns);
 		_finishedConns.emplace_back(std::move(connID));
 		_cvFinishedConns.notify_one();
+	}
+
+	template <utils::IPType IP>
+	inline void Server<IP>::finish_all_conns()
+	{
+		const std::lock_guard<std::mutex> lock(_mtxConns);
+		_conns.clear();
 	}
 
 	template <utils::IPType IP>

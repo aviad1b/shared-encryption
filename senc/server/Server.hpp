@@ -107,6 +107,11 @@ namespace senc::server
 		void reg_finished_conn(utils::UUID&& connID);
 
 		/**
+		 * @brief Forces end to all open connections.
+		 */
+		void finish_all_conns();
+
+		/**
 		 * @brief Cleans finished connections in a loop.
 		 */
 		void cleanup_loop();
