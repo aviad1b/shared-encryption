@@ -183,6 +183,8 @@ namespace senc::utils
 
 	void Socket::close()
 	{
+		if (UNDERLYING_NO_SOCK == this->_sock)
+			return;
 		try
 		{
 #ifdef SENC_WINDOWS
