@@ -101,6 +101,7 @@ namespace senc::server
 		for (auto& p : _conns)
 			if (p.second.second.joinable())
 				p.second.second.join();
+		_conns.clear();
 	}
 
 	template <utils::IPType IP>
@@ -121,6 +122,7 @@ namespace senc::server
 				it->second.first.close();
 				if (it->second.second.joinable())
 					it->second.second.join();
+				_conns.erase(it);
 			}
 
 			_finishedConns.clear();
