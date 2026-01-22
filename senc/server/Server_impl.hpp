@@ -126,6 +126,10 @@ namespace senc::server
 		try { std::tie(connected, username) = clientHandler.connect_client(); }
 		catch (const utils::SocketException& e)
 		{
+			// might happened because server stopped, in that case, stop here
+			if (!_isRunning)
+				return { false, "" };
+
 			logger.log_info(std::string("Lost connection: ") + e.what() + ".");
 		}
 
@@ -153,6 +157,10 @@ namespace senc::server
 		try { handler.loop(); }
 		catch (const utils::SocketException& e)
 		{
+			// might happened because server stopped, in that case, stop here
+			if (!_isRunning)
+				return;
+
 			logger.log_info(std::string("Lost connection: ") + e.what());
 		}
 
