@@ -21,18 +21,28 @@ namespace senc::server::handlers
 		  _schema(schema), _storage(storage),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
-	void ConnectedClientHandler::loop(std::function<bool()> stop)
+	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
 	{
-		Status status = Status::Connected;
-		while (Status::Connected == status || !stop())
-		{
-			try { status = iteration(); }
-			catch (const utils::SocketException& e) { throw e; }
-			catch (const std::exception& e)
-			{
-				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
-			}
-		}
+		auto req = _packetHandler.recv_request<
+			pkt::LogoutRequest,
+			pkt::MakeUserSetRequest,
+			pkt::GetUserSetsRequest,
+			pkt::GetMembersRequest,
+			pkt::DecryptRequest,
+			pkt::UpdateRequest,
+			pkt::DecryptParticipateRequest,
+			pkt::SendDecryptionPartRequest
+		>();
+
+		if (req.has_value())
+			return std::visit(
+				[this](auto& r) { return handle_request(r); },
+				*req
+			);
+
+		// if reached here, bad request
+		_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
+		return Status::Connected;
 	}
 
 	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
@@ -169,30 +179,6 @@ namespace senc::server::handlers
 			std::move(opCollRecord.reg_layer_shards_ids),
 			std::move(opCollRecord.owner_layer_shards_ids)
 		);
-	}
-
-	ConnectedClientHandler::Status ConnectedClientHandler::iteration()
-	{
-		auto req = _packetHandler.recv_request<
-			pkt::LogoutRequest,
-			pkt::MakeUserSetRequest,
-			pkt::GetUserSetsRequest,
-			pkt::GetMembersRequest,
-			pkt::DecryptRequest,
-			pkt::UpdateRequest,
-			pkt::DecryptParticipateRequest,
-			pkt::SendDecryptionPartRequest
-		>();
-
-		if (req.has_value())
-			return std::visit(
-				[this](auto& r) { return handle_request(r); },
-				*req
-			);
-
-		// if reached here, bad request
-		_packetHandler.send_response(pkt::ErrorResponse{ "Bad request" });
-		return Status::Connected;
 	}
 
 	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::LogoutRequest& request)

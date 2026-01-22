@@ -16,6 +16,7 @@
 #include "IServer.hpp"
 #include <condition_variable>
 #include <functional>
+#include <thread>
 #include <atomic>
 #include <mutex>
 
@@ -90,6 +91,26 @@ namespace senc::server
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
+
+		// maps connection ID to socket and handling thread
+		utils::HashMap<utils::UUID, std::pair<Socket, std::jthread>> _conns;
+		std::mutex _mtxConns;
+
+		std::vector<utils::UUID> _finishedConns;
+		std::mutex _mtxFinishedConns;
+		std::condition_variable _cvFinishedConns;
+
+		/**
+		 * @brief Registers that a connection has finished
+		 * @param connID Connection ID (moved).
+		 */
+		void reg_finished_conn(utils::UUID&& connID);
+
+		/**
+		 * @brief Cleans finished connections in a loop.
+		 */
+		void cleanup_loop();
+
 		/**
 		 * @brief Accepts new clients in a loop.
 		 */
@@ -97,11 +118,11 @@ namespace senc::server
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
-		 * @param sock Socket connected to client (moved).
+		 * @param connID Connection ID.
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock, IP ip, utils::Port port);
+		void handle_new_client(utils::UUID connID, IP ip, utils::Port port);
 
 		/**
 		 * @brief Handles client connection request(s).

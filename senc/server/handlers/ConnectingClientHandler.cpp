@@ -15,24 +15,6 @@ namespace senc::server::handlers
 													 storage::IServerStorage& storage)
 		: _logger(logger), _packetHandler(packetHandler), _storage(storage) { }
 
-	std::tuple<bool, std::string> ConnectingClientHandler::connect_client()
-	{
-		// run login/signup loop
-		Status status = Status::Error;
-		std::string username;
-		while (Status::Error == status)
-		{
-			try { std::tie(status, username) = iteration(); }
-			catch (const utils::SocketException& e) { throw e; }
-			catch (const std::exception& e)
-			{
-				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
-			}
-		};
-
-		return { Status::Connected == status, username };
-	}
-
 	std::tuple<ConnectingClientHandler::Status, std::string> ConnectingClientHandler::iteration()
 	{
 		// connection request: Should be signup, login or logout (to disconnect)

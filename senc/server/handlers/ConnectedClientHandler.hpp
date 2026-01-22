@@ -26,6 +26,8 @@ namespace senc::server::handlers
 	public:
 		using Self = ConnectedClientHandler;
 
+		enum class Status { Connected, Disconnected };
+
 		/**
 		 * @brief Constructs a new handler for a connected client.
 		 * @param logger Implementation of `ILogger` for logging server messages.
@@ -46,10 +48,9 @@ namespace senc::server::handlers
 										managers::DecryptionsManager& decryptionsManager);
 
 		/**
-		 * @brief Runs client handlign loop.
-		 * @param stop A functor checking if should stop early.
+		 * @brief Runs a single iteration of the client loop.
 		 */
-		void loop(std::function<bool()> stop);
+		Status iteration();
 
 	private:
 		loggers::ILogger& _logger;
@@ -59,8 +60,6 @@ namespace senc::server::handlers
 		storage::IServerStorage& _storage;
 		managers::UpdateManager& _updateManager;
 		managers::DecryptionsManager& _decryptionsManager;
-
-		enum class Status { Connected, Disconnected };
 
 		/**
 		 * @brief Creates a new userset.
@@ -102,11 +101,6 @@ namespace senc::server::handlers
 		 */
 		void finish_operation(const OperationID& opid,
 							  managers::DecryptionsManager::CollectedRecord&& opCollRecord);
-
-		/**
-		 * @brief Runs a single iteration of the client loop.
-		 */
-		Status iteration();
 
 		// NOTE: All handle_request methods accept non-const request for
 		//       efficiency (being able to move fields out of the requests)
