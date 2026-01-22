@@ -47,8 +47,9 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Runs client handlign loop.
+		 * @param stop A functor checking if should stop early.
 		 */
-		void loop();
+		void loop(std::function<bool()> stop);
 
 	private:
 		loggers::ILogger& _logger;

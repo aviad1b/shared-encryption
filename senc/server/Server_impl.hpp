@@ -154,7 +154,7 @@ namespace senc::server
 			username
 		);
 
-		try { handler.loop(); }
+		try { handler.loop([this]() { return !this->_isRunning; }); }
 		catch (const utils::SocketException& e)
 		{
 			// might happened because server stopped, in that case, stop here

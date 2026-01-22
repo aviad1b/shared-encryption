@@ -21,10 +21,10 @@ namespace senc::server::handlers
 		  _schema(schema), _storage(storage),
 		  _updateManager(updateManager), _decryptionsManager(decryptionsManager) { }
 
-	void ConnectedClientHandler::loop()
+	void ConnectedClientHandler::loop(std::function<bool()> stop)
 	{
 		Status status = Status::Connected;
-		while (Status::Connected == status)
+		while (Status::Connected == status || !stop())
 		{
 			try { status = iteration(); }
 			catch (const utils::SocketException& e) { throw e; }
