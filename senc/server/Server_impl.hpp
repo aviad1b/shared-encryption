@@ -201,6 +201,10 @@ namespace senc::server
 			}
 		};
 
+		// if server stopped mid-way, stop here
+		if (!_isRunning)
+			return { false, "" };
+
 		const bool connected = (Status::Connected == status);
 		if (connected)
 			logger.log_info("Logged in as \"" + username + "\".");
@@ -241,6 +245,11 @@ namespace senc::server
 				logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
 			}
 		}
+
+		// if server stopped mid-way, stop here
+		if (!_isRunning)
+			return;
+
 		logger.log_info("Disconnected.");
 	}
 }
