@@ -93,7 +93,7 @@ namespace senc::server
 
 
 		// maps connection ID to socket and handling thread
-		utils::HashMap<utils::UUID, std::pair<Socket, std::jthread>> _conns;
+		utils::HashMap<utils::UUID, std::pair<Socket, std::thread>> _conns;
 		std::mutex _mtxConns;
 
 		std::vector<utils::UUID> _finishedConns;

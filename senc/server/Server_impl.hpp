@@ -95,7 +95,12 @@ namespace senc::server
 	inline void Server<IP>::finish_all_conns()
 	{
 		const std::lock_guard<std::mutex> lock(_mtxConns);
-		_conns.clear();
+		// first, close all sockets; then, join all threads
+		for (auto& p : _conns)
+			p.second.first.close();
+		for (auto& p : _conns)
+			if (p.second.second.joinable())
+				p.second.second.join();
 	}
 
 	template <utils::IPType IP>
@@ -111,7 +116,10 @@ namespace senc::server
 				const auto it = _conns.find(connID);
 				if (it == _conns.end())
 					continue;
-				_conns.erase(it); // calls dtor of both socket and jthread
+				// first, close socket; then, join thread
+				it->second.first.close();
+				if (it->second.second.joinable())
+					it->second.second.join();
 			}
 		}
 	}
@@ -132,7 +140,7 @@ namespace senc::server
 			// register connection
 			const std::lock_guard<std::mutex> lock(_mtxConns);
 			auto connID = utils::UUID::generate_not_in(_conns);
-			std::jthread handleClientThread(
+			std::thread handleClientThread(
 				&Self::handle_new_client, this,
 				connID, std::move(ip), port
 			);
