@@ -113,6 +113,7 @@ namespace senc::server
 
 			for (const auto& connID : _finishedConns)
 			{
+				const std::lock_guard lock2(_mtxConns);
 				const auto it = _conns.find(connID);
 				if (it == _conns.end())
 					continue;
