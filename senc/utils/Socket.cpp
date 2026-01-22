@@ -12,6 +12,7 @@
 #ifdef SENC_WINDOWS
 #include "../utils/AtScopeExit.hpp"
 #else
+#include <signal.h>
 #include <poll.h>
 #endif
 
@@ -86,7 +87,7 @@ namespace senc::utils
 #else
 	SocketInitializer::SocketInitializer()
 	{
-		// nothing to do
+		signal(SIGPIPE, SIG_IGN); // make send() return error instead of signal
 	}
 #endif
 	
