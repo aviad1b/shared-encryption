@@ -122,6 +122,8 @@ namespace senc::server
 				if (it->second.second.joinable())
 					it->second.second.join();
 			}
+
+			_finishedConns.clear();
 		}
 	}
 
