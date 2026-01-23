@@ -94,14 +94,8 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline void Server<IP>::finish_all_conns()
 	{
-		const std::lock_guard<std::mutex> lock(_mtxConns);
-		// first, close all sockets; then, join all threads
-		for (auto& p : _conns)
-			p.second.first.close();
-		for (auto& p : _conns)
-			if (p.second.second.joinable())
-				p.second.second.join();
-		_conns.clear();
+		const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+		_clientThreads.clear();
 	}
 
 	template <utils::IPType IP>
@@ -114,15 +108,11 @@ namespace senc::server
 
 			for (const auto& connID : _finishedConns)
 			{
-				const std::lock_guard lock2(_mtxConns);
-				const auto it = _conns.find(connID);
-				if (it == _conns.end())
+				const std::lock_guard lock2(_mtxClientThreads);
+				const auto it = _clientThreads.find(connID);
+				if (it == _clientThreads.end())
 					continue;
-				// first, close socket; then, join thread
-				it->second.first.close();
-				if (it->second.second.joinable())
-					it->second.second.join();
-				_conns.erase(it);
+				_clientThreads.erase(it);
 			}
 
 			_finishedConns.clear();
@@ -143,33 +133,28 @@ namespace senc::server
 			const auto& [ip, port] = addr;
 
 			// register connection
-			const std::lock_guard<std::mutex> lock(_mtxConns);
-			auto connID = utils::UUID::generate_not_in(_conns);
-			std::thread handleClientThread(
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			auto connID = utils::UUID::generate_not_in(_clientThreads);
+			std::jthread handleClientThread(
 				&Self::handle_new_client, this,
-				connID, std::move(ip), port
+				connID, std::move(sock), std::move(ip), port
 			);
-			_conns.insert(std::make_pair(
-				connID,
-				std::make_pair(std::move(sock), std::move(handleClientThread))
-			));
+			_clientThreads.insert(std::make_pair(connID, std::move(handleClientThread)));
 		}
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::handle_new_client(utils::UUID connID, IP ip, utils::Port port)
+	inline void Server<IP>::handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port)
 	{
-		// get socket from connections map and make a packet handler from it
-		std::unique_ptr<PacketHandler> packetHandler;
-		{
-			const std::lock_guard<std::mutex> lock(_mtxConns);
-			packetHandler = _packetHandlerFactory.new_server_packet_handler(_conns.at(connID).first);
-		}
+		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
 		
 		const auto [connected, username] = connect_client(*packetHandler, ip, port);
 
 		if (connected)
 			client_loop(*packetHandler, ip, port, username);
+
+		if (!_isRunning)
+			return;
 
 		// register finished connection
 		reg_finished_conn(std::move(connID));

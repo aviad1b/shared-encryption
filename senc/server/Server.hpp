@@ -92,9 +92,9 @@ namespace senc::server
 		std::condition_variable _cvWait;
 
 
-		// maps connection ID to socket and handling thread
-		utils::HashMap<utils::UUID, std::pair<Socket, std::thread>> _conns;
-		std::mutex _mtxConns;
+		// maps connection ID to client thread
+		utils::HashMap<utils::UUID, std::jthread> _clientThreads;
+		std::mutex _mtxClientThreads;
 
 		std::vector<utils::UUID> _finishedConns;
 		std::mutex _mtxFinishedConns;
@@ -124,10 +124,11 @@ namespace senc::server
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
 		 * @param connID Connection ID.
+		 * @param sock Socket connected to client (moved).
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(utils::UUID connID, IP ip, utils::Port port);
+		void handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port);
 
 		/**
 		 * @brief Handles client connection request(s).
