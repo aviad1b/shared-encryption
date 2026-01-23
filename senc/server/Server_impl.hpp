@@ -104,7 +104,7 @@ namespace senc::server
 		while (_isRunning)
 		{
 			std::unique_lock lock(_mtxFinishedConns);
-			_cvFinishedConns.wait(lock, [this]() { return !this->_finishedConns.empty(); });
+			_cvFinishedConns.wait(lock, [this]() { return !this->_finishedConns.empty() && !_isRunning; });
 
 			for (const auto& connID : _finishedConns)
 			{
