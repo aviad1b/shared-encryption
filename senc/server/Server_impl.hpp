@@ -95,8 +95,12 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline void Server<IP>::finish_all_conns()
 	{
-		const std::lock_guard<std::mutex> lock(_mtxClientThreads);
-		_clientThreads.clear();
+		utils::HashMap<utils::UUID, std::jthread> threadsToJoin;
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			threadsToJoin = std::move(_clientThreads);
+			_clientThreads.clear();
+		} // all threads in threadsToJoin are joined here
 	}
 
 	template <utils::IPType IP>
@@ -104,19 +108,36 @@ namespace senc::server
 	{
 		while (_isRunning)
 		{
-			std::unique_lock lock(_mtxFinishedConns);
-			_cvFinishedConns.wait(lock, [this]() { return !this->_finishedConns.empty() || !_isRunning; });
+			std::vector<utils::UUID> toCleanup;
 
-			for (const auto& connID : _finishedConns)
 			{
-				const std::lock_guard lock2(_mtxClientThreads);
-				const auto it = _clientThreads.find(connID);
-				if (it == _clientThreads.end())
-					continue;
-				_clientThreads.erase(it);
+				std::unique_lock lock(_mtxFinishedConns);
+				_cvFinishedConns.wait(lock, [this]() {
+					return !_finishedConns.empty() || !_isRunning;
+					});
+
+				if (!_finishedConns.empty())
+				{
+					toCleanup = std::move(_finishedConns);
+					_finishedConns.clear();
+				}
 			}
 
-			_finishedConns.clear();
+			// extract threads to join outside the lock
+			std::vector<std::jthread> threadsToJoin;
+			{
+				const std::lock_guard lock(_mtxClientThreads);
+				for (const auto& connID : toCleanup)
+				{
+					auto it = _clientThreads.find(connID);
+					if (it != _clientThreads.end())
+					{
+						threadsToJoin.push_back(std::move(it->second));
+						_clientThreads.erase(it);
+					}
+				}
+			}
+			// threads joined here
 		}
 	}
 
