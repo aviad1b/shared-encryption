@@ -72,6 +72,7 @@ namespace senc::server
 
 		finish_all_conns(); // close all open connections
 
+		_cvFinishedConns.notify_one(); // wake up cleanup thread for final cleanup
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
