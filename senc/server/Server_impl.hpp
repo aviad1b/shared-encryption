@@ -57,9 +57,6 @@ namespace senc::server
 
 		std::thread acceptThread(&Self::accept_loop, this);
 		acceptThread.detach();
-
-		std::thread cleanupThread(&Self::cleanup_loop, this);
-		cleanupThread.detach();
 	}
 
 	template <utils::IPType IP>
@@ -70,9 +67,6 @@ namespace senc::server
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
-		finish_all_conns(); // close all open connections
-
-		_cvFinishedConns.notify_one(); // wake up cleanup thread for final cleanup
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
@@ -82,63 +76,6 @@ namespace senc::server
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
-	}
-
-	template <utils::IPType IP>
-	inline void Server<IP>::reg_finished_conn(utils::UUID&& connID)
-	{
-		const std::lock_guard<std::mutex> lock(_mtxFinishedConns);
-		_finishedConns.emplace_back(std::move(connID));
-		_cvFinishedConns.notify_one();
-	}
-
-	template <utils::IPType IP>
-	inline void Server<IP>::finish_all_conns()
-	{
-		utils::HashMap<utils::UUID, std::jthread> threadsToJoin;
-		{
-			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
-			threadsToJoin = std::move(_clientThreads);
-			_clientThreads.clear();
-		} // all threads in threadsToJoin are joined here
-	}
-
-	template <utils::IPType IP>
-	inline void Server<IP>::cleanup_loop()
-	{
-		while (_isRunning)
-		{
-			std::vector<utils::UUID> toCleanup;
-
-			{
-				std::unique_lock lock(_mtxFinishedConns);
-				_cvFinishedConns.wait(lock, [this]() {
-					return !_finishedConns.empty() || !_isRunning;
-					});
-
-				if (!_finishedConns.empty())
-				{
-					toCleanup = std::move(_finishedConns);
-					_finishedConns.clear();
-				}
-			}
-
-			// extract threads to join outside the lock
-			std::vector<std::jthread> threadsToJoin;
-			{
-				const std::lock_guard lock(_mtxClientThreads);
-				for (const auto& connID : toCleanup)
-				{
-					auto it = _clientThreads.find(connID);
-					if (it != _clientThreads.end())
-					{
-						threadsToJoin.push_back(std::move(it->second));
-						_clientThreads.erase(it);
-					}
-				}
-			}
-			// threads joined here
-		}
 	}
 
 	template <utils::IPType IP>
@@ -154,19 +91,16 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			// register connection
-			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
-			auto connID = utils::UUID::generate_not_in(_clientThreads);
-			std::jthread handleClientThread(
+			std::thread clientThread(
 				&Self::handle_new_client, this,
-				connID, std::move(sock), std::move(ip), port
+				std::move(sock), std::move(ip), port
 			);
-			_clientThreads.insert(std::make_pair(connID, std::move(handleClientThread)));
+			clientThread.detach();
 		}
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port)
+	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
 		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
 		
@@ -177,9 +111,6 @@ namespace senc::server
 
 		if (!_isRunning)
 			return;
-
-		// register finished connection
-		reg_finished_conn(std::move(connID));
 	}
 
 	template <utils::IPType IP>
