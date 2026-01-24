@@ -30,7 +30,6 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
-		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Connected client's username.
 		 * @param schema Decryptions schema to use for decryptions.
@@ -39,8 +38,7 @@ namespace senc::server::handlers
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(loggers::ILogger& logger,
-										PacketHandler& packetHandler,
+		explicit ConnectedClientHandler(PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
 										storage::IServerStorage& storage,
@@ -53,7 +51,6 @@ namespace senc::server::handlers
 		Status iteration();
 
 	private:
-		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;

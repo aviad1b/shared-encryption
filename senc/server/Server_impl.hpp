@@ -145,8 +145,7 @@ namespace senc::server
 		loggers::ConnectingClientLogger<IP> logger(_logger, ip, port);
 		logger.log_info("Connected.");
 		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
-			packetHandler,
-			logger
+			packetHandler
 		);
 
 		Status status = Status::Error;
@@ -191,7 +190,6 @@ namespace senc::server
 		loggers::ConnectedClientLogger<IP> logger(_logger, ip, port, username);
 		auto handler = _clientHandlerFactory.make_connected_client_handler(
 			packetHandler,
-			logger,
 			username
 		);
 

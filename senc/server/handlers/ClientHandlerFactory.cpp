@@ -17,22 +17,18 @@ namespace senc::server::handlers
 		: _schema(schema), _storage(storage), _updateManager(updateManager),
 		  _decryptionsManager(decryptionsManager) { }
 
-	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(PacketHandler& packetHandler,
-																				 loggers::ILogger& logger)
+	ConnectingClientHandler ClientHandlerFactory::make_connecting_client_handler(PacketHandler& packetHandler)
 	{
 		return ConnectingClientHandler(
-			logger,
 			packetHandler,
 			_storage
 		);
 	}
 
 	ConnectedClientHandler ClientHandlerFactory::make_connected_client_handler(PacketHandler& packetHandler,
-																			   loggers::ILogger& logger,
 																			   const std::string& username)
 	{
 		return ConnectedClientHandler(
-			logger,
 			packetHandler,
 			username,
 			_schema,

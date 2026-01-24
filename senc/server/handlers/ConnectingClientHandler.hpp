@@ -29,13 +29,11 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Constructs a new handler for a connecting client.
-		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(loggers::ILogger& logger,
-										 PacketHandler& packetHandler,
+		explicit ConnectingClientHandler(PacketHandler& packetHandler,
 										 storage::IServerStorage& storage);
 
 		/**
@@ -45,7 +43,6 @@ namespace senc::server::handlers
 		std::tuple<Status, std::string> iteration();
 
 	private:
-		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		storage::IServerStorage& _storage;
 
