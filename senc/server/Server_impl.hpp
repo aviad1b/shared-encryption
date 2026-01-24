@@ -11,6 +11,7 @@
 #include <optional>
 #include "loggers/ConnectingClientLogger.hpp"
 #include "loggers/ConnectedClientLogger.hpp"
+#include "../utils/AtScopeExit.hpp"
 
 namespace senc::server
 {
@@ -55,8 +56,8 @@ namespace senc::server
 		
 		_listenSock.listen();
 
-		std::thread acceptThread(&Self::accept_loop, this);
-		acceptThread.detach();
+		_acceptThread.emplace(&Self::accept_loop, this);
+		_cleanupThread.emplace(&Self::cleanup_loop, this);
 	}
 
 	template <utils::IPType IP>
@@ -67,6 +68,24 @@ namespace senc::server
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
+		// force close all client sockets
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+			for (auto& p : _clientSocks)
+				p.second.get().close();
+			_clientSocks.clear();
+		}
+
+		// wait for all client threads to exit gracefully
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			_clientThreads.clear(); // calls jthread dtors
+		}
+
+		// wait for accept loop and cleanup loop threads to finish gracefully
+		_acceptThread.reset();
+		_cleanupThread.reset();
+
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
@@ -76,6 +95,31 @@ namespace senc::server
 		// use condition variable to wait untill !_isRunning
 		std::unique_lock<std::mutex> lock(_mtxWait);
 		_cvWait.wait(lock, [this]() { return !_isRunning; });
+	}
+
+	template <utils::IPType IP>
+	inline void Server<IP>::cleanup_loop()
+	{
+		while (_isRunning)
+		{
+			std::unique_lock<std::mutex> lock(_mtxFinishedConns);
+			_cvFinishedConns.wait(lock, [this]() { return !this->_finishedConns.empty(); });
+
+			// if server stopped mid-way, return
+			if (!_isRunning)
+				return;
+
+			// for each finished connection, remove its matching thread
+			for (const auto& connID : _finishedConns)
+			{
+				const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+				const auto it = _clientThreads.find(connID);
+				if (it != _clientThreads.end())
+					_clientThreads.erase(it);
+			}
+
+			_finishedConns.clear();
+		}
 	}
 
 	template <utils::IPType IP>
@@ -91,44 +135,91 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			std::thread handleClientThread(
-				&Self::handle_new_client, this,
-				std::move(sock), std::move(ip), port
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			auto connID = utils::UUID::generate_not_in(_clientThreads);
+			_clientThreads.emplace(
+				connID, std::jthread(
+					&Self::handle_new_client, this,
+					std::move(connID), std::move(sock), std::move(ip), port
+				)
 			);
-			handleClientThread.detach();
 		}
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
+	inline void Server<IP>::handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port)
 	{
+		// at scope exit, register connection as finished
+		utils::AtScopeExit connGuard([this, &connID]()
+		{
+			const std::lock_guard<std::mutex> lock(_mtxFinishedConns);
+			this->_finishedConns.insert(connID);
+			_cvFinishedConns.notify_one();
+		});
+
+		// add socket reference to client sockets maps,
+		// and delete it at scope exit
+		std::optional<utils::AtScopeExit> sockGuard;
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+			_clientSocks.emplace(connID, sock);
+			sockGuard.emplace([this, &connID]()
+			{
+				const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+				this->_clientSocks.erase(connID);
+			});
+		}
+
+		// if server stopped mid-way, return
+		if (!_isRunning)
+			return;
+
 		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
 		
 		const auto [connected, username] = connect_client(*packetHandler, ip, port);
 
 		if (connected)
 			client_loop(*packetHandler, ip, port, username);
+
+		if (!_isRunning)
+			return;
 	}
 
 	template <utils::IPType IP>
 	inline std::pair<bool, std::string> Server<IP>::connect_client(PacketHandler& packetHandler, const IP& ip, utils::Port port)
 	{
-		bool connected = false;
-		std::string username;
+		using Status = handlers::ConnectingClientHandler::Status;
 
 		loggers::ConnectingClientLogger<IP> logger(_logger, ip, port);
 		logger.log_info("Connected.");
 		auto clientHandler = _clientHandlerFactory.make_connecting_client_handler(
-			packetHandler,
-			logger
+			packetHandler
 		);
 
-		try { std::tie(connected, username) = clientHandler.connect_client(); }
-		catch (const utils::SocketException& e)
+		Status status = Status::Error;
+		std::string username;
+		while (Status::Error == status && _isRunning)
 		{
-			logger.log_info(std::string("Lost connection: ") + e.what() + ".");
-		}
+			try { std::tie(status, username) = clientHandler.iteration(); }
+			catch (const utils::SocketException& e)
+			{
+				// might happened because server stopped, in that case, stop here
+				if (!_isRunning)
+					return { false, "" };
 
+				logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+			}
+			catch (const std::exception& e)
+			{
+				_logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
+			}
+		};
+
+		// if server stopped mid-way, stop here
+		if (!_isRunning)
+			return { false, "" };
+
+		const bool connected = (Status::Connected == status);
 		if (connected)
 			logger.log_info("Logged in as \"" + username + "\".");
 		else
@@ -143,18 +234,34 @@ namespace senc::server
 										utils::Port port,
 										const std::string& username)
 	{
+		using Status = handlers::ConnectedClientHandler::Status;
 		loggers::ConnectedClientLogger<IP> logger(_logger, ip, port, username);
 		auto handler = _clientHandlerFactory.make_connected_client_handler(
 			packetHandler,
-			logger,
 			username
 		);
 
-		try { handler.loop(); }
-		catch (const utils::SocketException& e)
+		Status status = Status::Connected;
+		while (Status::Connected == status && _isRunning)
 		{
-			logger.log_info(std::string("Lost connection: ") + e.what());
+			try { status = handler.iteration(); }
+			catch (const utils::SocketException& e)
+			{
+				// might happened because server stopped, in that case, stop here
+				if (!_isRunning)
+					return;
+
+				logger.log_info(std::string("Lost connection: ") + e.what());
+			}
+			catch (const std::exception& e)
+			{
+				logger.log_error(std::string("Failed to handle request: ") + e.what() + ".");
+			}
 		}
+
+		// if server stopped mid-way, stop here
+		if (!_isRunning)
+			return;
 
 		logger.log_info("Disconnected.");
 	}

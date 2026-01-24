@@ -12,6 +12,7 @@
 #ifdef SENC_WINDOWS
 #include "../utils/AtScopeExit.hpp"
 #else
+#include <signal.h>
 #include <poll.h>
 #endif
 
@@ -86,7 +87,7 @@ namespace senc::utils
 #else
 	SocketInitializer::SocketInitializer()
 	{
-		// nothing to do
+		signal(SIGPIPE, SIG_IGN); // make send() return error instead of signal
 	}
 #endif
 	
@@ -182,11 +183,15 @@ namespace senc::utils
 
 	void Socket::close()
 	{
+		if (UNDERLYING_NO_SOCK == this->_sock)
+			return;
 		try
 		{
 #ifdef SENC_WINDOWS
+			shutdown(this->_sock, SD_BOTH);
 			::closesocket(this->_sock);
 #else
+			shutdown(this->_sock, SHUT_RDWR);
 			::close(this->_sock);
 #endif
 		}

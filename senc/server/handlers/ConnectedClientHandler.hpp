@@ -26,9 +26,10 @@ namespace senc::server::handlers
 	public:
 		using Self = ConnectedClientHandler;
 
+		enum class Status { Connected, Disconnected };
+
 		/**
 		 * @brief Constructs a new handler for a connected client.
-		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param username Connected client's username.
 		 * @param schema Decryptions schema to use for decryptions.
@@ -37,8 +38,7 @@ namespace senc::server::handlers
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectedClientHandler(loggers::ILogger& logger,
-										PacketHandler& packetHandler,
+		explicit ConnectedClientHandler(PacketHandler& packetHandler,
 										const std::string& username,
 										Schema& schema,
 										storage::IServerStorage& storage,
@@ -46,20 +46,17 @@ namespace senc::server::handlers
 										managers::DecryptionsManager& decryptionsManager);
 
 		/**
-		 * @brief Runs client handlign loop.
+		 * @brief Runs a single iteration of the client loop.
 		 */
-		void loop();
+		Status iteration();
 
 	private:
-		loggers::ILogger& _logger;
 		PacketHandler& _packetHandler;
 		const std::string& _username;
 		Schema& _schema;
 		storage::IServerStorage& _storage;
 		managers::UpdateManager& _updateManager;
 		managers::DecryptionsManager& _decryptionsManager;
-
-		enum class Status { Connected, Disconnected };
 
 		/**
 		 * @brief Creates a new userset.
@@ -101,11 +98,6 @@ namespace senc::server::handlers
 		 */
 		void finish_operation(const OperationID& opid,
 							  managers::DecryptionsManager::CollectedRecord&& opCollRecord);
-
-		/**
-		 * @brief Runs a single iteration of the client loop.
-		 */
-		Status iteration();
 
 		// NOTE: All handle_request methods accept non-const request for
 		//       efficiency (being able to move fields out of the requests)

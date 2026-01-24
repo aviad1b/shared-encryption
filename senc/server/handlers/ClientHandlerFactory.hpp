@@ -14,7 +14,6 @@
 #include "../storage/IServerStorage.hpp"
 #include "ConnectingClientHandler.hpp"
 #include "ConnectedClientHandler.hpp"
-#include "../loggers/ILogger.hpp"
 
 namespace senc::server::handlers
 {
@@ -43,20 +42,16 @@ namespace senc::server::handlers
 		/**
 		 * @brief Constructs a new handler for a connecting client.
 		 * @param packetHandler Implementation of `PacketHandler`.
-		 * @param logger Implementation of `ILogger` for logging server messages about client.
 		 * @return Constructed handler.
 		 */
-		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler,
-															   loggers::ILogger& logger);
+		ConnectingClientHandler make_connecting_client_handler(PacketHandler& packetHandler);
 
 		/**
 		 * @brief Constructs a new handler for a connected client.
 		 * @param packetHandler Implementation of `PacketHandler`.
-		 * @param logger Implementation of `ILogger` for logging server messages about client.
 		 * @param username Connected client's username.
 		 */
 		ConnectedClientHandler make_connected_client_handler(PacketHandler& packetHandler,
-															 loggers::ILogger& logger,
 															 const std::string& username);
 
 	private:

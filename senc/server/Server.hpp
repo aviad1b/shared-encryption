@@ -16,6 +16,7 @@
 #include "IServer.hpp"
 #include <condition_variable>
 #include <functional>
+#include <thread>
 #include <atomic>
 #include <mutex>
 
@@ -87,8 +88,29 @@ namespace senc::server
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
+		// maps connection ID to client thread
+		utils::HashMap<utils::UUID, std::jthread> _clientThreads;
+		std::mutex _mtxClientThreads;
+
+		// maps connection ID to socket reference
+		utils::HashMap<utils::UUID, std::reference_wrapper<Socket>> _clientSocks;
+		std::mutex _mtxClientSocks;
+
+		// contains connection IDs of connections that have finished
+		utils::HashSet<utils::UUID> _finishedConns;
+		std::mutex _mtxFinishedConns;
+		std::condition_variable _cvFinishedConns;
+
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
+
+		std::optional<std::jthread> _acceptThread;
+		std::optional<std::jthread> _cleanupThread;
+
+		/**
+		 * @brief Runs background cleanup of client threads.
+		 */
+		void cleanup_loop();
 
 		/**
 		 * @brief Accepts new clients in a loop.
@@ -97,11 +119,12 @@ namespace senc::server
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
+		 * @param connID Connection ID.
 		 * @param sock Socket connected to client (moved).
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock, IP ip, utils::Port port);
+		void handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port);
 
 		/**
 		 * @brief Handles client connection request(s).

@@ -25,36 +25,26 @@ namespace senc::server::handlers
 	public:
 		using Self = ConnectingClientHandler;
 
+		enum class Status { Error, Disconnected, Connected };
+
 		/**
 		 * @brief Constructs a new handler for a connecting client.
-		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param packetHandler Implementation of `PacketHandler`.
 		 * @param storage Implementation of `IServerStorage`.
 		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
-		explicit ConnectingClientHandler(loggers::ILogger& logger,
-										 PacketHandler& packetHandler,
+		explicit ConnectingClientHandler(PacketHandler& packetHandler,
 										 storage::IServerStorage& storage);
-
-		/**
-		 * @brief Connects client.
-		 * @return A bool value indicating whether connection (signin) occured,
-		 *         and user's username.
-		 */
-		std::tuple<bool, std::string> connect_client();
-
-	private:
-		loggers::ILogger& _logger;
-		PacketHandler& _packetHandler;
-		storage::IServerStorage& _storage;
-
-		enum class Status { Error, Disconnected, Connected };
 
 		/**
 		 * @brief Runs a single iteration of client conenction loop.
 		 * @return Status, and username (if succeeded).
 		 */
 		std::tuple<Status, std::string> iteration();
+
+	private:
+		PacketHandler& _packetHandler;
+		storage::IServerStorage& _storage;
 
 		/**
 		 * @brief Handles signup request.
