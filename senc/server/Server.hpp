@@ -88,10 +88,12 @@ namespace senc::server
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
-		std::vector<std::jthread> _clientThreads;
+		// maps connection ID to client thread
+		utils::HashMap<utils::UUID, std::jthread> _clientThreads;
 		std::mutex _mtxClientThreads;
 
-		std::vector<std::reference_wrapper<Socket>> _clientSocks;
+		// maps connection ID to socket reference
+		utils::HashMap<utils::UUID, std::reference_wrapper<Socket>> _clientSocks;
 		std::mutex _mtxClientSocks;
 
 		std::mutex _mtxWait;
@@ -104,11 +106,12 @@ namespace senc::server
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
+		 * @param connID Connection ID.
 		 * @param sock Socket connected to client (moved).
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock, IP ip, utils::Port port);
+		void handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port);
 
 		/**
 		 * @brief Handles client connection request(s).

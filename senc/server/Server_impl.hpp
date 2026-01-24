@@ -11,6 +11,7 @@
 #include <optional>
 #include "loggers/ConnectingClientLogger.hpp"
 #include "loggers/ConnectedClientLogger.hpp"
+#include "../utils/AtScopeExit.hpp"
 
 namespace senc::server
 {
@@ -70,8 +71,8 @@ namespace senc::server
 		// force close all client sockets
 		{
 			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
-			for (Socket& sock : _clientSocks)
-				sock.close();
+			for (auto& p : _clientSocks)
+				p.second.get().close();
 			_clientSocks.clear();
 		}
 
@@ -106,20 +107,30 @@ namespace senc::server
 			const auto& [ip, port] = addr;
 
 			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
-			_clientThreads.emplace_back(
-				&Self::handle_new_client, this,
-				std::move(sock), std::move(ip), port
+			auto connID = utils::UUID::generate_not_in(_clientThreads);
+			_clientThreads.emplace(
+				connID, std::jthread(
+					&Self::handle_new_client, this,
+					std::move(connID), std::move(sock), std::move(ip), port
+				)
 			);
 		}
 	}
 
 	template <utils::IPType IP>
-	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
+	inline void Server<IP>::handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port)
 	{
-		// add socket reference to client sockets vector
+		// add socket reference to client sockets maps,
+		// and delete it at scope exit
+		std::optional<utils::AtScopeExit> sockGuard;
 		{
 			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
-			_clientSocks.emplace_back(sock);
+			_clientSocks.emplace(connID, sock);
+			sockGuard.emplace([this, &connID]()
+			{
+				const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+				this->_clientSocks.erase(connID);
+			});
 		}
 
 		// if server stopped mid-way, return
