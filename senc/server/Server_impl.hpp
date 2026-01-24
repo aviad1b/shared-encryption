@@ -67,6 +67,20 @@ namespace senc::server
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
+		// force close all client sockets
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+			for (Socket& sock : _clientSocks)
+				sock.close();
+			_clientSocks.clear();
+		}
+
+		// wait for all client threads to exit gracefully
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			_clientThreads.clear(); // calls jthread dtors
+		}
+
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
 
