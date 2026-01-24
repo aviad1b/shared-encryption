@@ -104,6 +104,9 @@ namespace senc::server
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
+		std::optional<std::jthread> _acceptThread;
+		std::optional<std::jthread> _cleanupThread;
+
 		/**
 		 * @brief Runs background cleanup of client threads.
 		 */

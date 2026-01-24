@@ -56,11 +56,8 @@ namespace senc::server
 		
 		_listenSock.listen();
 
-		std::thread acceptThread(&Self::accept_loop, this);
-		acceptThread.detach();
-
-		std::thread cleanupThread(&Self::cleanup_loop, this);
-		cleanupThread.detach();
+		_acceptThread.emplace(&Self::accept_loop, this);
+		_cleanupThread.emplace(&Self::cleanup_loop, this);
 	}
 
 	template <utils::IPType IP>
@@ -84,6 +81,10 @@ namespace senc::server
 			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
 			_clientThreads.clear(); // calls jthread dtors
 		}
+
+		// wait for accept loop and cleanup loop threads to finish gracefully
+		_acceptThread.reset();
+		_cleanupThread.reset();
 
 		_cvWait.notify_all(); // notify all waiting threads that finished running
 	}
