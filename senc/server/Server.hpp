@@ -96,8 +96,18 @@ namespace senc::server
 		utils::HashMap<utils::UUID, std::reference_wrapper<Socket>> _clientSocks;
 		std::mutex _mtxClientSocks;
 
+		// contains connection IDs of connections that have finished
+		utils::HashSet<utils::UUID> _finishedConns;
+		std::mutex _mtxFinishedConns;
+		std::condition_variable _cvFinishedConns;
+
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
+
+		/**
+		 * @brief Runs background cleanup of client threads.
+		 */
+		void cleanup_loop();
 
 		/**
 		 * @brief Accepts new clients in a loop.
