@@ -91,17 +91,27 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			std::thread clientThread(
+			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			_clientThreads.emplace_back(
 				&Self::handle_new_client, this,
 				std::move(sock), std::move(ip), port
 			);
-			clientThread.detach();
 		}
 	}
 
 	template <utils::IPType IP>
 	inline void Server<IP>::handle_new_client(Socket sock, IP ip, utils::Port port)
 	{
+		// add socket reference to client sockets vector
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+			_clientSocks.emplace_back(sock);
+		}
+
+		// if server stopped mid-way, return
+		if (!_isRunning)
+			return;
+
 		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
 		
 		const auto [connected, username] = connect_client(*packetHandler, ip, port);

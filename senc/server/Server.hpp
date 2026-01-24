@@ -88,6 +88,12 @@ namespace senc::server
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
+		std::vector<std::reference_wrapper<Socket>> _clientSocks;
+		std::mutex _mtxClientSocks;
+
+		std::vector<std::jthread> _clientThreads;
+		std::mutex _mtxClientThreads;
+
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
