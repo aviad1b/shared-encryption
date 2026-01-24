@@ -188,8 +188,10 @@ namespace senc::utils
 		try
 		{
 #ifdef SENC_WINDOWS
+			shutdown(this->_sock, SD_BOTH);
 			::closesocket(this->_sock);
 #else
+			shutdown(this->_sock, SHUT_RDWR);
 			::close(this->_sock);
 #endif
 		}
