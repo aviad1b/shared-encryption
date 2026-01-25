@@ -1,11 +1,10 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
 #include "../utils/Socket.hpp"
-#include "output.hpp"
-#include "input.hpp"
+#include "io/output.hpp"
+#include "io/input.hpp"
 
 namespace senc::client
 {
@@ -54,33 +53,33 @@ namespace senc::client
 
 	enum class ConnStatus { NoChange, Connected, Disconnected };
 
-	using SockFunc = std::function<ConnStatus(Socket&)>;
+	using PacketHandlerFunc = std::function<ConnStatus(PacketHandler&)>;
 
 	struct OptionRecord
 	{
 		string description;
-		SockFunc func;
+		PacketHandlerFunc func;
 	};
 
 	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str);
 	int start_client(const IPType auto& ip, Port port);
 	void run_client(Socket& sock);
-	bool login_menu(Socket& sock);
-	void main_menu(Socket& sock);
-	template <typename Resp> Resp post(Socket& sock, const auto& request);
-	ConnStatus signup(Socket& sock);
-	ConnStatus login(Socket& sock);
-	ConnStatus logout(Socket& sock);
-	ConnStatus make_userset(Socket& sock);
-	ConnStatus get_usersets(Socket& sock);
-	ConnStatus get_members(Socket& sock);
-	ConnStatus encrypt(Socket& sock);
-	ConnStatus decrypt(Socket& sock);
-	ConnStatus update(Socket& sock);
-	ConnStatus participate(Socket& sock);
-	ConnStatus comp_part(Socket& sock);
-	ConnStatus send_part(Socket& sock);
-	ConnStatus join_parts(Socket& sock);
+	bool login_menu(PacketHandler& packetHandler);
+	void main_menu(PacketHandler& packetHandler);
+	template <typename Resp> Resp post(PacketHandler& packetHandler, const auto& request);
+	ConnStatus signup(PacketHandler& packetHandler);
+	ConnStatus login(PacketHandler& packetHandler);
+	ConnStatus logout(PacketHandler& packetHandler);
+	ConnStatus make_userset(PacketHandler& packetHandler);
+	ConnStatus get_usersets(PacketHandler& packetHandler);
+	ConnStatus get_members(PacketHandler& packetHandler);
+	ConnStatus encrypt(PacketHandler& packetHandler);
+	ConnStatus decrypt(PacketHandler& packetHandler);
+	ConnStatus update(PacketHandler& packetHandler);
+	ConnStatus participate(PacketHandler& packetHandler);
+	ConnStatus comp_part(PacketHandler& packetHandler);
+	ConnStatus send_part(PacketHandler& packetHandler);
+	ConnStatus join_parts(PacketHandler& packetHandler);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
@@ -107,9 +106,6 @@ namespace senc::client
 		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
-
-	static InlinePacketReceiver receiver;
-	static InlinePacketSender sender;
 
 	int main(int argc, char** argv)
 	{
@@ -188,20 +184,20 @@ namespace senc::client
 	 */
 	void run_client(Socket& sock)
 	{
-		sender.send_connection_request(sock);
-		const bool validConn = receiver.recv_connection_response(sock);
-		if (!validConn)
+		std::optional<EncryptedPacketHandler> packetHandler;
+		try { packetHandler.emplace(EncryptedPacketHandler::client(sock)); }
+		catch (const ConnEstablishException& e)
 		{
-			cout << "Protocol version not supported by server, exiting." << endl;
+			cout << "Failed to connect to server: " << e.what() << endl;
 			return;
 		}
 
-		bool connected = login_menu(sock);
+		bool connected = login_menu(*packetHandler);
 		if (!connected)
 			return;
 		cout << endl;
 
-		main_menu(sock);
+		main_menu(*packetHandler);
 	}
 
 	/**
@@ -209,10 +205,10 @@ namespace senc::client
 	 * @param sock Client socket.
 	 * @return `true` if client ended up connecting, `false` if ended up disconnecting.
 	 */
-	bool login_menu(Socket& sock)
+	bool login_menu(PacketHandler& packetHandler)
 	{
 		ConnStatus status{};
-		SockFunc func{};
+		PacketHandlerFunc func{};
 
 		do
 		{
@@ -223,7 +219,7 @@ namespace senc::client
 				cout << (int)opt << ".\t" << record.description << endl;
 			cout << endl;
 
-			string choiceStr = input("Enter your choice: ");
+			string choiceStr = io::input("Enter your choice: ");
 			try { func = LOGIN_OPTS.at((LoginMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
@@ -232,7 +228,7 @@ namespace senc::client
 			}
 			cout << endl;
 
-			try { status = func(sock); }
+			try { status = func(packetHandler); }
 			catch (const utils::SocketException& e)
 			{
 				cout << "Lost connection to the server: " << e.what() << endl;
@@ -253,10 +249,10 @@ namespace senc::client
 	 * @brief Runs login menu untill client is disconnects.
 	 * @param sock Client socket.
 	 */
-	void main_menu(Socket& sock)
+	void main_menu(PacketHandler& packetHandler)
 	{
 		ConnStatus status{};
-		SockFunc func{};
+		PacketHandlerFunc func{};
 
 		do
 		{
@@ -267,7 +263,7 @@ namespace senc::client
 				cout << (int)opt << ".\t" << record.description << endl;
 			cout << endl;
 
-			string choiceStr = input("Enter your choice: ");
+			string choiceStr = io::input("Enter your choice: ");
 			try { func = MAIN_OPTS.at((MainMenuOption)std::stoi(choiceStr)).func; }
 			catch (const std::exception&)
 			{
@@ -276,7 +272,7 @@ namespace senc::client
 			}
 			cout << endl;
 
-			try { status = func(sock); }
+			try { status = func(packetHandler); }
 			catch (const utils::SocketException& e)
 			{
 				cout << "Lost connection to the server: " << e.what() << endl;
@@ -294,16 +290,16 @@ namespace senc::client
 	/**
 	 * @brief Sends request and returns retrieved response.
 	 * @tparam Resp Response type.
-	 * @param sock Socket to send request and receive response through.
+	 * @param packetHandler Packet handler to use for sending and receiving.
 	 * @param request Request to send.
 	 * @return Received response, or `std::nullopt` if error occured.
 	 * @throw Exception If error occured.
 	 */
 	template <typename Resp>
-	inline Resp post(Socket& sock, const auto& request)
+	inline Resp post(PacketHandler& packetHandler, const auto& request)
 	{
-		sender.send_request(sock, request);
-		auto resp = receiver.recv_response<Resp, pkt::ErrorResponse>(sock);
+		packetHandler.send_request(request);
+		auto resp = packetHandler.recv_response<Resp, pkt::ErrorResponse>();
 		if (!resp.has_value())
 			throw Exception("Unexpected response received");
 		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
@@ -311,12 +307,26 @@ namespace senc::client
 		return std::get<Resp>(*resp);
 	}
 
-	ConnStatus signup(Socket& sock)
+	ConnStatus signup(PacketHandler& packetHandler)
 	{
-		string username = input_username("Enter username: ");
+		string username = io::input_username("Enter username: ");
+		cout << endl;
+
+		string password = io::input_password("Enter password: ");
+		cout << endl;
+
+		string confirmPassword = io::input_password("Confirm password: ");
 		cout << endl << endl;
 
-		auto resp = post<pkt::SignupResponse>(sock, pkt::SignupRequest{ username });
+		if (password != confirmPassword)
+		{
+			cout << "Signup failed: Password confirmation doesn't match password." << endl;
+			return ConnStatus::NoChange;
+		}
+
+		auto resp = post<pkt::SignupResponse>(packetHandler, pkt::SignupRequest{
+			username, password
+		});
 		if (resp.status == pkt::SignupResponse::Status::Success)
 		{
 			cout << "Signed up successfully as \"" << username << "\"." << endl;
@@ -331,54 +341,59 @@ namespace senc::client
 		return ConnStatus::NoChange;
 	}
 
-	ConnStatus login(Socket& sock)
+	ConnStatus login(PacketHandler& packetHandler)
 	{
-		string username = input_username("Enter username: ");
+		string username = io::input_username("Enter username: ");
+		cout << endl;
+
+		string password = io::input_password("Enter password: ");
 		cout << endl << endl;
 
-		auto resp = post<pkt::LoginResponse>(sock, pkt::LoginRequest{ username });
+		auto resp = post<pkt::LoginResponse>(packetHandler, pkt::LoginRequest{
+			username, password
+		});
 		if (resp.status == pkt::LoginResponse::Status::Success)
 		{
 			cout << "Logged in successfully as \"" << username << "\"." << endl;
 			return ConnStatus::Connected;
 		}
 
-		if (resp.status == pkt::LoginResponse::Status::BadUsername)
-			cout << "Login failed: Bad username." << endl;
+		if (resp.status == pkt::LoginResponse::Status::BadLogin)
+			cout << "Login failed: Bad username or password." << endl;
 		else
 			cout << "Login failed: Unknown error." << endl;
 
 		return ConnStatus::NoChange;
 	}
 
-	ConnStatus logout(Socket& sock)
+	ConnStatus logout(PacketHandler& packetHandler)
 	{
-		if (!input_yesno("Are you sure you want to leave? (y/n): "))
+		if (!io::input_yesno("Are you sure you want to leave? (y/n): "))
 			return ConnStatus::NoChange;
 		cout << endl << endl;
 
-		post<pkt::LogoutResponse>(sock, pkt::LogoutRequest{});
+		post<pkt::LogoutResponse>(packetHandler, pkt::LogoutRequest{});
 
 		cout << "Goodbye!" << endl;
 		return ConnStatus::Disconnected;
 	}
 
-	ConnStatus make_userset(Socket& sock)
+	ConnStatus make_userset(PacketHandler& packetHandler)
 	{
-		vector<string> owners = input_usernames(
+		vector<string> owners = io::input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
-		vector<string> regMembers = input_usernames(
+		vector<string> regMembers = io::input_usernames(
 			"Enter non-owner members (usernames, each in new line, ending with empty line): "
 		);
 
-		auto ownersThreshold = input_threshold("Enter owners threshold for decryption: ");
+		auto ownersThreshold = io::input_threshold("Enter owners threshold for decryption: ");
 		cout << endl;
 
-		auto regMembersThreshold = input_threshold("Enter non-owner members threshold for decryption: ");
+		auto regMembersThreshold = io::input_threshold("Enter non-owner members threshold for decryption: ");
 		cout << endl;
 
-		auto resp = post<pkt::MakeUserSetResponse>(sock, pkt::MakeUserSetRequest{
+		auto resp = post<pkt::MakeUserSetResponse>(packetHandler, pkt::MakeUserSetRequest{
 			.reg_members = std::move(regMembers),
 			.owners = std::move(owners),
 			.reg_members_threshold = regMembersThreshold,
@@ -389,21 +404,21 @@ namespace senc::client
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
+		io::print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
 		cout << endl;
 
-		print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
+		io::print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
 		cout << endl;
 		
-		print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
+		io::print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus get_usersets(Socket& sock)
+	ConnStatus get_usersets(PacketHandler& packetHandler)
 	{
-		auto resp = post<pkt::GetUserSetsResponse>(sock, pkt::GetUserSetsRequest{});
+		auto resp = post<pkt::GetUserSetsResponse>(packetHandler, pkt::GetUserSetsRequest{});
 
 		if (resp.user_sets_ids.empty())
 			cout << "You do not own any usersets." << endl;
@@ -418,12 +433,12 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus get_members(Socket& sock)
+	ConnStatus get_members(PacketHandler& packetHandler)
 	{
-		auto id = input_userset_id("Enter userset ID: ");
+		auto id = io::input_userset_id("Enter userset ID: ");
 		cout << endl;
 
-		auto resp = post<pkt::GetMembersResponse>(sock, pkt::GetMembersRequest{ id });
+		auto resp = post<pkt::GetMembersResponse>(packetHandler, pkt::GetMembersRequest{ id });
 
 		cout << "Owners:" << endl;
 		for (const auto& owner : resp.owners)
@@ -438,9 +453,9 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus encrypt(Socket& sock)
+	ConnStatus encrypt(PacketHandler& packetHandler)
 	{
-		(void)sock;
+		(void)packetHandler;
 
 		enum class PlaintextOption { Text = 1, Binary };
 		static Schema schema;
@@ -449,41 +464,41 @@ namespace senc::client
 		cout << (int)PlaintextOption::Text << ". Encrypt text message" << endl;
 		cout << (int)PlaintextOption::Binary << ". Encrypt binary message" << endl;
 		cout << endl;
-		PlaintextOption choice = (PlaintextOption)input_num<int>("Enter your choice: ");
+		PlaintextOption choice = (PlaintextOption)io::input_num<int>("Enter your choice: ");
 		while (PlaintextOption::Text != choice && PlaintextOption::Binary != choice)
-			choice = (PlaintextOption)input_num<int>("Invalid input, try again: ");
+			choice = (PlaintextOption)io::input_num<int>("Invalid input, try again: ");
 		cout << endl;
 
 		Buffer plaintext;
 		if (PlaintextOption::Text == choice)
 		{
-			string msg = input("Enter message to encrypt (text): ");
+			string msg = io::input("Enter message to encrypt (text): ");
 			plaintext = Buffer(msg.begin(), msg.end());
 		}
-		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64): "));
+		else plaintext = bytes_from_base64(io::input("Enter message to encrypt (base64): "));
 		cout << endl;
 
-		auto [regLayerPubKey, ownerLayerPubKey] = input_pub_keys("Enter encryption key: ");
+		auto [regLayerPubKey, ownerLayerPubKey] = io::input_pub_keys("Enter encryption key: ");
 		cout << endl;
 
 		auto ciphertext = schema.encrypt(plaintext, regLayerPubKey, ownerLayerPubKey);
 
 		cout << "Encrypted message (ciphertext): ";
-		print_ciphertext(ciphertext);
+		io::print_ciphertext(ciphertext);
 		cout << endl;
 
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus decrypt(Socket& sock)
+	ConnStatus decrypt(PacketHandler& packetHandler)
 	{
-		auto usersetID = input_userset_id("Enter ID of userset to decrypt under: ");
+		auto usersetID = io::input_userset_id("Enter ID of userset to decrypt under: ");
 		cout << endl;
 
-		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
 		cout << endl << endl;
 
-		auto resp = post<pkt::DecryptResponse>(sock, pkt::DecryptRequest{
+		auto resp = post<pkt::DecryptResponse>(packetHandler, pkt::DecryptRequest{
 			usersetID, std::move(ciphertext)
 		});
 
@@ -493,9 +508,9 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus update(Socket& sock)
+	ConnStatus update(PacketHandler& packetHandler)
 	{
-		auto resp = post<pkt::UpdateResponse>(sock, pkt::UpdateRequest{});
+		auto resp = post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
 		bool hadUpdates = false;
 
 		if (!resp.added_as_owner.empty())
@@ -545,12 +560,12 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus participate(Socket& sock)
+	ConnStatus participate(PacketHandler& packetHandler)
 	{
-		auto opid = input_operation_id("Enter operation ID: ");
+		auto opid = io::input_operation_id("Enter operation ID: ");
 		cout << endl;
 
-		auto resp = post<pkt::DecryptParticipateResponse>(sock, pkt::DecryptParticipateRequest{ opid });
+		auto resp = post<pkt::DecryptParticipateResponse>(packetHandler, pkt::DecryptParticipateRequest{ opid });
 
 		if (resp.status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart)
 			cout << "Participance registered, be ready to send non-owner layer part in a future update." << endl;
@@ -562,20 +577,20 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus comp_part(Socket& sock)
+	ConnStatus comp_part(PacketHandler& packetHandler)
 	{
-		(void)sock;
+		(void)packetHandler;
 
-		bool isOwner = input_yesno("Is this an owner layer part? (y/n): ");
+		bool isOwner = io::input_yesno("Is this an owner layer part? (y/n): ");
 		cout << endl;
 
-		Ciphertext ciphertext = input_ciphertext("Enter ciphertext: ");
+		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		PrivKeyShard privKeyShard = input_priv_key_shard("Enter your decryption key shard: ");
+		PrivKeyShard privKeyShard = io::input_priv_key_shard("Enter your decryption key shard: ");
 		cout << endl;
 
-		auto privKeyShardsIDs = input_priv_key_shard_ids("Enter involved decryption key shard IDs (each in new line): ");
+		auto privKeyShardsIDs = io::input_priv_key_shard_ids("Enter involved decryption key shard IDs (each in new line): ");
 		cout << endl;
 
 		DecryptionPart part{};
@@ -589,15 +604,15 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus send_part(Socket& sock)
+	ConnStatus send_part(PacketHandler& packetHandler)
 	{
-		auto opid = input_operation_id("Enter operation ID: ");
+		auto opid = io::input_operation_id("Enter operation ID: ");
 		cout << endl;
 
-		DecryptionPart part = input_decryption_part("Enter decryption part to send: ");
+		DecryptionPart part = io::input_decryption_part("Enter decryption part to send: ");
 		cout << endl;
 
-		post<pkt::SendDecryptionPartResponse>(sock, pkt::SendDecryptionPartRequest{
+		post<pkt::SendDecryptionPartResponse>(packetHandler, pkt::SendDecryptionPartRequest{
 			opid,
 			std::move(part)
 		});
@@ -607,22 +622,22 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
-	ConnStatus join_parts(Socket& sock)
+	ConnStatus join_parts(PacketHandler& packetHandler)
 	{
-		(void)sock;
+		(void)packetHandler;
 
-		auto ciphertext = input_ciphertext("Enter ciphertext: ");
+		auto ciphertext = io::input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		auto regLayerParts = input_decryption_parts("Enter non-owner layer decryption parts: ");
+		auto regLayerParts = io::input_decryption_parts("Enter non-owner layer decryption parts: ");
 
-		auto ownerLayerParts = input_decryption_parts("Enter owner layer decryption parts: ");
+		auto ownerLayerParts = io::input_decryption_parts("Enter owner layer decryption parts: ");
 
 		cout << endl;
 
 		auto decrypted = Shamir::decrypt_join_2l(ciphertext, regLayerParts, ownerLayerParts);
 
-		auto isText = input_yesno("Is this a textual message? (y/n): ");
+		auto isText = io::input_yesno("Is this a textual message? (y/n): ");
 		cout << endl;
 
 		std::string msg;
@@ -646,15 +661,15 @@ namespace senc::client
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
+		io::print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
 		cout << endl;
 
-		print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
+		io::print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
 			cout << endl;
-			print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
+			io::print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;
@@ -669,7 +684,7 @@ namespace senc::client
 		cout << "Operation ID: " << data.op_id << endl << endl;
 
 		cout << "Ciphertext: ";
-		print_ciphertext(data.ciphertext);
+		io::print_ciphertext(data.ciphertext);
 		cout << endl;
 
 		cout << "Involved Shards IDs: ";

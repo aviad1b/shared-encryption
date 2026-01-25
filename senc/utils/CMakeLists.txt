@@ -16,6 +16,10 @@
 	"Exception.hpp"
 	"Exception.cpp"
 	"StrParseException.hpp"
+	"port.hpp"
+	"port.cpp"
+	"ip.hpp"
+	"ip.cpp"
 	"Socket.hpp"
 	"Socket.cpp"
 	"Socket_impl.hpp"
@@ -35,6 +39,8 @@
 	"enc/HybridElGamal2L_impl.hpp"
 	"enc/AES1L.hpp"
 	"enc/AES1L.cpp"
+	"enc/ECHKDF1L.hpp"
+	"enc/ECHKDF1L.cpp"
 	"enc/ECHKDF2L.hpp"
 	"enc/ECHKDF2L.cpp"
 	"Shamir.hpp"
@@ -42,6 +48,9 @@
 	"uuid.hpp"
 	"uuid.cpp"
 	"uuid_impl.hpp"
+	"pwd/general.hpp"
+	"pwd/PBKDF2.hpp"
+	"pwd/PBKDF2.cpp"
 )
 
 if (WIN32)

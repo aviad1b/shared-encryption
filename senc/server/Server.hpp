@@ -8,11 +8,15 @@
 
 #pragma once
 
-#include "ClientHandlerFactory.hpp"
+#include "../common/PacketHandlerFactory.hpp"
+#include "handlers/ClientHandlerFactory.hpp"
+#include "loggers/DummyLogger.hpp"
+#include "loggers/ILogger.hpp"
 #include "ServerException.hpp"
 #include "IServer.hpp"
 #include <condition_variable>
 #include <functional>
+#include <thread>
 #include <atomic>
 #include <mutex>
 
@@ -33,42 +37,38 @@ namespace senc::server
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
-		 * @param logInfo A function used to output server log information messages.
+		 * @param logger Implementation of `ILogger` for logging server messages.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
-						std::optional<std::function<void(const std::string&)>> logInfo,
+						loggers::ILogger& logger,
 						Schema& schema,
-						IServerStorage& storage,
-						PacketReceiver& receiver,
-						PacketSender& sender,
-						UpdateManager& updateManager,
-						DecryptionsManager& decryptionsManager);
+						storage::IServerStorage& storage,
+						PacketHandlerFactory& packetHandlerFactory,
+						managers::UpdateManager& updateManager,
+						managers::DecryptionsManager& decryptionsManager);
 
 		/**
 		 * @brief Constructs a new server instance.
 		 * @param listenPort Port for server to listen on.
 		 * @param schema Decryptions schema to use for decryptions.
 		 * @param storage Implementation of `IServerStorage`.
-		 * @param receiver Implementation of `PacketReceiver`.
-		 * @param sender Implementation of `PacketSender`.
+		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
 		 * @param updateManager Instance of `UpdateManager`.
 		 * @param decryptionsManager Instance of `DecryptionsManager`.
-		 * @note `storage`, `receiver` and `sender` are all assumed to be thread-safe.
+		 * @note `storage` and `packetHandler` are assumed to be thread-safe.
 		 */
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
-						IServerStorage& storage,
-						PacketReceiver& receiver,
-						PacketSender& sender,
-						UpdateManager& updateManager,
-						DecryptionsManager& decryptionsManager);
+						storage::IServerStorage& storage,
+						PacketHandlerFactory& packetHandlerFactory,
+						managers::UpdateManager& updateManager,
+						managers::DecryptionsManager& decryptionsManager);
 
 		utils::Port port() const override;
 
@@ -79,39 +79,34 @@ namespace senc::server
 		void wait() override;
 
 	private:
+		static loggers::DummyLogger _dummyLogger;
+
 		Socket _listenSock;
 		utils::Port _listenPort;
-		std::optional<std::function<void(const std::string&)>> _logInfo;
-		ClientHandlerFactory _clientHandlerFactory;
+		loggers::ILogger& _logger;
+		PacketHandlerFactory _packetHandlerFactory;
+		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
+
+		// maps connection ID to client thread and socket reference
+		utils::HashMap<utils::UUID, std::jthread> _clientThreads;
+		utils::HashMap<utils::UUID, std::reference_wrapper<Socket>> _clientSocks;
+		std::mutex _mtxClients;
+
+		// contains connection IDs of connections that have finished
+		utils::HashSet<utils::UUID> _finishedConns;
+		std::condition_variable _cvFinishedConns; // uses mtxClients to prevent deadlock
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
 
-		enum class LogType { Info };
+		std::optional<std::jthread> _acceptThread;
+		std::optional<std::jthread> _cleanupThread;
 
 		/**
-		 * @brief Outputs server log message.
-		 * @param msg Message to output.
+		 * @brief Runs background cleanup of client threads.
 		 */
-		void log(LogType logType, const std::string& msg);
-
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& msg);
-		
-		/**
-		 * @brief Outputs server log message.
-		 * @param ip Client's IP address.
-		 * @param port Client's port.
-		 * @param username Client username.
-		 * @param msg Message to output.
-		 */
-		void log(LogType logType, const IP& ip, utils::Port port, const std::string& username, const std::string& msg);
+		void cleanup_loop();
 
 		/**
 		 * @brief Accepts new clients in a loop.
@@ -120,18 +115,36 @@ namespace senc::server
 
 		/**
 		 * @brief Handles a newly connected client, until it disconnects.
+		 * @param connID Connection ID.
 		 * @param sock Socket connected to client (moved).
 		 * @param ip IP address by which client connected.
 		 * @param port Port by which client connected.
 		 */
-		void handle_new_client(Socket sock, IP ip, utils::Port port);
+		void handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port);
+
+		/**
+		 * @brief Handles client connection request(s).
+		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
+		 * @return A flag indicating if client successfully connected or not,
+		 *		   and client's username (if successfully connected).
+		 */
+		std::pair<bool, std::string> connect_client(PacketHandler& packetHandler,
+													const IP& ip,
+													utils::Port port);
 
 		/**
 		 * @brief Handles client requests in a loop.
-		 * @param sock Socket connected to client.
+		 * @param packetHandler Implementation of `PacketHandler`.
+		 * @param ip Client's IP address.
+		 * @param port Client's port number.
 		 * @param username Client's connected username.
 		 */
-		void client_loop(Socket& sock, const std::string& username);
+		void client_loop(PacketHandler& packetHandler,
+						 const IP& ip,
+						 utils::Port port,
+						 const std::string& username);
 	};
 }
 

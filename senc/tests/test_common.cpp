@@ -7,86 +7,121 @@
  *********************************************************************/
 
 #include <gtest/gtest.h>
+#include <functional>
+#include <memory>
 #include "tests_utils.hpp"
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
+#include "../common/PacketHandlerFactory.hpp"
+#include "../common/InlinePacketHandler.hpp"
 
 namespace pkt = senc::pkt;
-using senc::InlinePacketReceiver;
-using senc::InlinePacketSender;
+using senc::PacketHandlerImplFactory;
+using senc::EncryptedPacketHandler;
+using senc::PacketHandlerFactory;
+using senc::InlinePacketHandler;
+using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-template <typename Request, typename Response>
-void cycle_flow(Socket& client, Socket& server, const Request& req, const Response& resp)
+class PacketsTest : public testing::TestWithParam<PacketHandlerFactory>
 {
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
+protected:
+	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
+	std::unique_ptr<Socket> client, server;
 
-	sender.send_request(client, req);
-	auto reqGot = receiver.recv_request<Request>(server);
-	EXPECT_TRUE(reqGot.has_value());
-	EXPECT_EQ(reqGot.value(), req);
+	void SetUp() override
+	{
+		auto& packetHandlerFactory = GetParam();
+		auto [client, server] = prepare_tcp();
+		this->client = std::make_unique<decltype(client)>(std::move(client));
+		this->server = std::make_unique<decltype(server)>(std::move(server));
+		std::tie(clientPacketHandler, serverPacketHandler) =
+			prepare_for_sockets<std::unique_ptr<PacketHandler>>(
+				*this->client, [&packetHandlerFactory](Socket& sock)
+				{
+					return packetHandlerFactory.new_client_packet_handler(sock);
+				},
+				*this->server, [&packetHandlerFactory](Socket& sock)
+				{
+					return packetHandlerFactory.new_server_packet_handler(sock);
+				}
+			);
+		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
+	}
+	
+	void TearDown() override
+	{
+		client.reset();
+		server.reset();
+		clientPacketHandler.reset();
+		serverPacketHandler.reset();
+	}
 
-	sender.send_response(server, resp);
-	auto respGot = receiver.recv_response<Response>(client);
-	EXPECT_TRUE(respGot.has_value());
-	EXPECT_EQ(respGot.value(), resp);
-}
+public:
+	template <typename Request, typename Response>
+	void cycle_flow(const Request& req, const Response& resp)
+	{
+		clientPacketHandler->send_request(req);
+		auto reqGot = serverPacketHandler->recv_request<Request>();
+		EXPECT_TRUE(reqGot.has_value());
+		EXPECT_EQ(reqGot.value(), req);
 
-static void error_cycle(Socket& client, Socket& server)
+		serverPacketHandler->send_response(resp);
+		auto respGot = clientPacketHandler->recv_response<Response>();
+		EXPECT_TRUE(respGot.has_value());
+		EXPECT_EQ(respGot.value(), resp);
+	}
+};
+
+static void error_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::ErrorResponse resp{ "this is an error message..." };
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, ErrorResponseTest)
+TEST_P(PacketsTest, ErrorResponseTest)
 {
-	auto [client, server] = prepare_tcp();
-	error_cycle(client, server);
+	error_cycle(*this);
 }
 
-static void signup_cycle(Socket& client, Socket& server)
+static void signup_cycle(PacketsTest& test)
 {
-	pkt::SignupRequest req{ "username" };
+	pkt::SignupRequest req{ "username", "pass123" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, SignupCycleTest)
+TEST_P(PacketsTest, SignupCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	signup_cycle(client, server);
+	signup_cycle(*this);
 }
 
-static void login_cycle(Socket& client, Socket& server)
+static void login_cycle(PacketsTest& test)
 {
-	pkt::LoginRequest req{ "username" };
-	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadUsername };
-	cycle_flow(client, server, req, resp);
+	pkt::LoginRequest req{ "username", "pass123" };
+	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, LoginCycleTest)
+TEST_P(PacketsTest, LoginCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	login_cycle(client, server);
+	login_cycle(*this);
 }
 
-static void logout_cycle(Socket& client, Socket& server)
+static void logout_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, LogoutCycleTest)
+TEST_P(PacketsTest, LogoutCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	logout_cycle(client, server);
+	logout_cycle(*this);
 }
 
-static void make_user_set_cycle(Socket& client, Socket& server)
+static void make_user_set_cycle(PacketsTest& test)
 {
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
@@ -97,22 +132,21 @@ static void make_user_set_cycle(Socket& client, Socket& server)
 
 	pkt::MakeUserSetResponse resp{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-		ECGroup::identity().pow(435),
-		ECGroup::identity().pow(256),
+		ECGroup::generator().pow(435),
+		ECGroup::generator().pow(256),
 		senc::PrivKeyShard{ 1, 435 },
 		senc::PrivKeyShard{ 2, 256 }
 	};
 
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, MakeUserSetCycleTest)
+TEST_P(PacketsTest, MakeUserSetCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	make_user_set_cycle(client, server);
+	make_user_set_cycle(*this);
 }
 
-static void get_user_sets_cycle(Socket& client, Socket& server)
+static void get_user_sets_cycle(PacketsTest& test)
 {
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
@@ -122,38 +156,36 @@ static void get_user_sets_cycle(Socket& client, Socket& server)
 			"57641e16-e02a-473b-8204-a809a9c435df"
 		}
 	};
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, GetUserSetsCycleTest)
+TEST_P(PacketsTest, GetUserSetsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	get_user_sets_cycle(client, server);
+	get_user_sets_cycle(*this);
 }
 
-static void get_members_cycle(Socket& client, Socket& server)
+static void get_members_cycle(PacketsTest& test)
 {
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
 	pkt::GetMembersResponse resp{
 		{ "a", "asfg", "user" },
 		{ "o1", "o2" }
 	};
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, GetMembersCycleTest)
+TEST_P(PacketsTest, GetMembersCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	get_members_cycle(client, server);
+	get_members_cycle(*this);
 }
 
-static void decrypt_cycle(Socket& client, Socket& server)
+static void decrypt_cycle(PacketsTest& test)
 {
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
 		{
-			ECGroup::identity().pow(435),
-			ECGroup::identity().pow(256),
+			ECGroup::generator().pow(435),
+			ECGroup::generator().pow(256),
 			{
 				CryptoPP::SecByteBlock{},
 				{ 5, 6, 7, 8, 9 }
@@ -161,45 +193,44 @@ static void decrypt_cycle(Socket& client, Socket& server)
 		}
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, DecryptCycleTest)
+TEST_P(PacketsTest, DecryptCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	decrypt_cycle(client, server);
+	decrypt_cycle(*this);
 }
 
-static void update_cycle(Socket& client, Socket& server)
+static void update_cycle(PacketsTest& test)
 {
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
 		{
 			{
 				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-				ECGroup::identity().pow(435),
-				ECGroup::identity().pow(256),
+				ECGroup::generator().pow(435),
+				ECGroup::generator().pow(256),
 				senc::PrivKeyShard{ 1, 435 }
 			},
 			{
 				"c7379469-4294-40b4-850c-fe665717d1ba",
-				ECGroup::identity().pow(534),
-				ECGroup::identity().pow(652),
+				ECGroup::generator().pow(534),
+				ECGroup::generator().pow(652),
 				senc::PrivKeyShard{ 2, 256 }
 			}
 		},
 		{
 			{
 				"57641e16-e02a-473b-8204-a809a9c435df",
-				ECGroup::identity().pow(111),
-				ECGroup::identity().pow(222),
+				ECGroup::generator().pow(111),
+				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
 				senc::PrivKeyShard{ 13, 131313 }
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
-				ECGroup::identity().pow(444),
-				ECGroup::identity().pow(555),
+				ECGroup::generator().pow(444),
+				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },
 				senc::PrivKeyShard{ 14, 161616 }
 			}
@@ -212,8 +243,8 @@ static void update_cycle(Socket& client, Socket& server)
 			{
 				"663383cf-d302-4eaf-8680-e8abcf240d89",
 				{
-					ECGroup::identity().pow(5),
-					ECGroup::identity().pow(6),
+					ECGroup::generator().pow(5),
+					ECGroup::generator().pow(6),
 					{
 						CryptoPP::SecByteBlock{},
 						{ 5, 6, 7, 8, 9 }
@@ -224,8 +255,8 @@ static void update_cycle(Socket& client, Socket& server)
 			{
 				"1349f2e2-df59-4a4e-82c5-a74e009a72f0",
 				{
-					ECGroup::identity().pow(43),
-					ECGroup::identity().pow(56),
+					ECGroup::generator().pow(43),
+					ECGroup::generator().pow(56),
 					{
 						CryptoPP::SecByteBlock{},
 						{ 8, 8, 8, 8, 8 }
@@ -237,142 +268,137 @@ static void update_cycle(Socket& client, Socket& server)
 		{
 			{
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
-				{ ECGroup::identity().pow(3), ECGroup::identity().pow(4) },
-				{ ECGroup::identity().pow(5), ECGroup::identity().pow(6) },
+				{ ECGroup::generator().pow(3), ECGroup::generator().pow(4) },
+				{ ECGroup::generator().pow(5), ECGroup::generator().pow(6) },
 				{ 1, 2, 100 },
 				{ 3, 4, 100 }
 			},
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
-				{ ECGroup::identity().pow(8) },
+				{ ECGroup::generator().pow(8) },
 				{ },
 				{ 5, 100 },
 				{ 100 }
 			}
 		}
 	};
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, UpdateCycleTest)
+TEST_P(PacketsTest, UpdateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	update_cycle(client, server);
+	update_cycle(*this);
 }
 
-static void decrypt_participate_cycle(Socket& client, Socket& server)
+static void decrypt_participate_cycle(PacketsTest& test)
 {
 	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, DecryptParticipateCycleTest)
+TEST_P(PacketsTest, DecryptParticipateCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	decrypt_participate_cycle(client, server);
+	decrypt_participate_cycle(*this);
 }
 
-static void send_decryption_part_cycle(Socket& client, Socket& server)
+static void send_decryption_part_cycle(PacketsTest& test)
 {
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
-		ECGroup::identity().pow(435)
+		ECGroup::generator().pow(435)
 	};
 	pkt::SendDecryptionPartResponse resp{};
-	cycle_flow(client, server, req, resp);
+	test.cycle_flow(req, resp);
 }
 
-TEST(CommonTests, SendDecryptionPartCycleTest)
+TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-	send_decryption_part_cycle(client, server);
+	send_decryption_part_cycle(*this);
 }
 
-TEST(CommonTests, AllProtocolCyclesInSequence)
+TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
-	auto [client, server] = prepare_tcp();
-	error_cycle(client, server);
-	signup_cycle(client, server);
-	login_cycle(client, server);
-	make_user_set_cycle(client, server);
-	get_user_sets_cycle(client, server);
-	get_members_cycle(client, server);
-	decrypt_cycle(client, server);
-	update_cycle(client, server);
-	decrypt_participate_cycle(client, server);
-	send_decryption_part_cycle(client, server);
-	logout_cycle(client, server);
+	error_cycle(*this);
+	signup_cycle(*this);
+	login_cycle(*this);
+	make_user_set_cycle(*this);
+	get_user_sets_cycle(*this);
+	get_members_cycle(*this);
+	decrypt_cycle(*this);
+	update_cycle(*this);
+	decrypt_participate_cycle(*this);
+	send_decryption_part_cycle(*this);
+	logout_cycle(*this);
 }
 
-TEST(CommonTests, LoginWithErrorsCycleTest)
+TEST_P(PacketsTest, LoginWithErrorsCycleTest)
 {
-	auto [client, server] = prepare_tcp();
-
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
-
-	pkt::LoginRequest req{ "username" };
-	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadUsername };
+	pkt::LoginRequest req{ "username", "pass123" };
+	pkt::LoginResponse loginResp{ pkt::LoginResponse::Status::BadLogin };
 	pkt::ErrorResponse errResp{ "Some error message" };
 	pkt::LogoutResponse logoutResp{};
 
-	sender.send_request(client, req);
-	auto reqGot1 = receiver.recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot1 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_EQ(reqGot1.value(), req);
 
-	sender.send_response(server, errResp);
-	auto respGot1 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(errResp);
+	auto respGot1 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_TRUE(respGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::ErrorResponse>(*respGot1));
 	EXPECT_EQ(std::get<pkt::ErrorResponse>(*respGot1), errResp);
 
-	sender.send_request(client, req);
-	auto reqGot2 = receiver.recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot2 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_EQ(reqGot2.value(), req);
 
-	sender.send_response(server, logoutResp);
-	auto respGot2 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(logoutResp);
+	auto respGot2 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_FALSE(respGot2.has_value());
 
-	sender.send_request(client, req);
-	auto reqGot3 = receiver.recv_request<pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(req);
+	auto reqGot3 = serverPacketHandler->recv_request<pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot3.has_value());
 	EXPECT_EQ(reqGot3.value(), req);
 
-	sender.send_response(server, loginResp);
-	auto respGot3 = receiver.recv_response<pkt::LoginResponse, pkt::ErrorResponse>(client);
+	serverPacketHandler->send_response(loginResp);
+	auto respGot3 = clientPacketHandler->recv_response<pkt::LoginResponse, pkt::ErrorResponse>();
 	EXPECT_TRUE(respGot3.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginResponse>(*respGot3));
 	EXPECT_EQ(std::get<pkt::LoginResponse>(*respGot3), loginResp);
 }
 
-TEST(CommonTests, TestRequestVariant)
+TEST_P(PacketsTest, TestRequestVariant)
 {
-	auto [client, server] = prepare_tcp();
-
-	InlinePacketReceiver receiver;
-	InlinePacketSender sender;
-
-	pkt::SignupRequest signupReq{ "username" };
-	pkt::LoginRequest loginReq{ "AAAAAAAA" };
+	pkt::SignupRequest signupReq{ "username", "pass123" };
+	pkt::LoginRequest loginReq{ "AAAAAAAA", "pass123" };
 	pkt::LogoutRequest logoutReq{};
 
-	sender.send_request(client, signupReq);
-	auto reqGot1 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(signupReq);
+	auto reqGot1 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot1.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::SignupRequest>(*reqGot1));
 	EXPECT_EQ(std::get<pkt::SignupRequest>(*reqGot1), signupReq);
 
-	sender.send_request(client, loginReq);
-	auto reqGot2 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(loginReq);
+	auto reqGot2 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_TRUE(reqGot2.has_value());
 	EXPECT_TRUE(std::holds_alternative<pkt::LoginRequest>(*reqGot2));
 	EXPECT_EQ(std::get<pkt::LoginRequest>(*reqGot2), loginReq);
 
-	sender.send_request(client, logoutReq);
-	auto reqGot3 = receiver.recv_request<pkt::SignupRequest, pkt::LoginRequest>(server);
+	clientPacketHandler->send_request(logoutReq);
+	auto reqGot3 = serverPacketHandler->recv_request<pkt::SignupRequest, pkt::LoginRequest>();
 	EXPECT_FALSE(reqGot3.has_value());
 }
+
+INSTANTIATE_TEST_SUITE_P(
+	PacketTests,
+	PacketsTest,
+	testing::Values(
+		PacketHandlerImplFactory<InlinePacketHandler>{},
+		PacketHandlerImplFactory<EncryptedPacketHandler>{}
+	)
+);

@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <ranges>
+#include <bit>
 
 #include "concepts.hpp"
 
@@ -175,6 +176,11 @@ namespace senc::utils
 	 */
 	std::string bytes_to_base64(const HasByteData auto& bytes);
 
+	/**
+	 * @brief Converts a range of bytes to base64 representation.
+	 * @param rng Range of bytes to encode in base64.
+	 * @return Base64 string.
+	 */
 	template <std::ranges::input_range R>
 	requires (std::same_as<std::ranges::range_value_t<R>, byte> && !HasByteData<R>)
 	std::string bytes_to_base64(R&& rng);
@@ -185,6 +191,74 @@ namespace senc::utils
 	 * @return Buffer of bytes.
 	 */
 	Buffer bytes_from_base64(const std::string& base64);
+
+	/**
+	 * @brief Writes a string value to an array of bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Value to write.
+	 */
+	template <std::endian endianess = std::endian::big>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>;
+
+	/**
+	 * @brief Writes a primitive value to an array of bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Value to write.
+	 */
+	template <std::endian endianess = std::endian::big>
+	void write_bytes(Buffer& bytes, auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>);
+
+	/**
+	 * @brief Writes an object with bytes data to an array of bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param bytes Array of bytes to append to (by ref).
+	 * @param value Value to write.
+	 */
+	template <std::endian endianess = std::endian::big>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires HasByteData<std::remove_cvref_t<decltype(value)>>;
+
+	/**
+	 * @brief Reads a (null-terminated) string from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @return Iterator pointing to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>;
+
+	/**
+	 * @brief Reads a fundamental/enum value from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @return Iterator pointing to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
+
+	/**
+	 * @brief Reads an object with bytes data from bytes.
+	 * @tparam endianess Endianess to use.
+	 * @param out Variable to store read value into.
+	 * @param it Bytes iterator to start reading from.
+	 * @param end Bytes iterator to data end.
+	 * @return Iterator pointing to after read value.
+	 */
+	template <std::endian endianess = std::endian::big>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>;
 }
 
 #include "bytes_impl.hpp"

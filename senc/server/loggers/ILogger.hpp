@@ -1,0 +1,42 @@
+/*********************************************************************
+ * \file   ILogger.hpp
+ * \brief  Contains Logger interface.
+ * 
+ * \author aviad1b
+ * \date   January 2026, Teveth 5786
+ *********************************************************************/
+
+#pragma once
+
+#include <string>
+
+namespace senc::server::loggers
+{
+	/**
+	 * @interface senc::server::loggers::ILogger
+	 * @brief Interface for server message logging.
+	 */
+	class ILogger
+	{
+	public:
+		virtual ~ILogger() { }
+
+		/**
+		 * @brief Logs a server info message.
+		 * @param msg Server info message to log.
+		 */
+		virtual void log_info(const std::string& msg) = 0;
+
+		/**
+		 * @brief Logs a server warning message.
+		 * @param msg Server warning message to log.
+		 */
+		virtual void log_warning(const std::string& msg) = 0;
+
+		/**
+		 * @brief Logs a server error message.
+		 * @param msg Server error message to log.
+		 */
+		virtual void log_error(const std::string& msg) = 0;
+	};
+}

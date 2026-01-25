@@ -1,8 +1,8 @@
 #include <iostream>
-#include "../common/InlinePacketReceiver.hpp"
-#include "../common/InlinePacketSender.hpp"
-#include "ShortTermServerStorage.hpp"
-#include "InteractiveConsole.hpp"
+#include "../common/EncryptedPacketHandler.hpp"
+#include "storage/ShortTermServerStorage.hpp"
+#include "loggers/ConsoleLogger.hpp"
+#include "io/InteractiveConsole.hpp"
 #include "Server.hpp"
 
 namespace senc::server
@@ -13,14 +13,14 @@ namespace senc::server
 
 	std::tuple<bool, Port> parse_args(int argc, char** argv);
 
-	bool handle_cmd(InteractiveConsole& console, const std::string& cmd);
+	bool handle_cmd(io::InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
-	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
-					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager);
+	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager);
 
-	void run_server(IServer& server, InteractiveConsole& console);
+	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console);
 
 	int main(int argc, char** argv)
 	{
@@ -33,7 +33,7 @@ namespace senc::server
 			return 1;
 		}
 
-		std::optional<InteractiveConsole> console;
+		std::optional<io::InteractiveConsole> console;
 		try { console.emplace(handle_cmd); }
 		catch (const std::exception&)
 		{
@@ -41,23 +41,24 @@ namespace senc::server
 			return 1;
 		}
 
+		loggers::ConsoleLogger logger(*console);
+
 		Schema schema;
-		InlinePacketReceiver receiver;
-		InlinePacketSender sender;
-		ShortTermServerStorage storage;
-		UpdateManager updateManager;
-		DecryptionsManager decryptionsManager;
+		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
+		storage::ShortTermServerStorage storage;
+		managers::UpdateManager updateManager;
+		managers::DecryptionsManager decryptionsManager;
 		
 		if (isIPv6)
 			return start_server<utils::IPv6>(
-				port, *console, schema, storage,
-				receiver, sender,
+				port, logger, *console, schema, storage,
+				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
-				port, *console, schema, storage,
-				receiver, sender,
+				port, logger, *console, schema, storage,
+				packetHandlerFactory,
 				updateManager, decryptionsManager
 			);
 	}
@@ -110,7 +111,7 @@ namespace senc::server
 	 * @param cmd Inputed command.
 	 * @return `true` if server should stop, otherwise `false`.
 	 */
-	bool handle_cmd(InteractiveConsole& console, const std::string& cmd)
+	bool handle_cmd(io::InteractiveConsole& console, const std::string& cmd)
 	{
 		(void)console;
 		return cmd == "stop"; // stop if command is "stop"
@@ -119,29 +120,29 @@ namespace senc::server
 	/**
 	 * @brief Starts up server (and waits for it to finish runnings).
 	 * @param port Server's listen port.
+	 * @param logger `ILogger` instance used for logging server messages (by ref).
+	 * @param console Server console (by ref).
 	 * @param schema Server's encryption schema instance (by ref).
 	 * @param storage Server's storage instance (by ref).
-	 * @param receiver Server's packet receiver instance (by ref).
-	 * @param sender Server's packet sender instance (by ref).
+	 * @param packetHandlerFactory Factory used for constructing packet handlers (by ref).
 	 * @param updateManager Server's update manager instance (by ref).
 	 * @param decryptionsManager Server's decryptions manager instance (by ref).
 	 * @return Server exit code.
 	 */
 	template <utils::IPType IP>
-	int start_server(Port port, InteractiveConsole& console, Schema& schema,
-					 IServerStorage& storage, PacketReceiver& receiver, PacketSender& sender,
-					 UpdateManager& updateManager, DecryptionsManager& decryptionsManager)
+	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
+					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;
 		try
 		{
 			server.emplace(
 				port,
-				[&console](const std::string& msg) { console.print("[info] " + msg); },
+				logger,
 				schema,
 				storage,
-				receiver,
-				sender,
+				packetHandlerFactory,
 				updateManager,
 				decryptionsManager
 			);
@@ -152,7 +153,7 @@ namespace senc::server
 			return 1;
 		}
 
-		run_server(*server, console);
+		run_server(*server, logger, console);
 
 		return 0;
 	}
@@ -160,14 +161,15 @@ namespace senc::server
 	/**
 	 * @brief Runs server (and waits for it to finish running).
 	 * @param server Server to run (by ref).
+	 * @param logger `ILogger` instance used for logs (by ref).
 	 * @param console Server console (by ref).
 	 */
-	void run_server(IServer& server, InteractiveConsole& console)
+	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console)
 	{
 		server.start();
 
-		console.print("[info] Server listening at port " + std::to_string(server.port()) + ".");
-		console.print("[info] Use \"stop\" to stop server.");
+		logger.log_info("Server listening at port " + std::to_string(server.port()) + ".");
+		logger.log_info("Use \"stop\" to stop server.");
 
 		console.start_inputs(); // start input loop
 

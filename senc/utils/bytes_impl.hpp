@@ -89,4 +89,96 @@ namespace senc::utils
 		);
 		return res;
 	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires StringType<std::remove_cvref_t<decltype(value)>>
+	{
+		using C = StringElem<std::remove_cvref_t<decltype(value)>>;
+		bytes.reserve(bytes.size() + ((value.length() + 1) * sizeof(C)));
+		for (C c : value)
+			write_bytes<endianess>(bytes, c);
+		write_bytes<endianess>(bytes, static_cast<C>(0)); // null termination
+	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, auto value)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(value)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(value)>>)
+	{
+		auto it = bytes.insert(
+			bytes.end(),
+			reinterpret_cast<const byte*>(&value),
+			reinterpret_cast<const byte*>(&value + 1)
+		);
+
+		if constexpr (std::endian::native != endianess)
+			std::reverse(it, bytes.end());
+	}
+
+	template <std::endian endianess>
+	void write_bytes(Buffer& bytes, const auto& value)
+	requires HasByteData<std::remove_cvref_t<decltype(value)>>
+	{
+		bytes.insert(bytes.end(), value.data(), value.data() + value.size());
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires StringType<std::remove_cvref_t<decltype(out)>>
+	{
+		using Str = std::remove_cvref_t<decltype(out)>;
+		using C = StringElem<Str>;
+
+		const C* p = reinterpret_cast<const C*>(std::to_address(it));
+		const C* pEnd = reinterpret_cast<const C*>(std::to_address(end));
+		const C* null = std::find(p, pEnd, static_cast<C>(0));
+
+		// if has null termination, simply assign as string;
+		// otherwise, read everything untill end
+		const C* strEnd = std::min(null, pEnd);
+		const std::size_t len = strEnd - p;
+
+		out.resize(len);
+		for (C& c : out)
+			it = read_bytes<endianess>(c, it, end);
+
+		it += sizeof(C); // including null-termination
+
+		return it;
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
+		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
+	{
+		using T = std::remove_cvref_t<decltype(out)>;
+		const std::size_t availableData = end - it;
+		const std::size_t readSize = std::min(sizeof(T), availableData);
+		std::memcpy(
+			&out,
+			std::to_address(it),
+			readSize
+		);
+
+		if constexpr (std::endian::native != endianess)
+			std::reverse(
+				reinterpret_cast<byte*>(&out),
+				reinterpret_cast<byte*>(&out + 1)
+			);
+
+		it += readSize;
+
+		return it;
+	}
+
+	template <std::endian endianess>
+	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
+	{
+		const std::size_t size = std::min<std::size_t>(std::distance(it, end), out.size());
+		std::memcpy(out.data(), std::to_address(it), size);
+		return it + size;
+	}
 }

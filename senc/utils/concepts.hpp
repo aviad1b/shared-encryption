@@ -66,6 +66,12 @@ namespace senc::utils
 
 		template <typename Char, typename Traits, typename Alloc>
 		struct is_string_type<std::basic_string<Char, Traits, Alloc>> : std::true_type { };
+
+		template <typename T>
+		struct string_elem { };
+
+		template <typename Char, typename Traits, typename Alloc>
+		struct string_elem<std::basic_string<Char, Traits, Alloc>> { using type = Char; };
 	}
 
 	/**
@@ -75,6 +81,14 @@ namespace senc::utils
 	 */
 	template <typename Self>
 	concept StringType = sfinae::is_string_type<Self>::value;
+
+	/**
+	 * @typedef utils::StringElem
+	 * @brief Element type of string.
+	 * @tparam Str String type.
+	 */
+	template <StringType Str>
+	using StringElem = typename sfinae::string_elem<Str>::type;
 
 	/**
 	 * @concept senc::utils::ConvertibleTo

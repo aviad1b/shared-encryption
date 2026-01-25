@@ -10,16 +10,17 @@ add_executable(senc_tests
     "test_threshold_enc.cpp"
     "test_common.cpp"
     "test_strs.cpp"
+    "test_bytes.cpp"
     "tests_utils.hpp"
     "test_storage.cpp"
     "test_server.cpp"
-    "../server/ClientHandlerFactory.cpp"
-    "../server/ConnectedClientHandler.cpp"
-    "../server/ConnectingClientHandler.cpp"
-    "../server/DecryptionsManager.cpp"
+    "../server/handlers/ClientHandlerFactory.cpp"
+    "../server/handlers/ConnectedClientHandler.cpp"
+    "../server/handlers/ConnectingClientHandler.cpp"
+    "../server/managers/DecryptionsManager.cpp"
     "../server/Server_impl.hpp"
-    "../server/ShortTermServerStorage.cpp"
-    "../server/UpdateManager.cpp"
+    "../server/storage/ShortTermServerStorage.cpp"
+    "../server/managers/UpdateManager.cpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)

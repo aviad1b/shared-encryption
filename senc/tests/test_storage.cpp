@@ -9,13 +9,12 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>
-#include "../server/IServerStorage.hpp"
-#include "../server/ShortTermServerStorage.hpp"
+#include "../server/storage/ShortTermServerStorage.hpp"
 #include "tests_utils.hpp"
 
-using senc::server::ShortTermServerStorage;
-using senc::server::IServerStorage;
-using senc::server::UserSetInfo;
+using senc::server::storage::ShortTermServerStorage;
+using senc::server::storage::IServerStorage;
+using senc::server::storage::UserSetInfo;
 using senc::PrivKeyShardID;
 using senc::member_count_t;
 using senc::OperationID;
@@ -53,29 +52,34 @@ TEST_P(ServerStorageTest, UserExists_ReturnsFalseForNonExistentUser)
 TEST_P(ServerStorageTest, UserExists_ReturnsTrueAfterUserCreation)
 {
 	const std::string username = "avi";
+	const std::string password = "pass123";
 
-	storage->new_user(username);
+	storage->new_user(username, password);
 
 	EXPECT_TRUE(storage->user_exists(username));
+	EXPECT_TRUE(storage->user_has_password(username, password));
 }
 
 TEST_P(ServerStorageTest, NewUser_MultipleUsersCanBeCreated)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
-	storage->new_user("gal");
+	storage->new_user("avi", "avipass123");
+	storage->new_user("batya", "batyapass123");
+	storage->new_user("gal", "galpass123");
 
 	EXPECT_TRUE(storage->user_exists("avi"));
+	EXPECT_TRUE(storage->user_has_password("avi", "avipass123"));
 	EXPECT_TRUE(storage->user_exists("batya"));
+	EXPECT_TRUE(storage->user_has_password("batya", "batyapass123"));
 	EXPECT_TRUE(storage->user_exists("gal"));
+	EXPECT_TRUE(storage->user_has_password("gal", "galpass123"));
 }
 
 // ----- UserSet Management Tests -----
 
 TEST_P(ServerStorageTest, NewUserset_ReturnsValidUserSetID)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
@@ -85,10 +89,10 @@ TEST_P(ServerStorageTest, NewUserset_ReturnsValidUserSetID)
 
 TEST_P(ServerStorageTest, NewUserset_WithRegularMembers)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
-	storage->new_user("gal");
-	storage->new_user("dani");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
+	storage->new_user("gal", "pass123");
+	storage->new_user("dani", "pass123");
 
 	auto owners = { "avi", "batya" };
 	auto regMembers = { "gal", "dani" };
@@ -98,8 +102,8 @@ TEST_P(ServerStorageTest, NewUserset_WithRegularMembers)
 
 TEST_P(ServerStorageTest, NewUserset_MultipleSetsReturnDifferentIDs)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners1 = { "avi" };
 	auto owners2 = { "batya" };
@@ -113,9 +117,9 @@ TEST_P(ServerStorageTest, NewUserset_MultipleSetsReturnDifferentIDs)
 
 TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
-	storage->new_user("gal");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
+	storage->new_user("gal", "pass123");
 
 	auto owners = { "avi", "batya" };
 	auto regMembers = { "gal" };
@@ -140,7 +144,7 @@ TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 
 TEST_P(ServerStorageTest, GetUsersets_ReturnsEmptyForNewUser)
 {
-	storage->new_user("avi");
+	storage->new_user("avi", "pass123");
 
 	auto usersets = storage->get_usersets("avi");
 
@@ -149,8 +153,8 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsEmptyForNewUser)
 
 TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners1 = { "avi" };
 	auto owners2 = { "avi", "batya" };
@@ -168,8 +172,8 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 
 TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMember)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
@@ -183,8 +187,8 @@ TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMem
 
 TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsTrueForOwner)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
@@ -197,8 +201,8 @@ TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsTrueForOwner)
 
 TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsFalseForNonOwner)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
@@ -211,7 +215,7 @@ TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsFalseForNonOwner)
 
 TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsFalseForNonExistentUserset)
 {
-	storage->new_user("avi");
+	storage->new_user("avi", "pass123");
 
 	UserSetID fakeID = UserSetID::generate(); // Assuming this doesn't exist
 
@@ -222,7 +226,7 @@ TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsFalseForNonExistentUserset)
 
 TEST_P(ServerStorageTest, GetShardId_ReturnsValidShardID)
 {
-	storage->new_user("avi");
+	storage->new_user("avi", "pass123");
 
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
@@ -236,8 +240,8 @@ TEST_P(ServerStorageTest, GetShardId_ReturnsValidShardID)
 
 TEST_P(ServerStorageTest, GetShardId_DifferentUsersGetDifferentShards)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
@@ -252,7 +256,7 @@ TEST_P(ServerStorageTest, GetShardId_DifferentUsersGetDifferentShards)
 
 TEST_P(ServerStorageTest, GetShardId_SameUserGetsSameShardForSameUserset)
 {
-	storage->new_user("avi");
+	storage->new_user("avi", "pass123");
 
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
@@ -267,8 +271,8 @@ TEST_P(ServerStorageTest, GetShardId_SameUserGetsSameShardForSameUserset)
 
 TEST_P(ServerStorageTest, GetShardId_RegularMembersGetShardIDs)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
 
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
@@ -288,9 +292,9 @@ TEST_P(ServerStorageTest, GetShardId_RegularMembersGetShardIDs)
 TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations)
 {
 	// create users
-	storage->new_user("avi");
-	storage->new_user("batya");
-	storage->new_user("gal");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
+	storage->new_user("gal", "pass123");
 
 	ASSERT_TRUE(storage->user_exists("avi"));
 	ASSERT_TRUE(storage->user_exists("batya"));
@@ -330,7 +334,7 @@ TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations
 
 TEST_P(ServerStorageTest, EdgeCase_EmptyRegularMembersList)
 {
-	storage->new_user("avi");
+	storage->new_user("avi", "pass123");
 
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
@@ -344,9 +348,9 @@ TEST_P(ServerStorageTest, EdgeCase_EmptyRegularMembersList)
 
 TEST_P(ServerStorageTest, EdgeCase_ThresholdEqualsGroupSize)
 {
-	storage->new_user("avi");
-	storage->new_user("batya");
-	storage->new_user("gal");
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
+	storage->new_user("gal", "pass123");
 
 	auto owners = { "avi", "batya", "gal" };
 	std::initializer_list<std::string> regMembers = {};
