@@ -88,18 +88,14 @@ namespace senc::server
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
-		// maps connection ID to client thread
+		// maps connection ID to client thread and socket reference
 		utils::HashMap<utils::UUID, std::jthread> _clientThreads;
-		std::mutex _mtxClientThreads;
-
-		// maps connection ID to socket reference
 		utils::HashMap<utils::UUID, std::reference_wrapper<Socket>> _clientSocks;
-		std::mutex _mtxClientSocks;
+		std::mutex _mtxClients;
 
 		// contains connection IDs of connections that have finished
 		utils::HashSet<utils::UUID> _finishedConns;
-		std::mutex _mtxFinishedConns;
-		std::condition_variable _cvFinishedConns;
+		std::condition_variable _cvFinishedConns; // uses mtxClients to prevent deadlock
 
 		std::mutex _mtxWait;
 		std::condition_variable _cvWait;
