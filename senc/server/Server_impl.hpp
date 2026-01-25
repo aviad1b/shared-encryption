@@ -70,16 +70,23 @@ namespace senc::server
 
 		_cvFinishedConns.notify_all(); // final cleanups
 
-		// force close all client sockets and wait for all client threads to exit gracefully
+		// force close all client sockets
 		{
-			// NOTE: locks are aquired in this order for consistency with accept
 			const std::lock_guard<std::mutex> lock(_mtxClients);
 			for (auto& p : _clientSocks)
 				p.second.get().close();
 			_clientSocks.clear();
-			_clientThreads.clear(); // calls jthread dtors
 			_finishedConns.clear();
 		}
+
+		// wait for all client threads to exit gracefully
+		// NOTE: we move the map to not hold the mutex while joining
+		utils::HashMap<utils::UUID, std::jthread> threadsToJoin;
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClients);
+			threadsToJoin = std::move(_clientThreads);
+		}
+		threadsToJoin.clear(); // joins client threads
 
 		// wait for accept loop and cleanup loop threads to finish gracefully
 		_acceptThread.reset();
