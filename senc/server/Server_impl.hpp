@@ -68,19 +68,26 @@ namespace senc::server
 
 		_listenSock.close(); // forces stop of any hanging accepts
 
+		_cvFinishedConns.notify_all(); // final cleanups
+
 		// force close all client sockets
 		{
-			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
+			const std::lock_guard<std::mutex> lock(_mtxClients);
 			for (auto& p : _clientSocks)
 				p.second.get().close();
 			_clientSocks.clear();
+			_finishedConns.clear();
 		}
 
 		// wait for all client threads to exit gracefully
+		// NOTE: we move the map to not hold the mutex while joining
+		utils::HashMap<utils::UUID, std::jthread> threadsToJoin;
 		{
-			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
-			_clientThreads.clear(); // calls jthread dtors
+			const std::lock_guard<std::mutex> lock(_mtxClients);
+			threadsToJoin = std::move(_clientThreads);
+			_clientThreads.clear(); // ensure valid state after move
 		}
+		threadsToJoin.clear(); // joins client threads
 
 		// wait for accept loop and cleanup loop threads to finish gracefully
 		_acceptThread.reset();
@@ -102,8 +109,11 @@ namespace senc::server
 	{
 		while (_isRunning)
 		{
-			std::unique_lock<std::mutex> lock(_mtxFinishedConns);
-			_cvFinishedConns.wait(lock, [this]() { return !this->_finishedConns.empty(); });
+			std::unique_lock<std::mutex> lock(_mtxClients);
+			_cvFinishedConns.wait(lock, [this]()
+			{
+				return (!_isRunning || !this->_finishedConns.empty());
+			});
 
 			// if server stopped mid-way, return
 			if (!_isRunning)
@@ -112,7 +122,6 @@ namespace senc::server
 			// for each finished connection, remove its matching thread
 			for (const auto& connID : _finishedConns)
 			{
-				const std::lock_guard<std::mutex> lock(_mtxClientThreads);
 				const auto it = _clientThreads.find(connID);
 				if (it != _clientThreads.end())
 					_clientThreads.erase(it);
@@ -135,7 +144,7 @@ namespace senc::server
 			auto& [sock, addr] = *acceptRet;
 			const auto& [ip, port] = addr;
 
-			const std::lock_guard<std::mutex> lock(_mtxClientThreads);
+			const std::lock_guard<std::mutex> lock(_mtxClients);
 			auto connID = utils::UUID::generate_not_in(_clientThreads);
 			_clientThreads.emplace(
 				connID, std::jthread(
@@ -149,26 +158,20 @@ namespace senc::server
 	template <utils::IPType IP>
 	inline void Server<IP>::handle_new_client(utils::UUID connID, Socket sock, IP ip, utils::Port port)
 	{
-		// at scope exit, register connection as finished
-		utils::AtScopeExit connGuard([this, &connID]()
+		// register client socket
 		{
-			const std::lock_guard<std::mutex> lock(_mtxFinishedConns);
+			const std::lock_guard<std::mutex> lock(_mtxClients);
+			_clientSocks.emplace(connID, sock);
+		}
+
+		// at scope exit, clean up socket and mark connection as finished
+		utils::AtScopeExit cleanup([this, &connID]()
+		{
+			const std::lock_guard<std::mutex> lock(_mtxClients);
+			this->_clientSocks.erase(connID);
 			this->_finishedConns.insert(connID);
 			_cvFinishedConns.notify_one();
 		});
-
-		// add socket reference to client sockets maps,
-		// and delete it at scope exit
-		std::optional<utils::AtScopeExit> sockGuard;
-		{
-			const std::lock_guard<std::mutex> lock(_mtxClientSocks);
-			_clientSocks.emplace(connID, sock);
-			sockGuard.emplace([this, &connID]()
-			{
-				const std::lock_guard<std::mutex> lock(_mtxClientSocks);
-				this->_clientSocks.erase(connID);
-			});
-		}
 
 		// if server stopped mid-way, return
 		if (!_isRunning)
@@ -180,9 +183,6 @@ namespace senc::server
 
 		if (connected)
 			client_loop(*packetHandler, ip, port, username);
-
-		if (!_isRunning)
-			return;
 	}
 
 	template <utils::IPType IP>
