@@ -85,6 +85,7 @@ namespace senc::server
 		{
 			const std::lock_guard<std::mutex> lock(_mtxClients);
 			threadsToJoin = std::move(_clientThreads);
+			_clientThreads.clear(); // ensure valid state after move
 		}
 		threadsToJoin.clear(); // joins client threads
 
