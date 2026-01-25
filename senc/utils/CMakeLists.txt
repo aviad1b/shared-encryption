@@ -59,6 +59,6 @@ else()
 	target_link_libraries(senc_utils PUBLIC libuuid)
 endif()
 
-target_link_libraries(senc_utils PUBLIC cryptopp)
+target_link_libraries(senc_utils PUBLIC cryptopp sqlite3)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
