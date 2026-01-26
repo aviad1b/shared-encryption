@@ -51,6 +51,7 @@
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
 	"pwd/PBKDF2.cpp"
+	"datetime.hpp"
 )
 
 if (WIN32)
