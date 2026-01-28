@@ -97,4 +97,15 @@ namespace senc::utils
 			return value[i];
 		}
 	};
+
+	/**
+	 * @struct senc::utils::FixedStringConstant
+	 * @brief An STD-like FixedString value wrapper.
+	 * @tparam v Fixed string value.
+	 */
+	template <FixedString v>
+	struct FixedStringConstant
+	{
+		static constexpr FixedString& value = v;
+	};
 }
