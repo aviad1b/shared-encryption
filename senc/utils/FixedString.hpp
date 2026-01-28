@@ -38,6 +38,24 @@ namespace senc::utils
 		}
 
 		/**
+		 * @brief Gets string's length (without null-termination).
+		 * @return String's length (without null-termination).
+		 */
+		constexpr std::size_t len() const
+		{
+			return LEN;
+		}
+
+		/**
+		 * @brief Checks if string is empty.
+		 * @return `true` if empty, otherwise `false`.
+		 */
+		constexpr bool empty() const
+		{
+			return 0 == LEN;
+		}
+
+		/**
 		 * @brief Compares the fixed string with another one (of any length).
 		 */
 		constexpr auto operator<=>(const FixedString&) const = default;
