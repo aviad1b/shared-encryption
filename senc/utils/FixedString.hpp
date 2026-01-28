@@ -108,4 +108,10 @@ namespace senc::utils
 	{
 		static constexpr FixedString value = v;
 	};
+
+	/**
+	 * @struct senc::utils::EmptyFixedStringConstant
+	 * @brief Empty variation of FixedStringConstant.
+	 */
+	struct EmptyFixedStringConstant : FixedStringConstant<> { };
 }
