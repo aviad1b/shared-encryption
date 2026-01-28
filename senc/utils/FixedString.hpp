@@ -103,9 +103,9 @@ namespace senc::utils
 	 * @brief An STD-like FixedString value wrapper.
 	 * @tparam v Fixed string value.
 	 */
-	template <FixedString v>
+	template <FixedString v = "">
 	struct FixedStringConstant
 	{
-		static constexpr FixedString& value = v;
+		static constexpr FixedString value = v;
 	};
 }
