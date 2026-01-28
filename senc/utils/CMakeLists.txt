@@ -8,6 +8,7 @@
 	"strs.hpp"
 	"bytes_impl.hpp"
 	"concepts.hpp"
+	"FixedString.hpp"
 	"hash.hpp"
 	"variants.hpp"
 	"ranges.hpp"
