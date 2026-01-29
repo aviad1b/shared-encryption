@@ -10,6 +10,7 @@
 
 #include <string_view>
 #include <algorithm>
+#include <concept>
 
 namespace senc::utils
 {
@@ -97,6 +98,23 @@ namespace senc::utils
 			return value[i];
 		}
 	};
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct is_fixed_string : std::false_type { };
+
+		template <std::size_t n>
+		struct is_fixed_string<FixedString<n>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::AnyFixedString
+	 * @brief Looks for any instantation of `utils::FixedString`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept AnyFixedString = sfinae::is_fixed_string<Self>::value;
 
 	/**
 	 * @struct senc::utils::FixedStringConstant
