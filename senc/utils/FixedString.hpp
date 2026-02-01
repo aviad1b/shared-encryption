@@ -98,7 +98,44 @@ namespace senc::utils
 		{
 			return value[i];
 		}
+
+		/**
+		 * @brief Concatinates this fixed string with another.
+		 * @param other Other fixed string to concatinate with this one.
+		 * @return Concatinated fixed string.
+		 */
+		template <std::size_t m>
+		constexpr auto operator+(const FixedString<m>& other) const
+		{
+			FixedString<LEN + m> res{};
+			std::copy_n(value, LEN, res.value);
+			std::copy_n(other.value, m, res.value);
+			return res;
+		}
+
+		/**
+		 * @brief Concatinates this fixed string with a string literal.
+		 * @param str String literal to concatinate with this fixed string.
+		 * @return Concatinated fixed string.
+		 */
+		template <std::size_t m>
+		constexpr auto operator+(const char(&str)[m]) const
+		{
+			return *this + FixedString<m>(str);
+		}
 	};
+
+	/**
+	 * @brief Concatinates a string literal with a fixed string.
+	 * @param str String literal to concatinate with a fixed string.
+	 * @param fs Fixed string to concatinate with `str`.
+	 * @return Concatinated fixed string.
+	 */
+	template <std::size_t n, std::size_t m>
+	constexpr auto operator+(const char(&str)[n], const FixedString<m>& fs)
+	{
+		return FixedString<n>(str) + fs;
+	}
 
 	namespace sfinae
 	{
@@ -107,6 +144,12 @@ namespace senc::utils
 
 		template <std::size_t n>
 		struct is_fixed_string_type<FixedString<n>> : std::true_type { };
+
+		template <std::size_t n>
+		struct is_fixed_string_type<FixedString<n>&> : std::true_type { };
+
+		template <std::size_t n>
+		struct is_fixed_string_type<const FixedString<n>&> : std::true_type { };
 	}
 
 	/**
@@ -116,6 +159,12 @@ namespace senc::utils
 	 */
 	template <typename Self>
 	concept FixedStringType = sfinae::is_fixed_string_type<Self>::value;
+
+	template <typename Self>
+	concept EmptyFixedStringType = FixedStringType<Self> && (0 == Self::LEN);
+
+	template <typename Self>
+	concept NonEmptyFixedStringType = FixedStringType<Self> && !EmptyFixedStringType<Self>;
 
 	/**
 	 * @struct senc::utils::FixedStringConstant
