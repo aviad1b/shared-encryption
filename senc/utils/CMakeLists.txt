@@ -65,6 +65,10 @@
 	"sqlite/schemas/DBs.hpp"
 	"sqlite/schemas/select.hpp"
 	"sqlite/schemas/join.hpp"
+	"sqlite/TableView.hpp"
+	"sqlite/TableView_impl.hpp"
+	"sqlite/Database.hpp"
+	"sqlite/Database_impl.hpp"
 )
 
 if (WIN32)
