@@ -57,6 +57,8 @@
 	"sqlite/values.hpp"
 	"sqlite/values.cpp"
 	"sqlite/values_impl.hpp"
+	"sqlite/aggr.hpp"
+	"sqlite/args.hpp"
 )
 
 if (WIN32)
