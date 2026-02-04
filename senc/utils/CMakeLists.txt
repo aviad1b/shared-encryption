@@ -59,6 +59,12 @@
 	"sqlite/values_impl.hpp"
 	"sqlite/aggr.hpp"
 	"sqlite/args.hpp"
+	"sqlite/schemas/all.hpp"
+	"sqlite/schemas/columns.hpp"
+	"sqlite/schemas/tables.hpp"
+	"sqlite/schemas/DBs.hpp"
+	"sqlite/schemas/select.hpp"
+	"sqlite/schemas/join.hpp"
 )
 
 if (WIN32)
