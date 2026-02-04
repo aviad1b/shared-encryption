@@ -54,6 +54,9 @@
 	"pwd/PBKDF2.cpp"
 	"datetime.hpp"
 	"sqlite/SQLiteException.hpp"
+	"sqlite/values.hpp"
+	"sqlite/values.cpp"
+	"sqlite/values_impl.hpp"
 )
 
 if (WIN32)
