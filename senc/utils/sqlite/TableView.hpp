@@ -11,7 +11,7 @@
 #include "schemas/all.hpp"
 #include <optional>
 #include <string>
-#include <deque>
+#include <vector>
 
 namespace senc::utils::sqlite
 {
@@ -42,6 +42,16 @@ namespace senc::utils::sqlite
 		 * @param db Native sqlite3 pointer.
 		 */
 		explicit TableView(sqlite3* db);
+
+		/**
+		 * @brief Constructs a table view from native sqlite3 pointer and an inner query.
+		 * @param db Native sqlite3 pointer.
+		 * @param inner A (lambda) function returning an inner query (using a copied inner view).
+		 */
+		explicit Tableview(sqlite3* db,
+						   std::optional<std::string> select,
+						   std::optional<std::vector<std::string>> where,
+						   std::optional<std::function<std::string()>> inner);
 		
 		/**
 		 * @brief Applies a select query on the table view.
@@ -90,16 +100,8 @@ namespace senc::utils::sqlite
 	private:
 		sqlite3* _db;
 		std::optional<std::string> _select;
-		std::deque<std::string> _where;
+		std::vector<std::string> _where;
 		std::optional<std::function<std::string()>> _inner;
-
-		/**
-		 * @brief Constructs a table view from native sqlite3 pointer and an inner query.
-		 * @param db Native sqlite3 pointer.
-		 * @param inner A (lambda) function returning an inner query (using a copied inner view).
-		 */
-		explicit Tableview(const sqlite3*& db,
-						   std::function<std::string()> inner);
 
 		/**
 		 * @brief Gets SQL query version of table view.
