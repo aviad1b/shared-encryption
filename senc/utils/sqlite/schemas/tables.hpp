@@ -196,6 +196,27 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
+		// used for converting table schema to a select query
+		template <SomeTable T>
+		struct table_to_select { };
+
+		template <FixedString name, SomeCol First, SomeCol... Rest>
+		struct table_to_select<Table<name, First, Rest...>> : FixedStringConstant<
+			"SELECT " + COL_FULL_NAME<First> +((", " + COL_FULL_NAME<Rest>) + ...) +
+			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
+		> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::schemas::TableToSelect
+	 * @brief Converts table schema to a matching select query.
+	 * @tparam T Table schema.
+	 */
+	template <SomeTable T>
+	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T>::value;
+
+	namespace sfinae
+	{
 		// utility sfinae used for concating a column at a table's head
 		template <SomeTable T, SomeCol HC>
 		struct concat_table_head { };
