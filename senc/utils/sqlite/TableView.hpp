@@ -41,7 +41,7 @@ namespace senc::utils::sqlite
 		 * @brief Constructs a table view form native sqlite3 pointer.
 		 * @param db Native sqlite3 pointer.
 		 */
-		TableView(sqlite3* db);
+		explicit TableView(sqlite3* db);
 		
 		/**
 		 * @brief Applies a select query on the table view.
@@ -98,8 +98,8 @@ namespace senc::utils::sqlite
 		 * @param db Native sqlite3 pointer.
 		 * @param inner A (lambda) function returning an inner query (using a copied inner view).
 		 */
-		Tableview(const sqlite3*& db,
-				  std::function<std::string()> inner);
+		explicit Tableview(const sqlite3*& db,
+						   std::function<std::string()> inner);
 
 		/**
 		 * @brief Gets SQL query version of table view.
