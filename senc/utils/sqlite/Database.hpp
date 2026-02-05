@@ -26,6 +26,7 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Loads database from file.
 		 * @param path Database file path.
+		 * @throw SQLiteException If failed to open database.
 		 */
 		Database(const std::string& path);
 
