@@ -265,6 +265,24 @@ namespace senc::utils::sqlite::schemas
 	template <SomeCol C>
 	constexpr FixedString COL_NAME = C::NAME;
 
+	namespace sfinae
+	{
+		// used for getting full name of column (including table name if it knows it)
+		template <SomeCol C>
+		struct col_full_name : FixedStringConstant<COL_NAME<C>> { };
+
+		template <SomeOwnedCol C>
+		struct col_full_name<C> : FixedStringConstant<COL_OWNER<C> + "." + COL_NAME<C>> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::schemas::COL_FULL_NAME
+	 * @brief Gets full name of column schema (including table name, if knows it).
+	 * @tparam C Column schema.
+	 */
+	template <SomeCol C>
+	constexpr FixedString COL_FULL_NAME = sfinae::col_full_name<C>::value;
+
 	/**
 	 * @typedef senc::utils::sqlite::schemas::ColType
 	 * @brief Gets column value type form column schema.
