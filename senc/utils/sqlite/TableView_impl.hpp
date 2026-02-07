@@ -120,7 +120,7 @@ namespace senc::utils::sqlite
 			if (pastLimit(i))
 				throw SQLiteException("Too many rows to unpack: Expected " + std::to_string(*limit));
 
-			execute_any(callback, stmt);
+			execute_util<std::make_index_sequence<sizeof...(Cs)>>(callback, stmt);
 		}
 	}
 
