@@ -26,6 +26,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = TableView<Schema>;
 		using Tuple = schemas::TableTuple<Schema>;
+		static constexpr auto ROW_LEN = std::tuple_size_v<Tuple>;
 		
 		/**
 		 * @brief Copy constructor of table view.
@@ -84,11 +85,11 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Outputs viewed data into a fitting variable.
 		 * @note Requires schema to contain one value exactly.
-		 * @param value Variable to output into.
+		 * @param var Variable to output into.
 		 * @return `*this`.
 		 */
-		Self& operator>>(std::tuple_element_t<0, Tuple>& value)
-		requires (1 == std::tuple_size_v<Tuple>);
+		Self& operator>>(std::tuple_element_t<0, Tuple>& var)
+		requires (1 == ROW_LEN);
 
 		/**
 		 * @brief Outputs viewed data into a fitting callback functor.
@@ -108,6 +109,13 @@ namespace senc::utils::sqlite
 		 * @return SQL query version of table view.
 		 */
 		std::string as_sql() const;
+
+		void execute(schemas::TableCallable<Schema> auto&& callback, std::optional<int> limit);
+
+		template <FixedString name, schemas::SomeCol... Cs, std::size_t... is>
+		static void execute_util(
+			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
+			sqlite3_stmt* stmt);
 	};
 }
 

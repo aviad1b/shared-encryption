@@ -292,6 +292,14 @@ namespace senc::utils::sqlite::schemas
 	using ColType = typename C::Type;
 
 	/**
+	 * @typedef senc::utils::sqlite::schemas::ColView
+	 * @brief Gets column value view from column schema.
+	 * @tparam C Column schema.
+	 */
+	template <SomeCol C>
+	using ColView = typename ColType<C>::View;
+
+	/**
 	 * @var senc::utils::sqlite::schemas::FOREIGN_KEY_REF_TABLE_NAME
 	 * @brief Gets referenced table name from a foreign key column schema (empty if not foreign key).
 	 * @tparam C Column schema.
