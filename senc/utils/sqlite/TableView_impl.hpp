@@ -8,6 +8,8 @@
 
 #include "TableView.hpp"
 
+#include "../AtScopeExit.hpp"
+
 namespace senc::utils::sqlite
 {
 	template <schemas::SomeTable Schema>
@@ -115,9 +117,13 @@ namespace senc::utils::sqlite
 		std::optional<int> limit)
 	{
 		sqlite3_stmt* stmt = nullptr;
+
 		const auto sql = as_sql();
 		if (SQLITE_OK != sqlite3_prepare_v2(_db, sql, -1, &stmt, nullptr))
 			throw SQLiteException("Failed to run statement: " + sql);
+
+		// cleanup of `stmt` at scope exit
+		AtScopeExit cleanup([stmt]() { sqlite3_finalize(stmt); });
 
 		// if has limit, set limit function to compare; otherwise, limit function always false
 		auto pastLimit = limit.has_value() ? [limit](int i) { return i >= *limit; }
