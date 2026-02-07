@@ -49,10 +49,10 @@ namespace senc::utils::sqlite
 		 * @param db Native sqlite3 pointer.
 		 * @param inner A (lambda) function returning an inner query (using a copied inner view).
 		 */
-		explicit Tableview(sqlite3* db,
-						   std::optional<std::string> select,
-						   std::optional<std::vector<std::string>> where,
-						   std::optional<std::function<std::string()>> inner);
+		explicit TableView(sqlite3* db,
+						   const std::optional<std::string>& select,
+						   const std::optional<std::vector<std::string>>& where,
+						   const std::optional<std::function<std::string()>>& inner);
 		
 		/**
 		 * @brief Applies a select query on the table view.

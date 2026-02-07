@@ -15,6 +15,14 @@ namespace senc::utils::sqlite
 		: _db(db), _select(schemas::TABLE_TO_SELECT<Schema>) { }
 
 	template <schemas::SomeTable Schema>
+	inline TableView<Schema>::TableView(
+		sqlite3* db,
+		const std::optional<std::string>& select,
+		const std::optional<std::vector<std::string>>& where,
+		const std::optional<std::function<std::string()>>& inner)
+		: _db(db), _select(select), _where(where), _inner(inner) { }
+
+	template <schemas::SomeTable Schema>
 	template <SomeSelectArg... Args>
 	requires schemas::Selectable<
 		Schema,
