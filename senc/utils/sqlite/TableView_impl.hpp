@@ -86,6 +86,22 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
+	inline std::string TableView<Schema>::as_sql() const
+	{
+		std::string res = _select.has_value() ? *_select : "SELECT * FROM";
+		if (_inner.has_value())
+			res += " (" + (*_inner)() + ")";
+		if (!_where.empty())
+		{
+			res += " WHERE ";
+			for (const auto& clause : _where | std::views::take(_where.size() - 1))
+				res += clause + " AND ";
+			res += _where.back();
+		}
+		return res;
+	}
+
+	template <schemas::SomeTable Schema>
 	inline void TableView<Schema>::execute(
 		schemas::TableCallable<Schema> auto&& callback,
 		std::optional<int> limit)
