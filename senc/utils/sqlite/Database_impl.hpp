@@ -27,7 +27,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeDB Schema>
-	template <FixedString tableName, SomeSelectArg ...Args>
+	template <FixedString tableName, SomeSelectArg... Args>
 	requires schemas::Selectable<
 		schemas::DBTable<Schema, tableName>,
 		Args...
