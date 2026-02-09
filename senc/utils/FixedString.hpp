@@ -58,9 +58,14 @@ namespace senc::utils
 		}
 
 		/**
-		 * @brief Compares the fixed string with another one (of any length).
+		 * @brief Order-compares the fixed string with another one (of any length).
 		 */
 		constexpr auto operator<=>(const FixedString&) const = default;
+
+		/**
+		 * @brief Equality-compares the fixed string with another one (of any length).
+		 */
+		constexpr bool operator==(const FixedString&) const = default;
 
 		/**
 		 * @brief Gets a string view version of the fixed string.
