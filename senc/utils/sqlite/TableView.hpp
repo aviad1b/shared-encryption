@@ -112,8 +112,16 @@ namespace senc::utils::sqlite
 
 		void execute(schemas::TableCallable<Schema> auto&& callback, std::optional<int> limit);
 
-		template <FixedString name, schemas::SomeCol... Cs, std::size_t... is>
-		static void execute_util(
+		template <FixedString name, schemas::SomeCol... Cs>
+		static void execute_util1(
+			schemas::Table<name, Cs...> dummy,
+			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
+			sqlite3_stmt* stmt
+		);
+
+		template <std::size_t... is, FixedString name, schemas::SomeCol... Cs>
+		static void execute_util2(
+			schemas::Table<name, Cs...> dummy,
 			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
 			sqlite3_stmt* stmt);
 	};

@@ -134,16 +134,32 @@ namespace senc::utils::sqlite
 			if (pastLimit(i))
 				throw SQLiteException("Too many rows to unpack: Expected " + std::to_string(*limit));
 
-			execute_util<std::make_index_sequence<sizeof...(Cs)>>(callback, stmt);
+			execute_util1(Schema{}, callback, stmt);
 		}
 	}
 
 	template <schemas::SomeTable Schema>
-	template <FixedString name, schemas::SomeCol... Cs, std::size_t... is>
-	inline void TableView<Schema>::execute_util(
+	template <FixedString name, schemas::SomeCol... Cs>
+	inline void TableView<Schema>::execute_util1(
+		schemas::Table<name, Cs...> dummy,
 		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
 		sqlite3_stmt* stmt)
 	{
+		execute_util2<std::make_index_sequence<sizeof...(Cs)>>(
+			dummy, callback, stmt
+		);
+	}
+
+	template <schemas::SomeTable Schema>
+	template <std::size_t... is, FixedString name, schemas::SomeCol... Cs>
+	inline void TableView<Schema>::execute_util2(
+		schemas::Table<name, Cs...> dummy,
+		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
+		sqlite3_stmt* stmt)
+	{
+		// `dummy` is for template arg inference
+		(void)dummy;
+
 		// for each column C with index i,
 		// construct a view of that column from stmt and i
 		callback(schemas::ColView<Cs>(stmt, is)...);
