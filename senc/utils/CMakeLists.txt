@@ -65,6 +65,8 @@
 	"sqlite/schemas/DBs.hpp"
 	"sqlite/schemas/select.hpp"
 	"sqlite/schemas/join.hpp"
+	"sqlite/sqlite_utils.hpp"
+	"sqlite/sqlite_utils_impl.hpp"
 	"sqlite/TableView.hpp"
 	"sqlite/TableView_impl.hpp"
 	"sqlite/Database.hpp"

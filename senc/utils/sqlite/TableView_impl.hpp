@@ -9,6 +9,7 @@
 #include "TableView.hpp"
 
 #include "../AtScopeExit.hpp"
+#include "sqlite_utils.hpp"
 
 namespace senc::utils::sqlite
 {
@@ -68,7 +69,7 @@ namespace senc::utils::sqlite
 	inline TableView<Schema>::Self&
 		TableView<Schema>::operator>>(Tuple& tpl)
 	{
-		this->execute(
+		TableUtils(Schema{}).execute(
 			[&tpl](auto&&... values) { tpl = std::make_tuple(values...); },
 			1
 		);
@@ -80,7 +81,7 @@ namespace senc::utils::sqlite
 		TableView<Schema>::operator>>(std::tuple_element_t<0, Tuple>& var)
 	requires (1 == ROW_LEN)
 	{
-		this->execute(
+		TableUtils(Schema{}).execute(
 			[&var](auto&& value) { var = value; },
 			1
 		);
@@ -91,7 +92,7 @@ namespace senc::utils::sqlite
 	inline TableView<Schema>::Self&
 		TableView<Schema>::operator>>(schemas::TableCallable<Schema> auto&& callback)
 	{
-		this->execute(callback, std::nullopt);
+		TableUtils(Schema{}).execute(callback, std::nullopt);
 		return *this;
 	}
 
@@ -109,59 +110,5 @@ namespace senc::utils::sqlite
 			res += _where.back();
 		}
 		return res;
-	}
-
-	template <schemas::SomeTable Schema>
-	inline void TableView<Schema>::execute(
-		schemas::TableCallable<Schema> auto&& callback,
-		std::optional<int> limit)
-	{
-		sqlite3_stmt* stmt = nullptr;
-
-		const auto sql = as_sql();
-		if (SQLITE_OK != sqlite3_prepare_v2(_db, sql, -1, &stmt, nullptr))
-			throw SQLiteException("Failed to run statement: " + sql);
-
-		// cleanup of `stmt` at scope exit
-		AtScopeExit cleanup([stmt]() { sqlite3_finalize(stmt); });
-
-		// if has limit, set limit function to compare; otherwise, limit function always false
-		auto pastLimit = limit.has_value() ? [limit](int i) { return i >= *limit; }
-			: [](int) { return false; };
-
-		for (int i = 0; SQLITE_ROW == sqlite3_step(stmt); ++i)
-		{
-			if (pastLimit(i))
-				throw SQLiteException("Too many rows to unpack: Expected " + std::to_string(*limit));
-
-			execute_util1(Schema{}, callback, stmt);
-		}
-	}
-
-	template <schemas::SomeTable Schema>
-	template <FixedString name, schemas::SomeCol... Cs>
-	inline void TableView<Schema>::execute_util1(
-		schemas::Table<name, Cs...> dummy,
-		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
-		sqlite3_stmt* stmt)
-	{
-		execute_util2<std::make_index_sequence<sizeof...(Cs)>>(
-			dummy, callback, stmt
-		);
-	}
-
-	template <schemas::SomeTable Schema>
-	template <std::size_t... is, FixedString name, schemas::SomeCol... Cs>
-	inline void TableView<Schema>::execute_util2(
-		schemas::Table<name, Cs...> dummy,
-		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
-		sqlite3_stmt* stmt)
-	{
-		// `dummy` is for template arg inference
-		(void)dummy;
-
-		// for each column C with index i,
-		// construct a view of that column from stmt and i
-		callback(schemas::ColView<Cs>(stmt, is)...);
 	}
 }

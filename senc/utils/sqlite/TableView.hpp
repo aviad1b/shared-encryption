@@ -109,40 +109,6 @@ namespace senc::utils::sqlite
 		 * @return SQL query version of table view.
 		 */
 		std::string as_sql() const;
-
-		/**
-		 * @brief Executes a given callback function on the view.
-		 * @param callback A callback function (of fitting schema).
-		 * @param limit Optional expected record limit.
-		 * @throw SQLiteException If `limit` was provided and exceeded.
-		 */
-		void execute(schemas::TableCallable<Schema> auto&& callback, std::optional<int> limit);
-
-		/**
-		 * @brief utility function for `execute`.
-		 * @param dummy Dummy schema instance for template inference.
-		 * @param callback Callback function (from `execute`).
-		 * @param stmt Statement to run callback on.
-		 */
-		template <FixedString name, schemas::SomeCol... Cs>
-		static void execute_util1(
-			schemas::Table<name, Cs...> dummy,
-			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
-			sqlite3_stmt* stmt
-		);
-
-		/**
-		 * @brief utility function for `execute`.
-		 * @tparam is Index sequence for columns.
-		 * @param dummy Dummy schema instance for template inference.
-		 * @param callback Callback function (from `execute`).
-		 * @param stmt Statement to run callback on.
-		 */
-		template <std::size_t... is, FixedString name, schemas::SomeCol... Cs>
-		static void execute_util2(
-			schemas::Table<name, Cs...> dummy,
-			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
-			sqlite3_stmt* stmt);
 	};
 }
 
