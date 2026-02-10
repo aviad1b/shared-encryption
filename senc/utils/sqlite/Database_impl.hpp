@@ -7,9 +7,19 @@
  *********************************************************************/
 
 #include "Database.hpp"
+#include "sqlite_utils.hpp"
 
 namespace senc::utils::sqlite
 {
+	template <schemas::SomeTable... Ts>
+	class DatabaseUtils;
+
+	template <FixedString name, schemas::SomeCol... Cs>
+	class TableUtils;
+
+	template <schemas::SomeCol C>
+	class ColUtils;
+
 	template <schemas::SomeDB Schema>
 	inline Database<Schema>::Database(const std::string& path)
 		: _db(nullptr)
@@ -17,7 +27,7 @@ namespace senc::utils::sqlite
 		if (SQLITE_OK != sqlite3_open(path.c_str(), &_db))
 			throw SQLiteException("Failed to open database " + path);
 
-		// TODO: create tables of dont exist
+		TableUtils(Schema{}).create_tables_if_not_exist(_db);
 	}
 
 	template <schemas::SomeDB Schema>

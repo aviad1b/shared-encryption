@@ -13,6 +13,15 @@
 
 namespace senc::utils::sqlite
 {
+	template <schemas::SomeTable... Ts>
+	class DatabaseUtils;
+
+	template <FixedString name, schemas::SomeCol... Cs>
+	class TableUtils;
+
+	template <schemas::SomeCol C>
+	class ColUtils;
+
 	template <schemas::SomeTable Schema>
 	inline TableView<Schema>::TableView(sqlite3* db)
 		: _db(db), _select(schemas::TABLE_TO_SELECT<Schema>) { }

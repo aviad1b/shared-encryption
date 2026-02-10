@@ -13,11 +13,37 @@
 
 namespace senc::utils::sqlite
 {
+	template <schemas::SomeDB Schema>
+	class Database;
+
+	template <schemas::SomeTable Schema>
+	class TableView;
+
+	template <schemas::SomeTable... Ts>
+	class DatabaseUtils
+	{
+		using Schema = schemas::DB<Ts...>;
+		friend class Database<Schema>;
+
+		// dummy arg is used for template inference
+		DatabaseUtils(Schema) { }
+
+		/**
+		 * @brief Creates each table in schema if doesn't exist.
+		 * @param db Database handle pointer.
+		 * @throw SQLiteException On error.
+		 */
+		void create_tables_if_not_exist(sqlite3* db);
+	};
+
 	template <FixedString name, schemas::SomeCol... Cs>
 	class TableUtils
 	{
 		using Schema = schemas::Table<name, Cs...>;
 		friend class TableView<Schema>;
+
+		template <schemas::SomeTable... Ts>
+		friend class DatabaseUtils;
 
 		// dummy arg is used for template inference
 		TableUtils(Schema) { }
@@ -45,6 +71,34 @@ namespace senc::utils::sqlite
 		static void execute_util(
 			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
 			sqlite3_stmt* stmt);
+
+		/**
+		 * @brief Gets SQL create statement for table.
+		 * @return SQL create statement.
+		 */
+		static std::string get_create_statement();
+	};
+
+	template <schemas::SomeCol C>
+	class ColUtils
+	{
+		template <FixedString name, schemas::SomeCol... Cs>
+		friend class TableUtils;
+
+		// dummy arg is used for template inference
+		ColUtils(C) { }
+
+		/**
+		 * @brief Gets SQL create statement arg for column.
+		 * @return SQL create statement arg (including comma).
+		 */
+		static std::string get_create_arg();
+
+		/**
+		 * @brief Gets SQL additional constraints for column.
+		 * @return SQL constraints (separated by comma, ending with comma).
+		 */
+		static std::string get_additional_constraints();
 	};
 }
 

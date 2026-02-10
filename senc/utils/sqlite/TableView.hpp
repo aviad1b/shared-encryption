@@ -19,6 +19,7 @@ namespace senc::utils::sqlite
 	 * @class senc::utils::sqlite::TableView
 	 * @brief Used to view a database's table (or joined tables).
 	 * @tparam Schema Schema of viewed table.
+	 * @note Has forward declaration in `sqlite_utils.hpp`
 	 */
 	template <schemas::SomeTable Schema>
 	class TableView

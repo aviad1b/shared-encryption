@@ -10,6 +10,16 @@
 
 namespace senc::utils::sqlite
 {
+	template <schemas::SomeTable... Ts>
+	inline void DatabaseUtils<Ts...>::create_tables_if_not_exist(sqlite3* db)
+	{
+		const std::string sql = "BEGIN;" +
+			(TableUtils(Ts{}).get_create_statement() + ...) +
+			"COMMIT;";
+		if (SQLITE_OK != sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr))
+			throw SQLiteException("Failed to create tables");
+	}
+
 	template <FixedString name, schemas::SomeCol... Cs>
 	inline void TableUtils<name, Cs...>::execute(
 		sqlite3* db,
@@ -41,6 +51,21 @@ namespace senc::utils::sqlite
 	}
 
 	template <FixedString name, schemas::SomeCol... Cs>
+	inline std::string TableUtils<name, Cs...>::get_create_statement()
+	{
+		std::string res = std::string("CREATE TABLE IF NOT EXISTS ") +
+			name + "(" +
+			(ColUtils(Cs{}).get_create_arg() + ...) +
+			(ColUtils(Cs{}).get_additional_constraints() + ...);
+
+		// remove last comma (and add remaining of statement)
+		if (res.ends_with(","))
+			res = res.substr(0, res.length() - 1);
+		res += ");";
+		return res;
+	}
+
+	template <FixedString name, schemas::SomeCol... Cs>
 	template <std::size_t... is>
 	inline void TableUtils<name, Cs...>::execute_util(
 		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
@@ -49,5 +74,27 @@ namespace senc::utils::sqlite
 		// for each column C with index i,
 		// construct a view of that column from stmt and i
 		callback(schemas::ColView<Cs>(stmt, is)...);
+	}
+
+	template <schemas::SomeCol C>
+	inline std::string ColUtils<C>::get_create_arg()
+	{
+		if constexpr (schemas::SomePrimaryKey<C>)
+			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + "PRIMARY KEY,";
+		else if constexpr (schemas::ColType<C>::is_nullable())
+			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + ",";
+		else
+			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + " NOT NULL,";
+	}
+
+	template <schemas::SomeCol C>
+	inline std::string ColUtils<C>::get_additional_constraints()
+	{
+		if constexpr (schemas::SomeForeignKey<C>)
+			return "FOREIGN KEY (" + schemas::COL_NAME<C> + ") REFERENCES " +
+				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
+				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
+				") ON DELETE CASCADE ON UPDATE NO ACTION,";
+		else return "";
 	}
 }

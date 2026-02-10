@@ -16,6 +16,7 @@ namespace senc::utils::sqlite
 	 * @class senc::utils::sqlite::Database
 	 * @brief Manages an SQLite database.
 	 * @tparam Schema Database schema.
+	 * @note Has forward declaration in `sqlite_utils.hpp`
 	 */
 	template <schemas::SomeDB Schema>
 	class Database
