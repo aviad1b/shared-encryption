@@ -9,6 +9,7 @@
 #pragma once
 
 #include "SQLiteException.hpp"
+#include "../FixedString.hpp"
 #include "../variants.hpp"
 #include "../concepts.hpp"
 #include "../bytes.hpp"
@@ -98,6 +99,7 @@ namespace senc::utils::sqlite
 		requires(const Self self, sqlite3_value* value, sqlite3_stmt* stmt, int index)
 		{
 			{ std::bool_constant<Self::is_nullable()>() }; // must be constexpr-evaluable
+			{ FixedStringConstant<Self::SQL_TYPE>{} }; // must be constexpr
 			{ self.as_sqlite() } -> std::convertible_to<std::string>;
 			{ self.bind(stmt, index) };
 		};
@@ -170,6 +172,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Null;
 		using View = NullView;
+		static constexpr FixedString SQL_TYPE = "NULL";
 
 		/**
 		 * @brief Default constructor of SQL NULL value (set NULL).
@@ -317,6 +320,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Nullable<T>;
 		using View = NullableView<T>;
+		static constexpr FixedString SQL_TYPE = T::SQL_TYPE;
 
 		/**
 		 * @brief Constructs a nullable with null.
@@ -467,6 +471,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Int;
 		using View = IntView;
+		static constexpr FixedString SQL_TYPE = "INT";
 
 		/**
 		 * @brief Default constructor of SQL int value (sets 0).
@@ -583,6 +588,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Real;
 		using View = RealView;
+		static constexpr FixedString SQL_TYPE = "REAL";
 
 		/**
 		 * @brief Default constructor of SQL real value (sets 0).
@@ -699,6 +705,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Text;
 		using View = TextView;
+		static constexpr FixedString SQL_TYPE = "TEXT";
 
 		/**
 		 * @brief Default constructor of SQL int value (sets empty string).
@@ -821,6 +828,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Blob;
 		using View = BlobView;
+		static constexpr FixedString SQL_TYPE = "BLOB";
 
 		/**
 		 * @brief Default constructor of SQL int value (sets empty).
