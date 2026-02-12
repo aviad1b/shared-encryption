@@ -107,7 +107,7 @@ namespace senc::utils::sqlite
 		else return "";
 	}
 
-	template <typename P, std::size_t i>
+	template <std::size_t i, typename P>
 	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
 	{
 		constexpr int index = static_cast<int>(i);
@@ -128,9 +128,9 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to bind parameter");
 	}
 
-	template <typename... Ps, std::size_t... is>
+	template <std::size_t... is, typename... Ps>
 	inline void ParamUtils::bind_all(sqlite3_stmt* stmt, const Ps&... values)
 	{
-		(bind_one<Ps, is>(stmt, values)...);
+		(bind_one<is, Ps>(stmt, values)...);
 	}
 }

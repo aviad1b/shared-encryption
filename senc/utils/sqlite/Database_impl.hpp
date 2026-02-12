@@ -61,7 +61,7 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to run statement: " + sql);
 
 		// bind parameters
-		ParamUtils::bind_all<Values..., std::make_index_sequence<sizeof...(Values)>>(
+		ParamUtils::bind_all<std::make_index_sequence<sizeof...(Values)>, Values...>(
 			stmt, values...
 		);
 
