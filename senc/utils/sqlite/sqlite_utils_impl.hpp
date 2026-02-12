@@ -107,7 +107,7 @@ namespace senc::utils::sqlite
 		else return "";
 	}
 
-	template <std::size_t i, typename P>
+	template <std::size_t i, Param P>
 	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
 	{
 		constexpr int index = static_cast<int>(i);
@@ -120,15 +120,14 @@ namespace senc::utils::sqlite
 			status = sqlite3_bind_double(stmt, index, value);
 		else if constexpr (std::same_as<P, std::string>)
 			status = sqlite3_bind_text(stmt, index, value.c_str(), -1, SQLITE_STATIC);
-		else if constexpr (std::same_as<P, Buffer>)
+		else // buffer
 			status = sqlite3_bind_blob(stmt, index, value.data(), static_cast<int>(value.size()), SQLITE_STATIC);
-		static_assert(false, "Unsupported type");
 
 		if (SQLITE_OK != status)
 			throw SQLiteException("Failed to bind parameter");
 	}
 
-	template <std::size_t... is, typename... Ps>
+	template <std::size_t... is, Param... Ps>
 	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values)
 	{
 		(void)dummy; // for template inference

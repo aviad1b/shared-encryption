@@ -10,6 +10,7 @@
 
 #include "TableView.hpp"
 #include "Database.hpp"
+#include "args.hpp"
 
 namespace senc::utils::sqlite
 {
@@ -123,7 +124,7 @@ namespace senc::utils::sqlite
 		 * @param value Value to bind.
 		 * @throw SQLiteException If failed to bind.
 		 */
-		template <std::size_t i, typename P>
+		template <std::size_t i, Param P>
 		static void bind_one(sqlite3_stmt* stmt, const P& value);
 
 		/**
@@ -134,7 +135,7 @@ namespace senc::utils::sqlite
 		 * @param values Values to bind.
 		 * @throw SQLiteException If failed to bind.
 		 */
-		template <std::size_t... is, typename... Ps>
+		template <std::size_t... is, Param... Ps>
 		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values);
 	};
 }

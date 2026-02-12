@@ -14,6 +14,20 @@
 namespace senc::utils::sqlite
 {
 	/**
+	 * @concept senc::utils::sqlite::Param
+	 * @brief Looks for a typenam that can be used as a statement parameter.
+	 */
+	template <typename Self>
+	concept Param = OneOf<Self,
+		std::nullptr_t,
+		std::nullopt_t,
+		std::int64_t,
+		double,
+		std::string,
+		Buffer
+	>;
+
+	/**
 	 * @struct senc::utils::sqlite::SelectArg
 	 * @brief Template-level select query argument.
 	 * @tparam name Name of column to select.

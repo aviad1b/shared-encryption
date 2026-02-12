@@ -42,7 +42,7 @@ namespace senc::utils::sqlite
 		 * @param values Values to insert.
 		 * @throw SQLiteException If insertion failed.
 		 */
-		template <FixedString tableName, typename... Values>
+		template <FixedString tableName, Param... Values>
 		requires std::constructible_from<
 			schemas::TableTuple<schemas::DBTable<Schema, tableName>>,
 			Values...
