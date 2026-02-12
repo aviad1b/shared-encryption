@@ -45,6 +45,9 @@ namespace senc::utils::sqlite
 		template <schemas::SomeTable... Ts>
 		friend class DatabaseUtils;
 
+		template <schemas::SomeDB Schema>
+		friend class Database;
+
 		// dummy arg is used for template inference
 		TableUtils(Schema) { }
 
