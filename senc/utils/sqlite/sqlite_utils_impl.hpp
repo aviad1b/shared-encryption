@@ -66,6 +66,15 @@ namespace senc::utils::sqlite
 	}
 
 	template <FixedString name, schemas::SomeCol... Cs>
+	inline std::string TableUtils<name, Cs...>::get_columns()
+	{
+		std::string res = ((schemas::COL_NAME<Cs> + ",") + ...);
+		if (res.ends_with(","))
+			res = res.substr(0, res.length() - 1);
+		return res;
+	}
+
+	template <FixedString name, schemas::SomeCol... Cs>
 	template <std::size_t... is>
 	inline void TableUtils<name, Cs...>::execute_util(
 		schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
@@ -96,5 +105,32 @@ namespace senc::utils::sqlite
 				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
 				") ON DELETE CASCADE ON UPDATE NO ACTION,";
 		else return "";
+	}
+
+	template <typename P, std::size_t i>
+	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
+	{
+		constexpr int index = static_cast<int>(i);
+		int status = 0;
+		if constexpr (OneOf<P, std::nullptr_t, std::nullopt_t>)
+			status = sqlite3_bind_null(stmt, index);
+		else if constexpr (std::same_as<P, std::int64_t>)
+			status = sqlite3_bind_int64(stmt, index, value);
+		else if constexpr (std::same_as<P, double>)
+			status = sqlite3_bind_double(stmt, index, value);
+		else if constexpr (std::same_as<P, std::string>)
+			status = sqlite3_bind_text(stmt, index, value.c_str(), -1, SQLITE_STATIC);
+		else if constexpr (std::same_as<P, Buffer>)
+			status = sqlite3_bind_blob(stmt, index, value.data(), static_cast<int>(value.size()), SQLITE_STATIC);
+		static_assert(false, "Unsupported type");
+
+		if (SQLITE_OK != status)
+			throw SQLiteException("Failed to bind parameter");
+	}
+
+	template <typename... Ps, std::size_t... is>
+	inline void ParamUtils::bind_all(sqlite3_stmt* stmt, const Ps&... values)
+	{
+		(bind_one<Ps, is>(stmt, values)...);
 	}
 }

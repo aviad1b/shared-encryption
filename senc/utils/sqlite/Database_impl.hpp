@@ -37,6 +37,42 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeDB Schema>
+	template <FixedString tableName, typename... Values>
+	requires std::constructible_from<
+		schemas::TableTuple<schemas::DBTable<Schema, tableName>>,
+		Values...
+	>
+	inline void Database<Schema>::insert(Values&&... values)
+	{
+		using T = schemas::DBTable<Schema, tableName>;
+		constexpr auto COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;
+		std::string sql = "INSERT INTO " + schemas::TABLE_NAME<T> +
+			"(" + TableUtils(T{}).get_columns() + ") VALUES(";
+		if (COLS_COUNT > 0)
+		{
+			for (auto i = 0; i < COLS_COUNT - 1; ++i)
+				sql += "?, ";
+			sql += "?";
+		}
+		sql += ");";
+
+		sqlite3_stmt* stmt = nullptr;
+		if (SQLITE_OK != sqlite3_prepare_v2(_db, sql.c_str(), -1, &stmt, nullptr))
+			throw SQLiteException("Failed to run statement: " + sql);
+
+		// bind parameters
+		ParamUtils::bind_all<Values..., std::make_index_sequence<sizeof...(Values)>>(
+			stmt, values...
+		);
+
+		if (SQLITE_DONE != sqlite3_step(stmt))
+			throw SQLiteException("Failed to insert into table " + tableName);
+
+		// cleanup
+		sqlite3_finalize(stmt);
+	}
+
+	template <schemas::SomeDB Schema>
 	template <FixedString tableName, SomeSelectArg... Args>
 	requires schemas::Selectable<
 		schemas::DBTable<Schema, tableName>,

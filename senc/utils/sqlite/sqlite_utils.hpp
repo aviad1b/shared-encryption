@@ -77,6 +77,12 @@ namespace senc::utils::sqlite
 		 * @return SQL create statement.
 		 */
 		static std::string get_create_statement();
+
+		/**
+		 * @brief Gets columns of table in one string.
+		 * @return Columns of table in one string.
+		 */
+		static std::string get_columns();
 	};
 
 	template <schemas::SomeCol C>
@@ -99,6 +105,34 @@ namespace senc::utils::sqlite
 		 * @return SQL constraints (separated by comma, ending with comma).
 		 */
 		static std::string get_additional_constraints();
+	};
+
+	class ParamUtils
+	{
+		template <schemas::SomeDB Schema>
+		friend class Database;
+
+		/**
+		 * @brief Binds a value to a statement parameter.
+		 * @tparam P Parameter type.
+		 * @tparam i Statement param index.
+		 * @param stmt Statement handle pointer.
+		 * @param value Value to bind.
+		 * @throw SQLiteException If failed to bind.
+		 */
+		template <typename P, std::size_t i>
+		static void bind_one(sqlite3_stmt* stmt, const P& value);
+
+		/**
+		 * @brief Binds values to a statement parameter.
+		 * @tparam Ps Parameter types.
+		 * @tparam is Statement param indexes.
+		 * @param stmt Statement handle pointer.
+		 * @param values Values to bind.
+		 * @throw SQLiteException If failed to bind.
+		 */
+		template <typename... Ps, std::size_t... is>
+		static void bind_all(sqlite3_stmt* stmt, const Ps&... values);
 	};
 }
 

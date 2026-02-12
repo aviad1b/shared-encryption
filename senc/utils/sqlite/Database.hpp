@@ -37,6 +37,19 @@ namespace senc::utils::sqlite
 		~Database();
 
 		/**
+		 * @brief Inserts a record in to a table of the database.
+		 * @tparam tableName Name of table to insert into.
+		 * @param values Values to insert.
+		 * @throw SQLiteException If insertion failed.
+		 */
+		template <FixedString tableName, typename... Values>
+		requires std::constructible_from<
+			schemas::TableTuple<schemas::DBTable<Schema, tableName>>,
+			Values...
+		>
+		void insert(Values&&... values);
+
+		/**
 		 * @brief Applies "select" on database (and gets fitting table view).
 		 * @tparam Args Select arguments.
 		 * @see senc::utils::sqlite::SelectArg
