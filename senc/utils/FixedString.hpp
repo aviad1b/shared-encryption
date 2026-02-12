@@ -31,6 +31,11 @@ namespace senc::utils
 		char value[n];
 
 		/**
+		 * @brief Constructs an empty fixed string.
+		 */
+		constexpr FixedString() : FixedString("") { }
+
+		/**
 		 * @brief Constructs a fixed string.
 		 * @param str A reference to characters array (with size n including null-termination).
 		 */
