@@ -63,18 +63,24 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
-		// used for retrieving DB table by name
+		// used for retrieving table by name
+		template <FixedString tableName, SomeTable... Ts>
+		struct find_table { using type = void; };
+
+		// if first has name, return. otherwise, continue
+		template <FixedString tableName, SomeTable First, SomeTable... Rest>
+		struct find_table<tableName, First, Rest...> : std::conditional<
+			(TABLE_NAME<First> == tableName),
+			First,
+			typename find_table<tableName, Rest...>::type
+		> { };
+
 		template <SomeDB D, FixedString tableName>
 		requires DBWithTable<D, tableName>
 		struct db_table { };
 
-		// if first has name, return. otherwise, continue
-		template <FixedString tableName, SomeTable First, SomeTable... Rest>
-		struct db_table<DB<First, Rest...>, tableName> : std::conditional<
-			(TABLE_NAME<First> == tableName),
-			First,
-			typename db_table<DB<Rest...>, tableName>::type
-		> { };
+		template <FixedString tableName, SomeTable... Ts>
+		struct db_table<DB<Ts...>, tableName> : find_table<tableName, Ts...> { };
 	}
 
 	/**
