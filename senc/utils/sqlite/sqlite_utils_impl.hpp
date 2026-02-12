@@ -111,17 +111,24 @@ namespace senc::utils::sqlite
 	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
 	{
 		constexpr int index = static_cast<int>(i);
-		int status = 0;
-		if constexpr (OneOf<P, std::nullptr_t, std::nullopt_t>)
+		int status = SQLITE_FAIL;
+		if constexpr (NullParam<P>)
 			status = sqlite3_bind_null(stmt, index);
-		else if constexpr (std::same_as<P, std::int64_t>)
-			status = sqlite3_bind_int64(stmt, index, value);
-		else if constexpr (std::same_as<P, double>)
-			status = sqlite3_bind_double(stmt, index, value);
-		else if constexpr (std::same_as<P, std::string>)
-			status = sqlite3_bind_text(stmt, index, value.c_str(), -1, SQLITE_STATIC);
-		else // buffer
-			status = sqlite3_bind_blob(stmt, index, value.data(), static_cast<int>(value.size()), SQLITE_STATIC);
+		else if constexpr (IntParam<P>)
+			status = sqlite3_bind_int64(stmt, index, static_cast<std::int64_t>(value));
+		else if constexpr (RealParam<P>)
+			status = sqlite3_bind_double(stmt, index, static_cast<double>(value));
+		else if constexpr (TextParam<P>)
+			status = sqlite3_bind_text(stmt, index, 
+									   static_cast<const std::string&>(value).c_str(),
+									   -1, SQLITE_STATIC);
+		else if constexpr (BlobParam<P>)
+		{
+			const Buffer& bytes = static_cast<const Buffer&>(value);
+			status = sqlite3_bind_blob(stmt, index, bytes.data(),
+									   static_cast<int>(bytes.size()),
+									   SQLITE_STATIC);
+		}
 
 		if (SQLITE_OK != status)
 			throw SQLiteException("Failed to bind parameter");

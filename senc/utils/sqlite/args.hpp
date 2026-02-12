@@ -14,18 +14,46 @@
 namespace senc::utils::sqlite
 {
 	/**
+	 * @concept senc::utils::sqlite::NullParam
+	 * @brief Looks for a typenam that can be used as a statement null parameter.
+	 */
+	template <typename Self>
+	concept NullParam = OneOf<Self, std::nullptr_t, std::nullopt_t>;
+
+	/**
+	 * @concept senc::utils::sqlite::IntParam
+	 * @brief Looks for a typenam that can be used as a statement int parameter.
+	 */
+	template <typename Self>
+	concept IntParam = std::convertible_to<Self, std::int64_t> && !std::floating_point<Self>;
+
+	/**
+	 * @concept senc::utils::sqlite::RealParam
+	 * @brief Looks for a typenam that can be used as a statement real parameter.
+	 */
+	template <typename Self>
+	concept RealParam = std::convertible_to<Self, double> && !std::integral<Self>;
+
+	/**
+	 * @concept senc::utils::sqlite::TextParam
+	 * @brief Looks for a typenam that can be used as a statement text parameter.
+	 */
+	template <typename Self>
+	concept TextParam = std::convertible_to<Self, std::string>;
+
+	/**
+	 * @concept senc::utils::sqlite::BlobParam
+	 * @brief Looks for a typenam that can be used as a statement blob parameter.
+	 */
+	template <typename Self>
+	concept BlobParam = std::convertible_to<Self, Buffer>;
+
+	/**
 	 * @concept senc::utils::sqlite::Param
 	 * @brief Looks for a typenam that can be used as a statement parameter.
 	 */
 	template <typename Self>
-	concept Param = OneOf<Self,
-		std::nullptr_t,
-		std::nullopt_t,
-		std::int64_t,
-		double,
-		std::string,
-		Buffer
-	>;
+	concept Param = NullParam<Self> || IntParam<Self> || RealParam<Self> || TextParam<Self> || BlobParam<Self>;
 
 	/**
 	 * @struct senc::utils::sqlite::SelectArg
