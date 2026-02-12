@@ -46,7 +46,7 @@ namespace senc::utils::sqlite
 	{
 		using T = schemas::DBTable<Schema, tableName>;
 		constexpr auto COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;
-		std::string sql = "INSERT INTO " + schemas::TABLE_NAME<T> +
+		std::string sql = "INSERT INTO " + std::string(schemas::TABLE_NAME<T>) +
 			"(" + TableUtils(T{}).get_columns() + ") VALUES(";
 		if (COLS_COUNT > 0)
 		{
@@ -66,7 +66,7 @@ namespace senc::utils::sqlite
 		);
 
 		if (SQLITE_DONE != sqlite3_step(stmt))
-			throw SQLiteException("Failed to insert into table " + tableName);
+			throw SQLiteException("Failed to insert into table " + std::string(tableName));
 
 		// cleanup
 		sqlite3_finalize(stmt);
