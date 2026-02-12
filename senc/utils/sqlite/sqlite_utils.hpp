@@ -135,7 +135,7 @@ namespace senc::utils::sqlite
 		 * @throw SQLiteException If failed to bind.
 		 */
 		template <std::size_t... is, typename... Ps>
-		static void bind_all(sqlite3_stmt* stmt, const Ps&... values);
+		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values);
 	};
 }
 

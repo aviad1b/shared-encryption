@@ -129,8 +129,9 @@ namespace senc::utils::sqlite
 	}
 
 	template <std::size_t... is, typename... Ps>
-	inline void ParamUtils::bind_all(sqlite3_stmt* stmt, const Ps&... values)
+	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values)
 	{
+		(void)dummy; // for template inference
 		(bind_one<is, Ps>(stmt, values), ...);
 	}
 }
