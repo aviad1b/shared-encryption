@@ -68,7 +68,7 @@ namespace senc::utils::sqlite
 	template <FixedString name, schemas::SomeCol... Cs>
 	inline std::string TableUtils<name, Cs...>::get_columns()
 	{
-		std::string res = ((schemas::COL_NAME<Cs> + ",") + ...);
+		std::string res = ((std::string(schemas::COL_NAME<Cs>.view()) + ",") + ...);
 		if (res.ends_with(","))
 			res = res.substr(0, res.length() - 1);
 		return res;
