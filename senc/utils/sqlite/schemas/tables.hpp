@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../../FixedString.hpp"
+#include "../args.hpp"
 #include "columns.hpp"
 #include <tuple>
 
@@ -193,6 +194,26 @@ namespace senc::utils::sqlite::schemas
 	 */
 	template <SomeTable... Ts>
 	constexpr bool HAS_DUP_TABLES = sfinae::has_dup_tables<Ts...>::value;
+
+	namespace sfinae
+	{
+		template <SomeTable T, typename... Ps>
+		struct params_for_table : std::false_type { };
+
+		template <FixedString name, SomeCol... Cs, typename... Ps>
+		struct params_for_table<Table<name, Cs...>, Ps...> : std::bool_constant<
+			(ParamOfValue<Ps, ColType<Cs>> && ...)
+		> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::schemas::PARAMS_FOR_TABLE
+	 * @brief Checks if given typename params are fitting for insertion into a table.
+	 * @tparam T Table schema.
+	 * @tparam Ps Param typenames.
+	 */
+	template <SomeTable T, typename... Ps>
+	constexpr bool PARAMS_FOR_TABLE = sfinae::params_for_table<T, Ps...>::value;
 
 	namespace sfinae
 	{

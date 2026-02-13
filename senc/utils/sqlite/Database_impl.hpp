@@ -38,10 +38,7 @@ namespace senc::utils::sqlite
 
 	template <schemas::SomeDB Schema>
 	template <FixedString tableName, Param... Values>
-	requires std::constructible_from<
-		schemas::TableTuple<schemas::DBTable<Schema, tableName>>,
-		Values...
-	>
+	requires schemas::PARAMS_FOR_TABLE<schemas::DBTable<Schema, tableName>, Values...>
 	inline void Database<Schema>::insert(Values&&... values)
 	{
 		using T = schemas::DBTable<Schema, tableName>;

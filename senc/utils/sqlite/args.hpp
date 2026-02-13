@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../FixedString.hpp"
+#include "values.hpp"
 #include "aggr.hpp"
 
 namespace senc::utils::sqlite
@@ -50,10 +51,26 @@ namespace senc::utils::sqlite
 
 	/**
 	 * @concept senc::utils::sqlite::Param
-	 * @brief Looks for a typenam that can be used as a statement parameter.
+	 * @brief Looks for a typename that can be used as a statement parameter.
+	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
 	concept Param = NullParam<Self> || IntParam<Self> || RealParam<Self> || TextParam<Self> || BlobParam<Self>;
+
+	/**
+	 * @concept senc::utils::sqlite::ParamOfValue
+	 * @brief Looks for a typename that can be used as a statement parameter fitting for a given value type.
+	 * @tparam Self Examined typename.
+	 * @tparam V Value type.
+	 */
+	template <typename Self, typename V>
+	concept ParamOfValue =
+		(!OneOf<typename V::BasedOn, std::nullopt_t, std::nullptr_t> || NullParam<Self>) &&
+		(!OneOf<typename V::BasedOn, std::int64_t> || IntParam<Self>) &&
+		(!OneOf<typename V::BasedOn, double> || RealParam<Self>) &&
+		(!OneOf<typename V::BasedOn, std::string> || TextParam<Self>) &&
+		(!OneOf<typename V::BasedOn, Buffer> || BlobParam<Self>) &&
+		Value<V> && Param<Self>;
 
 	/**
 	 * @struct senc::utils::sqlite::SelectArg

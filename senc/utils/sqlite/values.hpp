@@ -98,6 +98,7 @@ namespace senc::utils::sqlite
 		std::constructible_from<Self, typename Self::View> &&
 		requires(const Self self, sqlite3_value* value, sqlite3_stmt* stmt, int index)
 		{
+			typename Self::BasedOn;
 			{ std::bool_constant<Self::is_nullable()>() }; // must be constexpr-evaluable
 			{ FixedStringConstant<Self::SQL_TYPE>{} }; // must be constexpr
 			{ self.as_sqlite() } -> std::convertible_to<std::string>;
@@ -172,6 +173,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Null;
 		using View = NullView;
+		using BasedOn = std::nullopt_t;
 		static constexpr FixedString SQL_TYPE = "NULL";
 
 		/**
@@ -320,6 +322,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Nullable<T>;
 		using View = NullableView<T>;
+		using BasedOn = typename T::BasedOn;
 		static constexpr FixedString SQL_TYPE = T::SQL_TYPE;
 
 		/**
@@ -471,6 +474,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Int;
 		using View = IntView;
+		using BasedOn = std::int64_t;
 		static constexpr FixedString SQL_TYPE = "INT";
 
 		/**
@@ -588,6 +592,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Real;
 		using View = RealView;
+		using BasedOn = double;
 		static constexpr FixedString SQL_TYPE = "REAL";
 
 		/**
@@ -705,6 +710,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Text;
 		using View = TextView;
+		using BasedOn = std::string;
 		static constexpr FixedString SQL_TYPE = "TEXT";
 
 		/**
@@ -828,6 +834,7 @@ namespace senc::utils::sqlite
 	public:
 		using Self = Blob;
 		using View = BlobView;
+		using BasedOn = Buffer;
 		static constexpr FixedString SQL_TYPE = "BLOB";
 
 		/**
