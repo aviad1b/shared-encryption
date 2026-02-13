@@ -85,6 +85,31 @@ namespace senc::utils::sqlite
 		std::string _path;
 		sqlite3* _db;
 	};
+
+	/**
+	 * @class senc::utils::sqlite::TempDatabase
+	 * @brief Manages a temporary SQLite database.
+	 * @tparam Schema Database schema.
+	 */
+	template <schemas::SomeDB Schema>
+	class TempDatabase : public Database<Schema>
+	{
+	public:
+		using Self = TempDatabase<Schema>;
+		using Base = Database<Schema>;
+
+		/**
+		 * @brief Loads database from file.
+		 * @param path Database file path.
+		 * @throw SQLiteException If failed to open database.
+		 */
+		TempDatabase(const std::string& path);
+
+		/**
+		 * @brief Database destructor, closes & deletes database.
+		 */
+		virtual ~TempDatabase();
+	};
 }
 
 #include "Database_impl.hpp"

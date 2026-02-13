@@ -7,7 +7,9 @@
  *********************************************************************/
 
 #include "Database.hpp"
+
 #include "sqlite_utils.hpp"
+#include <cstdio>
 
 namespace senc::utils::sqlite
 {
@@ -34,7 +36,10 @@ namespace senc::utils::sqlite
 	inline Database<Schema>::~Database()
 	{
 		if (_db)
+		{
 			sqlite3_close(_db);
+			_db = nullptr;
+		}
 	}
 
 	template <schemas::SomeDB Schema>
@@ -106,5 +111,21 @@ namespace senc::utils::sqlite
 			schemas::DBTable<Schema, table2Name>,
 			axisCol
 		>>(_db);
+	}
+
+	template <schemas::SomeDB Schema>
+	inline TempDatabase<Schema>::TempDatabase(const std::string& path)
+		: Base(path) { }
+
+	template <schemas::SomeDB Schema>
+	inline TempDatabase<Schema>::~TempDatabase()
+	{
+		if (this->_db)
+		{
+			sqlite3_close(this->_db);
+			this->_db = nullptr;
+		}
+		if (!this->_path.empty())
+			std::remove(this->_path.c_str());
 	}
 }
