@@ -271,7 +271,7 @@ namespace senc::utils::sqlite::schemas
 		// default: concat first, then the rest
 		template <SomeTable T, SomeCol First, SomeCol... Rest>
 		struct concat_table_tails<T, First, Rest...> : concat_table_tails<
-			typename concat_table_tail<T, First>,
+			typename concat_table_tail<T, First>::type,
 			Rest...
 		> { };
 
