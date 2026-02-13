@@ -42,12 +42,12 @@ namespace senc::utils::sqlite
 	inline void Database<Schema>::insert(Values&&... values)
 	{
 		using T = schemas::DBTable<Schema, tableName>;
-		constexpr auto COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;
+		constexpr std::size_t COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;
 		std::string sql = "INSERT INTO " + std::string(schemas::TABLE_NAME<T>) +
 			"(" + TableUtils(T{}).get_columns() + ") VALUES(";
 		if (COLS_COUNT > 0)
 		{
-			for (auto i = 0; i < COLS_COUNT - 1; ++i)
+			for (std::size_t i = 0; i < COLS_COUNT - 1; ++i)
 				sql += "?, ";
 			sql += "?";
 		}
