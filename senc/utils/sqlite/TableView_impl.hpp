@@ -64,7 +64,6 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	template <FixedString... cols>
 	inline TableView<Schema>::Self TableView<Schema>::where(const std::string& condition)
 	{
 		using Ret = Self;

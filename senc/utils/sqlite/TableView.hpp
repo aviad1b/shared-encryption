@@ -70,10 +70,8 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Applies a where clause on the table view.
-		 * @tparam cols Names of columns involved in where clause.
 		 * @return Table view with "where" applied.
 		 */
-		template <FixedString... cols>
 		Self where(const std::string& condition);
 
 		/**
