@@ -81,6 +81,13 @@ namespace senc::utils::sqlite
 			axisCol
 		>> join();
 
+	protected:
+		/**
+		 * @brief Gets database file path.
+		 * @return Database file path.
+		 */
+		const std::string& path() const;
+
 	private:
 		std::string _path;
 		sqlite3* _db;

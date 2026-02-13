@@ -37,6 +37,12 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeDB Schema>
+	inline const std::string& Database<Schema>::path() const
+	{
+		return _path;
+	}
+
+	template <schemas::SomeDB Schema>
 	template <FixedString tableName, Param... Values>
 	requires schemas::PARAMS_FOR_TABLE<schemas::DBTable<Schema, tableName>, Values...>
 	inline void Database<Schema>::insert(Values&&... values)
