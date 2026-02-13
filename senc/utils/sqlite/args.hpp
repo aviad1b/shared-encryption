@@ -66,13 +66,14 @@ namespace senc::utils::sqlite
 	 * @tparam V Value type.
 	 */
 	template <typename Self, typename V>
-	concept ParamOfValue =
+	concept ParamOfValue = (V::is_nullable() && NullParam<Self>) || (
 		(!OneOf<typename V::BasedOn, std::nullopt_t, std::nullptr_t> || NullParam<Self>) &&
 		(!OneOf<typename V::BasedOn, std::int64_t> || IntParam<Self>) &&
 		(!OneOf<typename V::BasedOn, double> || RealParam<Self>) &&
 		(!OneOf<typename V::BasedOn, std::string> || TextParam<Self>) &&
 		(!OneOf<typename V::BasedOn, Buffer> || BlobParam<Self>) &&
-		Value<V> && Param<Self>;
+		Value<V> && Param<Self>
+	);
 
 	/**
 	 * @struct senc::utils::sqlite::SelectArg
