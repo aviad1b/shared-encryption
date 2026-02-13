@@ -22,10 +22,10 @@ namespace senc::utils::sqlite
 
 	template <schemas::SomeDB Schema>
 	inline Database<Schema>::Database(const std::string& path)
-		: _db(nullptr)
+		: _path(path), _db(nullptr)
 	{
-		if (SQLITE_OK != sqlite3_open(path.c_str(), &_db))
-			throw SQLiteException("Failed to open database " + path);
+		if (SQLITE_OK != sqlite3_open(_path.c_str(), &_db))
+			throw SQLiteException("Failed to open database " + _path);
 
 		TableUtils(Schema{}).create_tables_if_not_exist(_db);
 	}

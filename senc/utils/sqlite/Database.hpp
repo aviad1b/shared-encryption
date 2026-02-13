@@ -82,6 +82,7 @@ namespace senc::utils::sqlite
 		>> join();
 
 	private:
+		std::string _path;
 		sqlite3* _db;
 	};
 }
