@@ -19,21 +19,23 @@ namespace senc::utils::sqlite
 	 * @brief Looks for a typenam that can be used as a statement null parameter.
 	 */
 	template <typename Self>
-	concept NullParam = OneOf<Self, std::nullptr_t, std::nullopt_t>;
+	concept NullParam = OneOf<std::remove_cvref_t<Self>, std::nullptr_t, std::nullopt_t>;
 
 	/**
 	 * @concept senc::utils::sqlite::IntParam
 	 * @brief Looks for a typenam that can be used as a statement int parameter.
 	 */
 	template <typename Self>
-	concept IntParam = std::convertible_to<Self, std::int64_t> && !std::floating_point<Self>;
+	concept IntParam = std::convertible_to<Self, std::int64_t> &&
+		!std::floating_point<std::remove_cvref_t<Self>>;
 
 	/**
 	 * @concept senc::utils::sqlite::RealParam
 	 * @brief Looks for a typenam that can be used as a statement real parameter.
 	 */
 	template <typename Self>
-	concept RealParam = std::convertible_to<Self, double> && !std::integral<Self>;
+	concept RealParam = std::convertible_to<Self, double> &&
+		!std::integral<std::remove_cvref_t<Self>>;
 
 	/**
 	 * @concept senc::utils::sqlite::TextParam
