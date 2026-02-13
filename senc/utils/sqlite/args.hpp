@@ -190,11 +190,11 @@ namespace senc::utils::sqlite
 	namespace sfinae
 	{
 		// used for retrieving the containing table name from a select argument which has it
-		template <SomeSelectArg Arg>
+		template <SomeSelectArg Arg, bool hasOwner = SomeSelectArgWithOwner<Arg>>
 		struct select_arg_owner : EmptyFixedStringConstant { };
 
 		template <SomeSelectArgWithOwner Arg>
-		struct select_arg_owner<Arg> : FixedStringConstant<Arg::OWNER> { };
+		struct select_arg_owner<Arg, true> : FixedStringConstant<Arg::OWNER> { };
 	}
 
 	/**

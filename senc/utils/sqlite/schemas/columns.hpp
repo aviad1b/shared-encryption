@@ -228,25 +228,25 @@ namespace senc::utils::sqlite::schemas
 	namespace sfinae
 	{
 		// used for getting the table name from a column schema which knows it
-		template <SomeCol C>
+		template <SomeCol C, bool owned = SomeOwnedCol<C>>
 		struct col_owner : EmptyFixedStringConstant { };
 
 		template <SomeOwnedCol C>
-		struct col_owner<C> : FixedStringConstant<C::OWNER> { };
+		struct col_owner<C, true> : FixedStringConstant<C::OWNER> { };
 
 		// used for getting the referenced table name from a foreign key column schema
-		template <SomeCol C>
+		template <SomeCol C, bool foreignKey = SomeForeignKey<C>>
 		struct foreign_key_ref_table_name : EmptyFixedStringConstant { };
 
 		template <SomeForeignKey C>
-		struct foreign_key_ref_table_name<C> : FixedStringConstant<C::REF_TABLE_NAME> { };
+		struct foreign_key_ref_table_name<C, true> : FixedStringConstant<C::REF_TABLE_NAME> { };
 
 		// used for getting the referenced column name from a foreign key column schema
-		template <SomeCol C>
+		template <SomeCol C, bool foreignKey = SomeForeignKey<C>>
 		struct foreign_key_ref_col_name : EmptyFixedStringConstant { };
 
 		template <SomeForeignKey C>
-		struct foreign_key_ref_col_name<C> : FixedStringConstant<C::REF_COL_NAME> { };
+		struct foreign_key_ref_col_name<C, true> : FixedStringConstant<C::REF_COL_NAME> { };
 	}
 
 	/**
@@ -268,11 +268,11 @@ namespace senc::utils::sqlite::schemas
 	namespace sfinae
 	{
 		// used for getting full name of column (including table name if it knows it)
-		template <SomeCol C>
+		template <SomeCol C, bool owned = SomeOwnedCol<C>>
 		struct col_full_name : FixedStringConstant<COL_NAME<C>> { };
 
 		template <SomeOwnedCol C>
-		struct col_full_name<C> : FixedStringConstant<COL_OWNER<C> + "." + COL_NAME<C>> { };
+		struct col_full_name<C, true> : FixedStringConstant<COL_OWNER<C> + "." + COL_NAME<C>> { };
 	}
 
 	/**
@@ -347,28 +347,21 @@ namespace senc::utils::sqlite::schemas
 	{
 		// used for setting table remembered by column schema
 		template <SomeCol C, FixedString owner>
-		struct set_col_owner
-		{
-			using type = OwnedCol<owner, COL_NAME<C>, ColType<C>>;
-		};
-
-		template <SomePrimaryKey C, FixedString owner>
-		struct set_col_owner<C, owner>
-		{
-			using type = OwnedPrimaryKey<owner, COL_NAME<C>, ColType<C>>;
-		};
-
-		template <SomeForeignKey C, FixedString owner>
-		struct set_col_owner<C, owner>
-		{
-			using type = OwnedForeignKey<
-				owner,
-				COL_NAME<C>,
-				ColType<C>,
-				FOREIGN_KEY_REF_TABLE_NAME<C>,
-				FOREIGN_KEY_REF_COL_NAME<C>
-			>;
-		};
+		struct set_col_owner : std::conditional<
+			SomePrimaryKey<C>,
+			OwnedPrimaryKey<owner, COL_NAME<C>, ColType<C>>,
+			std::conditional_t<
+				SomeForeignKey<C>,
+				OwnedForeignKey<
+					owner,
+					COL_NAME<C>,
+					ColType<C>,
+					FOREIGN_KEY_REF_TABLE_NAME<C>,
+					FOREIGN_KEY_REF_COL_NAME<C>
+				>,
+				OwnedCol<owner, COL_NAME<C>, ColType<C>>
+			>
+		> { };
 	}
 
 	/**
