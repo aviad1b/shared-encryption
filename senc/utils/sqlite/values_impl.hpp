@@ -16,7 +16,7 @@ namespace senc::utils::sqlite
 		Ret(*columnFunc)(sqlite3_stmt*, int),
 		Args&&... args) const
 	{
-		return std::visit([this, valueFunc, columnFunc](auto&& arg)
+		return std::visit([this, valueFunc, columnFunc, &args...](auto&& arg)
 		{
 			using T = std::remove_cvref_t<decltype(arg)>;
 			if constexpr (std::same_as<T, ColumnData>)
