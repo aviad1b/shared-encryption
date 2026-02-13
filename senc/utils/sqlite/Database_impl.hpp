@@ -33,13 +33,8 @@ namespace senc::utils::sqlite
 	template <schemas::SomeDB Schema>
 	inline Database<Schema>::~Database()
 	{
-		sqlite3_close(_db);
-	}
-
-	template <schemas::SomeDB Schema>
-	inline const std::string& Database<Schema>::path() const
-	{
-		return _path;
+		if (_db)
+			sqlite3_close(_db);
 	}
 
 	template <schemas::SomeDB Schema>

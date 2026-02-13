@@ -34,7 +34,7 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Database destructor, closes database.
 		 */
-		~Database();
+		virtual ~Database();
 
 		/**
 		 * @brief Inserts a record in to a table of the database.
@@ -82,13 +82,6 @@ namespace senc::utils::sqlite
 		>> join();
 
 	protected:
-		/**
-		 * @brief Gets database file path.
-		 * @return Database file path.
-		 */
-		const std::string& path() const;
-
-	private:
 		std::string _path;
 		sqlite3* _db;
 	};
