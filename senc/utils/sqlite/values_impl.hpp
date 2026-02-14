@@ -28,7 +28,7 @@ namespace senc::utils::sqlite
 	template <Value T>
 	inline NullableView<T>::NullableView(ValueViewData&& data)
 		: _view((SQLITE_NULL == data.exec(sqlite3_value_type, sqlite3_column_type)) ? std::nullopt
-				: ValueViewOf<T>(std::move(data))) { }
+				: std::optional<ValueViewOf<T>>(std::move(data))) { }
 
 	template <Value T>
 	inline NullableView<T>::NullableView(sqlite3_value* value) : Self(ValueViewData(value)) { }
