@@ -11,6 +11,7 @@ add_executable(senc_tests
     "test_common.cpp"
     "test_strs.cpp"
     "test_bytes.cpp"
+    "test_sql.cpp"
     "tests_utils.hpp"
     "test_storage.cpp"
     "test_server.cpp"
