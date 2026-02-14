@@ -30,6 +30,32 @@ namespace senc::utils::sqlite::schemas
 		) && // if both have owner, should be same; otherwise, any owner is okay
 		(COL_NAME<C> == SELECT_ARG_NAME<Arg>); // in addition, check same name
 
+	namespace sfinae
+	{
+		template <SomeCol C, SomeSelectArg Arg>
+		struct col_matches_select_arg : std::bool_constant<COL_MATCHES_SELECT_ARG<C, Arg>> { };
+
+		// used to check if a table has a column matching a given select arg
+		template <SomeTable T, SomeSelectArg Arg>
+		struct table_has_select_col : std::false_type { };
+
+		template <SomeSelectArg Arg, FixedString name, SomeCol First, SomeCol... Rest>
+		struct table_has_select_col<Table<name, First, Rest...>, Arg> : std::disjunction<
+			col_matches_select_arg<First, Arg>,
+			table_has_select_col<Table<name, Rest...>, Arg>
+		> { }; // if `First`'s name matches `Arg`'s, apply inner condition. else - recursion
+	}
+
+	/**
+	 * @concept senc::utils::sqlite::schemas::TableWithSelectCol
+	 * @brief Looks for a table schema which has a column matching a given select arg.
+	 * @tparam Self Examined typename.
+	 * @tparam Arg Select arg.
+	 */
+	template <typename Self, typename Arg>
+	concept TableWithSelectCol = SomeTable<Self> && SomeSelectArg<Arg> &&
+		sfinae::table_has_select_col<Self, Arg>::value;
+
 	/**
 	 * @concept senc::utils::sqlite::schemas::Selectable
 	 * @brief Looks for a table schema on which given select arguments can be applied.
@@ -39,7 +65,7 @@ namespace senc::utils::sqlite::schemas
 	template <typename Self, typename... Args>
 	concept Selectable = SomeTable<Self> &&                 // `Self` is `Table`
 		(SomeSelectArg<Args> && ...) &&                     // Each of `Args` is `SelectArg`
-		(TableWithCol<Self, SELECT_ARG_NAME<Args>> && ...); // `Self` has name of each of `Args`
+		(TableWithSelectCol<Self, Args> && ...); // `Self` has name of each of `Args`
 
 	namespace sfinae
 	{
