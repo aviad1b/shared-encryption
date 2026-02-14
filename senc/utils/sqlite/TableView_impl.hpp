@@ -45,8 +45,8 @@ namespace senc::utils::sqlite
 		using RetSchema = schemas::Select<Schema, Args...>;
 		using Ret = TableView<RetSchema>;
 
-		// if  has select already, return a new view with `this` being used as an inner view
-		if (!_select.has_value())
+		// if has select already, return a new view with `this` being used as an inner view
+		if (_select.has_value())
 			return Ret(
 				_db,
 				std::nullopt,
