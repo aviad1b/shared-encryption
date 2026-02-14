@@ -318,3 +318,20 @@ TEST_F(SqlTest, AggregateAvgWithWhere)
 		>> avg;
 	EXPECT_DOUBLE_EQ(avg.get(), 18.5);
 }
+
+// ---------------------------------------------------------------------------
+// Chained selects (select on TableView)
+// ---------------------------------------------------------------------------
+
+TEST_F(SqlTest, ChainedSelectNarrowsColumns)
+{
+	sql::Text name;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">,
+		sql::SelectArg<"age">>()
+		.select<sql::SelectArg<"name">>() // note: should there be "template" here?
+		.where("id = 1")
+		>> name;
+	EXPECT_EQ(name.get(), "Avi");
+}
