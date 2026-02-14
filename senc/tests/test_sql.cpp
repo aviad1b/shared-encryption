@@ -335,3 +335,46 @@ TEST_F(SqlTest, ChainedSelectNarrowsColumns)
 		>> name;
 	EXPECT_EQ(name.get(), "Avi");
 }
+
+// ---------------------------------------------------------------------------
+// Insert + re-select (round-trip integrity)
+// ---------------------------------------------------------------------------
+
+TEST_F(SqlTest, InsertAndSelectRoundTrip)
+{
+	db->insert<"Users">(3, "Carol", 30.5, std::nullopt);
+
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.where("id = 3")
+		>> name;
+	EXPECT_EQ(name.get(), "Carol");
+}
+
+TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
+{
+	db->insert<"Users">(4, "Dan", 25.0, senc::utils::Buffer{ 0x01, 0x02 });
+
+	sql::Nullable<sql::Blob> data;
+	db->select<"Users", sql::SelectArg<"data">>()
+		.where("id = 4")
+		>> data;
+	ASSERT_TRUE(data.has_value());
+	const auto& blob = data->get();
+	ASSERT_EQ(blob.size(), 2u);
+	EXPECT_EQ(blob[0], 0x01);
+	EXPECT_EQ(blob[1], 0x02);
+}
+
+TEST_F(SqlTest, InsertIncreasesCount)
+{
+	sql::Int before;
+	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> before;
+
+	db->insert<"Users">(5, "Eve", 19.0, std::nullopt);
+
+	sql::Int after;
+	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
+
+	EXPECT_EQ(after.get(), before.get() + 1);
+}
