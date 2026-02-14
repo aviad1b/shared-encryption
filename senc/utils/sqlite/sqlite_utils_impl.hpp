@@ -36,8 +36,9 @@ namespace senc::utils::sqlite
 		AtScopeExit cleanup([stmt]() { sqlite3_finalize(stmt); });
 
 		// if has limit, set limit function to compare; otherwise, limit function always false
-		auto pastLimit = limit.has_value() ? [limit](int i) { return i >= *limit; }
-		: [](int) { return false; };
+		std::function<bool(int)> pastLimit = limit.has_value()
+			? std::function<bool(int)>{ [limit](int i) { return i >= *limit; } }
+			: std::function<bool(int)>{ [](int) { return false; } };
 
 		for (int i = 0; SQLITE_ROW == sqlite3_step(stmt); ++i)
 		{
