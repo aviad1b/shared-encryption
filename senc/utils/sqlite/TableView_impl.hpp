@@ -32,7 +32,10 @@ namespace senc::utils::sqlite
 		const std::optional<std::string>& select,
 		const std::optional<std::vector<std::string>>& where,
 		const std::optional<std::function<std::string()>>& inner)
-		: _db(db), _select(select), _where(where), _inner(inner) { }
+		: _db(db),
+		  _select(select),
+		  _where(where.value_or(std::vector<std::string>{})),
+		  _inner(inner) { }
 
 	template <schemas::SomeTable Schema>
 	template <SomeSelectArg... Args>
