@@ -221,9 +221,14 @@ namespace senc::utils::sqlite::schemas
 		template <SomeTable T>
 		struct table_to_select { };
 
+		template <FixedString name, SomeCol C>
+		struct table_to_select<Table<name, C>> : FixedStringConstant<
+			"SELECT " + COL_FULL_NAME<C> + " FROM " + TABLE_NAME<Table<name, C>>
+		> { };
+
 		template <FixedString name, SomeCol First, SomeCol... Rest>
 		struct table_to_select<Table<name, First, Rest...>> : FixedStringConstant<
-			"SELECT " + COL_FULL_NAME<First> +((", " + COL_FULL_NAME<Rest>) + ...) +
+			"SELECT " + COL_FULL_NAME<First> + ((", " + COL_FULL_NAME<Rest>) + ...) +
 			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
 		> { };
 	}
