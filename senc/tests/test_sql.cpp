@@ -175,9 +175,9 @@ TEST_F(SqlTest, SelectAllRowsViaCallback)
 {
 	std::vector<std::string> names;
 	db->select<"Users", sql::SelectArg<"name">>()
-		>> [&names](sql::Text name)
+		>> [&names](sql::TextView name)
 		{
-			names.push_back(name.get());
+			names.push_back(std::string(name.get()));
 		};
 	ASSERT_EQ(names.size(), 2u);
 	// insertion order is preserved (SQLite default)
@@ -192,9 +192,9 @@ TEST_F(SqlTest, SelectMultipleColumnsViaCallback)
 	db->select<"Users",
 		sql::SelectArg<"id">,
 		sql::SelectArg<"name">>()
-		>> [&rows](sql::Int id, sql::Text name)
+		>> [&rows](sql::IntView id, sql::TextView name)
 		{
-			rows.emplace_back(id.get(), name.get());
+			rows.emplace_back(id.get(), std::string(name.get()));
 		};
 	ASSERT_EQ(rows.size(), 2u);
 	EXPECT_EQ(rows[0].first, 1);
@@ -209,7 +209,7 @@ TEST_F(SqlTest, WhereNarrowsCallbackResults)
 	int count = 0;
 	db->select<"Users", sql::SelectArg<"id">>()
 		.where("age > 20.0")
-		>> [&count](sql::Int) { ++count; };
+		>> [&count](sql::IntView) { ++count; };
 	EXPECT_EQ(count, 1); // only Avi (22.0)
 }
 
@@ -223,7 +223,7 @@ TEST_F(SqlTest, WhereNoMatchingRows)
 	bool called = false;
 	db->select<"Users", sql::SelectArg<"name">>()
 		.where("id = 999")
-		>> [&called](sql::Text) { called = true; };
+		>> [&called](sql::TextView) { called = true; };
 	EXPECT_FALSE(called);
 }
 
@@ -233,7 +233,7 @@ TEST_F(SqlTest, WhereAllRowsMatch)
 	std::vector<std::int64_t> ids;
 	db->select<"Users", sql::SelectArg<"id">>()
 		.where("age > 0")
-		>> [&ids](sql::Int id) { ids.push_back(id.get()); };
+		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
 	EXPECT_EQ(ids.size(), 2u);
 }
 
