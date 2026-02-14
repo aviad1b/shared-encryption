@@ -262,3 +262,59 @@ TEST_F(SqlTest, SelectMultipleColumnsWithAlias)
 	EXPECT_EQ(std::get<0>(row).get(), 2);
 	EXPECT_EQ(std::get<1>(row).get(), "Batya");
 }
+
+// ---------------------------------------------------------------------------
+// Aggregate functions
+// ---------------------------------------------------------------------------
+
+// COUNT("id") over all rows
+TEST_F(SqlTest, AggregateCount)
+{
+	sql::Int count;
+	db->select<"Users",
+		sql::AggrSelectArg<sql::Count<"id">>>()
+		>> count;
+	EXPECT_EQ(count.get(), 2);
+}
+
+// AVG("age") over all rows = (22.0 + 18.5) / 2 = 20.25
+TEST_F(SqlTest, AggregateAvg)
+{
+	sql::Real avg;
+	db->select<"Users",
+		sql::AggrSelectArg<sql::Avg<"age">>>()
+		>> avg;
+	EXPECT_DOUBLE_EQ(avg.get(), 20.25);
+}
+
+// COUNT with alias
+TEST_F(SqlTest, AggregateCountWithAlias)
+{
+	sql::Int count;
+	db->select<"Users",
+		sql::AggrSelectArg<sql::Count<"id">, "total">>()
+		>> count;
+	EXPECT_EQ(count.get(), 2);
+}
+
+// COUNT after a where clause
+TEST_F(SqlTest, AggregateCountWithWhere)
+{
+	sql::Int count;
+	db->select<"Users",
+		sql::AggrSelectArg<sql::Count<"id">>>()
+		.where("age >= 20.0")
+		>> count;
+	EXPECT_EQ(count.get(), 1); // only Avi
+}
+
+// AVG over a single remaining row after where
+TEST_F(SqlTest, AggregateAvgWithWhere)
+{
+	sql::Real avg;
+	db->select<"Users",
+		sql::AggrSelectArg<sql::Avg<"age">>>()
+		.where("id = 2")
+		>> avg;
+	EXPECT_DOUBLE_EQ(avg.get(), 18.5);
+}
