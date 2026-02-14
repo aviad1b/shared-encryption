@@ -25,7 +25,7 @@ namespace senc::utils::sqlite
 		sqlite3* db,
 		const std::string& sql,
 		schemas::TableCallable<Schema> auto&& callback,
-		std::optional<int> limit)
+		std::optional<int> expected)
 	{
 		sqlite3_stmt* stmt = nullptr;
 
@@ -36,20 +36,24 @@ namespace senc::utils::sqlite
 		AtScopeExit cleanup([stmt]() { sqlite3_finalize(stmt); });
 
 		// if has limit, set limit function to compare; otherwise, limit function always false
-		std::function<bool(int)> pastLimit = limit.has_value()
-			? std::function<bool(int)>{ [limit](int i) { return i >= *limit; } }
+		std::function<bool(int)> pastLimit = expected.has_value()
+			? std::function<bool(int)>{ [expected](int i) { return i >= *expected; } }
 			: std::function<bool(int)>{ [](int) { return false; } };
 
-		for (int i = 0; SQLITE_ROW == sqlite3_step(stmt); ++i)
+		int i = 0;
+		for (; SQLITE_ROW == sqlite3_step(stmt); ++i)
 		{
 			if (pastLimit(i))
-				throw SQLiteException("Too many rows to unpack: Expected " + std::to_string(*limit));
+				throw SQLiteException("Too many rows to unpack: Expected " + std::to_string(*expected));
 
 			execute_util(
 				std::make_index_sequence<sizeof...(Cs)>{},
 				callback, stmt
 			);
 		}
+
+		if (expected.has_value() && i < *expected)
+			throw SQLiteException("Too few rows to unpack: Expected " + std::to_string(*expected));
 	}
 
 	template <FixedString name, schemas::SomeCol... Cs>

@@ -57,13 +57,13 @@ namespace senc::utils::sqlite
 		 * @param db Database handle pointer.
 		 * @param sql SQL statement to run.
 		 * @param callback A callback function (of fitting schema).
-		 * @param limit Optional expected record limit.
+		 * @param expected Optional expected record count.
 		 * @throw SQLiteException If `limit` was provided and exceeded.
 		 */
 		void execute(sqlite3* db,
 					 const std::string& sql,
 					 schemas::TableCallable<Schema> auto&& callback,
-					 std::optional<int> limit);
+					 std::optional<int> expected);
 
 		/**
 		 * @brief utility function for `execute`.
