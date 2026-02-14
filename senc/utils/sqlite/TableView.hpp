@@ -79,7 +79,7 @@ namespace senc::utils::sqlite
 		 * @param tpl Tuple to output into.
 		 * @return `*this`.
 		 */
-		Self& operator>>(Tuple& tpl) const;
+		const Self& operator>>(Tuple& tpl) const;
 
 		/**
 		 * @brief Outputs viewed data into a fitting variable.
@@ -87,7 +87,7 @@ namespace senc::utils::sqlite
 		 * @param var Variable to output into.
 		 * @return `*this`.
 		 */
-		Self& operator>>(std::tuple_element_t<0, Tuple>& var) const
+		const Self& operator>>(std::tuple_element_t<0, Tuple>& var) const
 		requires (1 == ROW_LEN);
 
 		/**
@@ -95,7 +95,7 @@ namespace senc::utils::sqlite
 		 * @param callback Callback functor to output into.
 		 * @return `*this`.
 		 */
-		Self& operator>>(schemas::TableCallable<Schema> auto&& callback) const;
+		const Self& operator>>(schemas::TableCallable<Schema> auto&& callback) const;
 
 	private:
 		sqlite3* _db;

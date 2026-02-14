@@ -74,7 +74,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self&
+	inline const TableView<Schema>::Self&
 		TableView<Schema>::operator>>(Tuple& tpl) const
 	{
 		TableUtils(Schema{}).execute(
@@ -86,7 +86,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self&
+	inline const TableView<Schema>::Self&
 		TableView<Schema>::operator>>(std::tuple_element_t<0, Tuple>& var) const
 	requires (1 == ROW_LEN)
 	{
@@ -99,7 +99,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self&
+	inline const TableView<Schema>::Self&
 		TableView<Schema>::operator>>(schemas::TableCallable<Schema> auto&& callback) const
 	{
 		TableUtils(Schema{}).execute(_db, as_sql(), callback, std::nullopt);
