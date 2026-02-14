@@ -45,6 +45,15 @@ namespace senc::utils
 		}
 
 		/**
+		 * @brief Copy constructor of fixed string.
+		 * @param other Other fixed string to copy.
+		 */
+		constexpr FixedString(const FixedString<n>& other)
+		{
+			std::copy_n(other.value, n, value);
+		}
+
+		/**
 		 * @brief Gets string's length (without null-termination).
 		 * @return String's length (without null-termination).
 		 */
