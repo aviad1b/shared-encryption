@@ -161,6 +161,9 @@ namespace senc::utils::sqlite
 		if (_limit.has_value())
 			res += " LIMIT " + std::to_string(*_limit);
 
+		if (_offset.has_value())
+			res += " OFFSET " + std::to_string(*_offset);
+
 		return res;
 	}
 }
