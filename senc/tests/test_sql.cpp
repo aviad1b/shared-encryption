@@ -378,3 +378,40 @@ TEST_F(SqlTest, InsertIncreasesCount)
 
 	EXPECT_EQ(after.get(), before.get() + 1);
 }
+
+// ---------------------------------------------------------------------------
+// Type conversion / operator casts
+// ---------------------------------------------------------------------------
+
+// Int is convertible to int64_t via implicit cast
+TEST_F(SqlTest, IntImplicitConversion)
+{
+	sql::Int id;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.where("id = 1")
+		>> id;
+	std::int64_t raw = id;
+	EXPECT_EQ(raw, 1);
+}
+
+// Real is convertible to double via implicit cast
+TEST_F(SqlTest, RealImplicitConversion)
+{
+	sql::Real age;
+	db->select<"Users", sql::SelectArg<"age">>()
+		.where("id = 1")
+		>> age;
+	double raw = age;
+	EXPECT_DOUBLE_EQ(raw, 22.0);
+}
+
+// Text is convertible to std::string via implicit cast
+TEST_F(SqlTest, TextImplicitConversion)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.where("id = 2")
+		>> name;
+	const std::string& raw = name;
+	EXPECT_EQ(raw, "Batya");
+}
