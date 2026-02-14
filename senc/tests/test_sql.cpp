@@ -236,3 +236,29 @@ TEST_F(SqlTest, WhereAllRowsMatch)
 		>> [&ids](sql::Int id) { ids.push_back(id.get()); };
 	EXPECT_EQ(ids.size(), 2u);
 }
+
+// ---------------------------------------------------------------------------
+// Column aliases (SelectArg with "as")
+// ---------------------------------------------------------------------------
+
+TEST_F(SqlTest, SelectWithAlias)
+{
+	sql::Text alias;
+	db->select<"Users", sql::SelectArg<"name", "username">>()
+		.where("id = 1")
+		>> alias;
+	EXPECT_EQ(alias.get(), "Avi");
+}
+
+TEST_F(SqlTest, SelectMultipleColumnsWithAlias)
+{
+	using Row = std::tuple<sql::Int, sql::Text>;
+	Row row;
+	db->select<"Users",
+		sql::SelectArg<"id",   "user_id">,
+		sql::SelectArg<"name", "username">>()
+		.where("id = 2")
+		>> row;
+	EXPECT_EQ(std::get<0>(row).get(), 2);
+	EXPECT_EQ(std::get<1>(row).get(), "Batya");
+}
