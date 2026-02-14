@@ -136,7 +136,7 @@ namespace senc::utils
 		{
 			FixedString<LEN + m> res{};
 			std::copy_n(value, LEN, res.value);
-			std::copy_n(other.value, m, res.value);
+			std::copy_n(other.value, m, res.value + LEN);
 			return res;
 		}
 
