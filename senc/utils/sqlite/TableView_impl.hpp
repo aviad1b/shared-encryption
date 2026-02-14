@@ -32,11 +32,13 @@ namespace senc::utils::sqlite
 		const std::optional<std::string>& select,
 		const std::optional<std::vector<std::string>>& where,
 		const std::optional<std::int64_t>& limit,
+		const std::optional<std::int64_t>& offset,
 		const std::optional<std::function<std::string()>>& inner)
 		: _db(db),
 		  _select(select),
 		  _where(where.value_or(std::vector<std::string>{})),
 		  _limit(limit),
+		  _offset(offset),
 		  _inner(inner) { }
 
 	template <schemas::SomeTable Schema>
@@ -57,6 +59,7 @@ namespace senc::utils::sqlite
 				std::nullopt,
 				std::nullopt,
 				std::nullopt,
+				std::nullopt,
 				[*this]() -> std::string { return this->as_sql(); }
 			);
 		
@@ -64,6 +67,7 @@ namespace senc::utils::sqlite
 		return Ret(
 			_db,
 			std::string(schemas::TABLE_TO_SELECT<RetSchema>),
+			std::nullopt,
 			std::nullopt,
 			std::nullopt,
 			std::nullopt
@@ -92,6 +96,16 @@ namespace senc::utils::sqlite
 		// otherwise, apply new limit
 		Ret res = *this;
 		res._limit = n;
+		return res;
+	}
+
+	template <schemas::SomeTable Schema>
+	inline TableView<Schema>::Self TableView<Schema>::offset(std::int64_t n)
+	{
+		using Ret = Self;
+
+		Ret res = *this;
+		res._offset = res._offset.value_or(0) + n;
 		return res;
 	}
 

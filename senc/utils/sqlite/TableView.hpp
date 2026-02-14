@@ -54,6 +54,7 @@ namespace senc::utils::sqlite
 						   const std::optional<std::string>& select,
 						   const std::optional<std::vector<std::string>>& where,
 						   const std::optional<std::int64_t>& limit,
+						   const std::optional<std::int64_t>& offset,
 						   const std::optional<std::function<std::string()>>& inner);
 		
 		/**
@@ -83,6 +84,13 @@ namespace senc::utils::sqlite
 		Self limit(std::int64_t n);
 
 		/**
+		 * @brief Applies offset to the table view.
+		 * @param n Offset.
+		 * @return Table view with "offset" applied.
+		 */
+		Self offset(std::int64_t n);
+
+		/**
 		 * @brief Outputs viewed data into a fitting tuple.
 		 * @param tpl Tuple to output into.
 		 * @return `*this`.
@@ -110,6 +118,7 @@ namespace senc::utils::sqlite
 		std::optional<std::string> _select;
 		std::vector<std::string> _where;
 		std::optional<std::int64_t> _limit;
+		std::optional<std::int64_t> _offset;
 		std::optional<std::function<std::string()>> _inner;
 
 		/**
