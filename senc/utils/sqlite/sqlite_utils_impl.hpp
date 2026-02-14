@@ -55,8 +55,8 @@ namespace senc::utils::sqlite
 	template <FixedString name, schemas::SomeCol... Cs>
 	inline std::string TableUtils<name, Cs...>::get_create_statement()
 	{
-		std::string res = std::string("CREATE TABLE IF NOT EXISTS ") +
-			name + "(" +
+		std::string res = "CREATE TABLE IF NOT EXISTS " +
+			std::string(name) + "(" +
 			(ColUtils(Cs{}).get_create_arg() + ...) +
 			(ColUtils(Cs{}).get_additional_constraints() + ...);
 
