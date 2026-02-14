@@ -47,6 +47,16 @@ namespace senc::utils::sqlite
 		void insert(Values&&... values);
 
 		/**
+		 * @brief Removes (a) record(s) from a table of the database.
+		 * @tparam tableName Name of table to remove from.
+		 * @param where Where clause to locate records to remove.
+		 * @throw SQLiteException If removal failed.
+		 */
+		template <FixedString tableName>
+		requires schemas::DBWithTable<Schema, tableName>
+		void remove(const std::string& where);
+
+		/**
 		 * @brief Applies "select" on database (and gets fitting table view).
 		 * @tparam Args Select arguments.
 		 * @see senc::utils::sqlite::SelectArg

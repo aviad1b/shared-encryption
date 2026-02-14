@@ -77,6 +77,17 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeDB Schema>
+	template <FixedString tableName>
+	requires schemas::DBWithTable<Schema, tableName>
+	inline void Database<Schema>::remove(const std::string& where)
+	{
+		const std::string sql = "DELETE FROM " + std::string(tableName) +
+			" WHERE " + where;
+		if (SQLITE_OK != sqlite3_exec(_db, sql.c_str(), nullptr, nullptr, nullptr))
+			throw SQLiteException("Failed to remove");
+	}
+
+	template <schemas::SomeDB Schema>
 	template <FixedString tableName, SomeSelectArg... Args>
 	requires schemas::Selectable<
 		schemas::DBTable<Schema, tableName>,
