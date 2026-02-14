@@ -29,7 +29,7 @@ namespace senc::utils::sqlite
 		if (SQLITE_OK != sqlite3_open(_path.c_str(), &_db))
 			throw SQLiteException("Failed to open database " + _path);
 
-		TableUtils(Schema{}).create_tables_if_not_exist(_db);
+		DatabaseUtils(Schema{}).create_tables_if_not_exist(_db);
 	}
 
 	template <schemas::SomeDB Schema>
