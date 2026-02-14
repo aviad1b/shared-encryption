@@ -349,6 +349,8 @@ TEST_F(SqlTest, InsertAndSelectRoundTrip)
 		.where("id = 3")
 		>> name;
 	EXPECT_EQ(name.get(), "Carol");
+
+	db->remove<"Users">("id = 3");
 }
 
 TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
@@ -364,6 +366,8 @@ TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 	ASSERT_EQ(blob.size(), 2u);
 	EXPECT_EQ(blob[0], 0x01);
 	EXPECT_EQ(blob[1], 0x02);
+
+	db->remove<"Users">("id = 4");
 }
 
 TEST_F(SqlTest, InsertIncreasesCount)
@@ -375,8 +379,11 @@ TEST_F(SqlTest, InsertIncreasesCount)
 
 	sql::Int after;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
-
 	EXPECT_EQ(after.get(), before.get() + 1);
+
+	db->remove<"Users">("id = 5");
+	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
+	EXPECT_EQ(after.get(), before.get());
 }
 
 // ---------------------------------------------------------------------------
