@@ -124,3 +124,44 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuple)
 	EXPECT_EQ(blob[1], 0xBB);
 	EXPECT_EQ(blob[2], 0xCC);
 }
+
+// ---------------------------------------------------------------------------
+// Nullable column
+// ---------------------------------------------------------------------------
+
+// data is NULL for row 1
+TEST_F(SqlTest, NullableColumnIsNull)
+{
+	sql::Nullable<sql::Blob> data;
+	db->select<"Users", sql::SelectArg<"data">>()
+		.where("id = 1")
+		>> data;
+	EXPECT_FALSE(data.has_value());
+	EXPECT_TRUE(data.is_null());
+}
+
+// data is not NULL for row 2
+TEST_F(SqlTest, NullableColumnHasValue)
+{
+	sql::Nullable<sql::Blob> data;
+	db->select<"Users", sql::SelectArg<"data">>()
+		.where("id = 2")
+		>> data;
+	ASSERT_TRUE(data.has_value());
+	EXPECT_FALSE(data.is_null());
+}
+
+// Dereference non-null nullable to inspect blob bytes
+TEST_F(SqlTest, NullableBlobContents)
+{
+	sql::Nullable<sql::Blob> data;
+	db->select<"Users", sql::SelectArg<"data">>()
+		.where("id = 2")
+		>> data;
+	ASSERT_TRUE(data.has_value());
+	const auto& blob = data->get();
+	ASSERT_EQ(blob.size(), 3u);
+	EXPECT_EQ(blob[0], 0xAA);
+	EXPECT_EQ(blob[1], 0xBB);
+	EXPECT_EQ(blob[2], 0xCC);
+}
