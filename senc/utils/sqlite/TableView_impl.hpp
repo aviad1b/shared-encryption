@@ -78,6 +78,7 @@ namespace senc::utils::sqlite
 		TableView<Schema>::operator>>(Tuple& tpl)
 	{
 		TableUtils(Schema{}).execute(
+			_db, as_sql(),
 			[&tpl](auto&&... values) { tpl = std::make_tuple(values...); },
 			1
 		);
@@ -90,6 +91,7 @@ namespace senc::utils::sqlite
 	requires (1 == ROW_LEN)
 	{
 		TableUtils(Schema{}).execute(
+			_db, as_sql(),
 			[&var](auto&& value) { var = value; },
 			1
 		);
@@ -100,7 +102,7 @@ namespace senc::utils::sqlite
 	inline TableView<Schema>::Self&
 		TableView<Schema>::operator>>(schemas::TableCallable<Schema> auto&& callback)
 	{
-		TableUtils(Schema{}).execute(callback, std::nullopt);
+		TableUtils(Schema{}).execute(_db, as_sql(), callback, std::nullopt);
 		return *this;
 	}
 
