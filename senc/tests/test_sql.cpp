@@ -84,3 +84,43 @@ TEST_F(SqlTest, SelectId)
 		>> id;
 	EXPECT_EQ(id.get(), 2);
 }
+
+// ---------------------------------------------------------------------------
+// select + where + operator>> (tuple output)
+// ---------------------------------------------------------------------------
+
+// select multiple columns into a tuple
+TEST_F(SqlTest, SelectMultipleColumnsIntoTuple)
+{
+	using Row = std::tuple<sql::Int, sql::Text>;
+	Row row;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">>()
+		.where("id = 1")
+		>> row;
+	EXPECT_EQ(std::get<0>(row).get(), 1);
+	EXPECT_EQ(std::get<1>(row).get(), "Avi");
+}
+
+TEST_F(SqlTest, SelectAllColumnsIntoTuple)
+{
+	using Row = std::tuple<sql::Int, sql::Text, sql::Real, sql::Nullable<sql::Blob>>;
+	Row row;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">,
+		sql::SelectArg<"age">,
+		sql::SelectArg<"data">>()
+		.where("id = 2")
+		>> row;
+	EXPECT_EQ(std::get<0>(row).get(), 2);
+	EXPECT_EQ(std::get<1>(row).get(), "Batya");
+	EXPECT_DOUBLE_EQ(std::get<2>(row).get(), 18.5);
+	ASSERT_TRUE(std::get<3>(row).has_value());
+	const auto& blob = std::get<3>(row).get().value().get();
+	ASSERT_EQ(blob.size(), 3u);
+	EXPECT_EQ(blob[0], 0xAA);
+	EXPECT_EQ(blob[1], 0xBB);
+	EXPECT_EQ(blob[2], 0xCC);
+}
