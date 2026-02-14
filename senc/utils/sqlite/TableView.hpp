@@ -53,6 +53,7 @@ namespace senc::utils::sqlite
 		explicit TableView(sqlite3* db,
 						   const std::optional<std::string>& select,
 						   const std::optional<std::vector<std::string>>& where,
+						   const std::optional<std::int64_t>& limit,
 						   const std::optional<std::function<std::string()>>& inner);
 		
 		/**
@@ -73,6 +74,13 @@ namespace senc::utils::sqlite
 		 * @return Table view with "where" applied.
 		 */
 		Self where(const std::string& condition);
+
+		/**
+		 * @brief Applies limit to the table view.
+		 * @param n Limit count.
+		 * @return Table view with "limit" applied.
+		 */
+		Self limit(std::int64_t n);
 
 		/**
 		 * @brief Outputs viewed data into a fitting tuple.
@@ -101,6 +109,7 @@ namespace senc::utils::sqlite
 		sqlite3* _db;
 		std::optional<std::string> _select;
 		std::vector<std::string> _where;
+		std::optional<std::int64_t> _limit;
 		std::optional<std::function<std::string()>> _inner;
 
 		/**

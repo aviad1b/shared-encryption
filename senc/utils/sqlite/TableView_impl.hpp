@@ -31,10 +31,12 @@ namespace senc::utils::sqlite
 		sqlite3* db,
 		const std::optional<std::string>& select,
 		const std::optional<std::vector<std::string>>& where,
+		const std::optional<std::int64_t>& limit,
 		const std::optional<std::function<std::string()>>& inner)
 		: _db(db),
 		  _select(select),
 		  _where(where.value_or(std::vector<std::string>{})),
+		  _limit(limit),
 		  _inner(inner) { }
 
 	template <schemas::SomeTable Schema>
@@ -54,6 +56,7 @@ namespace senc::utils::sqlite
 				_db,
 				std::nullopt,
 				std::nullopt,
+				std::nullopt,
 				[*this]() -> std::string { return this->as_sql(); }
 			);
 		
@@ -61,6 +64,7 @@ namespace senc::utils::sqlite
 		return Ret(
 			_db,
 			std::string(schemas::TABLE_TO_SELECT<RetSchema>),
+			std::nullopt,
 			std::nullopt,
 			std::nullopt
 		);
@@ -73,6 +77,21 @@ namespace senc::utils::sqlite
 
 		Ret res = *this;
 		res._where.push_back(condition);
+		return res;
+	}
+
+	template <schemas::SomeTable Schema>
+	inline TableView<Schema>::Self TableView<Schema>::limit(std::int64_t n)
+	{
+		using Ret = Self;
+
+		// if isn't more restrictive than current limit, leave unchanged
+		if (_limit.has_value() && n >= *_limit)
+			return *this;
+
+		// otherwise, apply new limit
+		Ret res = *this;
+		res._limit = n;
 		return res;
 	}
 
@@ -113,8 +132,10 @@ namespace senc::utils::sqlite
 	inline std::string TableView<Schema>::as_sql() const
 	{
 		std::string res = _select.has_value() ? *_select : "SELECT * FROM";
+
 		if (_inner.has_value())
 			res += " (" + (*_inner)() + ")";
+
 		if (!_where.empty())
 		{
 			res += " WHERE ";
@@ -122,6 +143,10 @@ namespace senc::utils::sqlite
 				res += clause + " AND ";
 			res += _where.back();
 		}
+
+		if (_limit.has_value())
+			res += " LIMIT " + std::to_string(*_limit);
+
 		return res;
 	}
 }
