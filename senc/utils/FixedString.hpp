@@ -33,7 +33,7 @@ namespace senc::utils
 		/**
 		 * @brief Constructs an empty fixed string.
 		 */
-		constexpr FixedString() : FixedString("") { }
+		constexpr FixedString() requires (n > 0) : value("") {}
 
 		/**
 		 * @brief Constructs a fixed string.
