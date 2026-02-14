@@ -94,11 +94,14 @@ namespace senc::utils::sqlite
 	inline std::string ColUtils<C>::get_create_arg()
 	{
 		if constexpr (schemas::SomePrimaryKey<C>)
-			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + "PRIMARY KEY,";
+			return std::string(schemas::COL_NAME<C>) + " " +
+				std::string(schemas::COL_SQL_TYPE<C>) + "PRIMARY KEY,";
 		else if constexpr (schemas::ColType<C>::is_nullable())
-			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + ",";
+			return std::string(schemas::COL_NAME<C>) + " " +
+				std::string(schemas::COL_SQL_TYPE<C>) +",";
 		else
-			return schemas::COL_NAME<C> + " " + schemas::COL_SQL_TYPE<C> + " NOT NULL,";
+			return std::string(schemas::COL_NAME<C>) + " " +
+				std::string(schemas::COL_SQL_TYPE<C>) + " NOT NULL,";
 	}
 
 	template <schemas::SomeCol C>
