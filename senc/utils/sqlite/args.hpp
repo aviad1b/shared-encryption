@@ -259,4 +259,76 @@ namespace senc::utils::sqlite
 	 */
 	template <SomeSelectArg Arg>
 	constexpr FixedString SELECT_ARG_AS = Arg::AS;
+
+	/**
+	 * @enum senc::utils::sqlite::Order
+	 * @brief Represents SQL ordering (ascending/descending).
+	 */
+	enum class Order { ASC, DESC };
+
+	namespace sfinae
+	{
+		template <Order order>
+		struct order_kind_str { };
+
+		template <>
+		struct order_kind_str<Order::ASC> : FixedStringConstant<"ASC"> { };
+
+		template <>
+		struct order_kind_str<Order::DESC> : FixedStringConstant<"DESC"> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::ORDER_KIND_STR
+	 * @brief Gets string version of order kind.
+	 * @tparam order Order kind to get string version of.
+	 */
+	template <Order order>
+	constexpr FixedString ORDER_KIND_STR = sfinae::order_kind_str<order>::value;
+
+	/**
+	 * @struct senc::utils::sqlite::OrderArg
+	 * @brief Template-level ORDER BY argument.
+	 * @tparam name Name of column to order by.
+	 * @tparam order Optional order kind (ascending/descending, defaults to ascending).
+	 */
+	template <FixedString name, Order order = Order::ASC>
+	struct OrderArg
+	{
+		static constexpr FixedString NAME = name;
+		static constexpr Order ORDER = order;
+	};
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct some_order_arg : std::false_type { };
+
+		template <FixedString name, Order order>
+		struct some_order_arg<OrderArg<name, order>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::sqlite::SomeOrderArg
+	 * @brief Looks for any instantation of `OrderArg`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept SomeOrderArg = sfinae::some_order_arg<Self>::value;
+
+	/**
+	 * @var senc::utils::sqlite::ORDER_ARG_NAME
+	 * @brief Gets column name of order argument.
+	 * @tparam Arg Order argument.
+	 */
+	template <SomeOrderArg Arg>
+	constexpr FixedString ORDER_ARG_NAME = Arg::NAME;
+
+	/**
+	 * @var senc::utils::sqlite::ORDER_ARG_KIND
+	 * @brief Gets ordering kind of order argument.
+	 * @tparam Arg Order argument.
+	 */
+	template <SomeOrderArg Arg>
+	constexpr Order ORDER_ARG_KIND = Arg::ORDER;
 }

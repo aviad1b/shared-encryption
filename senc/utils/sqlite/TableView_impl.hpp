@@ -31,12 +31,14 @@ namespace senc::utils::sqlite
 		sqlite3* db,
 		const std::optional<std::string>& select,
 		const std::optional<std::vector<std::string>>& where,
+		const std::optional<std::vector<std::string>>& orderBy,
 		const std::optional<std::int64_t>& limit,
 		const std::optional<std::int64_t>& offset,
 		const std::optional<std::function<std::string()>>& inner)
 		: _db(db),
 		  _select(select),
 		  _where(where.value_or(std::vector<std::string>{})),
+		  _orderBy(orderBy.value_or(std::vector<std::string>{})),
 		  _limit(limit),
 		  _offset(offset),
 		  _inner(inner) { }
@@ -60,6 +62,7 @@ namespace senc::utils::sqlite
 				std::nullopt,
 				std::nullopt,
 				std::nullopt,
+				std::nullopt,
 				[*this]() -> std::string { return this->as_sql(); }
 			);
 		
@@ -70,8 +73,21 @@ namespace senc::utils::sqlite
 			std::nullopt,
 			std::nullopt,
 			std::nullopt,
+			std::nullopt,
 			std::nullopt
 		);
+	}
+
+	template <schemas::SomeTable Schema>
+	template <SomeOrderArg Arg>
+	inline TableView<Schema>::Self TableView<Schema>::order_by()
+	{
+		using Ret = Self;
+
+		Ret res = *this;
+		res._orderBy.push_back(std::string(ORDER_ARG_NAME<Arg>) + " " + 
+			std::string(ORDER_KIND_STR<ORDER_ARG_KIND<Arg>>));
+		return res;
 	}
 
 	template <schemas::SomeTable Schema>
@@ -156,6 +172,14 @@ namespace senc::utils::sqlite
 			for (const auto& clause : _where | std::views::take(_where.size() - 1))
 				res += clause + " AND ";
 			res += _where.back();
+		}
+
+		if (!_orderBy.empty())
+		{
+			res += " ORDER BY ";
+			for (const auto& clause : _orderBy | std::views::take(_orderBy.size() - 1))
+				res += clause + ", ";
+			res += _orderBy.back();
 		}
 
 		if (_limit.has_value())
