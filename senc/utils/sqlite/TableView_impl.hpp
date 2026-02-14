@@ -51,7 +51,7 @@ namespace senc::utils::sqlite
 				_db,
 				std::nullopt,
 				std::nullopt,
-				[*this] { return this->as_sql(); }
+				[*this]() -> std::string { return this->as_sql(); }
 			);
 		
 		// otherwise, simply add select
