@@ -165,3 +165,74 @@ TEST_F(SqlTest, NullableBlobContents)
 	EXPECT_EQ(blob[1], 0xBB);
 	EXPECT_EQ(blob[2], 0xCC);
 }
+
+// ---------------------------------------------------------------------------
+// Callback (operator>> with callable)
+// ---------------------------------------------------------------------------
+
+// Collect all names via callback
+TEST_F(SqlTest, SelectAllRowsViaCallback)
+{
+	std::vector<std::string> names;
+	db->select<"Users", sql::SelectArg<"name">>()
+		>> [&names](sql::Text name)
+		{
+			names.push_back(name.get());
+		};
+	ASSERT_EQ(names.size(), 2u);
+	// insertion order is preserved (SQLite default)
+	EXPECT_EQ(names[0], "Avi");
+	EXPECT_EQ(names[1], "Batya");
+}
+
+// collect multiple columns via callback
+TEST_F(SqlTest, SelectMultipleColumnsViaCallback)
+{
+	std::vector<std::pair<std::int64_t, std::string>> rows;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">>()
+		>> [&rows](sql::Int id, sql::Text name)
+		{
+			rows.emplace_back(id.get(), name.get());
+		};
+	ASSERT_EQ(rows.size(), 2u);
+	EXPECT_EQ(rows[0].first, 1);
+	EXPECT_EQ(rows[0].second, "Avi");
+	EXPECT_EQ(rows[1].first, 2);
+	EXPECT_EQ(rows[1].second, "Batya");
+}
+
+// where clause narrows callback results
+TEST_F(SqlTest, WhereNarrowsCallbackResults)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.where("age > 20.0")
+		>> [&count](sql::Int) { ++count; };
+	EXPECT_EQ(count, 1); // only Avi (22.0)
+}
+
+// ---------------------------------------------------------------------------
+// where clause edge cases
+// ---------------------------------------------------------------------------
+
+// where with no matching rows - callback should not fire
+TEST_F(SqlTest, WhereNoMatchingRows)
+{
+	bool called = false;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.where("id = 999")
+		>> [&called](sql::Text) { called = true; };
+	EXPECT_FALSE(called);
+}
+
+// where + all rows match
+TEST_F(SqlTest, WhereAllRowsMatch)
+{
+	std::vector<std::int64_t> ids;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.where("age > 0")
+		>> [&ids](sql::Int id) { ids.push_back(id.get()); };
+	EXPECT_EQ(ids.size(), 2u);
+}
