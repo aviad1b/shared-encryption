@@ -73,6 +73,7 @@ namespace senc::utils::sqlite
 		 */
 		template <std::size_t... is>
 		static void execute_util(
+			std::index_sequence<is...> dummy,
 			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
 			sqlite3_stmt* stmt);
 
