@@ -71,7 +71,7 @@ namespace senc::utils::sqlite::schemas
 	{
 		// used for applying a single select arg on a table schema
 		template <SomeTable T, SomeSelectArg Arg>
-		struct select_one { };
+		struct select_one { using type = void; };
 
 		template <SomeSelectArg Arg, FixedString name, SomeCol First, SomeCol... Rest>
 		struct select_one<Table<name, First, Rest...>, Arg> : std::conditional<
