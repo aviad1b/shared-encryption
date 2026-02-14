@@ -113,6 +113,7 @@ namespace senc::utils::sqlite
 	struct AggrSelectArg
 	{
 		using Func = F;
+		static constexpr FixedString UNDERLYING_NAME = AGGR_FUNC_COL<F>;
 		static constexpr FixedString NAME =
 			AGGR_FUNC_NAME<F> + "(" + AGGR_FUNC_COL<F> + ")";
 		static constexpr FixedString AS = as;
@@ -122,6 +123,7 @@ namespace senc::utils::sqlite
 	struct AggrSelectArg<F, as>
 	{
 		using Func = F;
+		static constexpr FixedString UNDERLYING_NAME = AGGR_FUNC_COL<F>;
 		static constexpr FixedString NAME =
 			AGGR_FUNC_NAME<F> +"(" + AGGR_FUNC_OWNER<F> + "." + AGGR_FUNC_COL<F> + ")";
 		static constexpr FixedString AS = as;
@@ -164,6 +166,13 @@ namespace senc::utils::sqlite
 		template <AggrFunc F, FixedString as>
 		struct some_select_arg_with_as<AggrSelectArg<F, as>>
 			: std::bool_constant<!as.empty()> { };
+
+		// used for detecting an aggregate select arg
+		template <typename T>
+		struct some_aggr_select_arg : std::false_type { };
+
+		template <AggrFunc F, FixedString as>
+		struct some_aggr_select_arg<AggrSelectArg<F, as>> : std::true_type { };
 	}
 
 	/**
@@ -189,6 +198,14 @@ namespace senc::utils::sqlite
 	 */
 	template <typename Self>
 	concept SomeSelectArgWithAs = sfinae::some_select_arg_with_as<Self>::value;
+
+	/**
+	 * @concept senc::utils::sqlite::SomeAggrSelectArg
+	 * @brief Looks for any instantation of an aggregate select argument.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept SomeAggrSelectArg = sfinae::some_aggr_select_arg<Self>::value;
 
 	namespace sfinae
 	{
@@ -216,6 +233,23 @@ namespace senc::utils::sqlite
 	 */
 	template <SomeSelectArg Arg>
 	constexpr FixedString SELECT_ARG_NAME = Arg::NAME;
+
+	namespace sfinae
+	{
+		template <SomeSelectArg Arg, bool isAggr = SomeAggrSelectArg<Arg>>
+		struct select_arg_underlying_name : FixedStringConstant<Arg::NAME> { };
+
+		template <SomeAggrSelectArg Arg>
+		struct select_arg_underlying_name<Arg, true> : FixedStringConstant<Arg::UNDERLYING_NAME> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::SELECT_ARG_UNDERLYING_NAME
+	 * @brief Gets original column name from select argument (discards aggregate name if exists).
+	 * @tparam Arg Select argument.
+	 */
+	template <SomeSelectArg Arg>
+	constexpr FixedString SELECT_ARG_UNDERLYING_NAME = sfinae::select_arg_underlying_name<Arg>::value;
 
 	/**
 	 * @var senc::utils::sqlite::SELECT_ARG_AS

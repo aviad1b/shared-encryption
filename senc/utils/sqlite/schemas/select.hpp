@@ -54,7 +54,7 @@ namespace senc::utils::sqlite::schemas
 			(SomeOwnedCol<C> && SomeSelectArgWithOwner<Arg> &&
 				COL_OWNER<C> == SELECT_ARG_OWNER<Arg>)
 		) && // if both have owner, should be same; otherwise, any owner is okay
-		(COL_NAME<C> == SELECT_ARG_NAME<Arg>); // in addition, check same name
+		(COL_NAME<C> == SELECT_ARG_UNDERLYING_NAME<Arg>); // in addition, check same name
 
 	namespace sfinae
 	{
