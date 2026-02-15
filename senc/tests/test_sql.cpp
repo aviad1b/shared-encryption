@@ -693,7 +693,7 @@ TEST_F(SqlTest, LimitOffsetBothBeyondRows)
 TEST_F(SqlTest, JoinRowCount)
 {
 	int count = 0;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		>> [&count](sql::IntView) { ++count; };
 	EXPECT_EQ(count, 2);
@@ -703,7 +703,7 @@ TEST_F(SqlTest, JoinRowCount)
 TEST_F(SqlTest, JoinSelectFavNumForAvi)
 {
 	sql::Int fav;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.where("name = 'Avi'")
 		>> fav;
@@ -714,7 +714,7 @@ TEST_F(SqlTest, JoinSelectFavNumForAvi)
 TEST_F(SqlTest, JoinSelectFavNumForBatya)
 {
 	sql::Int fav;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.where("name = 'Batya'")
 		>> fav;
@@ -725,7 +725,7 @@ TEST_F(SqlTest, JoinSelectFavNumForBatya)
 TEST_F(SqlTest, JoinSelectNameAndFavNumViaCallback)
 {
 	std::vector<std::pair<std::string, std::int64_t>> rows;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"name">, sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
 		>> [&rows](sql::TextView name, sql::IntView fav)
@@ -741,7 +741,7 @@ TEST_F(SqlTest, JoinSelectNameAndFavNumViaCallback)
 TEST_F(SqlTest, JoinWhereFiltersToOneRow)
 {
 	int count = 0;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.where("fav_num > 300")
 		>> [&count](sql::IntView) { ++count; };
@@ -752,7 +752,7 @@ TEST_F(SqlTest, JoinWhereFiltersToOneRow)
 TEST_F(SqlTest, JoinWhereNoMatchingRows)
 {
 	bool called = false;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.where("fav_num = 999")
 		>> [&called](sql::IntView) { called = true; };
@@ -763,7 +763,7 @@ TEST_F(SqlTest, JoinWhereNoMatchingRows)
 TEST_F(SqlTest, JoinOrderByFavNumAsc)
 {
 	std::vector<std::int64_t> favs;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"fav_num", sql::Order::Asc>>()
 		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
@@ -776,7 +776,7 @@ TEST_F(SqlTest, JoinOrderByFavNumAsc)
 TEST_F(SqlTest, JoinOrderByFavNumDesc)
 {
 	std::vector<std::int64_t> favs;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"fav_num", sql::Order::Desc>>()
 		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
@@ -789,7 +789,7 @@ TEST_F(SqlTest, JoinOrderByFavNumDesc)
 TEST_F(SqlTest, JoinLimit)
 {
 	int count = 0;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.limit(1)
 		>> [&count](sql::IntView) { ++count; };
@@ -800,7 +800,7 @@ TEST_F(SqlTest, JoinLimit)
 TEST_F(SqlTest, JoinLimitOffset)
 {
 	sql::Int fav;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"fav_num", sql::Order::Asc>>()
 		.limit(1)
@@ -813,7 +813,7 @@ TEST_F(SqlTest, JoinLimitOffset)
 TEST_F(SqlTest, JoinAggregateCount)
 {
 	sql::Int count;
-	db->join<"Users", "FavNumbers", "id">()
+	db->join<"Users", "id", "FavNumbers", "user_id">()
 		.select<sql::AggrSelectArg<sql::Count<"fav_num">>>()
 		>> count;
 	EXPECT_EQ(count.get(), 2);

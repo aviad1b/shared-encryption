@@ -116,22 +116,26 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeDB Schema>
-	template <FixedString table1Name, FixedString table2Name, FixedString axisCol>
+	template <FixedString table1Name, FixedString axisCol1,
+		FixedString table2Name, FixedString axisCol2>
 	requires schemas::Joinable<
 		schemas::DBTable<Schema, table1Name>,
+		axisCol1,
 		schemas::DBTable<Schema, table2Name>,
-		axisCol
+		axisCol2
 	>
 	inline TableView<schemas::Join<
 		schemas::DBTable<Schema, table1Name>,
+		axisCol1,
 		schemas::DBTable<Schema, table2Name>,
-		axisCol
+		axisCol2
 	>> Database<Schema>::join()
 	{
 		return TableView<schemas::Join<
 			schemas::DBTable<Schema, table1Name>,
+			axisCol1,
 			schemas::DBTable<Schema, table2Name>,
-			axisCol
+			axisCol2
 		>>(_db);
 	}
 

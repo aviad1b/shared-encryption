@@ -75,20 +75,24 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Applies (inner) join on database (and gets fitting table view).
 		 * @tparam table1Name Name of first table to join.
+		 * @tparam axisCol1 Name of column (in table1) to join on.
 		 * @tparam table2Name Name of second table to join.
-		 * @tparam axisCol Name of column to join on.
+		 * @tparam axisCol2 Name of column in table2 to join on.
 		 * @return Table view with "join" applied.
 		 */
-		template <FixedString table1Name, FixedString table2Name, FixedString axisCol>
+		template <FixedString table1Name, FixedString axisCol1,
+			FixedString table2Name, FixedString axisCol2 = axisCol1>
 		requires schemas::Joinable<
 			schemas::DBTable<Schema, table1Name>,
+			axisCol1,
 			schemas::DBTable<Schema, table2Name>,
-			axisCol
+			axisCol2
 		>
 		TableView<schemas::Join<
 			schemas::DBTable<Schema, table1Name>,
+			axisCol1,
 			schemas::DBTable<Schema, table2Name>,
-			axisCol
+			axisCol2
 		>> join();
 
 	protected:
