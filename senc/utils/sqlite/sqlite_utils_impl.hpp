@@ -119,9 +119,12 @@ namespace senc::utils::sqlite
 		else if constexpr (RealParam<P>)
 			status = sqlite3_bind_double(stmt, index, static_cast<double>(value));
 		else if constexpr (TextParam<P>)
+		{
+			const std::string& str = value;
 			status = sqlite3_bind_text(stmt, index, 
-									   static_cast<const std::string&>(value).c_str(),
-									   -1, SQLITE_STATIC);
+									   str.c_str(),
+									   -1, SQLITE_TRANSIENT);
+		}
 		else if constexpr (BlobParam<P>)
 		{
 			const Buffer& bytes = static_cast<const Buffer&>(value);
