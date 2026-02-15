@@ -199,15 +199,15 @@ namespace senc::utils::sqlite::schemas
 
 		template <SomeSelectArgsCollection Args, bool includeTableName, FixedString name, SomeCol C>
 		struct table_to_select<Table<name, C>, Args, includeTableName> : FixedStringConstant<
-			"SELECT " + COL_SELECT_NAME<C, Args> +
-			COND_FIXED_STRING<includeTableName, " FROM " + TABLE_NAME<Table<name, C>>>
+			"SELECT " + COL_SELECT_NAME<C, Args> + " FROM " +
+			COND_FIXED_STRING<includeTableName, TABLE_NAME<Table<name, C>>>
 		> { };
 
 		template <SomeSelectArgsCollection Args, bool includeTableName, FixedString name,
 			SomeCol First, SomeCol... Rest>
 		struct table_to_select<Table<name, First, Rest...>, Args, includeTableName> : FixedStringConstant<
 			"SELECT " + COL_SELECT_NAME<First, Args> + ((", " + COL_SELECT_NAME<Rest, Args>) + ...) +
-			COND_FIXED_STRING<includeTableName, " FROM " + TABLE_NAME<Table<name, First, Rest...>>>
+			" FROM " + COND_FIXED_STRING<includeTableName, TABLE_NAME<Table<name, First, Rest...>>>
 		> { };
 	}
 
