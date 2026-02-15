@@ -226,4 +226,22 @@ namespace senc::utils
 	 * @brief Empty variation of FixedStringConstant.
 	 */
 	struct EmptyFixedStringConstant : FixedStringConstant<> { };
+
+	namespace sfinae
+	{
+		template <bool flag, FixedString fs>
+		struct cond_fixed_string : EmptyFixedStringConstant { };
+
+		template <FixedString fs>
+		struct cond_fixed_string<true, fs> : FixedStringConstant<fs> { };
+	}
+
+	/**
+	 * @var senc::utils::COND_FIXED_STRING
+	 * @brief Conditionally evaluates to a fixed string value.
+	 * @tparam flag Flag for conditional evaluation, true will retuls given string, false will result empty.
+	 * @tparam fs Fixed string value to evaluate to if `flag` is `true`.
+	 */
+	template <bool flag, FixedString fs>
+	constexpr FixedString COND_FIXED_STRING = sfinae::cond_fixed_string<flag, fs>::value;
 }
