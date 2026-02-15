@@ -161,14 +161,24 @@ namespace senc::utils::sqlite::schemas
 	{
 		// used to get column name as used in select
 		template <SomeCol C, SomeSelectArgsCollection Args,
-			bool renamed = SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>>
+			bool renamed = SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>,
+			bool aggr = SomeAggrSelectArg<SelectArgOfResCol<C, Args>>>
 		requires SomeSelectArg<SelectArgOfResCol<C, Args>>
 		struct col_select_name : col_full_name<C> { };
 
-		template <SomeCol C, SomeSelectArgsCollection Args>
+		// if renamed, form "as" expression using restored old name
+		template <SomeCol C, SomeSelectArgsCollection Args, bool aggr>
 		requires SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>
-		struct col_select_name<C, Args, true> : FixedStringConstant<
+		struct col_select_name<C, Args, true, aggr> : FixedStringConstant<
 			SELECT_ARG_NAME<SelectArgOfResCol<C, Args>> + " AS " + SELECT_ARG_AS<SelectArgOfResCol<C, Args>>
+		> { };
+
+		// if aggr (and not renamed), use aggr name
+		template <SomeCol C, SomeSelectArgsCollection Args>
+		requires (SomeAggrSelectArg<SelectArgOfResCol<C, Args>> &&
+			!SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>)
+		struct col_select_name<C, Args, false, true> : FixedStringConstant<
+			SELECT_ARG_NAME<SelectArgOfResCol<C, Args>>
 		> { };
 	}
 
