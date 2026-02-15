@@ -7,6 +7,7 @@
  *********************************************************************/
 
 #include <gtest/gtest.h>
+#include <filesystem>
 #include <optional>
 #include <tuple>
 
@@ -29,7 +30,10 @@ protected:
 
 	void SetUp() override
 	{
-		db.emplace("database.sqlite");
+		const std::string path = "database.sqlite";
+		if (std::filesystem::exists(path))
+			std::remove(path.c_str());
+		db.emplace(path);
 
 		db->insert<"Users">(1, "Avi",   22.0,  std::nullopt);
 		db->insert<"Users">(2, "Batya", 18.5,  senc::utils::Buffer{ 0xAA, 0xBB, 0xCC });
