@@ -137,6 +137,7 @@ namespace senc::utils::sqlite::schemas
 		// used to get column name as used in select
 		template <SomeCol C, SomeSelectArgsCollection Args,
 			bool renamed = SomeSelectArgWithAs<SelectArgOfCol<C, Args>>>
+		requires SomeSelectArg<SelectArgOfCol<C, Args>>
 		struct col_select_name : col_full_name<C> { };
 
 		template <SomeCol C, SomeSelectArgsCollection Args>
