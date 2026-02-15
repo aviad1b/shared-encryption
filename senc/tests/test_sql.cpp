@@ -426,3 +426,254 @@ TEST_F(SqlTest, TextImplicitConversion)
 	const std::string& raw = name;
 	EXPECT_EQ(raw, "Batya");
 }
+
+// ---------------------------------------------------------------------------
+// order_by
+// ---------------------------------------------------------------------------
+
+// ascending by age: Batya (18.5) before Avi (22.0)
+TEST_F(SqlTest, OrderByAgeAsc)
+{
+	std::vector<std::string> names;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"age", sql::Order::Asc>>()
+		>> [&names](sql::TextView name)
+		{
+			names.push_back(std::string(name.get()));
+		};
+	ASSERT_EQ(names.size(), 2u);
+	EXPECT_EQ(names[0], "Batya");
+	EXPECT_EQ(names[1], "Avi");
+}
+
+// descending by age: Avi (22.0) before Batya (18.5)
+TEST_F(SqlTest, OrderByAgeDesc)
+{
+	std::vector<std::string> names;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"age", sql::Order::Desc>>()
+		>> [&names](sql::TextView name)
+		{
+			names.push_back(std::string(name.get()));
+		};
+	ASSERT_EQ(names.size(), 2u);
+	EXPECT_EQ(names[0], "Avi");
+	EXPECT_EQ(names[1], "Batya");
+}
+
+// ascending by id: natural insertion order (1, 2)
+TEST_F(SqlTest, OrderByIdAsc)
+{
+	std::vector<std::int64_t> ids;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
+		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
+	ASSERT_EQ(ids.size(), 2u);
+	EXPECT_EQ(ids[0], 1);
+	EXPECT_EQ(ids[1], 2);
+}
+
+// descending by id: reversed order (2, 1)
+TEST_F(SqlTest, OrderByIdDesc)
+{
+	std::vector<std::int64_t> ids;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.order_by<sql::OrderArg<"id", sql::Order::Desc>>()
+		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
+	ASSERT_EQ(ids.size(), 2u);
+	EXPECT_EQ(ids[0], 2);
+	EXPECT_EQ(ids[1], 1);
+}
+
+// order_by combined with where - only one row remains, order has no effect on count
+TEST_F(SqlTest, OrderByWithWhere)
+{
+	std::vector<std::int64_t> ids;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.where("age > 20.0")
+		.order_by<sql::OrderArg<"age", sql::Order::Desc>>()
+		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
+	ASSERT_EQ(ids.size(), 1u);
+	EXPECT_EQ(ids[0], 1); // only Avi
+}
+
+// multiple order_by calls: primary sort by age asc, secondary by id desc
+// (both rows have distinct ages so secondary key is not exercised, but the
+//  chain must compile and produce the correct primary ordering)
+TEST_F(SqlTest, OrderByMultipleKeys)
+{
+	std::vector<std::string> names;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"age", sql::Order::Asc>>()
+		.order_by<sql::OrderArg<"id",  sql::Order::Desc>>()
+		>> [&names](sql::TextView name)
+		{
+			names.push_back(std::string(name.get()));
+		};
+	ASSERT_EQ(names.size(), 2u);
+	EXPECT_EQ(names[0], "Batya"); // age 18.5
+	EXPECT_EQ(names[1], "Avi");   // age 22.0
+}
+
+// ---------------------------------------------------------------------------
+// limit
+// ---------------------------------------------------------------------------
+
+// limit(1) returns exactly one row
+TEST_F(SqlTest, LimitOne)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.limit(1)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 1);
+}
+
+// limit(2) returns both rows (no truncation)
+TEST_F(SqlTest, LimitEqualsRowCount)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.limit(2)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 2);
+}
+
+// limit larger than row count returns all rows
+TEST_F(SqlTest, LimitExceedsRowCount)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.limit(100)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 2);
+}
+
+// limit(0) returns no rows
+TEST_F(SqlTest, LimitZero)
+{
+	bool called = false;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.limit(0)
+		>> [&called](sql::IntView) { called = true; };
+	EXPECT_FALSE(called);
+}
+
+// limit combined with order_by: first row in descending age order is Avi
+TEST_F(SqlTest, LimitWithOrderBy)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"age", sql::Order::Desc>>()
+		.limit(1)
+		>> name;
+	EXPECT_EQ(name.get(), "Avi");
+}
+
+// limit combined with where
+TEST_F(SqlTest, LimitWithWhere)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.where("age > 0")
+		.limit(1)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 1);
+}
+
+// ---------------------------------------------------------------------------
+// offset
+// ---------------------------------------------------------------------------
+
+// offset(0) is a no-op: both rows still returned
+TEST_F(SqlTest, OffsetZero)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.offset(0)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 2);
+}
+
+// offset(1) skips the first row, leaving one
+TEST_F(SqlTest, OffsetOne)
+{
+	int count = 0;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.offset(1)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 1);
+}
+
+// offset beyond row count yields no results
+TEST_F(SqlTest, OffsetBeyondRowCount)
+{
+	bool called = false;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.offset(100)
+		>> [&called](sql::IntView) { called = true; };
+	EXPECT_FALSE(called);
+}
+
+// offset(1) with order_by asc: skips Batya (18.5), delivers Avi (22.0)
+TEST_F(SqlTest, OffsetWithOrderBy)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"age", sql::Order::Asc>>()
+		.offset(1)
+		>> name;
+	EXPECT_EQ(name.get(), "Avi");
+}
+
+// ---------------------------------------------------------------------------
+// limit + offset combined
+// ---------------------------------------------------------------------------
+
+// limit(1) + offset(0): first row in default order -> Avi
+TEST_F(SqlTest, LimitOneOffsetZero)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
+		.limit(1)
+		.offset(0)
+		>> name;
+	EXPECT_EQ(name.get(), "Avi");
+}
+
+// limit(1) + offset(1): second row in ascending id order -> Batya
+TEST_F(SqlTest, LimitOneOffsetOne)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
+		.limit(1)
+		.offset(1)
+		>> name;
+	EXPECT_EQ(name.get(), "Batya");
+}
+
+// limit(1) + offset(1) + where that matches both rows: same second-row result
+TEST_F(SqlTest, LimitOffsetWithWhere)
+{
+	sql::Text name;
+	db->select<"Users", sql::SelectArg<"name">>()
+		.where("age > 0")
+		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
+		.limit(1)
+		.offset(1)
+		>> name;
+	EXPECT_EQ(name.get(), "Batya");
+}
+
+// offset past the limited window yields no rows
+TEST_F(SqlTest, LimitOffsetBothBeyondRows)
+{
+	bool called = false;
+	db->select<"Users", sql::SelectArg<"id">>()
+		.limit(1)
+		.offset(2)
+		>> [&called](sql::IntView) { called = true; };
+	EXPECT_FALSE(called);
+}
