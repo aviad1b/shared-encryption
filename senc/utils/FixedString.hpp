@@ -193,6 +193,15 @@ namespace senc::utils
 	template <typename Self>
 	concept NonEmptyFixedStringType = FixedStringType<Self> && !EmptyFixedStringType<Self>;
 
+	namespace sfinae
+	{
+		template <FixedString fs1, FixedString fs2>
+		struct is_same_fixed_string : std::false_type { };
+
+		template <FixedString fs>
+		struct is_same_fixed_string<fs, fs> : std::true_type { };
+	}
+
 	/**
 	 * @struct senc::utils::FixedStringConstant
 	 * @brief An STD-like FixedString value wrapper.
