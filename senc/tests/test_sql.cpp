@@ -684,3 +684,137 @@ TEST_F(SqlTest, LimitOffsetBothBeyondRows)
 		>> [&called](sql::IntView) { called = true; };
 	EXPECT_FALSE(called);
 }
+
+// ---------------------------------------------------------------------------
+// join
+// ---------------------------------------------------------------------------
+
+// join produces one row per matching pair: 2 Users x 1 FavNumber each = 2 rows
+TEST_F(SqlTest, JoinRowCount)
+{
+	int count = 0;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 2);
+}
+
+// Avi's favourite number is 434
+TEST_F(SqlTest, JoinSelectFavNumForAvi)
+{
+	sql::Int fav;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.where("name = 'Avi'")
+		>> fav;
+	EXPECT_EQ(fav.get(), 434);
+}
+
+// Batya's favourite number is 256
+TEST_F(SqlTest, JoinSelectFavNumForBatya)
+{
+	sql::Int fav;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.where("name = 'Batya'")
+		>> fav;
+	EXPECT_EQ(fav.get(), 256);
+}
+
+// select both name and fav_num via callback, verify each pair
+TEST_F(SqlTest, JoinSelectNameAndFavNumViaCallback)
+{
+	std::vector<std::pair<std::string, std::int64_t>> rows;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"name">, sql::SelectArg<"fav_num">>()
+		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
+		>> [&rows](sql::TextView name, sql::IntView fav)
+		{
+			rows.emplace_back(std::string(name.get()), fav.get());
+		};
+	ASSERT_EQ(rows.size(), 2u);
+	EXPECT_EQ(rows[0].first,  "Avi");   EXPECT_EQ(rows[0].second, 434);
+	EXPECT_EQ(rows[1].first,  "Batya"); EXPECT_EQ(rows[1].second, 256);
+}
+
+// join + where filters down to one pair
+TEST_F(SqlTest, JoinWhereFiltersToOneRow)
+{
+	int count = 0;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.where("fav_num > 300")
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 1); // only Avi (434)
+}
+
+// where with no matching join rows - callback should not fire
+TEST_F(SqlTest, JoinWhereNoMatchingRows)
+{
+	bool called = false;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.where("fav_num = 999")
+		>> [&called](sql::IntView) { called = true; };
+	EXPECT_FALSE(called);
+}
+
+// join + order_by fav_num asc: 256 (Batya) before 434 (Avi)
+TEST_F(SqlTest, JoinOrderByFavNumAsc)
+{
+	std::vector<std::int64_t> favs;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.order_by<sql::OrderArg<"fav_num", sql::Order::Asc>>()
+		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
+	ASSERT_EQ(favs.size(), 2u);
+	EXPECT_EQ(favs[0], 256);
+	EXPECT_EQ(favs[1], 434);
+}
+
+// join + order_by fav_num desc: 434 (Avi) before 256 (Batya)
+TEST_F(SqlTest, JoinOrderByFavNumDesc)
+{
+	std::vector<std::int64_t> favs;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.order_by<sql::OrderArg<"fav_num", sql::Order::Desc>>()
+		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
+	ASSERT_EQ(favs.size(), 2u);
+	EXPECT_EQ(favs[0], 434);
+	EXPECT_EQ(favs[1], 256);
+}
+
+// join + limit(1) returns exactly one row
+TEST_F(SqlTest, JoinLimit)
+{
+	int count = 0;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.limit(1)
+		>> [&count](sql::IntView) { ++count; };
+	EXPECT_EQ(count, 1);
+}
+
+// join + limit(1) + offset(1) skips first row, delivers second
+TEST_F(SqlTest, JoinLimitOffset)
+{
+	sql::Int fav;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::SelectArg<"fav_num">>()
+		.order_by<sql::OrderArg<"fav_num", sql::Order::Asc>>()
+		.limit(1)
+		.offset(1)
+		>> fav;
+	EXPECT_EQ(fav.get(), 434); // second in asc order
+}
+
+// join + aggregate: COUNT over the joined rows
+TEST_F(SqlTest, JoinAggregateCount)
+{
+	sql::Int count;
+	db->join<"Users", "FavNumbers", "id">()
+		.select<sql::AggrSelectArg<sql::Count<"fav_num">>>()
+		>> count;
+	EXPECT_EQ(count.get(), 2);
+}
