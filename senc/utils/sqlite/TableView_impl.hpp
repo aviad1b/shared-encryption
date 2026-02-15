@@ -70,12 +70,18 @@ namespace senc::utils::sqlite
 			);
 		
 		// otherwise, simply add select
-		Ret res = *this;
-		res._select = std::string(schemas::TABLE_TO_SELECT<
-			RetSchema,
-			SelectArgsCollection<Args...>>
+		return Ret(
+			_db,
+			std::string(schemas::TABLE_TO_SELECT<
+				RetSchema,
+				SelectArgsCollection<Args...>
+			>),
+			_where,
+			_orderBy,
+			_limit,
+			_offset,
+			_inner
 		);
-		return res;
 	}
 
 	template <schemas::SomeTable Schema>
