@@ -31,7 +31,7 @@ namespace senc::utils::sqlite
 		SQLiteException(std::string&& msg, const std::string& info): Base(std::move(msg), info) { }
 
 		SQLiteException(std::string&& msg, int code)
-			: Base(std::move(msg), "(code: " + std::to_string(code) + ")") { }
+			: Base(std::move(msg), "Error code " + std::to_string(code)) { }
 
 		SQLiteException(const Self&) = default;
 
