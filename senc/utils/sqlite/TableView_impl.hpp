@@ -60,7 +60,8 @@ namespace senc::utils::sqlite
 				_db,
 				std::string(schemas::TABLE_TO_SELECT<
 					RetSchema,
-					SelectArgsCollection<Args...>
+					SelectArgsCollection<Args...>,
+					false // disclude table name
 				>),
 				std::nullopt,
 				std::nullopt,
