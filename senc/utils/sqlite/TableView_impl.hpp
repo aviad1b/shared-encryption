@@ -58,7 +58,10 @@ namespace senc::utils::sqlite
 		if (_select.has_value())
 			return Ret(
 				_db,
-				std::nullopt,
+				std::string(schemas::TABLE_TO_SELECT<
+					RetSchema,
+					SelectArgsCollection<Args...>
+				>),
 				std::nullopt,
 				std::nullopt,
 				std::nullopt,
@@ -67,15 +70,12 @@ namespace senc::utils::sqlite
 			);
 		
 		// otherwise, simply add select
-		return Ret(
-			_db,
-			std::string(schemas::TABLE_TO_SELECT<RetSchema, SelectArgsCollection<Args...>>),
-			std::nullopt,
-			std::nullopt,
-			std::nullopt,
-			std::nullopt,
-			std::nullopt
+		Ret res = *this;
+		res._select = std::string(schemas::TABLE_TO_SELECT<
+			RetSchema,
+			SelectArgsCollection<Args...>>
 		);
+		return res;
 	}
 
 	template <schemas::SomeTable Schema>
