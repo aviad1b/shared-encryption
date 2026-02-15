@@ -16,32 +16,6 @@ namespace senc::utils::sqlite::schemas
 {
 	namespace sfinae
 	{
-		// used for converting table schema to a select query
-		template <SomeTable T>
-		struct table_to_select { };
-
-		template <FixedString name, SomeCol C>
-		struct table_to_select<Table<name, C>> : FixedStringConstant<
-			"SELECT " + COL_FULL_NAME<C> + " FROM " + TABLE_NAME<Table<name, C>>
-		> { };
-
-		template <FixedString name, SomeCol First, SomeCol... Rest>
-		struct table_to_select<Table<name, First, Rest...>> : FixedStringConstant<
-			"SELECT " + COL_FULL_NAME<First> + ((", " + COL_FULL_NAME<Rest>) + ...) +
-			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
-		> { };
-	}
-
-	/**
-	 * @var senc::utils::sqlite::schemas::TableToSelect
-	 * @brief Converts table schema to a matching select query.
-	 * @tparam T Table schema.
-	 */
-	template <SomeTable T>
-	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T>::value;
-
-	namespace sfinae
-	{
 		template <SomeCol C, SomeSelectArg Arg>
 		struct col_matches_select_arg : std::conjunction<
 			std::disjunction<
@@ -134,4 +108,30 @@ namespace senc::utils::sqlite::schemas
 	template <SomeTable T, SomeSelectArg... Args>
 	requires Selectable<T, Args...>
 	using Select = typename sfinae::select<T, Args...>::type;
+
+	namespace sfinae
+	{
+		// used for converting table schema to a select query
+		template <SomeTable T>
+		struct table_to_select { };
+
+		template <FixedString name, SomeCol C>
+		struct table_to_select<Table<name, C>> : FixedStringConstant<
+			"SELECT " + COL_FULL_NAME<C> + " FROM " + TABLE_NAME<Table<name, C>>
+		> { };
+
+		template <FixedString name, SomeCol First, SomeCol... Rest>
+		struct table_to_select<Table<name, First, Rest...>> : FixedStringConstant<
+			"SELECT " + COL_FULL_NAME<First> + ((", " + COL_FULL_NAME<Rest>) + ...) +
+			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
+		> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::schemas::TableToSelect
+	 * @brief Converts table schema to a matching select query.
+	 * @tparam T Table schema.
+	 */
+	template <SomeTable T>
+	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T>::value;
 }
