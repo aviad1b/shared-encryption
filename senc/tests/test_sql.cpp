@@ -25,6 +25,10 @@ protected:
 			sql::schemas::Col       <"name", sql::Text               >,
 			sql::schemas::Col       <"age" , sql::Real               >,
 			sql::schemas::Col       <"data", sql::Nullable<sql::Blob>>
+		>,
+		sql::schemas::Table<"FavNumbers",
+			sql::schemas::ForeignKey<"user_id", sql::Int, "Users", "id">,
+			sql::schemas::Col       <"fav_num", sql::Int               >
 		>
 	>>> db;
 
@@ -37,6 +41,9 @@ protected:
 
 		db->insert<"Users">(1, "Avi",   22.0,  std::nullopt);
 		db->insert<"Users">(2, "Batya", 18.5,  senc::utils::Buffer{ 0xAA, 0xBB, 0xCC });
+
+		db->insert<"FavNumbers">(1, 434);
+		db->insert<"FavNumbers">(2, 256);
 	}
 
 	void TearDown() override
