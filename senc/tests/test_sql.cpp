@@ -379,7 +379,7 @@ TEST_F(SqlTest, InsertIncreasesCount)
 	sql::Int before;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> before;
 
-	db->insert<"Users">(5, "Eve", 19.0, std::nullopt);
+	db->insert<"Users">(5, "Hadas", 19.0, std::nullopt);
 
 	sql::Int after;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
