@@ -26,8 +26,9 @@ namespace senc::utils::sqlite
 	inline Database<Schema>::Database(const std::string& path)
 		: _path(path), _db(nullptr)
 	{
-		if (SQLITE_OK != sqlite3_open(_path.c_str(), &_db))
-			throw SQLiteException("Failed to open database " + _path);
+		int code = sqlite3_open(_path.c_str(), &_db);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to open database " + _path, code);
 
 		DatabaseUtils(Schema{}).create_tables_if_not_exist(_db);
 	}
@@ -60,8 +61,9 @@ namespace senc::utils::sqlite
 		sql += ");";
 
 		sqlite3_stmt* stmt = nullptr;
-		if (SQLITE_OK != sqlite3_prepare_v2(_db, sql.c_str(), -1, &stmt, nullptr))
-			throw SQLiteException("Failed to run statement: " + sql);
+		int code = sqlite3_prepare_v2(_db, sql.c_str(), -1, &stmt, nullptr);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to run statement: " + sql, code);
 
 		// bind parameters
 		ParamUtils::bind_all(
@@ -69,8 +71,9 @@ namespace senc::utils::sqlite
 			stmt, values...
 		);
 
-		if (SQLITE_DONE != sqlite3_step(stmt))
-			throw SQLiteException("Failed to insert into table " + std::string(tableName));
+		code = sqlite3_step(stmt);
+		if (SQLITE_DONE != code)
+			throw SQLiteException("Failed to insert into table " + std::string(tableName), code);
 
 		// cleanup
 		sqlite3_finalize(stmt);
@@ -83,8 +86,9 @@ namespace senc::utils::sqlite
 	{
 		const std::string sql = "DELETE FROM " + std::string(tableName) +
 			" WHERE " + where;
-		if (SQLITE_OK != sqlite3_exec(_db, sql.c_str(), nullptr, nullptr, nullptr))
-			throw SQLiteException("Failed to remove");
+		int code = sqlite3_exec(_db, sql.c_str(), nullptr, nullptr, nullptr);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to remove", code);
 	}
 
 	template <schemas::SomeDB Schema>

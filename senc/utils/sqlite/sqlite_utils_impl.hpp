@@ -16,8 +16,9 @@ namespace senc::utils::sqlite
 		const std::string sql = "BEGIN;" +
 			(TableUtils(Ts{}).get_create_statement() + ...) +
 			"COMMIT;";
-		if (SQLITE_OK != sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr))
-			throw SQLiteException("Failed to create tables");
+		int code = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to create tables", code);
 	}
 
 	template <FixedString name, schemas::SomeCol... Cs>
@@ -29,8 +30,9 @@ namespace senc::utils::sqlite
 	{
 		sqlite3_stmt* stmt = nullptr;
 
-		if (SQLITE_OK != sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr))
-			throw SQLiteException("Failed to run statement: " + sql);
+		int code = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to run statement: " + sql, code);
 
 		// cleanup of `stmt` at scope exit
 		AtScopeExit cleanup([stmt]() { sqlite3_finalize(stmt); });
@@ -129,7 +131,7 @@ namespace senc::utils::sqlite
 		}
 
 		if (SQLITE_OK != status)
-			throw SQLiteException("Failed to bind parameter");
+			throw SQLiteException("Failed to bind parameter", status);
 	}
 
 	template <std::size_t... is, Param... Ps>

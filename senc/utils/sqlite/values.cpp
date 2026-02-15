@@ -53,8 +53,9 @@ namespace senc::utils::sqlite
 
 	void Null::bind(sqlite3_stmt* stmt, int index) const
 	{
-		if (SQLITE_OK != sqlite3_bind_null(stmt, index))
-			throw SQLiteException("Failed to bind value");
+		int code = sqlite3_bind_null(stmt, index);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind value", code);
 	}
 
 	IntView::IntView(ValueViewData&& data) : _data(std::move(data))
@@ -100,8 +101,9 @@ namespace senc::utils::sqlite
 
 	void Int::bind(sqlite3_stmt* stmt, int index) const
 	{
-		if (SQLITE_OK != sqlite3_bind_int64(stmt, index, _value))
-			throw SQLiteException("Failed to bind value");
+		int code = sqlite3_bind_int64(stmt, index, _value);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind value", code);
 	}
 
 	RealView::RealView(ValueViewData&& data) : _data(std::move(data))
@@ -147,8 +149,9 @@ namespace senc::utils::sqlite
 
 	void Real::bind(sqlite3_stmt* stmt, int index) const
 	{
-		if (SQLITE_OK != sqlite3_bind_double(stmt, index, _value))
-			throw SQLiteException("Failed to bind value");
+		int code = sqlite3_bind_double(stmt, index, _value);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind value", code);
 	}
 
 	TextView::TextView(ValueViewData&& data) : _data(std::move(data))
@@ -198,11 +201,13 @@ namespace senc::utils::sqlite
 
 	void Text::bind(sqlite3_stmt* stmt, int index) const
 	{
-		if (SQLITE_OK != sqlite3_bind_text(
+		int code = sqlite3_bind_text(
 			stmt, index,
 			_value.c_str(), static_cast<int>(_value.length()),
 			SQLITE_TRANSIENT // copy
-		)) throw SQLiteException("Failed to bind value");
+		);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind value", code);
 	}
 
 	BlobView::BlobView(ValueViewData&& data) : _data(std::move(data))
@@ -255,10 +260,12 @@ namespace senc::utils::sqlite
 
 	void Blob::bind(sqlite3_stmt* stmt, int index) const
 	{
-		if (SQLITE_OK != sqlite3_bind_blob(
+		int code = sqlite3_bind_blob(
 			stmt, index,
 			_value.data(), static_cast<int>(_value.size()),
 			SQLITE_TRANSIENT // copy
-		)) throw SQLiteException("Failed to bind value");
+		);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind value");
 	}
 }
