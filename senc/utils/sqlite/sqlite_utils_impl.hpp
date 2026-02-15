@@ -110,7 +110,7 @@ namespace senc::utils::sqlite
 	template <std::size_t i, Param P>
 	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
 	{
-		constexpr int index = static_cast<int>(i);
+		constexpr int index = static_cast<int>(i) + 1; // sql starts counting params from one
 		int status = SQLITE_FAIL;
 		if constexpr (NullParam<P>)
 			status = sqlite3_bind_null(stmt, index);
