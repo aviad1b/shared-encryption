@@ -194,7 +194,7 @@ namespace senc::utils::sqlite::schemas
 
 		template <SomeSelectArgsCollection Args, FixedString name, SomeCol First, SomeCol... Rest>
 		struct table_to_select<Table<name, First, Rest...>, Args> : FixedStringConstant<
-			"SELECT " + COL_SELECT_NAME<First, Args> + ((", " + COL_FULL_NAME<Rest>) + ...) +
+			"SELECT " + COL_SELECT_NAME<First, Args> + ((", " + COL_SELECT_NAME<Rest, Args>) + ...) +
 			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
 		> { };
 	}
