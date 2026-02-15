@@ -73,9 +73,15 @@ namespace senc::utils::sqlite
 		 */
 		template <std::size_t... is>
 		static void execute_util(
-			std::index_sequence<is...> dummy,
+			std::index_sequence<is...>,
 			schemas::TableCallable<schemas::Table<name, Cs...>> auto&& callback,
-			sqlite3_stmt* stmt);
+			sqlite3_stmt* stmt)
+		{
+			// for each column C with index i,
+			// construct a view of that column from stmt and i
+			callback(schemas::ColView<Cs>(stmt, is)...);
+			// NOTE: clang requires this to be defined here (and not in impl)
+		}
 
 		/**
 		 * @brief Gets SQL create statement for table.
