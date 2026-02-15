@@ -16,6 +16,7 @@ namespace senc::utils::sqlite::schemas
 {
 	namespace sfinae
 	{
+		// used for checking if a source column matches a select arg
 		template <SomeCol C, SomeSelectArg Arg>
 		struct col_matches_select_arg : std::conjunction<
 			std::disjunction<
@@ -29,16 +30,40 @@ namespace senc::utils::sqlite::schemas
 			>, // if both have owner, should be same; otherwise, any owner is okay
 			utils::sfinae::is_same_fixed_string<COL_NAME<C>, SELECT_ARG_UNDERLYING_NAME<Arg>> // in addition, check same name
 		> { };
+
+		// used for checking if a destination column matches a select arg
+		template <SomeCol C, SomeSelectArg Arg>
+		struct res_col_matches_select_arg : std::disjunction<
+			// either arg has "as" and column fits this "as",
+			// or arg does not have "as" and column fits as a source column
+			std::conjunction<
+				sqlite::sfinae::some_select_arg_with_as<Arg>,
+				utils::sfinae::is_same_fixed_string<SELECT_ARG_AS<Arg>, COL_NAME<C>>
+			>,
+			std::conjunction<
+				std::negation<sqlite::sfinae::some_select_arg_with_as<Arg>>,
+				col_matches_select_arg<C, Arg>
+			>
+		> { };
 	}
 
 	/**
-	 * @var senc::utils::Sqlite::schemas::COL_MATCHES_SELECT_ARG
+	 * @var senc::utils::sqlite::schemas::COL_MATCHES_SELECT_ARG
 	 * @brief Checks if a given column schema should be captured by a given select argument.
 	 * @tparam C Column schema.
 	 * @tparam Arg Select argument.
 	 */
 	template <SomeCol C, SomeSelectArg Arg>
 	constexpr bool COL_MATCHES_SELECT_ARG = sfinae::col_matches_select_arg<C, Arg>::value;
+
+	/**
+	 * @var senc::utils::sqlite::schemas::RES_COL_MATCHES_SELECT_ARG
+	 * @brief Checks if a given select result column schema should be captured by a given select argument.
+	 * @tparam C Column schema.
+	 * @tparam Arg Select argument.
+	 */
+	template <SomeCol C, SomeSelectArg Arg>
+	constexpr bool RES_COL_MATCHES_SELECT_ARG = sfinae::res_col_matches_select_arg<C, Arg>::value;
 
 	namespace sfinae
 	{
@@ -111,39 +136,39 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
-		// used for getting select arg that's fitting for a column
+		// used for getting select arg that's fitting for a column of the result schema
 		template <SomeCol C, SomeSelectArgsCollection Args>
-		struct select_arg_of_col { using type = void; };
+		struct select_arg_of_res_col { using type = void; };
 
 		template <SomeCol C, SomeSelectArg First, SomeSelectArg... Rest>
-		struct select_arg_of_col<C, SelectArgsCollection<First, Rest...>> : std::conditional<
-			COL_MATCHES_SELECT_ARG<C, First>,
+		struct select_arg_of_res_col<C, SelectArgsCollection<First, Rest...>> : std::conditional<
+			RES_COL_MATCHES_SELECT_ARG<C, First>,
 			First,
-			typename select_arg_of_col<C, SelectArgsCollection<Rest...>>::type
+			typename select_arg_of_res_col<C, SelectArgsCollection<Rest...>>::type
 		> { };
 	}
 
 	/**
-	 * @typedef senc::utils::sqlite::schemas::SelectArgOfCol
-	 * @brief Gets select arg that's fitting for a column.
+	 * @typedef senc::utils::sqlite::schemas::SelectArgOfResCol
+	 * @brief Gets select arg that's fitting for a column of the result schema.
 	 * @tparam C Column schema.
 	 * @tparam Args Select args (collection).
 	 */
 	template <SomeCol C, SomeSelectArgsCollection Args>
-	using SelectArgOfCol = typename sfinae::select_arg_of_col<C, Args>::type;
+	using SelectArgOfResCol = typename sfinae::select_arg_of_res_col<C, Args>::type;
 
 	namespace sfinae
 	{
 		// used to get column name as used in select
 		template <SomeCol C, SomeSelectArgsCollection Args,
-			bool renamed = SomeSelectArgWithAs<SelectArgOfCol<C, Args>>>
-		requires SomeSelectArg<SelectArgOfCol<C, Args>>
+			bool renamed = SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>>
+		requires SomeSelectArg<SelectArgOfResCol<C, Args>>
 		struct col_select_name : col_full_name<C> { };
 
 		template <SomeCol C, SomeSelectArgsCollection Args>
-		requires SomeSelectArgWithAs<SelectArgOfCol<C, Args>>
+		requires SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>
 		struct col_select_name<C, Args, true> : FixedStringConstant<
-			COL_FULL_NAME<C> + " AS " + SELECT_ARG_AS<SelectArgOfCol<C, Args>>
+			COL_FULL_NAME<C> + " AS " + SELECT_ARG_AS<SelectArgOfResCol<C, Args>>
 		> { };
 	}
 
