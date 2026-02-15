@@ -40,6 +40,23 @@ namespace senc::utils::sqlite::schemas
 	template <SomeTable T>
 	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T>::value;
 
+	namespace sfinae
+	{
+		template <SomeCol C, SomeSelectArg Arg>
+		struct col_matches_select_arg : std::conjunction<
+			std::disjunction<
+				std::negation<some_owned_col<C>>,
+				std::negation<sqlite::sfinae::some_select_arg_with_owner<Arg>>,
+				std::conjunction<
+					some_owned_col<C>,
+					sqlite::sfinae::some_select_arg_with_owner<Arg>,
+					utils::sfinae::is_same_fixed_string<COL_OWNER<C>, SELECT_ARG_OWNER<Arg>>
+				>
+			>, // if both have owner, should be same; otherwise, any owner is okay
+			utils::sfinae::is_same_fixed_string<COL_NAME<C>, SELECT_ARG_UNDERLYING_NAME<Arg>> // in addition, check same name
+		> { };
+	}
+
 	/**
 	 * @var senc::utils::Sqlite::schemas::COL_MATCHES_SELECT_ARG
 	 * @brief Checks if a given column schema should be captured by a given select argument.
@@ -47,20 +64,10 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam Arg Select argument.
 	 */
 	template <SomeCol C, SomeSelectArg Arg>
-	constexpr bool COL_MATCHES_SELECT_ARG =
-		(
-			!SomeOwnedCol<C> ||
-			!SomeSelectArgWithOwner<Arg> ||
-			(SomeOwnedCol<C> && SomeSelectArgWithOwner<Arg> &&
-				COL_OWNER<C> == SELECT_ARG_OWNER<Arg>)
-		) && // if both have owner, should be same; otherwise, any owner is okay
-		(COL_NAME<C> == SELECT_ARG_UNDERLYING_NAME<Arg>); // in addition, check same name
+	constexpr bool COL_MATCHES_SELECT_ARG = sfinae::col_matches_select_arg<C, Arg>::value;
 
 	namespace sfinae
 	{
-		template <SomeCol C, SomeSelectArg Arg>
-		struct col_matches_select_arg : std::bool_constant<COL_MATCHES_SELECT_ARG<C, Arg>> { };
-
 		// used to check if a table has a column matching a given select arg
 		template <SomeTable T, SomeSelectArg Arg>
 		struct table_has_select_col : std::false_type { };
