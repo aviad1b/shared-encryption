@@ -194,18 +194,20 @@ namespace senc::utils::sqlite::schemas
 	namespace sfinae
 	{
 		// used for converting table schema to a select query
-		template <SomeTable T, SomeSelectArgsCollection Args>
+		template <SomeTable T, SomeSelectArgsCollection Args, bool includeTableName = true>
 		struct table_to_select { };
 
-		template <SomeSelectArgsCollection Args, FixedString name, SomeCol C>
-		struct table_to_select<Table<name, C>, Args> : FixedStringConstant<
-			"SELECT " + COL_SELECT_NAME<C, Args> + " FROM " + TABLE_NAME<Table<name, C>>
+		template <SomeSelectArgsCollection Args, bool includeTableName, FixedString name, SomeCol C>
+		struct table_to_select<Table<name, C>, Args, includeTableName> : FixedStringConstant<
+			"SELECT " + COL_SELECT_NAME<C, Args> +
+			COND_FIXED_STRING<includeTableName, " FROM " + TABLE_NAME<Table<name, C>>>
 		> { };
 
-		template <SomeSelectArgsCollection Args, FixedString name, SomeCol First, SomeCol... Rest>
-		struct table_to_select<Table<name, First, Rest...>, Args> : FixedStringConstant<
+		template <SomeSelectArgsCollection Args, bool includeTableName, FixedString name,
+			SomeCol First, SomeCol... Rest>
+		struct table_to_select<Table<name, First, Rest...>, Args, includeTableName> : FixedStringConstant<
 			"SELECT " + COL_SELECT_NAME<First, Args> + ((", " + COL_SELECT_NAME<Rest, Args>) + ...) +
-			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
+			COND_FIXED_STRING<includeTableName, " FROM " + TABLE_NAME<Table<name, First, Rest...>>>
 		> { };
 	}
 
@@ -214,7 +216,8 @@ namespace senc::utils::sqlite::schemas
 	 * @brief Converts table schema to a matching select query.
 	 * @tparam T Table schema.
 	 * @tparam Args Select args (collection).
+	 * @tparam includeTableName Whether or not should include table name ("from").
 	 */
-	template <SomeTable T, SomeSelectArgsCollection Args>
-	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T, Args>::value;
+	template <SomeTable T, SomeSelectArgsCollection Args, bool includeTableName = true>
+	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T, Args, includeTableName>::value;
 }
