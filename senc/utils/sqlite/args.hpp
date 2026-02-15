@@ -261,6 +261,14 @@ namespace senc::utils::sqlite
 	constexpr FixedString SELECT_ARG_AS = Arg::AS;
 
 	/**
+	 * @struct senc::utils::Sqlite::SelectArgsCollection
+	 * @brief Used to hold a collection of select args.
+	 * @tparam Args Select args.
+	 */
+	template <SomeSelectArg... Args>
+	struct SelectArgsCollection { };
+
+	/**
 	 * @enum senc::utils::sqlite::Order
 	 * @brief Represents SQL ordering (ascending/descending).
 	 */
