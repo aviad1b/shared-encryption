@@ -105,7 +105,13 @@ namespace senc::utils::sqlite
 		return TableView<schemas::Select<
 			schemas::DBTable<Schema, tableName>,
 			Args...
-		>>(_db);
+		>>(
+			_db,
+			std::string(schemas::TABLE_TO_SELECT<
+				schemas::DBTable<Schema, tableName>,
+				SelectArgsCollection<Args...>
+			>)
+		);
 	}
 
 	template <schemas::SomeDB Schema>

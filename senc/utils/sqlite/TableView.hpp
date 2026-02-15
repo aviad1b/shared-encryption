@@ -42,8 +42,9 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Constructs a table view form native sqlite3 pointer.
 		 * @param db Native sqlite3 pointer.
+		 * @param select Select string constructed from original schema (moved).
 		 */
-		explicit TableView(sqlite3* db);
+		explicit TableView(sqlite3* db, std::string&& select);
 
 		/**
 		 * @brief Constructs a table view from native sqlite3 pointer and an inner query.

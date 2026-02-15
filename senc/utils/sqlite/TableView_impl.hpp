@@ -23,8 +23,8 @@ namespace senc::utils::sqlite
 	class ColUtils;
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::TableView(sqlite3* db)
-		: _db(db), _select(schemas::TABLE_TO_SELECT<Schema>) { }
+	inline TableView<Schema>::TableView(sqlite3* db, std::string&& select)
+		: _db(db), _select(std::move(select)) { }
 
 	template <schemas::SomeTable Schema>
 	inline TableView<Schema>::TableView(
@@ -69,7 +69,7 @@ namespace senc::utils::sqlite
 		// otherwise, simply add select
 		return Ret(
 			_db,
-			std::string(schemas::TABLE_TO_SELECT<RetSchema>),
+			std::string(schemas::TABLE_TO_SELECT<Schema, SelectArgsCollection<Args...>>),
 			std::nullopt,
 			std::nullopt,
 			std::nullopt,

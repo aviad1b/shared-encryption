@@ -111,18 +111,64 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
+		// used for getting select arg that's fitting for a column
+		template <SomeCol C, SomeSelectArgsCollection Args>
+		struct select_arg_of_col { using type = void; };
+
+		template <SomeCol C, SomeSelectArg First, SomeSelectArg... Rest>
+		struct select_arg_of_col<C, SelectArgsCollection<First, Rest...>> : std::conditional<
+			COL_MATCHES_SELECT_ARG<C, First>,
+			First,
+			typename select_arg_of_col<C, SelectArgsCollection<Rest...>>::type
+		> { };
+	}
+
+	/**
+	 * @typedef senc::utils::sqlite::schemas::SelectArgOfCol
+	 * @brief Gets select arg that's fitting for a column.
+	 * @tparam C Column schema.
+	 * @tparam Args Select args (collection).
+	 */
+	template <SomeCol C, SomeSelectArgsCollection Args>
+	using SelectArgOfCol = typename sfinae::select_arg_of_col<C, Args>::type;
+
+	namespace sfinae
+	{
+		// used to get column name as used in select
+		template <SomeCol C, SomeSelectArgsCollection Args,
+			bool renamed = SomeSelectArgWithAs<SelectArgOfCol<C, Args>>>
+		struct col_select_name : col_full_name<C> { };
+
+		template <SomeCol C, SomeSelectArgsCollection Args>
+		requires SomeSelectArgWithAs<SelectArgOfCol<C, Args>>
+		struct col_select_name<C, Args, true> : FixedStringConstant<
+			COL_FULL_NAME<C> + " AS " + SELECT_ARG_AS<SelectArgOfCol<C, Args>>
+		> { };
+	}
+
+	/**
+	 * @var senc::utils::sqlite::schemas::COL_SELECT_NAME
+	 * @brief Gets column name as used in select.
+	 * @tparam C Column schema.
+	 * @tparam Args Select args (collection).
+	 */
+	template <SomeCol C, SomeSelectArgsCollection Args>
+	constexpr FixedString COL_SELECT_NAME = sfinae::col_select_name<C, Args>::value;
+
+	namespace sfinae
+	{
 		// used for converting table schema to a select query
-		template <SomeTable T>
+		template <SomeTable T, SomeSelectArgsCollection Args>
 		struct table_to_select { };
 
-		template <FixedString name, SomeCol C>
-		struct table_to_select<Table<name, C>> : FixedStringConstant<
-			"SELECT " + COL_FULL_NAME<C> + " FROM " + TABLE_NAME<Table<name, C>>
+		template <SomeSelectArgsCollection Args, FixedString name, SomeCol C>
+		struct table_to_select<Table<name, C>, Args> : FixedStringConstant<
+			"SELECT " + COL_SELECT_NAME<C, Args> + " FROM " + TABLE_NAME<Table<name, C>>
 		> { };
 
-		template <FixedString name, SomeCol First, SomeCol... Rest>
-		struct table_to_select<Table<name, First, Rest...>> : FixedStringConstant<
-			"SELECT " + COL_FULL_NAME<First> + ((", " + COL_FULL_NAME<Rest>) + ...) +
+		template <SomeSelectArgsCollection Args, FixedString name, SomeCol First, SomeCol... Rest>
+		struct table_to_select<Table<name, First, Rest...>, Args> : FixedStringConstant<
+			"SELECT " + COL_SELECT_NAME<First, Args> + ((", " + COL_FULL_NAME<Rest>) + ...) +
 			" FROM " + TABLE_NAME<Table<name, First, Rest...>>
 		> { };
 	}
@@ -131,7 +177,8 @@ namespace senc::utils::sqlite::schemas
 	 * @var senc::utils::sqlite::schemas::TableToSelect
 	 * @brief Converts table schema to a matching select query.
 	 * @tparam T Table schema.
+	 * @tparam Args Select args (collection).
 	 */
-	template <SomeTable T>
-	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T>::value;
+	template <SomeTable T, SomeSelectArgsCollection Args>
+	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T, Args>::value;
 }
