@@ -193,7 +193,12 @@ namespace senc::utils::sqlite
 			res += " LIMIT " + std::to_string(*_limit);
 
 		if (_offset.has_value())
+		{
+			// offset without limit is invalid, if has offset but not limit use limit -1 (no limit)
+			if (!_limit.has_value())
+				res += " LIMIT -1";
 			res += " OFFSET " + std::to_string(*_offset);
+		}
 
 		return res;
 	}
