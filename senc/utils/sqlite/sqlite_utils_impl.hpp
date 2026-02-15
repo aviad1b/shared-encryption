@@ -100,10 +100,12 @@ namespace senc::utils::sqlite
 	inline std::string ColUtils<C>::get_additional_constraints()
 	{
 		if constexpr (schemas::SomeForeignKey<C>)
-			return "FOREIGN KEY (" + schemas::COL_NAME<C> + ") REFERENCES " +
+			return std::string(
+				"FOREIGN KEY (" + schemas::COL_NAME<C> + ") REFERENCES " +
 				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
 				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
-				") ON DELETE CASCADE ON UPDATE NO ACTION,";
+				") ON DELETE CASCADE ON UPDATE NO ACTION,"
+			);
 		else return "";
 	}
 
