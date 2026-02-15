@@ -168,7 +168,7 @@ namespace senc::utils::sqlite::schemas
 		template <SomeCol C, SomeSelectArgsCollection Args>
 		requires SomeSelectArgWithAs<SelectArgOfResCol<C, Args>>
 		struct col_select_name<C, Args, true> : FixedStringConstant<
-			COL_FULL_NAME<C> + " AS " + SELECT_ARG_AS<SelectArgOfResCol<C, Args>>
+			SELECT_ARG_NAME<SelectArgOfResCol<C, Args>> + " AS " + SELECT_ARG_AS<SelectArgOfResCol<C, Args>>
 		> { };
 	}
 
