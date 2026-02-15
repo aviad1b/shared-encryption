@@ -346,20 +346,20 @@ TEST_F(SqlTest, ChainedSelectNarrowsColumns)
 
 TEST_F(SqlTest, InsertAndSelectRoundTrip)
 {
-	db->insert<"Users">(3, "Carol", 30.5, std::nullopt);
+	db->insert<"Users">(3, "Gal", 30.5, std::nullopt);
 
 	sql::Text name;
 	db->select<"Users", sql::SelectArg<"name">>()
 		.where("id = 3")
 		>> name;
-	EXPECT_EQ(name.get(), "Carol");
+	EXPECT_EQ(name.get(), "Gal");
 
 	db->remove<"Users">("id = 3");
 }
 
 TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 {
-	db->insert<"Users">(4, "Dan", 25.0, senc::utils::Buffer{ 0x01, 0x02 });
+	db->insert<"Users">(4, "Dani", 25.0, senc::utils::Buffer{ 0x01, 0x02 });
 
 	sql::Nullable<sql::Blob> data;
 	db->select<"Users", sql::SelectArg<"data">>()
