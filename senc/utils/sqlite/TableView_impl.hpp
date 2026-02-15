@@ -69,7 +69,7 @@ namespace senc::utils::sqlite
 		// otherwise, simply add select
 		return Ret(
 			_db,
-			std::string(schemas::TABLE_TO_SELECT<Schema, SelectArgsCollection<Args...>>),
+			std::string(schemas::TABLE_TO_SELECT<RetSchema, SelectArgsCollection<Args...>>),
 			std::nullopt,
 			std::nullopt,
 			std::nullopt,

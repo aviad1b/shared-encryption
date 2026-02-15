@@ -102,13 +102,14 @@ namespace senc::utils::sqlite
 		Args...
 	>> Database<Schema>::select()
 	{
-		return TableView<schemas::Select<
+		using RetSchema = schemas::Select<
 			schemas::DBTable<Schema, tableName>,
 			Args...
-		>>(
+		>;
+		return TableView<RetSchema>(
 			_db,
 			std::string(schemas::TABLE_TO_SELECT<
-				schemas::DBTable<Schema, tableName>,
+				RetSchema,
 				SelectArgsCollection<Args...>
 			>)
 		);
