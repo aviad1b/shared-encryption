@@ -97,11 +97,14 @@ namespace senc::utils::sqlite::schemas
 	namespace sfinae
 	{
 		// used for checking if a DB schema has a table and column with specific names
-		template <SomeDB D, FixedString tableName, FixedString colName>
+		template <SomeDB D, FixedString tableName, FixedString colName,
+			bool hasTable = DBWithTable<D, tableName>>
 		struct db_has_table_with_col : std::false_type { };
 
 		template <FixedString tableName, FixedString colName, DBWithTable<tableName> D>
-		struct db_has_table_with_col<D, tableName, colName> : std::bool_constant<TableWithCol<DBTable<D, tableName>, colName>> { };
+		struct db_has_table_with_col<D, tableName, colName, true> : std::bool_constant<
+			TableWithCol<DBTable<D, tableName>, colName>
+		> { };
 	}
 
 	/**
