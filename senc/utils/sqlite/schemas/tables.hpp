@@ -130,7 +130,6 @@ namespace senc::utils::sqlite::schemas
 	{
 		// used for retrieving table column by name
 		template <SomeTable T, FixedString colName>
-		requires TableWithCol<T, colName>
 		struct table_col { };
 
 		// if first has name, return. otherwise, continue
