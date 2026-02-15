@@ -41,7 +41,8 @@ namespace senc::utils
 		 */
 		constexpr FixedString(const char(&str)[n])
 		{
-			std::copy_n(str, n, value);
+			for (std::size_t i = 0; i < n; ++i)
+				value[i] = str[i];
 		}
 
 		/**
@@ -50,7 +51,8 @@ namespace senc::utils
 		 */
 		constexpr FixedString(const FixedString<n>& other)
 		{
-			std::copy_n(other.value, n, value);
+			for (std::size_t i = 0; i < n; ++i)
+				value[i] = other.value[i];
 		}
 
 		/**
@@ -135,8 +137,10 @@ namespace senc::utils
 		constexpr auto operator+(const FixedString<m>& other) const
 		{
 			FixedString<LEN + m> res{};
-			std::copy_n(value, LEN, res.value);
-			std::copy_n(other.value, m, res.value + LEN);
+			for (std::size_t i = 0; i < LEN; ++i)
+				res.value[i] = value[i];
+			for (std::size_t i = 0; i < m; ++i)
+				res.value[LEN + i] = other.value[i];
 			return res;
 		}
 
