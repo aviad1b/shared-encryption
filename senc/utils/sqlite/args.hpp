@@ -261,12 +261,29 @@ namespace senc::utils::sqlite
 	constexpr FixedString SELECT_ARG_AS = Arg::AS;
 
 	/**
-	 * @struct senc::utils::Sqlite::SelectArgsCollection
+	 * @struct senc::utils::sqlite::SelectArgsCollection
 	 * @brief Used to hold a collection of select args.
 	 * @tparam Args Select args.
 	 */
 	template <SomeSelectArg... Args>
 	struct SelectArgsCollection { };
+
+	namespace sfinae
+	{
+		template <typename T>
+		struct some_select_args_collection : std::false_type { };
+
+		template <SomeSelectArg... Args>
+		struct some_select_args_collection<SelectArgsCollection<Args...>> : std::true_type { };
+	}
+
+	/**
+	 * @concept senc::utils::sqlite::SomeSelectArgsCollection
+	 * @brief Looks for any instantation of `SelectArgsCollection`.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept SomeSelectArgsCollection = sfinae::some_select_args_collection<Self>::value;
 
 	/**
 	 * @enum senc::utils::sqlite::Order
