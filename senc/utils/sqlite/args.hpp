@@ -289,7 +289,7 @@ namespace senc::utils::sqlite
 	 * @enum senc::utils::sqlite::Order
 	 * @brief Represents SQL ordering (ascending/descending).
 	 */
-	enum class Order { ASC, DESC };
+	enum class Order { Asc, Desc };
 
 	namespace sfinae
 	{
@@ -297,10 +297,10 @@ namespace senc::utils::sqlite
 		struct order_kind_str { };
 
 		template <>
-		struct order_kind_str<Order::ASC> : FixedStringConstant<"ASC"> { };
+		struct order_kind_str<Order::Asc> : FixedStringConstant<"ASC"> { };
 
 		template <>
-		struct order_kind_str<Order::DESC> : FixedStringConstant<"DESC"> { };
+		struct order_kind_str<Order::Desc> : FixedStringConstant<"DESC"> { };
 	}
 
 	/**
@@ -317,7 +317,7 @@ namespace senc::utils::sqlite
 	 * @tparam name Name of column to order by.
 	 * @tparam order Optional order kind (ascending/descending, defaults to ascending).
 	 */
-	template <FixedString name, Order order = Order::ASC>
+	template <FixedString name, Order order = Order::Asc>
 	struct OrderArg
 	{
 		static constexpr FixedString NAME = name;
