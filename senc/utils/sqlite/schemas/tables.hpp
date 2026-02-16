@@ -98,7 +98,7 @@ namespace senc::utils::sqlite::schemas
 	}
 
 	/**
-	 * @typedef senc::utils::sqlite::schemas::RenameTables
+	 * @typedef senc::utils::sqlite::schemas::RenameTable
 	 * @brief Renames a table schema.
 	 * @tparam T Table schema.
 	 * @tparam name New name.
