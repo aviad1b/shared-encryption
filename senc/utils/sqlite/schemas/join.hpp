@@ -19,7 +19,7 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam Self First table schema.
 	 * @tparam selfColName Name of column in `Self` to join on.
 	 * @tparam Other Second table schema.
-	 * @tparam otherColName Name of column in `Other` to join on.
+	 * @tparam otherColName Name of column in `Other` to join on (defaults to `selfColName`).
 	 */
 	template <typename Self, FixedString selfColName, typename Other, FixedString otherColName = selfColName>
 	concept Joinable = TableWithCol<Self, selfColName> && TableWithCol<Other, otherColName>;
