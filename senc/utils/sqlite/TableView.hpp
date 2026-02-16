@@ -75,13 +75,13 @@ namespace senc::utils::sqlite
 			Schema,
 			Args...
 		>
-		TableView<schemas::Select<Schema, Args...>> select();
+		TableView<schemas::Select<Schema, Args...>> select() const;
 
 		/**
 		 * @brief Applies a where clause on the table view.
 		 * @return Table view with "where" applied.
 		 */
-		Self where(const std::string& condition);
+		Self where(const std::string& condition) const;
 
 		/**
 		 * @brief Applied "order by" to the table view.
@@ -90,21 +90,21 @@ namespace senc::utils::sqlite
 		 * @note See `senc::utils::sqlite::OrderArg`
 		 */
 		template <SomeOrderArg Arg>
-		Self order_by();
+		Self order_by() const;
 
 		/**
 		 * @brief Applies limit to the table view.
 		 * @param n Limit count.
 		 * @return Table view with "limit" applied.
 		 */
-		Self limit(std::int64_t n);
+		Self limit(std::int64_t n) const;
 
 		/**
 		 * @brief Applies offset to the table view.
 		 * @param n Offset.
 		 * @return Table view with "offset" applied.
 		 */
-		Self offset(std::int64_t n);
+		Self offset(std::int64_t n) const;
 
 		/**
 		 * @brief Outputs viewed data into a fitting tuple.

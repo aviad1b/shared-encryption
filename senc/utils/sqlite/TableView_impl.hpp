@@ -49,7 +49,7 @@ namespace senc::utils::sqlite
 		Schema,
 		Args...
 	>
-	inline TableView<schemas::Select<Schema, Args...>> TableView<Schema>::select()
+	inline TableView<schemas::Select<Schema, Args...>> TableView<Schema>::select() const
 	{
 		using RetSchema = schemas::Select<Schema, Args...>;
 		using Ret = TableView<RetSchema>;
@@ -86,7 +86,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self TableView<Schema>::where(const std::string& condition)
+	inline TableView<Schema>::Self TableView<Schema>::where(const std::string& condition) const
 	{
 		using Ret = Self;
 
@@ -97,7 +97,7 @@ namespace senc::utils::sqlite
 
 	template <schemas::SomeTable Schema>
 	template <SomeOrderArg Arg>
-	inline TableView<Schema>::Self TableView<Schema>::order_by()
+	inline TableView<Schema>::Self TableView<Schema>::order_by() const
 	{
 		using Ret = Self;
 
@@ -108,7 +108,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self TableView<Schema>::limit(std::int64_t n)
+	inline TableView<Schema>::Self TableView<Schema>::limit(std::int64_t n) const
 	{
 		using Ret = Self;
 
@@ -123,7 +123,7 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self TableView<Schema>::offset(std::int64_t n)
+	inline TableView<Schema>::Self TableView<Schema>::offset(std::int64_t n) const
 	{
 		using Ret = Self;
 
