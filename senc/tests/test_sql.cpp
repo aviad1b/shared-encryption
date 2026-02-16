@@ -139,7 +139,7 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuple)
 	EXPECT_EQ(std::get<0>(row).get(), 2);
 	EXPECT_EQ(std::get<1>(row).get(), "Batya");
 	EXPECT_DOUBLE_EQ(std::get<2>(row).get(), 18.5);
-	ASSERT_TRUE(std::get<3>(row).has_value());
+	EXPECT_TRUE(std::get<3>(row).has_value());
 	const auto& blob = std::get<3>(row).get().value().get();
 	ASSERT_EQ(blob.size(), 3u);
 	EXPECT_EQ(blob[0], 0xAA);
@@ -178,10 +178,10 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuples)
 	EXPECT_EQ(std::get<1>(rows[0]).get(), "Avi");
 	EXPECT_EQ(std::get<0>(rows[1]).get(), 2);
 	EXPECT_DOUBLE_EQ(std::get<2>(rows[0]).get(), 22.0);
-	ASSERT_FALSE(std::get<3>(rows[0]).has_value());
+	EXPECT_FALSE(std::get<3>(rows[0]).has_value());
 	EXPECT_EQ(std::get<1>(rows[1]).get(), "Batya");
 	EXPECT_DOUBLE_EQ(std::get<2>(rows[1]).get(), 18.5);
-	ASSERT_TRUE(std::get<3>(rows[1]).has_value());
+	EXPECT_TRUE(std::get<3>(rows[1]).has_value());
 	const auto& blob = std::get<3>(rows[1]).get().value().get();
 	ASSERT_EQ(blob.size(), 3u);
 	EXPECT_EQ(blob[0], 0xAA);
@@ -211,7 +211,7 @@ TEST_F(SqlTest, NullableColumnHasValue)
 	db->select<"Users", sql::SelectArg<"data">>()
 		.where("id = 2")
 		>> data;
-	ASSERT_TRUE(data.has_value());
+	EXPECT_TRUE(data.has_value());
 	EXPECT_FALSE(data.is_null());
 }
 
@@ -222,7 +222,7 @@ TEST_F(SqlTest, NullableBlobContents)
 	db->select<"Users", sql::SelectArg<"data">>()
 		.where("id = 2")
 		>> data;
-	ASSERT_TRUE(data.has_value());
+	EXPECT_TRUE(data.has_value());
 	const auto& blob = data->get();
 	ASSERT_EQ(blob.size(), 3u);
 	EXPECT_EQ(blob[0], 0xAA);
@@ -425,7 +425,7 @@ TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 	db->select<"Users", sql::SelectArg<"data">>()
 		.where("id = 4")
 		>> data;
-	ASSERT_TRUE(data.has_value());
+	EXPECT_TRUE(data.has_value());
 	const auto& blob = data->get();
 	ASSERT_EQ(blob.size(), 2u);
 	EXPECT_EQ(blob[0], 0x01);
