@@ -55,7 +55,7 @@ namespace senc::utils::sqlite::schemas
 	};
 
 	/**
-	 * @struct senc::utils::sqlite::schemas::PrimaryKey
+	 * @struct senc::utils::sqlite::schemas::OwnedPrimaryKey
 	 * @brief Schema for table column which serves as a primary key, and knows the table name.
 	 * @tparam owner Table name.
 	 * @tparam name Column name.
