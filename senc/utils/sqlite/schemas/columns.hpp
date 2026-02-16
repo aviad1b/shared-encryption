@@ -87,7 +87,7 @@ namespace senc::utils::sqlite::schemas
 	};
 
 	/**
-	 * @struct senc::utils::sqlite::schemas::ForeignKey
+	 * @struct senc::utils::sqlite::schemas::OwnedForeignKey
 	 * @brief Schema for table column which serves as a foreign key, and knows the table name.
 	 * @tparam owner Table name.
 	 * @tparam name Column name.
