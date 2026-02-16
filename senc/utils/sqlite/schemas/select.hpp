@@ -218,7 +218,7 @@ namespace senc::utils::sqlite::schemas
 	 * @brief Converts table schema to a matching select query.
 	 * @tparam T Table schema.
 	 * @tparam Args Select args (collection).
-	 * @tparam includeTableName Whether or not should include table name ("from").
+	 * @tparam includeTableName Whether or not should include table name.
 	 */
 	template <SomeTable T, SomeSelectArgsCollection Args, bool includeTableName = true>
 	constexpr FixedString TABLE_TO_SELECT = sfinae::table_to_select<T, Args, includeTableName>::value;
