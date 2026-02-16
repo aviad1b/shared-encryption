@@ -49,7 +49,12 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Constructs a table view from native sqlite3 pointer and an inner query.
 		 * @param db Native sqlite3 pointer.
-		 * @param inner A (lambda) function returning an inner query (using a copied inner view).
+		 * @param select An optional "select" query part (`std::nullopt` means select all).
+		 * @param where An optional vector of "where" clauses for filtering.
+		 * @param orderBy An optional vector of "order by" clauses for ordering.
+		 * @param limit An optional row limit (maximum).
+		 * @param offset An optional row offset.
+		 * @param inner An optional (lambda) function returning an inner query (using a copied inner view).
 		 */
 		explicit TableView(sqlite3* db,
 						   const std::optional<std::string>& select,
