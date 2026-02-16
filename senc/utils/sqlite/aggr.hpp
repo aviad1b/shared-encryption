@@ -147,7 +147,7 @@ namespace senc::utils::sqlite
 	static_assert(AggrFunc<Count<"column">>);
 
 	/**
-	 * @struct senc::utils::sqlite::Count
+	 * @struct senc::utils::sqlite::OwnedCount
 	 * @brief Represents the "count" sqlite aggregation function, with owning table name.
 	 * @tparam owner Owning table name.
 	 * @tparam colName Column to apply aggregation function on.
