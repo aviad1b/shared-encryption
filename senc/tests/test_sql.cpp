@@ -82,7 +82,7 @@ TEST_F(SqlTest, SelectAllNames)
 	std::vector<sql::Text> names;
 	db->select<"Users", sql::SelectArg<"name">>()
 		>> names;
-	EXPECT_EQ(names.size(), 2u);
+	EXPECT_EQ(names.size(), 2);
 	EXPECT_EQ(names[0].get(), "Avi");
 	EXPECT_EQ(names[1].get(), "Batya");
 }
@@ -141,7 +141,7 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuple)
 	EXPECT_DOUBLE_EQ(std::get<2>(row).get(), 18.5);
 	EXPECT_TRUE(std::get<3>(row).has_value());
 	const auto& blob = std::get<3>(row).get().value().get();
-	ASSERT_EQ(blob.size(), 3u);
+	ASSERT_EQ(blob.size(), 3);
 	EXPECT_EQ(blob[0], 0xAA);
 	EXPECT_EQ(blob[1], 0xBB);
 	EXPECT_EQ(blob[2], 0xCC);
@@ -156,7 +156,7 @@ TEST_F(SqlTest, SelectMultipleColumnsIntoTuples)
 		sql::SelectArg<"id">,
 		sql::SelectArg<"name">>()
 		>> rows;
-	EXPECT_EQ(rows.size(), 2u);
+	EXPECT_EQ(rows.size(), 2);
 	EXPECT_EQ(std::get<0>(rows[0]).get(), 1);
 	EXPECT_EQ(std::get<1>(rows[0]).get(), "Avi");
 	EXPECT_EQ(std::get<0>(rows[1]).get(), 2);
@@ -173,7 +173,7 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuples)
 		sql::SelectArg<"age">,
 		sql::SelectArg<"data">>()
 		>> rows;
-	EXPECT_EQ(rows.size(), 2u);
+	EXPECT_EQ(rows.size(), 2);
 	EXPECT_EQ(std::get<0>(rows[0]).get(), 1);
 	EXPECT_EQ(std::get<1>(rows[0]).get(), "Avi");
 	EXPECT_EQ(std::get<0>(rows[1]).get(), 2);
@@ -183,7 +183,7 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuples)
 	EXPECT_DOUBLE_EQ(std::get<2>(rows[1]).get(), 18.5);
 	EXPECT_TRUE(std::get<3>(rows[1]).has_value());
 	const auto& blob = std::get<3>(rows[1]).get().value().get();
-	ASSERT_EQ(blob.size(), 3u);
+	ASSERT_EQ(blob.size(), 3);
 	EXPECT_EQ(blob[0], 0xAA);
 	EXPECT_EQ(blob[1], 0xBB);
 	EXPECT_EQ(blob[2], 0xCC);
@@ -224,7 +224,7 @@ TEST_F(SqlTest, NullableBlobContents)
 		>> data;
 	EXPECT_TRUE(data.has_value());
 	const auto& blob = data->get();
-	ASSERT_EQ(blob.size(), 3u);
+	ASSERT_EQ(blob.size(), 3);
 	EXPECT_EQ(blob[0], 0xAA);
 	EXPECT_EQ(blob[1], 0xBB);
 	EXPECT_EQ(blob[2], 0xCC);
@@ -243,7 +243,7 @@ TEST_F(SqlTest, SelectAllRowsViaCallback)
 		{
 			names.push_back(std::string(name.get()));
 		};
-	ASSERT_EQ(names.size(), 2u);
+	ASSERT_EQ(names.size(), 2);
 	// insertion order is preserved (SQLite default)
 	EXPECT_EQ(names[0], "Avi");
 	EXPECT_EQ(names[1], "Batya");
@@ -260,7 +260,7 @@ TEST_F(SqlTest, SelectMultipleColumnsViaCallback)
 		{
 			rows.emplace_back(id.get(), std::string(name.get()));
 		};
-	ASSERT_EQ(rows.size(), 2u);
+	ASSERT_EQ(rows.size(), 2);
 	EXPECT_EQ(rows[0].first, 1);
 	EXPECT_EQ(rows[0].second, "Avi");
 	EXPECT_EQ(rows[1].first, 2);
@@ -298,7 +298,7 @@ TEST_F(SqlTest, WhereAllRowsMatch)
 	db->select<"Users", sql::SelectArg<"id">>()
 		.where("age > 0")
 		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
-	EXPECT_EQ(ids.size(), 2u);
+	EXPECT_EQ(ids.size(), 2);
 }
 
 // ---------------------------------------------------------------------------
@@ -427,7 +427,7 @@ TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 		>> data;
 	EXPECT_TRUE(data.has_value());
 	const auto& blob = data->get();
-	ASSERT_EQ(blob.size(), 2u);
+	ASSERT_EQ(blob.size(), 2);
 	EXPECT_EQ(blob[0], 0x01);
 	EXPECT_EQ(blob[1], 0x02);
 
@@ -501,7 +501,7 @@ TEST_F(SqlTest, OrderByAgeAsc)
 		{
 			names.push_back(std::string(name.get()));
 		};
-	ASSERT_EQ(names.size(), 2u);
+	ASSERT_EQ(names.size(), 2);
 	EXPECT_EQ(names[0], "Batya");
 	EXPECT_EQ(names[1], "Avi");
 }
@@ -516,7 +516,7 @@ TEST_F(SqlTest, OrderByAgeDesc)
 		{
 			names.push_back(std::string(name.get()));
 		};
-	ASSERT_EQ(names.size(), 2u);
+	ASSERT_EQ(names.size(), 2);
 	EXPECT_EQ(names[0], "Avi");
 	EXPECT_EQ(names[1], "Batya");
 }
@@ -528,7 +528,7 @@ TEST_F(SqlTest, OrderByIdAsc)
 	db->select<"Users", sql::SelectArg<"id">>()
 		.order_by<sql::OrderArg<"id", sql::Order::Asc>>()
 		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
-	ASSERT_EQ(ids.size(), 2u);
+	ASSERT_EQ(ids.size(), 2);
 	EXPECT_EQ(ids[0], 1);
 	EXPECT_EQ(ids[1], 2);
 }
@@ -540,7 +540,7 @@ TEST_F(SqlTest, OrderByIdDesc)
 	db->select<"Users", sql::SelectArg<"id">>()
 		.order_by<sql::OrderArg<"id", sql::Order::Desc>>()
 		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
-	ASSERT_EQ(ids.size(), 2u);
+	ASSERT_EQ(ids.size(), 2);
 	EXPECT_EQ(ids[0], 2);
 	EXPECT_EQ(ids[1], 1);
 }
@@ -553,7 +553,7 @@ TEST_F(SqlTest, OrderByWithWhere)
 		.where("age > 20.0")
 		.order_by<sql::OrderArg<"age", sql::Order::Desc>>()
 		>> [&ids](sql::IntView id) { ids.push_back(id.get()); };
-	ASSERT_EQ(ids.size(), 1u);
+	ASSERT_EQ(ids.size(), 1);
 	EXPECT_EQ(ids[0], 1); // only Avi
 }
 
@@ -570,7 +570,7 @@ TEST_F(SqlTest, OrderByMultipleKeys)
 		{
 			names.push_back(std::string(name.get()));
 		};
-	ASSERT_EQ(names.size(), 2u);
+	ASSERT_EQ(names.size(), 2);
 	EXPECT_EQ(names[0], "Batya"); // age 18.5
 	EXPECT_EQ(names[1], "Avi");   // age 22.0
 }
@@ -785,7 +785,7 @@ TEST_F(SqlTest, JoinSelectNameAndFavNumViaCallback)
 		{
 			rows.emplace_back(std::string(name.get()), fav.get());
 		};
-	ASSERT_EQ(rows.size(), 2u);
+	ASSERT_EQ(rows.size(), 2);
 	EXPECT_EQ(rows[0].first,  "Avi");   EXPECT_EQ(rows[0].second, 434);
 	EXPECT_EQ(rows[1].first,  "Batya"); EXPECT_EQ(rows[1].second, 256);
 }
@@ -820,7 +820,7 @@ TEST_F(SqlTest, JoinOrderByFavNumAsc)
 		.select<sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"fav_num", sql::Order::Asc>>()
 		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
-	ASSERT_EQ(favs.size(), 2u);
+	ASSERT_EQ(favs.size(), 2);
 	EXPECT_EQ(favs[0], 256);
 	EXPECT_EQ(favs[1], 434);
 }
@@ -833,7 +833,7 @@ TEST_F(SqlTest, JoinOrderByFavNumDesc)
 		.select<sql::SelectArg<"fav_num">>()
 		.order_by<sql::OrderArg<"fav_num", sql::Order::Desc>>()
 		>> [&favs](sql::IntView fav) { favs.push_back(fav.get()); };
-	ASSERT_EQ(favs.size(), 2u);
+	ASSERT_EQ(favs.size(), 2);
 	EXPECT_EQ(favs[0], 434);
 	EXPECT_EQ(favs[1], 256);
 }
