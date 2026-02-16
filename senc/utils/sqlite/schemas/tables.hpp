@@ -295,7 +295,7 @@ namespace senc::utils::sqlite::schemas
 		> { };
 
 
-		// utility sfinae used for dropping col found by name
+		// used for dropping col found by name
 		template <SomeTable T, FixedString colName>
 		struct drop_table_col_by_name { };
 
@@ -332,4 +332,15 @@ namespace senc::utils::sqlite::schemas
 	template <SomeTable T, FixedString colName>
 	requires TableWithCol<T, colName>
 	using RemoveTableColOwner = typename sfinae::remove_table_col_owner<T, colName>::type;
+
+	/**
+	 * @typedef senc::utils::Sqlite::schemas::DropTableColByName
+	 * @brief Drops a column found by name from table schema.
+	 * @tparam T Table schema.
+	 * @tparam colName Column name.
+	 * @note Requires `colName` to be a name of an existing column in `T`.
+	 */
+	template <SomeTable T, FixedString colName>
+	requires TableWithCol<T, colName>
+	using DropTableColByName = typename sfinae::drop_table_col_by_name<T, colName>::type;
 }
