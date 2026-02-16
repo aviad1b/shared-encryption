@@ -278,6 +278,7 @@ namespace senc::utils::sqlite
 
 	namespace sfinae
 	{
+		// used for detecting a select args collection
 		template <typename T>
 		struct some_select_args_collection : std::false_type { };
 
