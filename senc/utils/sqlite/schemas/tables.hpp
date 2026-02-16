@@ -20,6 +20,7 @@ namespace senc::utils::sqlite::schemas
 	 * @brief Schema of table.
 	 * @tparam name Table name.
 	 * @tparam Cs Table columns (schemas).
+	 * @note Requires `Cs` to contain no duplicated columns.
 	 */
 	template <FixedString name, SomeCol... Cs>
 	requires (!HAS_DUP_COLS<Cs...>)
