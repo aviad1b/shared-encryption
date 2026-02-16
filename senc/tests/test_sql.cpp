@@ -395,7 +395,7 @@ TEST_F(SqlTest, ChainedSelectNarrowsColumns)
 		sql::SelectArg<"id">,
 		sql::SelectArg<"name">,
 		sql::SelectArg<"age">>()
-		.select<sql::SelectArg<"name">>() // note: should there be "template" here?
+		.select<sql::SelectArg<"name">>()
 		.where("id = 1")
 		>> name;
 	EXPECT_EQ(name.get(), "Avi");
