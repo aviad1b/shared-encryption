@@ -336,6 +336,7 @@ namespace senc::utils::sqlite
 
 	namespace sfinae
 	{
+		// used for detecting any ordering argument
 		template <typename T>
 		struct some_order_arg : std::false_type { };
 
