@@ -302,6 +302,7 @@ namespace senc::utils::sqlite
 
 	namespace sfinae
 	{
+		// used for getting string version of order kind
 		template <Order order>
 		struct order_kind_str { };
 
