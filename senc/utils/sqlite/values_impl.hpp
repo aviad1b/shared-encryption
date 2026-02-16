@@ -13,15 +13,14 @@ namespace senc::utils::sqlite
 	template <typename Ret, typename... Args>
 	inline Ret ValueViewTag::ValueViewData::exec(
 		Ret(*valueFunc)(sqlite3_value*),
-		Ret(*columnFunc)(sqlite3_stmt*, int),
-		Args&&... args) const
+		Ret(*columnFunc)(sqlite3_stmt*, int)) const
 	{
-		return std::visit([valueFunc, columnFunc, &args...](auto&& arg)
+		return std::visit([valueFunc, columnFunc](auto&& arg)
 		{
 			using T = std::remove_cvref_t<decltype(arg)>;
 			if constexpr (std::same_as<T, ColumnData>)
-				return columnFunc(arg.stmt, arg.col, std::forward<Args>(args)...);
-			else return valueFunc(arg, std::forward<Args>(args)...);
+				return columnFunc(arg.stmt, arg.col);
+			else return valueFunc(arg);
 		}, _data);
 	}
 

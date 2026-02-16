@@ -54,12 +54,10 @@ namespace senc::utils::sqlite
 			 * @brief Executes a native SQLite function on the stored pointer.
 			 * @param valueFunc Function to run if has `sqlite3_value*`.
 			 * @param columnFunc Function to run if has `sqlite3_stmt*` and column index.
-			 * @param args Additional arguments.
 			 */
 			template <typename Ret, typename... Args>
 			Ret exec(Ret(*valueFunc)(sqlite3_value*),
-				Ret(*columnFunc)(sqlite3_stmt*, int),
-				Args&&... args) const;
+				Ret(*columnFunc)(sqlite3_stmt*, int)) const;
 
 		private:
 			struct ColumnData { sqlite3_stmt* stmt; int col; };
