@@ -26,18 +26,34 @@ namespace senc::utils::sqlite
 			{ Self::COL } -> FixedStringType;
 		};
 
+	/**
+	 * @var senc::utils::sqlite::AGGR_FUNC_NAME
+	 * @brief Gets name of aggregate function.
+	 * @tparam T Representing typename of aggregate function.
+	 */
 	template <AggrFunc T>
 	constexpr FixedString AGGR_FUNC_NAME = T::NAME;
 
+	/**
+	 * @var senc::utils::Sqlite::AGGR_FUNC_COL
+	 * @brief Gets name of column affected by aggregate function..
+	 * @tparam T Representing typename of aggregate function.
+	 */
 	template <AggrFunc T>
 	constexpr FixedString AGGR_FUNC_COL = T::COL;
 
+	/**
+	 * @concept senc::utils::sqlite::AggrFuncWithAs
+	 * @brief Looks for an sqlite aggregate function representing typename wich renames its output.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept AggrFuncWithAs = AggrFunc<Self> &&
 		requires { { Self::AS } -> NonEmptyFixedStringType; };
 
 	namespace sfinae
 	{
+		// used to get aggregate function rename
 		template <typename T>
 		struct aggr_func_as : EmptyFixedStringConstant { };
 
@@ -45,15 +61,25 @@ namespace senc::utils::sqlite
 		struct aggr_func_as<T> : FixedStringConstant<T::AS> { };
 	}
 
+	/**
+	 * @var senc::utils::sqlite::AGGR_FUNC_AS
+	 * @brief Gets aggregate function's output rename (empty if doesn't rename).
+	 */
 	template <AggrFunc T>
 	constexpr FixedString AGGR_FUNC_AS = sfinae::aggr_func_as<T>::value;
 
+	/**
+	 * @concept senc::utils::sqlite::AggrFunc
+	 * @brief Looks for an sqlite aggregate function representing typename, which knows the table name.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept AggrFuncWithOwner = AggrFunc<Self> &&
 		requires { { Self::OWNER } -> NonEmptyFixedStringType; };
 
 	namespace sfinae
 	{
+		// used to get table name from aggregate function which knows it
 		template <typename T>
 		struct aggr_func_owner : EmptyFixedStringConstant { };
 
@@ -61,9 +87,19 @@ namespace senc::utils::sqlite
 		struct aggr_func_owner<T> : FixedStringConstant<T::OWNER> { };
 	}
 
+	/**
+	 * @var senc::utils::sqlite::AGGR_FUNC_OWNER
+	 * @brief Gets table name from aggregate function which knows it.
+	 * @tparam T Representing typename of aggregate function.
+	 */
 	template <AggrFuncWithOwner T>
 	constexpr FixedString AGGR_FUNC_OWNER = sfinae::aggr_func_owner<T>::value;
 
+	/**
+	 * @concept senc::utils::sqlite::AggrFuncWithAsAndOwner
+	 * @brief Looks for a typename that is both `AggrFuncWithAs` and `AggrFuncWithOwner`.
+	 * @tparam Self Examined typename.
+	 */
 	template <typename Self>
 	concept AggrFuncWithAsAndOwner = AggrFuncWithAs<Self> && AggrFuncWithOwner<Self>;
 
