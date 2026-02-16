@@ -19,6 +19,7 @@ namespace senc::utils::sqlite::schemas
 		// used for checking if a source column matches a select arg
 		template <SomeCol C, SomeSelectArg Arg>
 		struct col_matches_select_arg : std::conjunction<
+			// if both have owner, should be same; otherwise, any owner is okay
 			std::disjunction<
 				std::negation<some_owned_col<C>>,
 				std::negation<sqlite::sfinae::some_select_arg_with_owner<Arg>>,
@@ -27,8 +28,9 @@ namespace senc::utils::sqlite::schemas
 					sqlite::sfinae::some_select_arg_with_owner<Arg>,
 					utils::sfinae::is_same_fixed_string<COL_OWNER<C>, SELECT_ARG_OWNER<Arg>>
 				>
-			>, // if both have owner, should be same; otherwise, any owner is okay
-			utils::sfinae::is_same_fixed_string<COL_NAME<C>, SELECT_ARG_UNDERLYING_NAME<Arg>> // in addition, check same name
+			>,
+			// in addition, check same name
+			utils::sfinae::is_same_fixed_string<COL_NAME<C>, SELECT_ARG_UNDERLYING_NAME<Arg>>
 		> { };
 
 		// used for checking if a destination column matches a select arg
