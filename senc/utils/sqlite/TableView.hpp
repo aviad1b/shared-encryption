@@ -60,8 +60,8 @@ namespace senc::utils::sqlite
 						   const std::optional<std::string>& select,
 						   const std::optional<std::vector<std::string>>& where,
 						   const std::optional<std::vector<std::string>>& orderBy,
-						   const std::optional<std::int64_t>& limit,
-						   const std::optional<std::int64_t>& offset,
+						   const std::optional<std::int64_t> limit,
+						   const std::optional<std::int64_t> offset,
 						   const std::optional<std::function<std::string()>>& inner);
 		
 		/**
