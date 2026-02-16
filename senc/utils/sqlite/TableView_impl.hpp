@@ -196,7 +196,7 @@ namespace senc::utils::sqlite
 		std::string res = _select.has_value() ? *_select : "SELECT * FROM";
 
 		if (_inner.has_value())
-			res += " (" + (*_inner)() + ")";
+			res += "(" + (*_inner)() + ")";
 
 		if (!_where.empty())
 		{
