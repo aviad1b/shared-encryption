@@ -59,7 +59,8 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam tableName Table name to look for.
 	 */
 	template <typename Self, FixedString tableName>
-	concept DBWithTable = sfinae::db_has_table<Self, tableName>::value;
+	concept DBWithTable = SomeDB<Self> &&
+		sfinae::db_has_table<Self, tableName>::value;
 
 	namespace sfinae
 	{
