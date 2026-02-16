@@ -380,6 +380,29 @@ namespace senc::utils::sqlite::schemas
 	template <SomeCol C, FixedString owner>
 	using SetColOwner = typename sfinae::set_col_owner<C, owner>::type;
 
+	namespace sfinae
+	{
+		// used for checking if a column schema is duplicate of another
+		// (same name with no way of differentiating)
+		template <SomeCol C1, SomeCol C2>
+		struct is_dup_col : std::conjunction<
+			// considered duplicated when has same name and has no owner protection
+			// (either one has no owner, or both have same owner)
+			utils::sfinae::is_same_fixed_string<COL_NAME<C1>, COL_NAME<C2>>,
+			std::disjunction<
+				std::negation<some_owned_col<C1>>,
+				std::negation<some_owned_col<C2>>,
+				std::conjunction<
+					some_owned_col<C1>,
+					some_owned_col<C2>,
+					utils::sfinae::is_same_fixed_string<
+						COL_OWNER<C1>, COL_OWNER<C2>
+					>
+				>
+			>
+		> { };
+	}
+
 	/**
 	 * @var senc::utils::sqlite::schemas::IS_DUP_COL
 	 * @brief Checks if a column schema is duplicate of another (same name with no way of differentiating).
@@ -387,16 +410,7 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam C2 Second column schema.
 	 */
 	template <SomeCol C1, SomeCol C2>
-	constexpr bool IS_DUP_COL =
-		(COL_NAME<C1> == COL_NAME<C2>) &&
-		(
-			!SomeOwnedCol<C1> ||
-			!SomeOwnedCol<C2> ||
-			(SomeOwnedCol<C1> && SomeOwnedCol<C2> &&
-				COL_OWNER<C1> == COL_OWNER<C2>)
-		);
-	// considered duplicated when has same name and has no owner protection
-	// (either one has no owner, or both have same owner)
+	constexpr bool IS_DUP_COL = sfinae::is_dup_col<C1, C2>::value;
 
 	namespace sfinae
 	{
