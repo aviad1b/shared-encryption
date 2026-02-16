@@ -242,6 +242,8 @@ namespace senc::utils::sqlite
 
 	namespace sfinae
 	{
+		// used for getting original column name from select argument
+		// (discards aggregate name if exists)
 		template <SomeSelectArg Arg, bool isAggr = SomeAggrSelectArg<Arg>>
 		struct select_arg_underlying_name : FixedStringConstant<Arg::NAME> { };
 
