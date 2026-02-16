@@ -109,6 +109,13 @@ namespace senc::utils::sqlite
 		const Self& operator>>(Tuple& tpl) const;
 
 		/**
+		 * @brief Outputs viewed data into a fitting tuples vector.
+		 * @param tpls Vector of tuples to output into.
+		 * @return `*this`.
+		 */
+		const Self& operator>>(std::vector<Tuple>& tpls) const;
+
+		/**
 		 * @brief Outputs viewed data into a fitting variable.
 		 * @note Requires schema to contain one value exactly.
 		 * @param var Variable to output into.
