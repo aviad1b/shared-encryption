@@ -234,6 +234,10 @@ namespace senc::utils::sqlite::schemas
 		template <SomeOwnedCol C>
 		struct col_owner<C, true> : FixedStringConstant<C::OWNER> { };
 
+		// used for getting a column name from column schema
+		template <SomeCol C>
+		struct col_name : FixedStringConstant<C::NAME> { };
+
 		// used for getting the referenced table name from a foreign key column schema
 		template <SomeCol C, bool foreignKey = SomeForeignKey<C>>
 		struct foreign_key_ref_table_name : EmptyFixedStringConstant { };
@@ -263,7 +267,7 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam C Column schema.
 	 */
 	template <SomeCol C>
-	constexpr FixedString COL_NAME = C::NAME;
+	constexpr FixedString COL_NAME = sfinae::col_name<C>::value;
 
 	namespace sfinae
 	{
