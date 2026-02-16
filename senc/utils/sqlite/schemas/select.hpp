@@ -97,9 +97,9 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam Args Select arguments.
 	 */
 	template <typename Self, typename... Args>
-	concept Selectable = SomeTable<Self> &&                 // `Self` is `Table`
-		(SomeSelectArg<Args> && ...) &&                     // Each of `Args` is `SelectArg`
-		(TableWithSelectCol<Self, Args> && ...); // `Self` has name of each of `Args`
+	concept Selectable = SomeTable<Self> &&
+		(SomeSelectArg<Args> && ...) &&
+		(TableWithSelectCol<Self, Args> && ...);
 
 	namespace sfinae
 	{
