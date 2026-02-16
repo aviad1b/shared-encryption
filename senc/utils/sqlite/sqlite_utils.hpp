@@ -20,6 +20,11 @@ namespace senc::utils::sqlite
 	template <schemas::SomeTable Schema>
 	class TableView;
 
+	/**
+	 * @class senc::utils::sqlite::DatabaseUtils
+	 * @brief Contains private utility database functions.
+	 * @tparam Ts Database table schemas.
+	 */
 	template <schemas::SomeTable... Ts>
 	class DatabaseUtils
 	{
@@ -37,6 +42,12 @@ namespace senc::utils::sqlite
 		void create_tables_if_not_exist(sqlite3* db);
 	};
 
+	/**
+	 * @class senc::utils::sqlite::TableUtils
+	 * @brief Contains private utility table functions.
+	 * @tparam name Table name.
+	 * @tparam Cs Table columns (schemas).
+	 */
 	template <FixedString name, schemas::SomeCol... Cs>
 	class TableUtils
 	{
@@ -96,6 +107,11 @@ namespace senc::utils::sqlite
 		static std::string get_columns();
 	};
 
+	/**
+	 * @class senc::utils::sqlite::ColUtils
+	 * @brief Contains private utility column functions.
+	 * @tparam C Column schema.
+	 */
 	template <schemas::SomeCol C>
 	class ColUtils
 	{
@@ -118,6 +134,10 @@ namespace senc::utils::sqlite
 		static std::string get_additional_constraints();
 	};
 
+	/**
+	 * @class senc::utils::sqlite::ParamUtils
+	 * @brief Contains private utility parameter functions.
+	 */
 	class ParamUtils
 	{
 		template <schemas::SomeDB Schema>
