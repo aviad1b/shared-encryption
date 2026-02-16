@@ -37,7 +37,7 @@ namespace senc::utils::sqlite
 		virtual ~Database();
 
 		/**
-		 * @brief Inserts a record in to a table of the database.
+		 * @brief Inserts a record into a table of the database.
 		 * @tparam tableName Name of table to insert into.
 		 * @param values Values to insert.
 		 * @throw SQLiteException If insertion failed.
