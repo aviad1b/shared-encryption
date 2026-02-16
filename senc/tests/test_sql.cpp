@@ -76,6 +76,17 @@ TEST_F(SqlTest, SelectNameByIdSecondRow)
 	EXPECT_EQ(name.get(), "Batya");
 }
 
+// select "name" for all -> "Avi", "Batya"
+TEST_F(SqlTest, SelectAllNames)
+{
+	std::vector<sql::Text> names;
+	db->select<"Users", sql::SelectArg<"name">>()
+		>> names;
+	EXPECT_EQ(names.size(), 2u);
+	EXPECT_EQ(names[0].get(), "Avi");
+	EXPECT_EQ(names[1].get(), "Batya");
+}
+
 // select "age" for a known row
 TEST_F(SqlTest, SelectAge)
 {
@@ -130,6 +141,48 @@ TEST_F(SqlTest, SelectAllColumnsIntoTuple)
 	EXPECT_DOUBLE_EQ(std::get<2>(row).get(), 18.5);
 	ASSERT_TRUE(std::get<3>(row).has_value());
 	const auto& blob = std::get<3>(row).get().value().get();
+	ASSERT_EQ(blob.size(), 3u);
+	EXPECT_EQ(blob[0], 0xAA);
+	EXPECT_EQ(blob[1], 0xBB);
+	EXPECT_EQ(blob[2], 0xCC);
+}
+
+// select multiple columns into a vector of tuples
+TEST_F(SqlTest, SelectMultipleColumnsIntoTuples)
+{
+	using Row = std::tuple<sql::Int, sql::Text>;
+	std::vector<Row> rows;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">>()
+		>> rows;
+	EXPECT_EQ(rows.size(), 2u);
+	EXPECT_EQ(std::get<0>(rows[0]).get(), 1);
+	EXPECT_EQ(std::get<1>(rows[0]).get(), "Avi");
+	EXPECT_EQ(std::get<0>(rows[1]).get(), 2);
+	EXPECT_EQ(std::get<1>(rows[1]).get(), "Batya");
+}
+
+TEST_F(SqlTest, SelectAllColumnsIntoTuples)
+{
+	using Row = std::tuple<sql::Int, sql::Text, sql::Real, sql::Nullable<sql::Blob>>;
+	std::vector<Row> rows;
+	db->select<"Users",
+		sql::SelectArg<"id">,
+		sql::SelectArg<"name">,
+		sql::SelectArg<"age">,
+		sql::SelectArg<"data">>()
+		>> rows;
+	EXPECT_EQ(rows.size(), 2u);
+	EXPECT_EQ(std::get<0>(rows[0]).get(), 1);
+	EXPECT_EQ(std::get<1>(rows[0]).get(), "Avi");
+	EXPECT_EQ(std::get<0>(rows[1]).get(), 2);
+	EXPECT_DOUBLE_EQ(std::get<2>(rows[0]).get(), 22.0);
+	ASSERT_FALSE(std::get<3>(rows[0]).has_value());
+	EXPECT_EQ(std::get<1>(rows[1]).get(), "Batya");
+	EXPECT_DOUBLE_EQ(std::get<2>(rows[1]).get(), 18.5);
+	ASSERT_TRUE(std::get<3>(rows[1]).has_value());
+	const auto& blob = std::get<3>(rows[1]).get().value().get();
 	ASSERT_EQ(blob.size(), 3u);
 	EXPECT_EQ(blob[0], 0xAA);
 	EXPECT_EQ(blob[1], 0xBB);
