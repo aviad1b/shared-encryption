@@ -86,6 +86,7 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
+		// used to rename a table schema
 		template <SomeTable T, FixedString name>
 		struct rename_table { };
 
