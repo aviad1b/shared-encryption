@@ -77,7 +77,7 @@ namespace senc::utils::sqlite
 		 * @tparam table1Name Name of first table to join.
 		 * @tparam axisCol1 Name of column (in table1) to join on.
 		 * @tparam table2Name Name of second table to join.
-		 * @tparam axisCol2 Name of column in table2 to join on.
+		 * @tparam axisCol2 Name of column in table2 to join on (defaults to axisCol1).
 		 * @return Table view with "join" applied.
 		 */
 		template <FixedString table1Name, FixedString axisCol1,
