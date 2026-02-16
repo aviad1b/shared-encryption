@@ -159,6 +159,7 @@ namespace senc::utils::sqlite
 		{
 			sqlite3_close(this->_db);
 			this->_db = nullptr;
+			this->_path.clear();
 		}
 		if (!this->_path.empty())
 			std::remove(this->_path.c_str());
