@@ -109,14 +109,14 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Outputs viewed data into a fitting tuple.
-		 * @param tpl Tuple to output into.
+		 * @param tpl Tuple to output into (by ref).
 		 * @return `*this`.
 		 */
 		const Self& operator>>(Tuple& tpl) const;
 
 		/**
 		 * @brief Outputs viewed data into a fitting tuples vector.
-		 * @param tpls Vector of tuples to output into.
+		 * @param tpls Vector of tuples to output into (by ref).
 		 * @return `*this`.
 		 */
 		const Self& operator>>(std::vector<Tuple>& tpls) const;
@@ -124,7 +124,7 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Outputs viewed data into a fitting variable.
 		 * @note Requires schema to contain one value exactly.
-		 * @param var Variable to output into.
+		 * @param var Variable to output into (by ref).
 		 * @return `*this`.
 		 */
 		const Self& operator>>(std::tuple_element_t<0, Tuple>& var) const
@@ -133,7 +133,7 @@ namespace senc::utils::sqlite
 		/**
 		 * @brief Outputs viewed data into a fitting vector (elem per row).
 		 * @note Requires schema to contain one value exactly.
-		 * @param vec Vector to output into.
+		 * @param vec Vector to output into (by ref).
 		 * @return `*this`.
 		 */
 		const Self& operator>>(std::vector<std::tuple_element_t<0, Tuple>>& vec) const
