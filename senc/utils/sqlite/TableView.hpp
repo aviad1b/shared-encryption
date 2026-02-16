@@ -79,6 +79,7 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Applies a where clause on the table view.
+		 * @param condition "where" clause.
 		 * @return Table view with "where" applied.
 		 */
 		Self where(const std::string& condition) const;
