@@ -58,7 +58,7 @@ namespace senc::utils::sqlite
 		 * @param sql SQL statement to run.
 		 * @param callback A callback function (of fitting schema).
 		 * @param expected Optional expected record count.
-		 * @throw SQLiteException If `limit` was provided and exceeded.
+		 * @throw SQLiteException If `expected` was provided and exceeded or not met.
 		 */
 		void execute(sqlite3* db,
 					 const std::string& sql,
