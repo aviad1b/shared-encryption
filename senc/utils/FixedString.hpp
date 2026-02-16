@@ -224,7 +224,7 @@ namespace senc::utils
 	/**
 	 * @struct senc::utils::FixedStringConstant
 	 * @brief An STD-like FixedString value wrapper.
-	 * @tparam v Fixed string value.
+	 * @tparam v Fixed string value (defaults to empty).
 	 */
 	template <FixedString v = "">
 	struct FixedStringConstant
