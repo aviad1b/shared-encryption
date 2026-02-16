@@ -238,6 +238,15 @@ namespace senc::utils::sqlite::schemas
 		template <SomeCol C>
 		struct col_name : FixedStringConstant<C::NAME> { };
 
+		// used for getting full name of column (including table name if it knows it)
+		template <SomeCol C, bool owned = SomeOwnedCol<C>>
+		struct col_full_name : col_name<C> { };
+
+		template <SomeOwnedCol C>
+		struct col_full_name<C, true> : FixedStringConstant<
+			col_owner<C>::value + "." + col_name<C>::value
+		> { };
+
 		// used for getting the referenced table name from a foreign key column schema
 		template <SomeCol C, bool foreignKey = SomeForeignKey<C>>
 		struct foreign_key_ref_table_name : EmptyFixedStringConstant { };
@@ -269,16 +278,6 @@ namespace senc::utils::sqlite::schemas
 	template <SomeCol C>
 	constexpr FixedString COL_NAME = sfinae::col_name<C>::value;
 
-	namespace sfinae
-	{
-		// used for getting full name of column (including table name if it knows it)
-		template <SomeCol C, bool owned = SomeOwnedCol<C>>
-		struct col_full_name : FixedStringConstant<COL_NAME<C>> { };
-
-		template <SomeOwnedCol C>
-		struct col_full_name<C, true> : FixedStringConstant<COL_OWNER<C> + "." + COL_NAME<C>> { };
-	}
-
 	/**
 	 * @var senc::utils::sqlite::schemas::COL_FULL_NAME
 	 * @brief Gets full name of column schema (including table name, if knows it).
@@ -286,6 +285,22 @@ namespace senc::utils::sqlite::schemas
 	 */
 	template <SomeCol C>
 	constexpr FixedString COL_FULL_NAME = sfinae::col_full_name<C>::value;
+
+	/**
+	 * @var senc::utils::sqlite::schemas::FOREIGN_KEY_REF_TABLE_NAME
+	 * @brief Gets referenced table name from a foreign key column schema (empty if not foreign key).
+	 * @tparam C Column schema.
+	 */
+	template <SomeCol C>
+	constexpr FixedString FOREIGN_KEY_REF_TABLE_NAME = sfinae::foreign_key_ref_table_name<C>::value;
+
+	/**
+	 * @var senc::utils::sqlite::schemas::FOREIGN_KEY_REF_COL_NAME
+	 * @brief Gets referenced column name from a foreign key column schema (empty if not foreign key).
+	 * @tparam C Column schema.
+	 */
+	template <SomeCol C>
+	constexpr FixedString FOREIGN_KEY_REF_COL_NAME = sfinae::foreign_key_ref_col_name<C>::value;
 
 	/**
 	 * @typedef senc::utils::sqlite::schemas::ColType
@@ -310,22 +325,6 @@ namespace senc::utils::sqlite::schemas
 	 */
 	template <SomeCol C>
 	constexpr FixedString COL_SQL_TYPE = ColType<C>::SQL_TYPE;
-
-	/**
-	 * @var senc::utils::sqlite::schemas::FOREIGN_KEY_REF_TABLE_NAME
-	 * @brief Gets referenced table name from a foreign key column schema (empty if not foreign key).
-	 * @tparam C Column schema.
-	 */
-	template <SomeCol C>
-	constexpr FixedString FOREIGN_KEY_REF_TABLE_NAME = sfinae::foreign_key_ref_table_name<C>::value;
-
-	/**
-	 * @var senc::utils::sqlite::schemas::FOREIGN_KEY_REF_COL_NAME
-	 * @brief Gets referenced column name from a foreign key column schema (empty if not foreign key).
-	 * @tparam C Column schema.
-	 */
-	template <SomeCol C>
-	constexpr FixedString FOREIGN_KEY_REF_COL_NAME = sfinae::foreign_key_ref_col_name<C>::value;
 
 	/**
 	 * @typedef senc::utils::sqlite::schemas::RenameCol
