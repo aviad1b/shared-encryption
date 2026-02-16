@@ -220,7 +220,7 @@ namespace senc::utils::sqlite
 
 	BlobView::BlobView(sqlite3_stmt* stmt, int col) : Self(ValueViewData(stmt, col)) { }
 
-	std::span<const byte> BlobView::get() const
+	BytesView BlobView::get() const
 	{
 		const byte* ptr = reinterpret_cast<const byte*>(
 			_data.exec(sqlite3_value_blob, sqlite3_column_blob)
@@ -229,7 +229,7 @@ namespace senc::utils::sqlite
 		return { ptr, static_cast<size_t>(len) };
 	}
 
-	BlobView::operator std::span<const byte>() const
+	BlobView::operator BytesView() const
 	{
 		return get();
 	}

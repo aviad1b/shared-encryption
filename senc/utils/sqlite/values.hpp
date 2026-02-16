@@ -804,13 +804,13 @@ namespace senc::utils::sqlite
 		 * @brief Gets viewed data.
 		 * @return Viewed data.
 		 */
-		std::span<const byte> get() const;
+		BytesView get() const;
 
 		/**
 		 * @brief Gets viewed data.
 		 * @return Viewed data.
 		 */
-		operator std::span<const byte>() const;
+		operator BytesView() const;
 
 		/**
 		 * @brief Checks if view's data can have null.
