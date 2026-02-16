@@ -131,12 +131,15 @@ namespace senc::utils::sqlite
 		axisCol2
 	>> Database<Schema>::join()
 	{
-		return TableView<schemas::Join<
+		using RetSchema = schemas::Join<
 			schemas::DBTable<Schema, table1Name>,
 			axisCol1,
 			schemas::DBTable<Schema, table2Name>,
 			axisCol2
-		>>(_db);
+		>;
+		return TableView<RetSchema>(
+			_db
+		);
 	}
 
 	template <schemas::SomeDB Schema>
