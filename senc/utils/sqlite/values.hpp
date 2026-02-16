@@ -459,7 +459,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		ValueViewData _data;
+		std::variant<ValueViewData, std::reference_wrapper<const std::int64_t>> _data;
 	};
 	static_assert(ValueView<IntView>);
 
@@ -577,7 +577,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		ValueViewData _data;
+		std::variant<ValueViewData, std::reference_wrapper<const double>> _data;
 	};
 	static_assert(ValueView<RealView>);
 
@@ -695,7 +695,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		ValueViewData _data;
+		std::variant<ValueViewData, std::string_view> _data;
 	};
 	static_assert(ValueView<TextView>);
 
@@ -819,7 +819,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		ValueViewData _data;
+		std::variant<ValueViewData, BytesView> _data;
 	};
 	static_assert(ValueView<BlobView>);
 

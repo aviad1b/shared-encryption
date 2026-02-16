@@ -60,7 +60,7 @@ namespace senc::utils::sqlite
 
 	IntView::IntView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_INTEGER != _data.exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_INTEGER != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad int view handle");
 	}
 
@@ -70,7 +70,9 @@ namespace senc::utils::sqlite
 
 	std::int64_t IntView::get() const
 	{
-		return _data.exec(sqlite3_value_int64, sqlite3_column_int64);
+		if (std::holds_alternative<ValueViewData>(_data))
+			return std::get<ValueViewData>(_data).exec(sqlite3_value_int64, sqlite3_column_int64);
+		return std::get<std::reference_wrapper<const std::int64_t>>(_data).get();
 	}
 
 	IntView::operator std::int64_t() const
@@ -108,7 +110,7 @@ namespace senc::utils::sqlite
 
 	RealView::RealView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_FLOAT != _data.exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_FLOAT != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad real view handle");
 	}
 
@@ -118,7 +120,9 @@ namespace senc::utils::sqlite
 
 	double RealView::get() const
 	{
-		return _data.exec(sqlite3_value_double, sqlite3_column_double);
+		if (std::holds_alternative<ValueViewData>(_data))
+			return std::get<ValueViewData>(_data).exec(sqlite3_value_double, sqlite3_column_double);
+		return std::get<std::reference_wrapper<const double>>(_data).get();
 	}
 
 	RealView::operator double() const
@@ -156,7 +160,7 @@ namespace senc::utils::sqlite
 
 	TextView::TextView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_TEXT != _data.exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_TEXT != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad text view handle");
 	}
 
@@ -166,11 +170,16 @@ namespace senc::utils::sqlite
 
 	std::string_view TextView::get() const
 	{
-		const char* ptr = reinterpret_cast<const char*>(
-			_data.exec(sqlite3_value_text, sqlite3_column_text)
-		);
-		const int len = _data.exec(sqlite3_value_bytes, sqlite3_column_bytes);
-		return { ptr, static_cast<size_t>(len) };
+		if (std::holds_alternative<ValueViewData>(_data))
+		{
+			auto& data = std::get<ValueViewData>(_data);
+			const char* ptr = reinterpret_cast<const char*>(
+				data.exec(sqlite3_value_text, sqlite3_column_text)
+			);
+			const int len = data.exec(sqlite3_value_bytes, sqlite3_column_bytes);
+			return { ptr, static_cast<size_t>(len) };
+		}
+		return std::get<std::string_view>(_data);
 	}
 
 	TextView::operator std::string_view() const
@@ -212,7 +221,7 @@ namespace senc::utils::sqlite
 
 	BlobView::BlobView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_BLOB != _data.exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_BLOB != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad blob view handle");
 	}
 
@@ -222,11 +231,16 @@ namespace senc::utils::sqlite
 
 	BytesView BlobView::get() const
 	{
-		const byte* ptr = reinterpret_cast<const byte*>(
-			_data.exec(sqlite3_value_blob, sqlite3_column_blob)
-		);
-		const int len = _data.exec(sqlite3_value_bytes, sqlite3_column_bytes);
-		return { ptr, static_cast<size_t>(len) };
+		if (std::holds_alternative<ValueViewData>(_data))
+		{
+			auto& data = std::get<ValueViewData>(_data);
+			const byte* ptr = reinterpret_cast<const byte*>(
+				data.exec(sqlite3_value_blob, sqlite3_column_blob)
+			);
+			const int len = data.exec(sqlite3_value_bytes, sqlite3_column_bytes);
+			return { ptr, static_cast<size_t>(len) };
+		}
+		return std::get<BytesView>(_data);
 	}
 
 	BlobView::operator BytesView() const
