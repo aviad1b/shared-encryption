@@ -171,6 +171,19 @@ namespace senc::utils::sqlite
 
 	template <schemas::SomeTable Schema>
 	inline const TableView<Schema>::Self&
+		TableView<Schema>::operator>>(std::vector<std::tuple_element_t<0, Tuple>>& vec) const
+	requires (1 == ROW_LEN)
+	{
+		TableUtils(Schema{}).execute(
+			_db, as_sql(),
+			[&vec](auto&& value) { vec.emplace_back(value); },
+			std::nullopt
+		);
+		return *this;
+	}
+
+	template <schemas::SomeTable Schema>
+	inline const TableView<Schema>::Self&
 		TableView<Schema>::operator>>(schemas::TableCallable<Schema> auto&& callback) const
 	{
 		TableUtils(Schema{}).execute(_db, as_sql(), callback, std::nullopt);

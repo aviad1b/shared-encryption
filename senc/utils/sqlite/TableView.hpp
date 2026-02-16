@@ -125,6 +125,15 @@ namespace senc::utils::sqlite
 		requires (1 == ROW_LEN);
 
 		/**
+		 * @brief Outputs viewed data into a fitting vector (elem per row).
+		 * @note Requires schema to contain one value exactly.
+		 * @param vec Vector to output into.
+		 * @return `*this`.
+		 */
+		const Self& operator>>(std::vector<std::tuple_element_t<0, Tuple>>& vec) const
+		requires (1 == ROW_LEN);
+
+		/**
 		 * @brief Outputs viewed data into a fitting callback functor.
 		 * @param callback Callback functor to output into.
 		 * @return `*this`.
