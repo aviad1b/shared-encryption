@@ -137,9 +137,7 @@ namespace senc::utils::sqlite
 			schemas::DBTable<Schema, table2Name>,
 			axisCol2
 		>;
-		return TableView<RetSchema>(
-			_db
-		);
+		return TableView<RetSchema>(_db);
 	}
 
 	template <schemas::SomeDB Schema>
