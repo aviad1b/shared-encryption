@@ -265,7 +265,7 @@ namespace senc::utils::sqlite::schemas
 		> { };
 
 
-		// utility sfinae used for removing owner from col found by name
+		// used for removing owner from col found by name
 		template <SomeTable T, FixedString colName>
 		struct remove_table_col_owner { };
 
@@ -321,4 +321,15 @@ namespace senc::utils::sqlite::schemas
 			>::type
 		> { };
 	}
+
+	/**
+	 * @typedef senc::utils::sqlite::schemas::RemoveTableColOwner
+	 * @brief Removes owner from column found by name in table schema.
+	 * @tparam T Table schema.
+	 * @tparam colName Column name.
+	 * @note Requires `colName` to be a name of an existing column in `T`.
+	 */
+	template <SomeTable T, FixedString colName>
+	requires TableWithCol<T, colName>
+	using RemoveTableColOwner = typename sfinae::remove_table_col_owner<T, colName>::type;
 }
