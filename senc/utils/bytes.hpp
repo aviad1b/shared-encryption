@@ -38,7 +38,7 @@ namespace senc::utils
 	 * @typedef senc::utils::BytesView
 	 * @brief Views continuous bytes data.
 	 */
-	using BytesView = std::span<byte>;
+	using BytesView = std::span<const byte>;
 
 	/**
 	 * @concept senc::utils::HasByteData
