@@ -118,7 +118,7 @@ namespace senc::utils::sqlite
 	static_assert(AggrFunc<Avg<"column">>);
 
 	/**
-	 * @struct senc::utils::sqlite::Avg
+	 * @struct senc::utils::sqlite::OwnedAvg
 	 * @brief Represents the "avg" sqlite aggregation function, with owning table name.
 	 * @tparam owner Owning table name.
 	 * @tparam colName Column to apply aggregation function on.
