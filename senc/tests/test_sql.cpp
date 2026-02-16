@@ -19,6 +19,7 @@ class SqlTest : public testing::Test
 {
 protected:
 	// schema: Users(id: INT PK, name: TEXT, age: REAL, data: BLOB?)
+	//         FavNumbers(user_id: INT FK[Users.id], fav_num: Int)
 	std::optional<sql::TempDatabase<sql::schemas::DB<
 		sql::schemas::Table<"Users",
 			sql::schemas::PrimaryKey<"id"  , sql::Int                >,
