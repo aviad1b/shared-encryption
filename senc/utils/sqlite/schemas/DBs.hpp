@@ -103,9 +103,8 @@ namespace senc::utils::sqlite::schemas
 		struct db_has_table_with_col : std::false_type { };
 
 		template <FixedString tableName, FixedString colName, DBWithTable<tableName> D>
-		struct db_has_table_with_col<D, tableName, colName, true> : std::bool_constant<
-			TableWithCol<DBTable<D, tableName>, colName>
-		> { };
+		struct db_has_table_with_col<D, tableName, colName, true>
+			: table_has_col<DBTable<D, tableName>, colName> { };
 	}
 
 	/**
