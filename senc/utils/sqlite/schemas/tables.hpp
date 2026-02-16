@@ -198,6 +198,7 @@ namespace senc::utils::sqlite::schemas
 
 	namespace sfinae
 	{
+		// used to check if given typename params are fitting for insertion into a table
 		template <SomeTable T, typename... Ps>
 		struct params_for_table : std::false_type { };
 
