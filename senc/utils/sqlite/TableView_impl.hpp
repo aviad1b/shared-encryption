@@ -86,6 +86,16 @@ namespace senc::utils::sqlite
 	}
 
 	template <schemas::SomeTable Schema>
+	inline TableView<Schema>::Self TableView<Schema>::where(const std::string& condition)
+	{
+		using Ret = Self;
+
+		Ret res = *this;
+		res._where.push_back(condition);
+		return res;
+	}
+
+	template <schemas::SomeTable Schema>
 	template <SomeOrderArg Arg>
 	inline TableView<Schema>::Self TableView<Schema>::order_by()
 	{
@@ -94,16 +104,6 @@ namespace senc::utils::sqlite
 		Ret res = *this;
 		res._orderBy.push_back(std::string(ORDER_ARG_NAME<Arg>) + " " + 
 			std::string(ORDER_KIND_STR<ORDER_ARG_KIND<Arg>>));
-		return res;
-	}
-
-	template <schemas::SomeTable Schema>
-	inline TableView<Schema>::Self TableView<Schema>::where(const std::string& condition)
-	{
-		using Ret = Self;
-
-		Ret res = *this;
-		res._where.push_back(condition);
 		return res;
 	}
 
