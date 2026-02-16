@@ -260,6 +260,10 @@ namespace senc::utils::sqlite::schemas
 
 		template <SomeForeignKey C>
 		struct foreign_key_ref_col_name<C, true> : FixedStringConstant<C::REF_COL_NAME> { };
+
+		// used for getting column value type form column schema.
+		template <SomeCol C>
+		struct col_type { using type = typename C::Type; };
 	}
 
 	/**
@@ -308,7 +312,7 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam C Column schema.
 	 */
 	template <SomeCol C>
-	using ColType = typename C::Type;
+	using ColType = typename sfinae::col_type<C>::type;
 
 	/**
 	 * @typedef senc::utils::sqlite::schemas::ColView
