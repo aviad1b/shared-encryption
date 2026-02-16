@@ -72,7 +72,7 @@ namespace senc::utils::sqlite::schemas
 		template <typename F, FixedString name, SomeCol... Cs>
 		struct is_table_callable<F, Table<name, Cs...>> : std::bool_constant<
 			Callable<F, void, ColView<Cs>...>
-		>{ };
+		> { };
 	}
 
 	/**
