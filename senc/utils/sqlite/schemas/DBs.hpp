@@ -116,7 +116,8 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam colName Column name to look for within table.
 	 */
 	template <typename D, FixedString tableName, FixedString colName>
-	concept DBWithTableWithCol = sfinae::db_has_table_with_col<D, tableName, colName>::value;
+	concept DBWithTableWithCol = SomeDB<D> &&
+		sfinae::db_has_table_with_col<D, tableName, colName>::value;
 
 	namespace sfinae
 	{
