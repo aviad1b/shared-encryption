@@ -132,7 +132,7 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Outputs viewed data into a fitting vector (elem per row).
-		 * @note Requires schema to contain one value exactly.
+		 * @note Requires schema to contain one column exactly.
 		 * @param vec Vector to output into (by ref).
 		 * @return `*this`.
 		 */
