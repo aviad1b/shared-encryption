@@ -240,6 +240,7 @@ namespace senc::utils
 
 	namespace sfinae
 	{
+		// used for conditional evaluation to a fixed string value
 		template <bool flag, FixedString fs>
 		struct cond_fixed_string : EmptyFixedStringConstant { };
 
