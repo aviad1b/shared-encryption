@@ -28,7 +28,6 @@ namespace senc::utils::sqlite::schemas
 	{
 		// used for joining two tables on a named col
 		template <SomeTable T1, FixedString colName1, SomeTable T2, FixedString colName2 = colName1>
-		requires Joinable<T1, colName1, T2, colName2>
 		struct join : concat_tables<
 			typename remove_table_col_owner<T1, colName1>::type,
 			typename drop_table_col_by_name<T2, colName2>::type,
