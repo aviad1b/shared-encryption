@@ -145,8 +145,8 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Binds a value to a statement parameter.
-		 * @tparam P Parameter type.
 		 * @tparam i Statement param index.
+		 * @tparam P Parameter type.
 		 * @param stmt Statement handle pointer.
 		 * @param value Value to bind.
 		 * @throw SQLiteException If failed to bind.
@@ -156,8 +156,8 @@ namespace senc::utils::sqlite
 
 		/**
 		 * @brief Binds values to a statement parameter.
-		 * @tparam Ps Parameter types.
 		 * @tparam is Statement param indexes.
+		 * @tparam Ps Parameter types.
 		 * @param stmt Statement handle pointer.
 		 * @param values Values to bind.
 		 * @throw SQLiteException If failed to bind.
