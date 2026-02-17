@@ -160,8 +160,8 @@ namespace senc::utils::sqlite
 				name + "(" +
 				FIXED_STRING_JOIN<
 					",",
-					FIXED_STRING_JOIN<",", ColUtils(Cs{}).get_create_arg()...>,
-					FIXED_STRING_JOIN<",", ColUtils(Cs{}).get_additional_constraints()...>
+					ColUtils(Cs{}).get_create_arg()...,
+					ColUtils(Cs{}).get_additional_constraints()...
 				> + ");";
 		}
 
