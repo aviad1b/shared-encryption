@@ -35,4 +35,25 @@ namespace senc::server::storage
 			>> [&found](const sql::TextView&) { found = true; };
 		return found;
 	}
+
+	bool SqliteServerStorage::user_has_password(const std::string& username, const std::string& password)
+	{
+		bool found = false;
+		PwdSalt pwdSalt{};
+		PwdHash pwdHash{};
+
+		this->_db.select<"Users", sql::SelectArg<"pwd_salt">, sql::SelectArg<"pwd_hash">>()
+			.where("username = " + sql::Text(username).as_sqlite())
+			>> [&found, &pwdSalt, &pwdHash](sql::BlobView salt, sql::BlobView hash)
+			{
+				// TODO: Replace memcpy calls with direct call once pwdhash supports views
+				std::memcpy(pwdSalt.data(), salt.get().data(), std::min(salt.get().size(), pwdSalt.size()));
+				std::memcpy(pwdHash.data(), hash.get().data(), std::min(hash.get().size(), pwdHash.size()));
+				found = true;
+			};
+
+		// return true iff hash on input equals to stored hash
+		const auto inputPwdHash = _pwdHasher.hash(password, pwdSalt);
+		return inputPwdHash == pwdHash;
+	}
 }
