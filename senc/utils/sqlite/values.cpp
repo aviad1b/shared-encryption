@@ -18,7 +18,7 @@ namespace senc::utils::sqlite
 
 	NullView::NullView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_NULL != _data.exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_NULL != _data->exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad null view handle");
 	}
 

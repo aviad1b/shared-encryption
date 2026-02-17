@@ -158,7 +158,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return true; }
 
 	private:
-		ValueViewData _data;
+		std::optional<ValueViewData> _data;
 	};
 	static_assert(ValueView<NullView>);
 
