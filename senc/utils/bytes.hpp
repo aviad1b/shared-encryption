@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <ranges>
+#include <span>
 #include <bit>
 
 #include "concepts.hpp"
@@ -32,6 +33,12 @@ namespace senc::utils
 	 * @brief Stores sequential binary data.
 	 */
 	using Buffer = std::vector<byte>;
+
+	/**
+	 * @typedef senc::utils::BytesView
+	 * @brief Views continuous bytes data.
+	 */
+	using BytesView = std::span<const byte>;
 
 	/**
 	 * @concept senc::utils::HasByteData

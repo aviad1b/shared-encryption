@@ -8,6 +8,7 @@
 	"strs.hpp"
 	"bytes_impl.hpp"
 	"concepts.hpp"
+	"FixedString.hpp"
 	"hash.hpp"
 	"variants.hpp"
 	"ranges.hpp"
@@ -51,6 +52,24 @@
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
 	"pwd/PBKDF2.cpp"
+	"sqlite/SQLiteException.hpp"
+	"sqlite/values.hpp"
+	"sqlite/values.cpp"
+	"sqlite/values_impl.hpp"
+	"sqlite/aggr.hpp"
+	"sqlite/args.hpp"
+	"sqlite/schemas/all.hpp"
+	"sqlite/schemas/columns.hpp"
+	"sqlite/schemas/tables.hpp"
+	"sqlite/schemas/DBs.hpp"
+	"sqlite/schemas/select.hpp"
+	"sqlite/schemas/join.hpp"
+	"sqlite/sqlite_utils.hpp"
+	"sqlite/sqlite_utils_impl.hpp"
+	"sqlite/TableView.hpp"
+	"sqlite/TableView_impl.hpp"
+	"sqlite/Database.hpp"
+	"sqlite/Database_impl.hpp"
 )
 
 if (WIN32)
@@ -59,6 +78,6 @@ else()
 	target_link_libraries(senc_utils PUBLIC libuuid)
 endif()
 
-target_link_libraries(senc_utils PUBLIC cryptopp)
+target_link_libraries(senc_utils PUBLIC cryptopp sqlite3)
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)

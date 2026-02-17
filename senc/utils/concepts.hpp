@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   concepts.hpp
- * \brief  Contains general concept declarations.
+ * \brief  Contains general concept & type traits declarations.
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786
