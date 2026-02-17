@@ -144,26 +144,26 @@ namespace senc::utils::sqlite
 		friend class Database;
 
 		/**
-		 * @brief Binds a value to a statement parameter.
+		 * @brief Binds a parameter to a statement parameter.
 		 * @tparam i Statement param index.
 		 * @tparam P Parameter type.
 		 * @param stmt Statement handle pointer.
-		 * @param value Value to bind.
+		 * @param param Parameter to bind.
 		 * @throw SQLiteException If failed to bind.
 		 */
 		template <std::size_t i, Param P>
-		static void bind_one(sqlite3_stmt* stmt, const P& value);
+		static void bind_one(sqlite3_stmt* stmt, const P& param);
 
 		/**
-		 * @brief Binds values to a statement parameter.
+		 * @brief Binds parameters to a statement parameter.
 		 * @tparam is Statement param indexes.
 		 * @tparam Ps Parameter types.
 		 * @param stmt Statement handle pointer.
-		 * @param values Values to bind.
+		 * @param params Parameters to bind.
 		 * @throw SQLiteException If failed to bind.
 		 */
 		template <std::size_t... is, Param... Ps>
-		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values);
+		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params);
 	};
 }
 

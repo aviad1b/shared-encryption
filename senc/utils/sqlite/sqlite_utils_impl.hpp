@@ -110,16 +110,16 @@ namespace senc::utils::sqlite
 	}
 
 	template <std::size_t i, Param P>
-	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
+	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& param)
 	{
 		constexpr int index = static_cast<int>(i) + 1; // sql starts counting params from one
-		value.bind(stmt, index);
+		param.bind(stmt, index);
 	}
 
 	template <std::size_t... is, Param... Ps>
-	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... values)
+	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params)
 	{
 		(void)dummy; // for template inference
-		(bind_one<is, Ps>(stmt, values), ...);
+		(bind_one<is, Ps>(stmt, params), ...);
 	}
 }
