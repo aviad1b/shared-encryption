@@ -869,6 +869,14 @@ namespace senc::utils::sqlite
 		Blob(Buffer&& value);
 
 		/**
+		 * @brief Constructs an SQL blob value from inline buffer construction.
+		 * @param args Arguments to construct buffer from.
+		 */
+		template <typename... Args>
+		requires std::constructible_from<Buffer, Args...>
+		Blob(Args&&... args);
+
+		/**
 		 * @brief Constructs an SQL blob value from an SQL blob view.
 		 * @param view SQL blob view.
 		 */

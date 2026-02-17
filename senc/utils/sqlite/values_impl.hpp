@@ -157,4 +157,8 @@ namespace senc::utils::sqlite
 	{
 		_value.value_or(Null{}).bind(stmt, index);
 	}
+
+	template <typename... Args>
+	requires std::constructible_from<Buffer, Args...>
+	inline Blob::Blob(Args&&... args) : _value(std::forward<Args>(args)...) { }
 }
