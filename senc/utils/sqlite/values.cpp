@@ -16,6 +16,8 @@ namespace senc::utils::sqlite
 	ValueViewTag::ValueViewData::ValueViewData(sqlite3_stmt* stmt, int col)
 		: _data(ColumnData{ stmt, col }) { }
 
+	NullView::NullView() : _data(std::nullopt) { }
+
 	NullView::NullView(ValueViewData&& data) : _data(std::move(data))
 	{
 		if (SQLITE_NULL != _data->exec(sqlite3_value_type, sqlite3_column_type))

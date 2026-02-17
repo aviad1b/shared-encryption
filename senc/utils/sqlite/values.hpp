@@ -121,6 +121,11 @@ namespace senc::utils::sqlite
 		using Self = NullView;
 
 		/**
+		 * @brief Default constructor of SQL NULL view.
+		 */
+		NullView();
+
+		/**
 		 * @brief Constructs an SQL NULL view from value view data.
 		 * @param data Value view data (moved).
 		 */
