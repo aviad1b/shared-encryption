@@ -63,7 +63,7 @@ namespace senc::utils
 		 * @brief Gets string's length (without null-termination).
 		 * @return String's length (without null-termination).
 		 */
-		constexpr std::size_t len() const
+		constexpr std::size_t length() const
 		{
 			return LEN;
 		}

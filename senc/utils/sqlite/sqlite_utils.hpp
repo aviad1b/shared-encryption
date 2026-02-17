@@ -94,7 +94,7 @@ namespace senc::utils::sqlite
 				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
 				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
 				") ON DELETE CASCADE ON UPDATE NO ACTION";
-			constexpr std::size_t n = foreignKeyRet.len() + 1;
+			constexpr std::size_t n = foreignKeyRet.length() + 1;
 			if constexpr (schemas::SomeForeignKey<C>)
 				return FixedString<n>(foreignKeyRet);
 			else return FixedString<n>();
