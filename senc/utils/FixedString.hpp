@@ -256,4 +256,29 @@ namespace senc::utils
 	 */
 	template <bool flag, FixedString fs>
 	constexpr FixedString COND_FIXED_STRING = sfinae::cond_fixed_string<flag, fs>::value;
+
+	namespace sfinae
+	{
+		// used for concatinating the same fixed string multiple times
+		template <FixedString fs, std::size_t t, FixedString sep = "">
+		struct fixed_string_dup : FixedStringConstant<
+			fs + sep + fixed_string_dup<fs, t - 1, sep>::value
+		> { };
+
+		template <FixedString fs, FixedString sep>
+		struct fixed_string_dup<fs, 0, sep> : EmptyFixedStringConstant { };
+
+		template <FixedString fs, FixedString sep>
+		struct fixed_string_dup<fs, 1, sep> : FixedStringConstant<fs> { };
+	}
+
+	/**
+	 * @var senc::utils::FIXED_STRING_DUP
+	 * @brief Concatinates the same fixed string multiple times.
+	 * @tparam fs Fixed string to duplicate.
+	 * @tparam t Amount of times to concatinate.
+	 * @tparam sep Optional seperator to have between repetitions of `fs`.
+	 */
+	template <FixedString fs, std::size_t t, FixedString sep = "">
+	constexpr FixedString FIXED_STRING_DUP = sfinae::fixed_string_dup<fs, t, sep>::value;
 }
