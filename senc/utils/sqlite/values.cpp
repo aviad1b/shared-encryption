@@ -265,6 +265,9 @@ namespace senc::utils::sqlite
 
 	BlobView::BlobView(BytesView view) : _data(view) { }
 
+	BlobView::BlobView(const byte* data, std::size_t size)
+		: _data(BytesView{ data, size }) { }
+
 	BlobView::BlobView(ValueViewData&& data) : _data(std::move(data))
 	{
 		if (SQLITE_BLOB != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))

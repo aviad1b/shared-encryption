@@ -889,6 +889,13 @@ namespace senc::utils::sqlite
 		BlobView(BytesView view);
 
 		/**
+		 * @brief Constructs an SQL blob view from a data pointer and size.
+		 * @param data Data pointer.
+		 * @param size Data size (bytes count).
+		 */
+		BlobView(const byte* data, std::size_t size);
+
+		/**
 		 * @brief Constructs an SQL blob view from value view data.
 		 * @param data Value view data (moved).
 		 */
