@@ -112,6 +112,16 @@ namespace senc::utils::sqlite
 	template <Value V>
 	using ValueViewOf = typename V::View;
 
+	namespace sfinae
+	{
+		// used for converting a ValueView to a Value
+		template <ValueView VV>
+		struct value_of_view { };
+	}
+
+	template <ValueView VV>
+	using ValueOfView = typename sfinae::value_of_view<VV>::type;
+
 	/**
 	 * @class senc::utils::NullView
 	 * @brief Views an SQL NULL value.
@@ -233,7 +243,13 @@ namespace senc::utils::sqlite
 		 */
 		void bind(sqlite3_stmt* stmt, int index) const;
 	};
+	namespace sfinae
+	{
+		template <>
+		struct value_of_view<NullView> { using type = Null; };
+	}
 	static_assert(Value<Null>);
+	static_assert(ValueView<ValueViewOf<Null>>);
 
 	/**
 	 * @class senc::utils::sqlite::NullableView
@@ -436,6 +452,11 @@ namespace senc::utils::sqlite
 	private:
 		std::optional<T> _value;
 	};
+	namespace sfinae
+	{
+		template <Value T>
+		struct value_of_view<NullableView<T>> { using type = Nullable<T>; };
+	}
 
 	/**
 	 * @class senc::utils::sqlite::IntView
@@ -558,9 +579,16 @@ namespace senc::utils::sqlite
 	private:
 		sqlite3_int64 _value;
 	};
+	namespace sfinae
+	{
+		template <>
+		struct value_of_view<IntView> { using type = Int; };
+	}
 	static_assert(Value<Int>);
+	static_assert(ValueView<ValueViewOf<Int>>);
 	static_assert(Value<Nullable<Int>>);
 	static_assert(ValueView<NullableView<Int>>);
+	static_assert(ValueView<ValueViewOf<Nullable<Int>>>);
 
 	/**
 	 * @class senc::utils::sqlite::RealView
@@ -683,9 +711,16 @@ namespace senc::utils::sqlite
 	private:
 		double _value;
 	};
+	namespace sfinae
+	{
+		template <>
+		struct value_of_view<RealView> { using type = Real; };
+	}
 	static_assert(Value<Real>);
+	static_assert(ValueView<ValueViewOf<Real>>);
 	static_assert(Value<Nullable<Real>>);
 	static_assert(ValueView<NullableView<Real>>);
+	static_assert(ValueView<ValueViewOf<Nullable<Real>>>);
 
 	/**
 	 * @class senc::utils::sqlite::TextView
@@ -820,9 +855,16 @@ namespace senc::utils::sqlite
 	private:
 		std::string _value;
 	};
+	namespace sfinae
+	{
+		template <>
+		struct value_of_view<TextView> { using type = Text; };
+	}
 	static_assert(Value<Text>);
+	static_assert(ValueView<ValueViewOf<Text>>);
 	static_assert(Value<Nullable<Text>>);
 	static_assert(ValueView<NullableView<Text>>);
+	static_assert(ValueView<ValueViewOf<Nullable<Text>>>);
 
 	/**
 	 * @class senc::utils::sqlite::BlobView
@@ -957,9 +999,16 @@ namespace senc::utils::sqlite
 	private:
 		Buffer _value;
 	};
+	namespace sfinae
+	{
+		template <>
+		struct value_of_view<BlobView> { using type = Blob; };
+	}
 	static_assert(Value<Blob>);
+	static_assert(ValueView<ValueViewOf<Blob>>);
 	static_assert(Value<Nullable<Blob>>);
 	static_assert(ValueView<NullableView<Blob>>);
+	static_assert(ValueView<ValueViewOf<Nullable<Blob>>>);
 }
 
 #include "values_impl.hpp"
