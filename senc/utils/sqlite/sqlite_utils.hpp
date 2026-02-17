@@ -61,7 +61,7 @@ namespace senc::utils::sqlite
 		friend class Database;
 
 		// dummy arg is used for template inference
-		TableUtils(Schema) { }
+		constexpr TableUtils(Schema) { }
 
 		/**
 		 * @brief Executes a statement with a given callback function on a table.
