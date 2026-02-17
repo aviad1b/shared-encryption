@@ -64,7 +64,7 @@ namespace senc::utils::sqlite
 	template <schemas::SomeTable... Ts>
 	inline void DatabaseUtils<Ts...>::create_tables_if_not_exist(sqlite3* db)
 	{
-		const FixedString sql = "BEGIN; " +
+		const auto sql = "BEGIN; " +
 			((TableUtils(Ts{}).get_create_statement() + " ") + ...) +
 			"COMMIT;";
 		int code = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
