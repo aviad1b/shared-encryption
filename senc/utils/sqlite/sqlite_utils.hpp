@@ -74,7 +74,7 @@ namespace senc::utils::sqlite
 		{
 			if constexpr (schemas::SomePrimaryKey<C>)
 				return schemas::COL_NAME<C> + " " +
-					schemas::COL_SQL_TYPE<C> + "PRIMARY KEY";
+					schemas::COL_SQL_TYPE<C> + " PRIMARY KEY";
 			else if constexpr (schemas::ColType<C>::is_nullable())
 				return schemas::COL_NAME<C> + " " +
 					schemas::COL_SQL_TYPE<C>;
