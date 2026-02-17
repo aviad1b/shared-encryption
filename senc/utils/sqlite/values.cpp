@@ -252,6 +252,8 @@ namespace senc::utils::sqlite
 
 	Blob::Blob(Buffer&& value) : _value(std::move(value)) { }
 
+	Blob::Blob(std::initializer_list<byte> bytes) : _value(bytes) { }
+
 	Blob::Blob(const View& view) : _value(view.get().begin(), view.get().end()) { }
 
 	const Buffer& Blob::get() const

@@ -869,6 +869,12 @@ namespace senc::utils::sqlite
 		Blob(Buffer&& value);
 
 		/**
+		 * @brief Constructs an SQL blob value from initializer list of bytes.
+		 * @param bytes Initialized list of bytes.
+		 */
+		Blob(std::initializer_list<byte> bytes);
+
+		/**
 		 * @brief Constructs an SQL blob value from inline buffer construction.
 		 * @param args Arguments to construct buffer from.
 		 */
