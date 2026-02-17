@@ -161,8 +161,8 @@ namespace senc::utils::sqlite
 		{
 			return "CREATE TABLE IF NOT EXISTS " +
 				name + "(" +
-				FIXED_STRING_JOIN<
-					",",
+				FIXED_STRING_NON_EMPTY_JOIN<
+					", ",
 					ColUtils(Cs{}).get_create_arg()...,
 					ColUtils(Cs{}).get_additional_constraints()...
 				> + ");";
