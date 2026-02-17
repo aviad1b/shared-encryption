@@ -74,7 +74,9 @@ namespace senc::utils
 		 */
 		constexpr bool empty() const
 		{
-			return 0 == LEN;
+			if constexpr (0 == n)
+				return true;
+			else return !value[0];
 		}
 
 		/**
