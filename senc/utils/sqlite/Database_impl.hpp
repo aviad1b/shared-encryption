@@ -50,20 +50,14 @@ namespace senc::utils::sqlite
 	{
 		using T = schemas::DBTable<Schema, tableName>;
 		constexpr std::size_t COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;
-		std::string sql = "INSERT INTO " + std::string(schemas::TABLE_NAME<T>) +
-			"(" + TableUtils(T{}).get_columns() + ") VALUES(";
-		if (COLS_COUNT > 0)
-		{
-			for (std::size_t i = 0; i < COLS_COUNT - 1; ++i)
-				sql += "?, ";
-			sql += "?";
-		}
-		sql += ");";
+		constexpr FixedString sql = "INSERT INTO " + schemas::TABLE_NAME<T> +
+			"(" + TableUtils(T{}).get_columns() + ") VALUES(" +
+			FIXED_STRING_DUP<"?", COLS_COUNT, ", "> + ");";
 
 		sqlite3_stmt* stmt = nullptr;
 		int code = sqlite3_prepare_v2(_db, sql.c_str(), -1, &stmt, nullptr);
 		if (SQLITE_OK != code)
-			throw SQLiteException("Failed to run statement: " + sql, code);
+			throw SQLiteException(std::string("Failed to run statement: " + sql), code);
 
 		// bind parameters
 		ParamUtils::bind_all(
