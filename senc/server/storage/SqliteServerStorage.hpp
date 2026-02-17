@@ -10,6 +10,7 @@
 
 #include "../../utils/sqlite/Database.hpp"
 #include "IServerStorage.hpp"
+#include "../aliases.hpp"
 #include <mutex>
 
 namespace senc::server::storage
@@ -71,5 +72,9 @@ namespace senc::server::storage
 				utils::sqlite::schemas::Col       <"is_owner"  , utils::sqlite::Int                   >
 			>
 		>> _db;
+		std::mutex _mtxDB;
+
+		utils::Distribution<PrivKeyShardID> _shardsDist;
+		PwdHasher _pwdHasher;
 	};
 }
