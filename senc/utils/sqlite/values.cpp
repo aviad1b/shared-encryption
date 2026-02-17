@@ -238,7 +238,18 @@ namespace senc::utils::sqlite
 
 	std::string Text::as_sqlite() const
 	{
-		return "\"" + _value + "\"";
+		std::string escaped;
+		escaped.reserve(_value.length()); // we know that we'll need at least `length()` chars
+
+		for (char c : _value)
+		{
+			if (c == '\'')
+				escaped += "''";
+			else
+				escaped += c;
+		}
+
+		return "'" + escaped + "'";
 	}
 
 	void Text::bind(sqlite3_stmt* stmt, int index) const
