@@ -53,9 +53,10 @@ namespace senc::utils
 		 * @brief Copy constructor of fixed string.
 		 * @param other Other fixed string to copy.
 		 */
-		constexpr FixedString(const FixedString<n>& other)
+		template <std::size_t m>
+		constexpr FixedString(const FixedString<m>& other)
 		{
-			for (std::size_t i = 0; i < n; ++i)
+			for (std::size_t i = 0; i < other.length(); ++i)
 				value[i] = other.value[i];
 		}
 
