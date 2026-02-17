@@ -249,7 +249,8 @@ namespace senc::utils::sqlite
 		struct value_of_view<NullView> { using type = Null; };
 	}
 	static_assert(Value<Null>);
-	static_assert(ValueView<ValueViewOf<Null>>);
+	static_assert(std::same_as<ValueViewOf<Null>, NullView>);
+	static_assert(std::same_as<ValueOfView<NullView>, Null>);
 
 	/**
 	 * @class senc::utils::sqlite::NullableView
@@ -585,10 +586,12 @@ namespace senc::utils::sqlite
 		struct value_of_view<IntView> { using type = Int; };
 	}
 	static_assert(Value<Int>);
-	static_assert(ValueView<ValueViewOf<Int>>);
 	static_assert(Value<Nullable<Int>>);
 	static_assert(ValueView<NullableView<Int>>);
-	static_assert(ValueView<ValueViewOf<Nullable<Int>>>);
+	static_assert(std::same_as<ValueViewOf<Int>, IntView>);
+	static_assert(std::same_as<ValueOfView<IntView>, Int>);
+	static_assert(std::same_as<ValueViewOf<Nullable<Int>>, NullableView<Int>>);
+	static_assert(std::same_as<ValueOfView<NullableView<Int>>, Nullable<Int>>);
 
 	/**
 	 * @class senc::utils::sqlite::RealView
@@ -717,10 +720,12 @@ namespace senc::utils::sqlite
 		struct value_of_view<RealView> { using type = Real; };
 	}
 	static_assert(Value<Real>);
-	static_assert(ValueView<ValueViewOf<Real>>);
 	static_assert(Value<Nullable<Real>>);
 	static_assert(ValueView<NullableView<Real>>);
-	static_assert(ValueView<ValueViewOf<Nullable<Real>>>);
+	static_assert(std::same_as<ValueViewOf<Real>, RealView>);
+	static_assert(std::same_as<ValueOfView<RealView>, Real>);
+	static_assert(std::same_as<ValueViewOf<Nullable<Real>>, NullableView<Real>>);
+	static_assert(std::same_as<ValueOfView<NullableView<Real>>, Nullable<Real>>);
 
 	/**
 	 * @class senc::utils::sqlite::TextView
@@ -861,10 +866,12 @@ namespace senc::utils::sqlite
 		struct value_of_view<TextView> { using type = Text; };
 	}
 	static_assert(Value<Text>);
-	static_assert(ValueView<ValueViewOf<Text>>);
 	static_assert(Value<Nullable<Text>>);
 	static_assert(ValueView<NullableView<Text>>);
-	static_assert(ValueView<ValueViewOf<Nullable<Text>>>);
+	static_assert(std::same_as<ValueViewOf<Text>, TextView>);
+	static_assert(std::same_as<ValueOfView<TextView>, Text>);
+	static_assert(std::same_as<ValueViewOf<Nullable<Text>>, NullableView<Text>>);
+	static_assert(std::same_as<ValueOfView<NullableView<Text>>, Nullable<Text>>);
 
 	/**
 	 * @class senc::utils::sqlite::BlobView
@@ -1005,10 +1012,12 @@ namespace senc::utils::sqlite
 		struct value_of_view<BlobView> { using type = Blob; };
 	}
 	static_assert(Value<Blob>);
-	static_assert(ValueView<ValueViewOf<Blob>>);
 	static_assert(Value<Nullable<Blob>>);
 	static_assert(ValueView<NullableView<Blob>>);
-	static_assert(ValueView<ValueViewOf<Nullable<Blob>>>);
+	static_assert(std::same_as<ValueViewOf<Blob>, BlobView>);
+	static_assert(std::same_as<ValueOfView<BlobView>, Blob>);
+	static_assert(std::same_as<ValueViewOf<Nullable<Blob>>, NullableView<Blob>>);
+	static_assert(std::same_as<ValueOfView<NullableView<Blob>>, Nullable<Blob>>);
 }
 
 #include "values_impl.hpp"
