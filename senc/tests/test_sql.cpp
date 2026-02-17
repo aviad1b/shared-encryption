@@ -435,6 +435,29 @@ TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 	db->remove<"Users">("id = 4");
 }
 
+TEST_F(SqlTest, InsertWithViewsAndSelectRoundTrip)
+{
+	{
+		const std::string name = "Hadas";
+		const senc::utils::Buffer bdata{ 0x01, 0x02 };
+		std::string_view nameView(name.data(), name.length());
+		senc::utils::BytesView bdataView(bdata.data(), bdata.size());
+		db->insert<"Users">(sql::Int(5), sql::TextView(nameView), sql::Real(25.0), sql::BlobView(bdataView));
+	} // should still be valid after scope exit - stored to DB
+
+	sql::Nullable<sql::Blob> data;
+	db->select<"Users", sql::SelectArg<"data">>()
+		.where("id = 4")
+		>> data;
+	EXPECT_TRUE(data.has_value());
+	const auto& blob = data->get();
+	EXPECT_EQ(blob.size(), 2);
+	EXPECT_EQ(blob[0], 0x01);
+	EXPECT_EQ(blob[1], 0x02);
+
+	db->remove<"Users">("id = 4");
+}
+
 TEST_F(SqlTest, InsertIncreasesCount)
 {
 	sql::Int before;
