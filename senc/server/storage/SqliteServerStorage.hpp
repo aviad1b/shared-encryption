@@ -56,8 +56,8 @@ namespace senc::server::storage
 		utils::sqlite::Database<utils::sqlite::schemas::DB<
 			utils::sqlite::schemas::Table<"Users",
 				utils::sqlite::schemas::PrimaryKey<"username", utils::sqlite::Text>,
-				utils::sqlite::schemas::Col<"pwd_salt", utils::sqlite::Blob>,
-				utils::sqlite::schemas::Col<"pwd_hash", utils::sqlite::Blob>
+				utils::sqlite::schemas::Col       <"pwd_salt", utils::sqlite::Blob>,
+				utils::sqlite::schemas::Col       <"pwd_hash", utils::sqlite::Blob>
 			>,
 			utils::sqlite::schemas::Table<"UserSets",
 				utils::sqlite::schemas::PrimaryKey<"id"                   , utils::sqlite::Blob>,
