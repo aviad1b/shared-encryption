@@ -74,9 +74,10 @@ namespace senc::utils::sqlite
 	concept ValueView = std::derived_from<Self, ValueViewTag> &&
 		std::constructible_from<Self, sqlite3_value*> &&
 		std::constructible_from<Self, sqlite3_stmt*, int> &&
-		requires
+		requires(const Self self, sqlite3_stmt* stmt, int index)
 		{
 			{ std::bool_constant<Self::is_nullable()>() }; // must be constexpr-evaluable
+			{ self.bind(stmt, index) };
 		};
 
 	/**
@@ -162,6 +163,13 @@ namespace senc::utils::sqlite
 		 */
 		static constexpr bool is_nullable() { return true; }
 
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
+
 	private:
 		std::optional<ValueViewData> _data;
 	};
@@ -219,7 +227,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */
@@ -315,6 +323,13 @@ namespace senc::utils::sqlite
 		 * @return `true`.
 		 */
 		static constexpr bool is_nullable() { return true; }
+
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
 
 	private:
 		std::optional<ValueViewOf<T>> _view;
@@ -412,7 +427,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */
@@ -467,6 +482,13 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
 
 	private:
 		ValueViewData _data;
@@ -527,7 +549,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */
@@ -585,6 +607,13 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
 
 	private:
 		ValueViewData _data;
@@ -645,7 +674,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */
@@ -709,6 +738,13 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
 
 	private:
 		std::variant<ValueViewData, std::string_view> _data;
@@ -775,7 +811,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */
@@ -839,6 +875,13 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Binds as parameter to a given statement.
+		 * @param stmt Statement pointer.
+		 * @param index Param index to bind to.
+		 */
+		void bind(sqlite3_stmt* stmt, int index) const;
 
 	private:
 		std::variant<ValueViewData, BytesView> _data;
@@ -905,7 +948,7 @@ namespace senc::utils::sqlite
 		std::string as_sqlite() const;
 
 		/**
-		 * @brief Binds value to a given statement.
+		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
 		 */

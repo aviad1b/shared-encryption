@@ -38,6 +38,13 @@ namespace senc::utils::sqlite
 		return get();
 	}
 
+	void NullView::bind(sqlite3_stmt* stmt, int index) const
+	{
+		int code = sqlite3_bind_null(stmt, index);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind view", code);
+	}
+
 	std::nullopt_t Null::get() const
 	{
 		return std::nullopt;
@@ -78,6 +85,13 @@ namespace senc::utils::sqlite
 	IntView::operator std::int64_t() const
 	{
 		return get();
+	}
+
+	void IntView::bind(sqlite3_stmt* stmt, int index) const
+	{
+		int code = sqlite3_bind_int64(stmt, index, get());
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind view", code);
 	}
 
 	Int::Int() : Self(static_cast<std::int64_t>(0)) { }
@@ -126,6 +140,13 @@ namespace senc::utils::sqlite
 	RealView::operator double() const
 	{
 		return get();
+	}
+
+	void RealView::bind(sqlite3_stmt* stmt, int index) const
+	{
+		int code = sqlite3_bind_double(stmt, index, get());
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind view", code);
 	}
 
 	Real::Real() : Self(0.0) { }
@@ -185,6 +206,18 @@ namespace senc::utils::sqlite
 	TextView::operator std::string_view() const
 	{
 		return get();
+	}
+
+	void TextView::bind(sqlite3_stmt* stmt, int index) const
+	{
+		auto view = get();
+		int code = sqlite3_bind_text(
+			stmt, index,
+			view.data(), static_cast<int>(view.length()),
+			SQLITE_TRANSIENT // copy
+		);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind view", code);
 	}
 
 	Text::Text(const std::string& value) : _value(value) { }
@@ -250,6 +283,18 @@ namespace senc::utils::sqlite
 		return get();
 	}
 
+	void BlobView::bind(sqlite3_stmt* stmt, int index) const
+	{
+		auto view = get();
+		int code = sqlite3_bind_blob(
+			stmt, index,
+			view.data(), static_cast<int>(view.size()),
+			SQLITE_TRANSIENT // copy
+		);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to bind view", code);
+	}
+
 	Blob::Blob(Buffer&& value) : _value(std::move(value)) { }
 
 	Blob::Blob(std::initializer_list<byte> bytes) : _value(bytes) { }
@@ -284,6 +329,6 @@ namespace senc::utils::sqlite
 			SQLITE_TRANSIENT // copy
 		);
 		if (SQLITE_OK != code)
-			throw SQLiteException("Failed to bind value");
+			throw SQLiteException("Failed to bind value", code);
 	}
 }
