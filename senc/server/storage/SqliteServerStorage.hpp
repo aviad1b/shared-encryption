@@ -23,6 +23,10 @@ namespace senc::server::storage
 	public:
 		using Self = SqliteServerStorage;
 
+		/**
+		 * @brief Constructs a new SQLite server storage instance.
+		 * @param path Path to SQLite database file.
+		 */
 		SqliteServerStorage(const std::string& path);
 
 		void new_user(const std::string& username, const std::string& password) override;
