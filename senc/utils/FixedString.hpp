@@ -202,22 +202,6 @@ namespace senc::utils
 	template <typename Self>
 	concept FixedStringType = sfinae::is_fixed_string_type<Self>::value;
 
-	/**
-	 * @concept senc::utils::EmptyFixedStringType
-	 * @brief Looks for an empty fixed string type (n=1, enough space for null-termination only).
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept EmptyFixedStringType = FixedStringType<Self> && (0 == Self::LEN);
-
-	/**
-	 * @concept senc::utils::NonEmptyFixedStringType
-	 * @brief Looks for a fixed string type that isn't `EmptyFixedStringType`.
-	 * @see `EmptyFixedStringType`.
-	 */
-	template <typename Self>
-	concept NonEmptyFixedStringType = FixedStringType<Self> && !EmptyFixedStringType<Self>;
-
 	namespace sfinae
 	{
 		// used for checking if two fixed strings are the same (implicitly calls operator==)

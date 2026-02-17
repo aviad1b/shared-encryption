@@ -48,8 +48,7 @@ namespace senc::utils::sqlite
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept AggrFuncWithAs = AggrFunc<Self> &&
-		requires { { Self::AS } -> NonEmptyFixedStringType; };
+	concept AggrFuncWithAs = AggrFunc<Self> && (!Self::AS.empty());
 
 	namespace sfinae
 	{
@@ -74,8 +73,7 @@ namespace senc::utils::sqlite
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept AggrFuncWithOwner = AggrFunc<Self> &&
-		requires { { Self::OWNER } -> NonEmptyFixedStringType; };
+	concept AggrFuncWithOwner = AggrFunc<Self> && (!Self::OWNER.empty());
 
 	namespace sfinae
 	{
