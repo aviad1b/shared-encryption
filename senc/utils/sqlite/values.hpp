@@ -432,6 +432,12 @@ namespace senc::utils::sqlite
 		using Self = IntView;
 
 		/**
+		 * @brief Constructs an SQL int view from an existing int value.
+		 * @param ref Reference to existing int value.
+		 */
+		IntView(const std::int64_t& ref);
+
+		/**
 		 * @brief Constructs an SQL int view from value view data.
 		 * @param data Value view data (moved).
 		 */
@@ -550,6 +556,12 @@ namespace senc::utils::sqlite
 		using Self = RealView;
 
 		/**
+		 * @brief Constructs an SQL real view from an existing double value.
+		 * @param ref Reference to existing double value.
+		 */
+		RealView(const double& ref);
+
+		/**
 		 * @brief Constructs an SQL real view from value view data.
 		 * @param data Value view data (moved).
 		 */
@@ -666,6 +678,12 @@ namespace senc::utils::sqlite
 	{
 	public:
 		using Self = TextView;
+
+		/**
+		 * @brief Constructs an SQL text view from an existing string view.
+		 * @param view Existing string view.
+		 */
+		TextView(std::string_view view);
 
 		/**
 		 * @brief Constructs an SQL text view from value view data.
@@ -790,6 +808,12 @@ namespace senc::utils::sqlite
 	{
 	public:
 		using Self = BlobView;
+
+		/**
+		 * @brief Constructs an SQL blob view from an existing bytes view.
+		 * @param view Existing bytes view.
+		 */
+		BlobView(BytesView view);
 
 		/**
 		 * @brief Constructs an SQL blob view from value view data.

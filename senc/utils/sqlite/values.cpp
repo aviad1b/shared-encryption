@@ -60,6 +60,8 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to bind value", code);
 	}
 
+	IntView::IntView(const std::int64_t& ref) : _data(ref) { }
+
 	IntView::IntView(ValueViewData&& data) : _data(std::move(data))
 	{
 		if (SQLITE_INTEGER != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
@@ -110,6 +112,8 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to bind value", code);
 	}
 
+	RealView::RealView(const double& ref) : _data(ref) { }
+
 	RealView::RealView(ValueViewData&& data) : _data(std::move(data))
 	{
 		if (SQLITE_FLOAT != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
@@ -159,6 +163,8 @@ namespace senc::utils::sqlite
 		if (SQLITE_OK != code)
 			throw SQLiteException("Failed to bind value", code);
 	}
+
+	TextView::TextView(std::string_view view) : _data(view) { }
 
 	TextView::TextView(ValueViewData&& data) : _data(std::move(data))
 	{
@@ -220,6 +226,8 @@ namespace senc::utils::sqlite
 		if (SQLITE_OK != code)
 			throw SQLiteException("Failed to bind value", code);
 	}
+
+	BlobView::BlobView(BytesView view) : _data(view) { }
 
 	BlobView::BlobView(ValueViewData&& data) : _data(std::move(data))
 	{
