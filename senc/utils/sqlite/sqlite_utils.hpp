@@ -89,6 +89,18 @@ namespace senc::utils::sqlite
 		 */
 		static constexpr auto get_additional_constraints()
 		{
+			// NOTE: In order for this function to work in a constexpr context, it needs to return
+			//       a fixed string of the same storage size in all cases.
+			//       Since as of now we only return something meaningfull in the foreign key case, 
+			//       we just use the length of that plus one (for null-termination) as the constant 
+			//       result storage size (n).
+			//       If/when this function is changed in the future, it should check for the maximum 
+			//       possible length plus one (for null-termination) and use that as n instead.
+			//       Alternitavely, this function could use a pre-determined constant n, as long as 
+			//       it's large enough to contain any possible result.
+			//       Phrased like this, that is an oximoron and practically impossible since the names 
+			//       could be of any length. However, such a fixed size could be computed in a hybrid 
+			//       approach, taking into account name lengths.
 			constexpr auto foreignKeyRet =
 				"FOREIGN KEY (" + schemas::COL_NAME<C> +") REFERENCES " +
 				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
