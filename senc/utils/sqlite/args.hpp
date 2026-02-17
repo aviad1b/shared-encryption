@@ -30,7 +30,8 @@ namespace senc::utils::sqlite
 	 */
 	template <typename Self, typename V>
 	concept ParamOfValue = Value<V> && (
-		OneOf<V, Self, Nullable<Self>, NullableView<Self>> ||
+		OneOf<V, Self, Nullable<Self>> ||
+		OneOf<ValueViewOf<V>, Self, NullableView<ValueOfView<Self>>> ||
 		(V::is_nullable() && OneOf<Self, Null, NullView>)
 	);
 
