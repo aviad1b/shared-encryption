@@ -298,6 +298,18 @@ namespace senc::utils
 		struct fixed_string_join<sep, first, rest...> : FixedStringConstant<
 			first + sep + fixed_string_join<sep, rest...>::value
 		> { };
+
+		// used for joining multiple non-empty fixed strings together, separated by a given separator
+		template <FixedString sep, FixedString... tokens>
+		struct fixed_string_non_empty_join : EmptyFixedStringConstant { };
+
+		template <FixedString sep, FixedString token>
+		struct fixed_string_non_empty_join<sep, token> : FixedStringConstant<token> { };
+
+		template <FixedString sep, FixedString first, FixedString... rest>
+		struct fixed_string_non_empty_join<sep, first, rest...> : FixedStringConstant<
+			first + COND_FIXED_STRING<first.empty(), sep> + fixed_string_non_empty_join<sep, rest...>::value
+		> { };
 	}
 
 	/**
@@ -307,5 +319,16 @@ namespace senc::utils
 	 * @tparam tokens Fixed string tokens to join.
 	 */
 	template <FixedString sep, FixedString... tokens>
-	constexpr FixedString FIXED_STRING_JOIN = sfinae::fixed_string_join<sep, tokens...>::value;
+	constexpr FixedString FIXED_STRING_JOIN =
+		sfinae::fixed_string_join<sep, tokens...>::value;
+
+	/**
+	 * @var senc::utils::FIXED_STRING_NON_EMPTY_JOIN
+	 * @brief Joins multiple non-empty fixed strings together, separated by a given separator.
+	 * @tparam sep Separator to have between tokens.
+	 * @tparam tokens Fixed string tokens to join.
+	 */
+	template <FixedString sep, FixedString... tokens>
+	constexpr FixedString FIXED_STRING_NON_EMPTY_JOIN =
+		sfinae::fixed_string_non_empty_join<sep, tokens...>::value;
 }
