@@ -104,7 +104,10 @@ namespace senc::utils::sqlite
 		 * @brief Gets columns of table in one string.
 		 * @return Columns of table in one string.
 		 */
-		static std::string get_columns();
+		static constexpr auto get_columns()
+		{
+			return FIXED_STRING_JOIN<",", schemas::COL_NAME<Cs>...>;
+		}
 	};
 
 	/**

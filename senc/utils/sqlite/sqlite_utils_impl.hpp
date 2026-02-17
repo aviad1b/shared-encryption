@@ -73,15 +73,6 @@ namespace senc::utils::sqlite
 		return res;
 	}
 
-	template <FixedString name, schemas::SomeCol... Cs>
-	inline std::string TableUtils<name, Cs...>::get_columns()
-	{
-		std::string res = ((std::string(schemas::COL_NAME<Cs>) + ",") + ...);
-		if (res.ends_with(","))
-			res = res.substr(0, res.length() - 1);
-		return res;
-	}
-
 	template <schemas::SomeCol C>
 	inline std::string ColUtils<C>::get_create_arg()
 	{
