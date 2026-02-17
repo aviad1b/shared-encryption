@@ -214,7 +214,7 @@ namespace senc::utils::sqlite
 		int code = sqlite3_bind_text(
 			stmt, index,
 			view.data(), static_cast<int>(view.length()),
-			SQLITE_TRANSIENT // copy
+			SQLITE_STATIC // no copy
 		);
 		if (SQLITE_OK != code)
 			throw SQLiteException("Failed to bind view", code);
@@ -289,7 +289,7 @@ namespace senc::utils::sqlite
 		int code = sqlite3_bind_blob(
 			stmt, index,
 			view.data(), static_cast<int>(view.size()),
-			SQLITE_TRANSIENT // copy
+			SQLITE_STATIC // no copy
 		);
 		if (SQLITE_OK != code)
 			throw SQLiteException("Failed to bind view", code);
