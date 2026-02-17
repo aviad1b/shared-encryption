@@ -20,7 +20,7 @@ namespace senc::utils::sqlite
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept Param = Value<Self>;
+	concept Param = Value<Self> || ValueView<Self>;
 
 	/**
 	 * @concept senc::utils::sqlite::ParamOfValue
@@ -30,8 +30,8 @@ namespace senc::utils::sqlite
 	 */
 	template <typename Self, typename V>
 	concept ParamOfValue = Value<V> && (
-		OneOf<V, Self, Nullable<Self>> ||
-		(V::is_nullable() && std::same_as<Self, Null>)
+		OneOf<V, Self, Nullable<Self>, NullableView<Self>> ||
+		(V::is_nullable() && OneOf<Self, Null, NullView>)
 	);
 
 	/**
