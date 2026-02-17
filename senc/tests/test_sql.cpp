@@ -447,7 +447,7 @@ TEST_F(SqlTest, InsertWithViewsAndSelectRoundTrip)
 
 	sql::Nullable<sql::Blob> data;
 	db->select<"Users", sql::SelectArg<"data">>()
-		.where("id = 4")
+		.where("id = 5")
 		>> data;
 	EXPECT_TRUE(data.has_value());
 	const auto& blob = data->get();
@@ -455,7 +455,7 @@ TEST_F(SqlTest, InsertWithViewsAndSelectRoundTrip)
 	EXPECT_EQ(blob[0], 0x01);
 	EXPECT_EQ(blob[1], 0x02);
 
-	db->remove<"Users">("id = 4");
+	db->remove<"Users">("id = 5");
 }
 
 TEST_F(SqlTest, InsertIncreasesCount)
@@ -469,7 +469,7 @@ TEST_F(SqlTest, InsertIncreasesCount)
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
 	EXPECT_EQ(after.get(), before.get() + 1);
 
-	db->remove<"Users">("id = 5");
+	db->remove<"Users">("id = 6");
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
 	EXPECT_EQ(after.get(), before.get());
 }
