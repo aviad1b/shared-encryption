@@ -40,11 +40,11 @@ protected:
 			std::remove(path.c_str());
 		db.emplace(path);
 
-		db->insert<"Users">(1, "Avi",   22.0,  std::nullopt);
-		db->insert<"Users">(2, "Batya", 18.5,  senc::utils::Buffer{ 0xAA, 0xBB, 0xCC });
+		db->insert<"Users">(sql::Int(1), sql::Text("Avi")  , sql::Real(22)  , sql::Null{});
+		db->insert<"Users">(sql::Int(2), sql::Text("Batya"), sql::Real(18.5), sql::Blob{ 0xAA, 0xBB, 0xCC });
 
-		db->insert<"FavNumbers">(1, 434);
-		db->insert<"FavNumbers">(2, 256);
+		db->insert<"FavNumbers">(sql::Int(1), sql::Int(434));
+		db->insert<"FavNumbers">(sql::Int(2), sql::Int(256));
 	}
 
 	void TearDown() override
@@ -407,7 +407,7 @@ TEST_F(SqlTest, ChainedSelectNarrowsColumns)
 
 TEST_F(SqlTest, InsertAndSelectRoundTrip)
 {
-	db->insert<"Users">(3, "Gal", 30.5, std::nullopt);
+	db->insert<"Users">(sql::Int(3), sql::Text("Gal"), sql::Real(30.5), sql::Null{});
 
 	sql::Text name;
 	db->select<"Users", sql::SelectArg<"name">>()
@@ -420,7 +420,7 @@ TEST_F(SqlTest, InsertAndSelectRoundTrip)
 
 TEST_F(SqlTest, InsertWithBlobAndSelectRoundTrip)
 {
-	db->insert<"Users">(4, "Dani", 25.0, senc::utils::Buffer{ 0x01, 0x02 });
+	db->insert<"Users">(sql::Int(4), sql::Text("Dani"), sql::Real(25.0), sql::Blob{ 0x01, 0x02 });
 
 	sql::Nullable<sql::Blob> data;
 	db->select<"Users", sql::SelectArg<"data">>()
@@ -440,7 +440,7 @@ TEST_F(SqlTest, InsertIncreasesCount)
 	sql::Int before;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> before;
 
-	db->insert<"Users">(5, "Hadas", 19.0, std::nullopt);
+	db->insert<"Users">(sql::Int(5), sql::Text("Hadas"), sql::Real(19), sql::Null{});
 
 	sql::Int after;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;

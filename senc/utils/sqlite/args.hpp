@@ -15,54 +15,12 @@
 namespace senc::utils::sqlite
 {
 	/**
-	 * @concept senc::utils::sqlite::NullParam
-	 * @brief Looks for a typenam that can be used as a statement null parameter.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept NullParam = OneOf<std::remove_cvref_t<Self>, std::nullptr_t, std::nullopt_t>;
-
-	/**
-	 * @concept senc::utils::sqlite::IntParam
-	 * @brief Looks for a typenam that can be used as a statement int parameter.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept IntParam = std::convertible_to<Self, std::int64_t> &&
-		!std::floating_point<std::remove_cvref_t<Self>>;
-
-	/**
-	 * @concept senc::utils::sqlite::RealParam
-	 * @brief Looks for a typenam that can be used as a statement real parameter.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept RealParam = std::convertible_to<Self, double> &&
-		!std::integral<std::remove_cvref_t<Self>>;
-
-	/**
-	 * @concept senc::utils::sqlite::TextParam
-	 * @brief Looks for a typenam that can be used as a statement text parameter.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept TextParam = std::convertible_to<Self, std::string>;
-
-	/**
-	 * @concept senc::utils::sqlite::BlobParam
-	 * @brief Looks for a typenam that can be used as a statement blob parameter.
-	 * @tparam Self Examined typename.
-	 */
-	template <typename Self>
-	concept BlobParam = std::convertible_to<Self, Buffer>;
-
-	/**
 	 * @concept senc::utils::sqlite::Param
 	 * @brief Looks for a typename that can be used as a statement parameter.
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept Param = NullParam<Self> || IntParam<Self> || RealParam<Self> || TextParam<Self> || BlobParam<Self>;
+	concept Param = Value<Self>;
 
 	/**
 	 * @concept senc::utils::sqlite::ParamOfValue
@@ -71,14 +29,9 @@ namespace senc::utils::sqlite
 	 * @tparam V Value type.
 	 */
 	template <typename Self, typename V>
-	concept ParamOfValue = Value<V> &&
-		(V::is_nullable() && NullParam<Self>) || (
-		(!OneOf<typename V::BasedOn, std::nullopt_t, std::nullptr_t> || NullParam<Self>) &&
-		(!OneOf<typename V::BasedOn, std::int64_t> || IntParam<Self>) &&
-		(!OneOf<typename V::BasedOn, double> || RealParam<Self>) &&
-		(!OneOf<typename V::BasedOn, std::string> || TextParam<Self>) &&
-		(!OneOf<typename V::BasedOn, Buffer> || BlobParam<Self>) &&
-		Value<V> && Param<Self>
+	concept ParamOfValue = Value<V> && (
+		OneOf<V, Self, Nullable<Self>> ||
+		(V::is_nullable() && std::same_as<Self, Null>)
 	);
 
 	/**

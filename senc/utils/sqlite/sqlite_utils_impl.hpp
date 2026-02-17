@@ -113,30 +113,7 @@ namespace senc::utils::sqlite
 	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& value)
 	{
 		constexpr int index = static_cast<int>(i) + 1; // sql starts counting params from one
-		int status = SQLITE_FAIL;
-		if constexpr (NullParam<P>)
-			status = sqlite3_bind_null(stmt, index);
-		else if constexpr (IntParam<P>)
-			status = sqlite3_bind_int64(stmt, index, static_cast<std::int64_t>(value));
-		else if constexpr (RealParam<P>)
-			status = sqlite3_bind_double(stmt, index, static_cast<double>(value));
-		else if constexpr (TextParam<P>)
-		{
-			const std::string& str = value;
-			status = sqlite3_bind_text(stmt, index, 
-									   str.c_str(),
-									   -1, SQLITE_TRANSIENT);
-		}
-		else if constexpr (BlobParam<P>)
-		{
-			const Buffer& bytes = static_cast<const Buffer&>(value);
-			status = sqlite3_bind_blob(stmt, index, bytes.data(),
-									   static_cast<int>(bytes.size()),
-									   SQLITE_STATIC);
-		}
-
-		if (SQLITE_OK != status)
-			throw SQLiteException("Failed to bind parameter", status);
+		value.bind(stmt, index);
 	}
 
 	template <std::size_t... is, Param... Ps>

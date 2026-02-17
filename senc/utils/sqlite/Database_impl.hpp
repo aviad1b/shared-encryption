@@ -46,7 +46,7 @@ namespace senc::utils::sqlite
 	template <schemas::SomeDB Schema>
 	template <FixedString tableName, Param... Values>
 	requires schemas::PARAMS_FOR_TABLE<schemas::DBTable<Schema, tableName>, Values...>
-	inline void Database<Schema>::insert(Values&&... values)
+	inline void Database<Schema>::insert(const Values&... values)
 	{
 		using T = schemas::DBTable<Schema, tableName>;
 		constexpr std::size_t COLS_COUNT = std::tuple_size_v<schemas::TableTuple<T>>;

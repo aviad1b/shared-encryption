@@ -44,7 +44,7 @@ namespace senc::utils::sqlite
 		 */
 		template <FixedString tableName, Param... Values>
 		requires schemas::PARAMS_FOR_TABLE<schemas::DBTable<Schema, tableName>, Values...>
-		void insert(Values&&... values);
+		void insert(const Values&... values);
 
 		/**
 		 * @brief Removes (a) record(s) from a table of the database.
