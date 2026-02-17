@@ -281,4 +281,28 @@ namespace senc::utils
 	 */
 	template <FixedString fs, std::size_t t, FixedString sep = "">
 	constexpr FixedString FIXED_STRING_DUP = sfinae::fixed_string_dup<fs, t, sep>::value;
+
+	namespace sfinae
+	{
+		// used for joining multiple fixed strings together, separated by a given separator
+		template <FixedString sep, FixedString... tokens>
+		struct fixed_string_join : EmptyFixedStringConstant { };
+
+		template <FixedString sep, FixedString token>
+		struct fixed_string_join<sep, token> : FixedStringConstant<token> { };
+
+		template <FixedString sep, FixedString first, FixedString... rest>
+		struct fixed_string_join<sep, first, rest...> : FixedStringConstant<
+			first + sep + fixed_string_join<sep, rest...>::value
+		> { };
+	}
+
+	/**
+	 * @var senc::utils::FIXED_STRING_JOIN
+	 * @brief Joins multiple fixed strings together, separated by a given separator.
+	 * @tparam sep Separator to have between tokens.
+	 * @tparam tokens Fixed string tokens to join.
+	 */
+	template <FixedString sep, FixedString... tokens>
+	constexpr FixedString FIXED_STRING_JOIN = sfinae::fixed_string_join<sep, tokens...>::value;
 }
