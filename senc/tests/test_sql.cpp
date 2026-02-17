@@ -463,7 +463,7 @@ TEST_F(SqlTest, InsertIncreasesCount)
 	sql::Int before;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> before;
 
-	db->insert<"Users">(sql::Int(5), sql::Text("Hadas"), sql::Real(19), sql::Null{});
+	db->insert<"Users">(sql::Int(6), sql::Text("Vered"), sql::Real(19), sql::Null{});
 
 	sql::Int after;
 	db->select<"Users", sql::AggrSelectArg<sql::Count<"id">>>() >> after;
