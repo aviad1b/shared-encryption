@@ -49,6 +49,27 @@ namespace senc::server::storage
 		PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) override;
 
 	private:
-		
+		// Schema:
+		// Users(username TEXT PK, pwd_salt BLOB, pwd_hash BLOB)
+		// UserSets(id PK BLOB, owners_threshold INT, reg_members_threshold INT)
+		// Members(username TEXT FK[Users.username], userset_id BLOB FK[UserSets.id], shard_id BLOB, is_owner INT)
+		utils::sqlite::Database<utils::sqlite::schemas::DB<
+			utils::sqlite::schemas::Table<"Users",
+				utils::sqlite::schemas::PrimaryKey<"username", utils::sqlite::Text>,
+				utils::sqlite::schemas::Col<"pwd_salt", utils::sqlite::Blob>,
+				utils::sqlite::schemas::Col<"pwd_hash", utils::sqlite::Blob>
+			>,
+			utils::sqlite::schemas::Table<"UserSets",
+				utils::sqlite::schemas::PrimaryKey<"id"                   , utils::sqlite::Blob>,
+				utils::sqlite::schemas::Col       <"owners_threshold"     , utils::sqlite::Int >,
+				utils::sqlite::schemas::Col       <"reg_members_threshold", utils::sqlite::Int >
+			>,
+			utils::sqlite::schemas::Table<"Members",
+				utils::sqlite::schemas::ForeignKey<"username"  , utils::sqlite::Text, "Users"         >,
+				utils::sqlite::schemas::ForeignKey<"userset_id", utils::sqlite::Blob, "UserSets", "id">,
+				utils::sqlite::schemas::Col       <"shard_id"  , utils::sqlite::Blob                  >,
+				utils::sqlite::schemas::Col       <"is_owner"  , utils::sqlite::Int                   >
+			>
+		>> _db;
 	};
 }
