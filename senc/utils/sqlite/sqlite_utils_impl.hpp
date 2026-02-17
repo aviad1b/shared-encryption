@@ -10,15 +10,18 @@
 
 namespace senc::utils::sqlite
 {
-	template <schemas::SomeTable... Ts>
-	inline void DatabaseUtils<Ts...>::create_tables_if_not_exist(sqlite3* db)
+	template <std::size_t i, Param P>
+	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& param)
 	{
-		const std::string sql = "BEGIN;" +
-			(TableUtils(Ts{}).get_create_statement() + ...) +
-			"COMMIT;";
-		int code = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
-		if (SQLITE_OK != code)
-			throw SQLiteException("Failed to create tables", code);
+		constexpr int index = static_cast<int>(i) + 1; // sql starts counting params from one
+		param.bind(stmt, index);
+	}
+
+	template <std::size_t... is, Param... Ps>
+	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params)
+	{
+		(void)dummy; // for template inference
+		(bind_one<is, Ps>(stmt, params), ...);
 	}
 
 	template <FixedString name, schemas::SomeCol... Cs>
@@ -58,59 +61,14 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Too few rows to unpack: Expected " + std::to_string(*expected));
 	}
 
-	template <FixedString name, schemas::SomeCol... Cs>
-	inline std::string TableUtils<name, Cs...>::get_create_statement()
+	template <schemas::SomeTable... Ts>
+	inline void DatabaseUtils<Ts...>::create_tables_if_not_exist(sqlite3* db)
 	{
-		std::string res = "CREATE TABLE IF NOT EXISTS " +
-			std::string(name) + "(" +
-			(ColUtils(Cs{}).get_create_arg() + ...) +
-			(ColUtils(Cs{}).get_additional_constraints() + ...);
-
-		// remove last comma (and add remaining of statement)
-		if (res.ends_with(","))
-			res = res.substr(0, res.length() - 1);
-		res += ");";
-		return res;
-	}
-
-	template <schemas::SomeCol C>
-	inline std::string ColUtils<C>::get_create_arg()
-	{
-		if constexpr (schemas::SomePrimaryKey<C>)
-			return std::string(schemas::COL_NAME<C>) + " " +
-				std::string(schemas::COL_SQL_TYPE<C>) + "PRIMARY KEY,";
-		else if constexpr (schemas::ColType<C>::is_nullable())
-			return std::string(schemas::COL_NAME<C>) + " " +
-				std::string(schemas::COL_SQL_TYPE<C>) +",";
-		else
-			return std::string(schemas::COL_NAME<C>) + " " +
-				std::string(schemas::COL_SQL_TYPE<C>) + " NOT NULL,";
-	}
-
-	template <schemas::SomeCol C>
-	inline std::string ColUtils<C>::get_additional_constraints()
-	{
-		if constexpr (schemas::SomeForeignKey<C>)
-			return std::string(
-				"FOREIGN KEY (" + schemas::COL_NAME<C> + ") REFERENCES " +
-				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
-				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
-				") ON DELETE CASCADE ON UPDATE NO ACTION,"
-			);
-		else return "";
-	}
-
-	template <std::size_t i, Param P>
-	inline void ParamUtils::bind_one(sqlite3_stmt* stmt, const P& param)
-	{
-		constexpr int index = static_cast<int>(i) + 1; // sql starts counting params from one
-		param.bind(stmt, index);
-	}
-
-	template <std::size_t... is, Param... Ps>
-	inline void ParamUtils::bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params)
-	{
-		(void)dummy; // for template inference
-		(bind_one<is, Ps>(stmt, params), ...);
+		const FixedString sql = "BEGIN;" +
+			(TableUtils(Ts{}).get_create_statement() + ...) +
+			"COMMIT;";
+		int code = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, nullptr);
+		if (SQLITE_OK != code)
+			throw SQLiteException("Failed to create tables", code);
 	}
 }

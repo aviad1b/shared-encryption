@@ -21,25 +21,81 @@ namespace senc::utils::sqlite
 	class TableView;
 
 	/**
-	 * @class senc::utils::sqlite::DatabaseUtils
-	 * @brief Contains private utility database functions.
-	 * @tparam Ts Database table schemas.
+	 * @class senc::utils::sqlite::ParamUtils
+	 * @brief Contains private utility parameter functions.
 	 */
-	template <schemas::SomeTable... Ts>
-	class DatabaseUtils
+	class ParamUtils
 	{
-		using Schema = schemas::DB<Ts...>;
-		friend class Database<Schema>;
-
-		// dummy arg is used for template inference
-		DatabaseUtils(Schema) { }
+		template <schemas::SomeDB Schema>
+		friend class Database;
 
 		/**
-		 * @brief Creates each table in schema if doesn't exist.
-		 * @param db Database handle pointer.
-		 * @throw SQLiteException On error.
+		 * @brief Binds a parameter to a statement parameter.
+		 * @tparam i Statement param index.
+		 * @tparam P Parameter type.
+		 * @param stmt Statement handle pointer.
+		 * @param param Parameter to bind.
+		 * @throw SQLiteException If failed to bind.
 		 */
-		void create_tables_if_not_exist(sqlite3* db);
+		template <std::size_t i, Param P>
+		static void bind_one(sqlite3_stmt* stmt, const P& param);
+
+		/**
+		 * @brief Binds parameters to a statement parameter.
+		 * @tparam is Statement param indexes.
+		 * @tparam Ps Parameter types.
+		 * @param stmt Statement handle pointer.
+		 * @param params Parameters to bind.
+		 * @throw SQLiteException If failed to bind.
+		 */
+		template <std::size_t... is, Param... Ps>
+		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params);
+	};
+
+	/**
+	 * @class senc::utils::sqlite::ColUtils
+	 * @brief Contains private utility column functions.
+	 * @tparam C Column schema.
+	 */
+	template <schemas::SomeCol C>
+	class ColUtils
+	{
+		template <FixedString name, schemas::SomeCol... Cs>
+		friend class TableUtils;
+
+		// dummy arg is used for template inference
+		constexpr ColUtils(C) { }
+
+		/**
+		 * @brief Gets SQL create statement arg for column.
+		 * @return SQL create statement arg.
+		 */
+		static constexpr auto get_create_arg()
+		{
+			if constexpr (schemas::SomePrimaryKey<C>)
+				return schemas::COL_NAME<C> + " " +
+					schemas::COL_SQL_TYPE<C> + "PRIMARY KEY";
+			else if constexpr (schemas::ColType<C>::is_nullable())
+				return schemas::COL_NAME<C> + " " +
+					schemas::COL_SQL_TYPE<C>;
+			else
+				return schemas::COL_NAME<C> + " " +
+					schemas::COL_SQL_TYPE<C> + " NOT NULL";
+		}
+
+		/**
+		 * @brief Gets SQL additional constraints for column.
+		 * @return SQL constraints (separated by comma).
+		 */
+		static constexpr auto get_additional_constraints()
+		{
+			if constexpr (schemas::SomeForeignKey<C>)
+				return "FOREIGN KEY (" + schemas::COL_NAME<C> +") REFERENCES " +
+					schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
+					"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
+					") ON DELETE CASCADE ON UPDATE NO ACTION";
+			else return "";
+		}
 	};
 
 	/**
@@ -98,7 +154,16 @@ namespace senc::utils::sqlite
 		 * @brief Gets SQL create statement for table.
 		 * @return SQL create statement.
 		 */
-		static std::string get_create_statement();
+		static constexpr auto get_create_statement()
+		{
+			return "CREATE TABLE IF NOT EXISTS " +
+				name + "(" +
+				FIXED_STRING_JOIN<
+					",",
+					FIXED_STRING_JOIN<",", ColUtils(Cs{}).get_create_arg()...>,
+					FIXED_STRING_JOIN<",", ColUtils(Cs{}).get_additional_constraints()...>
+				> + ");";
+		}
 
 		/**
 		 * @brief Gets columns of table in one string.
@@ -111,62 +176,25 @@ namespace senc::utils::sqlite
 	};
 
 	/**
-	 * @class senc::utils::sqlite::ColUtils
-	 * @brief Contains private utility column functions.
-	 * @tparam C Column schema.
+	 * @class senc::utils::sqlite::DatabaseUtils
+	 * @brief Contains private utility database functions.
+	 * @tparam Ts Database table schemas.
 	 */
-	template <schemas::SomeCol C>
-	class ColUtils
+	template <schemas::SomeTable... Ts>
+	class DatabaseUtils
 	{
-		template <FixedString name, schemas::SomeCol... Cs>
-		friend class TableUtils;
+		using Schema = schemas::DB<Ts...>;
+		friend class Database<Schema>;
 
 		// dummy arg is used for template inference
-		ColUtils(C) { }
+		DatabaseUtils(Schema) { }
 
 		/**
-		 * @brief Gets SQL create statement arg for column.
-		 * @return SQL create statement arg (including comma).
+		 * @brief Creates each table in schema if doesn't exist.
+		 * @param db Database handle pointer.
+		 * @throw SQLiteException On error.
 		 */
-		static std::string get_create_arg();
-
-		/**
-		 * @brief Gets SQL additional constraints for column.
-		 * @return SQL constraints (separated by comma, ending with comma).
-		 */
-		static std::string get_additional_constraints();
-	};
-
-	/**
-	 * @class senc::utils::sqlite::ParamUtils
-	 * @brief Contains private utility parameter functions.
-	 */
-	class ParamUtils
-	{
-		template <schemas::SomeDB Schema>
-		friend class Database;
-
-		/**
-		 * @brief Binds a parameter to a statement parameter.
-		 * @tparam i Statement param index.
-		 * @tparam P Parameter type.
-		 * @param stmt Statement handle pointer.
-		 * @param param Parameter to bind.
-		 * @throw SQLiteException If failed to bind.
-		 */
-		template <std::size_t i, Param P>
-		static void bind_one(sqlite3_stmt* stmt, const P& param);
-
-		/**
-		 * @brief Binds parameters to a statement parameter.
-		 * @tparam is Statement param indexes.
-		 * @tparam Ps Parameter types.
-		 * @param stmt Statement handle pointer.
-		 * @param params Parameters to bind.
-		 * @throw SQLiteException If failed to bind.
-		 */
-		template <std::size_t... is, Param... Ps>
-		static void bind_all(std::index_sequence<is...> dummy, sqlite3_stmt* stmt, const Ps&... params);
+		void create_tables_if_not_exist(sqlite3* db);
 	};
 }
 
