@@ -89,12 +89,15 @@ namespace senc::utils::sqlite
 		 */
 		static constexpr auto get_additional_constraints()
 		{
+			constexpr auto foreignKeyRet =
+				"FOREIGN KEY (" + schemas::COL_NAME<C> +") REFERENCES " +
+				schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
+				"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
+				") ON DELETE CASCADE ON UPDATE NO ACTION";
+			constexpr std::size_t n = foreignKeyRet.len() + 1;
 			if constexpr (schemas::SomeForeignKey<C>)
-				return "FOREIGN KEY (" + schemas::COL_NAME<C> +") REFERENCES " +
-					schemas::FOREIGN_KEY_REF_TABLE_NAME<C> +
-					"(" + schemas::FOREIGN_KEY_REF_COL_NAME<C> +
-					") ON DELETE CASCADE ON UPDATE NO ACTION";
-			else return "";
+				return FixedString<n>(foreignKeyRet);
+			else return FixedString<n>();
 		}
 	};
 
