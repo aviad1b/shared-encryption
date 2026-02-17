@@ -33,7 +33,7 @@ namespace senc::utils
 		/**
 		 * @brief Constructs an empty fixed string.
 		 */
-		constexpr FixedString() requires (n > 0)
+		constexpr FixedString()
 		{
 			for (std::size_t i = 0; i < n; ++i)
 				value[i] = '\0';
