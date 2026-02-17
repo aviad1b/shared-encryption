@@ -15,6 +15,14 @@
 
 namespace senc::utils
 {
+	template <std::size_t n>
+	constexpr std::size_t constexpr_strlen(const char(&str)[n])
+	{
+		std::size_t i = 0;
+		for (i = 0; str[i]; ++i);
+		return i;
+	}
+
 	/**
 	 * @struct senc::utils::FixedString
 	 * @brief Constexpr string struct which can be used as template arg.
@@ -23,17 +31,13 @@ namespace senc::utils
 	template <std::size_t n>
 	struct FixedString
 	{
-		/**
-		 * @brief String's length (without null-termination).
-		 */
-		static constexpr std::size_t LEN = n - 1; // discluding null-termination
-
+		std::size_t len;
 		char value[n];
 
 		/**
 		 * @brief Constructs an empty fixed string.
 		 */
-		constexpr FixedString()
+		constexpr FixedString() : len(0)
 		{
 			for (std::size_t i = 0; i < n; ++i)
 				value[i] = '\0';
@@ -43,7 +47,7 @@ namespace senc::utils
 		 * @brief Constructs a fixed string.
 		 * @param str A reference to characters array (with size n including null-termination).
 		 */
-		constexpr FixedString(const char(&str)[n])
+		constexpr FixedString(const char(&str)[n]) : len(constexpr_strlen(str))
 		{
 			for (std::size_t i = 0; i < n; ++i)
 				value[i] = str[i];
@@ -54,7 +58,7 @@ namespace senc::utils
 		 * @param other Other fixed string to copy.
 		 */
 		template <std::size_t m>
-		constexpr FixedString(const FixedString<m>& other)
+		constexpr FixedString(const FixedString<m>& other) : len(other.len)
 		{
 			for (std::size_t i = 0; i <= other.length(); ++i)
 				value[i] = other.value[i];
@@ -66,7 +70,7 @@ namespace senc::utils
 		 */
 		constexpr std::size_t length() const
 		{
-			return LEN;
+			return len;
 		}
 
 		/**
@@ -102,7 +106,7 @@ namespace senc::utils
 		 */
 		constexpr std::string_view view() const
 		{
-			return { value, LEN };
+			return { value, len };
 		}
 
 		/**
@@ -141,12 +145,13 @@ namespace senc::utils
 		template <std::size_t m>
 		constexpr auto operator+(const FixedString<m>& other) const
 		{
-			FixedString<LEN + m> res{};
+			FixedString<n + m> res{};
 			std::size_t i = 0, j = 0;
 			for (i = 0; value[i]; ++i)
 				res.value[i] = value[i];
 			for (j = 0; other.value[j]; ++j)
 				res.value[i + j] = other.value[j];
+			res.len = i + j;
 			return res;
 		}
 
