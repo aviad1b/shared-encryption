@@ -141,10 +141,11 @@ namespace senc::utils
 		constexpr auto operator+(const FixedString<m>& other) const
 		{
 			FixedString<LEN + m> res{};
-			for (std::size_t i = 0; i < LEN; ++i)
+			std::size_t i = 0, j = 0;
+			for (i = 0; value[i]; ++i)
 				res.value[i] = value[i];
-			for (std::size_t i = 0; i < m; ++i)
-				res.value[LEN + i] = other.value[i];
+			for (j = 0; other.value[j]; ++j)
+				res.value[i + j] = other.value[j];
 			return res;
 		}
 
