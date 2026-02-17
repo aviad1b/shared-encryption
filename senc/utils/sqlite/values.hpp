@@ -432,12 +432,6 @@ namespace senc::utils::sqlite
 		using Self = IntView;
 
 		/**
-		 * @brief Constructs an SQL int view from an existing int value.
-		 * @param ref Reference to existing int value.
-		 */
-		IntView(const std::int64_t& ref);
-
-		/**
 		 * @brief Constructs an SQL int view from value view data.
 		 * @param data Value view data (moved).
 		 */
@@ -475,7 +469,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		std::variant<ValueViewData, std::reference_wrapper<const std::int64_t>> _data;
+		ValueViewData _data;
 	};
 	static_assert(ValueView<IntView>);
 
@@ -556,12 +550,6 @@ namespace senc::utils::sqlite
 		using Self = RealView;
 
 		/**
-		 * @brief Constructs an SQL real view from an existing double value.
-		 * @param ref Reference to existing double value.
-		 */
-		RealView(const double& ref);
-
-		/**
 		 * @brief Constructs an SQL real view from value view data.
 		 * @param data Value view data (moved).
 		 */
@@ -599,7 +587,7 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 	private:
-		std::variant<ValueViewData, std::reference_wrapper<const double>> _data;
+		ValueViewData _data;
 	};
 	static_assert(ValueView<RealView>);
 

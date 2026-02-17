@@ -60,11 +60,9 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to bind value", code);
 	}
 
-	IntView::IntView(const std::int64_t& ref) : _data(ref) { }
-
 	IntView::IntView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_INTEGER != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_INTEGER != _data.exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad int view handle");
 	}
 
@@ -74,9 +72,7 @@ namespace senc::utils::sqlite
 
 	std::int64_t IntView::get() const
 	{
-		if (std::holds_alternative<ValueViewData>(_data))
-			return std::get<ValueViewData>(_data).exec(sqlite3_value_int64, sqlite3_column_int64);
-		return std::get<std::reference_wrapper<const std::int64_t>>(_data).get();
+		return _data.exec(sqlite3_value_int64, sqlite3_column_int64);
 	}
 
 	IntView::operator std::int64_t() const
@@ -112,11 +108,9 @@ namespace senc::utils::sqlite
 			throw SQLiteException("Failed to bind value", code);
 	}
 
-	RealView::RealView(const double& ref) : _data(ref) { }
-
 	RealView::RealView(ValueViewData&& data) : _data(std::move(data))
 	{
-		if (SQLITE_FLOAT != std::get<ValueViewData>(_data).exec(sqlite3_value_type, sqlite3_column_type))
+		if (SQLITE_FLOAT != _data.exec(sqlite3_value_type, sqlite3_column_type))
 			throw SQLiteException("Bad real view handle");
 	}
 
@@ -126,9 +120,7 @@ namespace senc::utils::sqlite
 
 	double RealView::get() const
 	{
-		if (std::holds_alternative<ValueViewData>(_data))
-			return std::get<ValueViewData>(_data).exec(sqlite3_value_double, sqlite3_column_double);
-		return std::get<std::reference_wrapper<const double>>(_data).get();
+		return _data.exec(sqlite3_value_double, sqlite3_column_double);
 	}
 
 	RealView::operator double() const
