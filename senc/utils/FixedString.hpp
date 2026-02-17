@@ -308,7 +308,7 @@ namespace senc::utils
 
 		template <FixedString sep, FixedString first, FixedString... rest>
 		struct fixed_string_non_empty_join<sep, first, rest...> : FixedStringConstant<
-			first + COND_FIXED_STRING<first.empty(), sep> + fixed_string_non_empty_join<sep, rest...>::value
+			first + COND_FIXED_STRING<!first.empty(), sep> + fixed_string_non_empty_join<sep, rest...>::value
 		> { };
 	}
 
