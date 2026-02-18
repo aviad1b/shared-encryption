@@ -323,7 +323,7 @@ namespace senc::utils::sqlite
 		std::stringstream s;
 		s << "x'";
 		for (byte b : get())
-			s << std::hex << b;
+			s << std::hex << static_cast<int>(b);
 		s << "'";
 		return s.str();
 	}
