@@ -67,8 +67,12 @@ namespace senc::server::storage
 											   member_count_t ownersThreshold,
 											   member_count_t regMembersThreshold)
 	{
+		// read owners and reg members into ordered sets for consistency
+		auto readOwners = utils::to_ordered_set<std::string>(owners);
+		auto readRegMembers = utils::to_ordered_set<std::string>(regMembers);
+
 		// check if all members exist
-		for (const auto& member : utils::views::join(owners, regMembers))
+		for (const auto& member : utils::views::join(readOwners, readRegMembers))
 			if (!user_exists(member))
 				throw UserNotFoundException(member);
 
@@ -86,8 +90,8 @@ namespace senc::server::storage
 
 		// register shard IDs for all members
 		auto markedMembers = utils::views::join(
-			owners | std::views::transform([](auto&& x) { return std::make_pair(x, true); }),
-			regMembers | std::views::transform([](auto&& x) { return std::make_pair(x, false); })
+			readOwners | std::views::transform([](auto&& x) { return std::make_pair(x, true); }),
+			readRegMembers | std::views::transform([](auto&& x) { return std::make_pair(x, false); })
 		);
 		for (const auto& [member, isOwner] : markedMembers)
 		{
