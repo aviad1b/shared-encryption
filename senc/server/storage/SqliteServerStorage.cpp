@@ -112,6 +112,25 @@ namespace senc::server::storage
 		return setID;
 	}
 
+	std::vector<UserSetID> SqliteServerStorage::get_usersets(const std::string& owner)
+	{
+		std::vector<UserSetID> res;
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		this->_db.select<"Members", sql::SelectArg<"userset_id">>()
+			.where("username = " + sql::TextView(owner).as_sqlite())
+			.where("is_owner != 0")
+			>> [&res](const sql::BlobView& usersetIDBytes)
+			{
+				res.emplace_back();
+				std::memcpy(
+					res.back().data(),
+					usersetIDBytes.get().data(),
+					std::min(res.back().size(), usersetIDBytes.get().size())
+				);
+			};
+		return res;
+	}
+
 	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
 	{
 		bool found = false;
