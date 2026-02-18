@@ -25,7 +25,7 @@ namespace senc::server::storage
 		auto pwdHash = _pwdHasher.hash(password, pwdSalt);
 
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.insert<"Users">(sql::Text(username), sql::BlobView(pwdSalt), sql::BlobView(pwdHash));
+		this->_db.insert<"Users">(sql::TextView(username), sql::BlobView(pwdSalt), sql::BlobView(pwdHash));
 	}
 
 	bool SqliteServerStorage::user_exists(const std::string& username)
