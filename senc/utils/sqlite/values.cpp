@@ -38,6 +38,11 @@ namespace senc::utils::sqlite
 		return get();
 	}
 
+	std::string NullView::as_sqlite() const
+	{
+		return "NULL";
+	}
+
 	void NullView::bind(sqlite3_stmt* stmt, int index) const
 	{
 		int code = sqlite3_bind_null(stmt, index);
@@ -85,6 +90,11 @@ namespace senc::utils::sqlite
 	IntView::operator std::int64_t() const
 	{
 		return get();
+	}
+
+	std::string IntView::as_sqlite() const
+	{
+		return std::to_string(get());
 	}
 
 	void IntView::bind(sqlite3_stmt* stmt, int index) const
@@ -140,6 +150,11 @@ namespace senc::utils::sqlite
 	RealView::operator double() const
 	{
 		return get();
+	}
+
+	std::string RealView::as_sqlite() const
+	{
+		return std::to_string(get());
 	}
 
 	void RealView::bind(sqlite3_stmt* stmt, int index) const
@@ -208,6 +223,23 @@ namespace senc::utils::sqlite
 		return get();
 	}
 
+	std::string TextView::as_sqlite() const
+	{
+		auto data = get();
+		std::string escaped;
+		escaped.reserve(data.length()); // we know that we'll need at least `length()` chars
+
+		for (char c : data)
+		{
+			if (c == '\'')
+				escaped += "''";
+			else
+				escaped += c;
+		}
+
+		return "'" + escaped + "'";
+	}
+
 	void TextView::bind(sqlite3_stmt* stmt, int index) const
 	{
 		auto view = get();
@@ -238,18 +270,7 @@ namespace senc::utils::sqlite
 
 	std::string Text::as_sqlite() const
 	{
-		std::string escaped;
-		escaped.reserve(_value.length()); // we know that we'll need at least `length()` chars
-
-		for (char c : _value)
-		{
-			if (c == '\'')
-				escaped += "''";
-			else
-				escaped += c;
-		}
-
-		return "'" + escaped + "'";
+		return TextView(get()).as_sqlite();
 	}
 
 	void Text::bind(sqlite3_stmt* stmt, int index) const
@@ -297,6 +318,16 @@ namespace senc::utils::sqlite
 		return get();
 	}
 
+	std::string BlobView::as_sqlite() const
+	{
+		std::stringstream s;
+		s << "x'";
+		for (byte b : get())
+			s << std::hex << b;
+		s << "'";
+		return s.str();
+	}
+
 	void BlobView::bind(sqlite3_stmt* stmt, int index) const
 	{
 		auto view = get();
@@ -327,12 +358,7 @@ namespace senc::utils::sqlite
 
 	std::string Blob::as_sqlite() const
 	{
-		std::stringstream s;
-		s << "x'";
-		for (byte b : _value)
-			s << std::hex << b;
-		s << "'";
-		return s.str();
+		return BlobView(get()).as_sqlite();
 	}
 
 	void Blob::bind(sqlite3_stmt* stmt, int index) const

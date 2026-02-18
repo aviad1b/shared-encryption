@@ -77,6 +77,7 @@ namespace senc::utils::sqlite
 		requires(const Self self, sqlite3_stmt* stmt, int index)
 		{
 			{ std::bool_constant<Self::is_nullable()>() }; // must be constexpr-evaluable
+			{ self.as_sqlite() } -> std::convertible_to<std::string>;
 			{ self.bind(stmt, index) };
 		};
 
@@ -172,6 +173,12 @@ namespace senc::utils::sqlite
 		 * @return `true`.
 		 */
 		static constexpr bool is_nullable() { return true; }
+
+		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
 
 		/**
 		 * @brief Binds as parameter to a given statement.
@@ -342,6 +349,12 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return true; }
 
 		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
+
+		/**
 		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
@@ -506,6 +519,12 @@ namespace senc::utils::sqlite
 		static constexpr bool is_nullable() { return false; }
 
 		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
+
+		/**
 		 * @brief Binds as parameter to a given statement.
 		 * @param stmt Statement pointer.
 		 * @param index Param index to bind to.
@@ -638,6 +657,12 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
 
 		/**
 		 * @brief Binds as parameter to a given statement.
@@ -778,6 +803,12 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
 
 		/**
 		 * @brief Binds as parameter to a given statement.
@@ -931,6 +962,12 @@ namespace senc::utils::sqlite
 		 * @return `false`.
 		 */
 		static constexpr bool is_nullable() { return false; }
+
+		/**
+		 * @brief Gets SQLite representation of view.
+		 * @return SQLite representation of view.
+		 */
+		std::string as_sqlite() const;
 
 		/**
 		 * @brief Binds as parameter to a given statement.
