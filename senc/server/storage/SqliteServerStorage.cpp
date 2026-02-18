@@ -179,6 +179,21 @@ namespace senc::server::storage
 		return res;
 	}
 
+	PrivKeyShardID SqliteServerStorage::get_shard_id(const std::string& user, const UserSetID& userset)
+	{
+		PrivKeyShardID res{};
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		this->_db.select<"Members", sql::SelectArg<"shard_id">>()
+			.where("username = " + sql::TextView(user).as_sqlite())
+			.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
+			>> [&res](sql::BlobView bytes)
+			{
+				auto view = bytes.get();
+				res.Decode(view.data(), view.size());
+			};
+		return res;
+	}
+
 	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
 	{
 		bool found = false;
