@@ -1,5 +1,5 @@
 /*********************************************************************
- * \file   test_storage.cpp
+ * \file   test_server_storage.cpp
  * \brief  Contains tests for server storage.
  * 
  * \author aviad1b

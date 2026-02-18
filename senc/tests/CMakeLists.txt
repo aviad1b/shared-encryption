@@ -13,7 +13,7 @@ add_executable(senc_tests
     "test_bytes.cpp"
     "test_sql.cpp"
     "tests_utils.hpp"
-    "test_storage.cpp"
+    "test_server_storage.cpp"
     "test_server.cpp"
     "../server/handlers/ClientHandlerFactory.cpp"
     "../server/handlers/ConnectedClientHandler.cpp"
