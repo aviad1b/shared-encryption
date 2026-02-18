@@ -76,5 +76,18 @@ namespace senc::server::storage
 
 		utils::Distribution<PrivKeyShardID> _shardsDist;
 		PwdHasher _pwdHasher;
+
+		/**
+		 * @brief Generates a unique userset ID.
+		 * @return Generated userset ID.
+		 */
+		UserSetID generate_unique_userset_id() const;
+
+		/**
+		 * @brief Generates a unique shard ID for a userset member.
+		 * @param usersetID ID of userset.
+		 * @return Generated shard ID.
+		 */
+		PrivKeyShardID generate_unique_shard_id(const UserSetID& usersetID);
 	};
 }

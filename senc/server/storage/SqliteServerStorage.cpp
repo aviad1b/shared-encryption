@@ -61,4 +61,50 @@ namespace senc::server::storage
 		const auto inputPwdHash = _pwdHasher.hash(password, pwdSalt);
 		return inputPwdHash == pwdHash;
 	}
+
+	UserSetID SqliteServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
+											   utils::ranges::StringViewRange&& regMembers,
+											   member_count_t ownersThreshold,
+											   member_count_t regMembersThreshold)
+	{
+		// check if all members exist
+		for (const auto& member : utils::views::join(owners, regMembers))
+			if (!user_exists(member))
+				throw UserNotFoundException(member);
+
+		// generate set ID and insert new userset
+		const auto setID = generate_unique_userset_id();
+		const sql::BlobView setIDBlobView(setID.data(), setID.size());
+		{
+			const std::lock_guard<std::mutex> lock(_mtxDB);
+			this->_db.insert<"UserSets">(
+				setIDBlobView,
+				sql::Int(ownersThreshold),
+				sql::Int(regMembersThreshold)
+			);
+		}
+
+		// register shard IDs for all members
+		auto markedMembers = utils::views::join(
+			owners | std::views::transform([](auto&& x) { return std::make_pair(x, true); }),
+			regMembers | std::views::transform([](auto&& x) { return std::make_pair(x, false); })
+		);
+		for (const auto& [member, isOwner] : markedMembers)
+		{
+			auto shardID = generate_unique_shard_id(setID);
+
+			utils::Buffer shardIDBytes(shardID.MinEncodedSize());
+			shardID.Encode(shardIDBytes.data(), shardIDBytes.size());
+
+			const std::unique_lock<std::mutex> lock(_mtxDB);
+			this->_db.insert<"Members">(
+				sql::TextView(member),
+				setIDBlobView,
+				sql::BlobView(shardIDBytes),
+				sql::Int(isOwner)
+			);
+		}
+
+		return setID;
+	}
 }
