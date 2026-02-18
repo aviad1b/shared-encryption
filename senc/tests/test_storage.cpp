@@ -8,11 +8,14 @@
 
 #include <gtest/gtest.h>
 #include <functional>
+#include <filesystem>
 #include <memory>
 #include "../server/storage/ShortTermServerStorage.hpp"
+#include "../server/storage/SqliteServerStorage.hpp"
 #include "tests_utils.hpp"
 
 using senc::server::storage::ShortTermServerStorage;
+using senc::server::storage::SqliteServerStorage;
 using senc::server::storage::IServerStorage;
 using senc::server::storage::UserSetInfo;
 using senc::PrivKeyShardID;
@@ -372,12 +375,24 @@ static StorageFactory CreateShortTermServerStorage()
 		return std::make_unique<ShortTermServerStorage>();
 	};
 }
+static StorageFactory CreateSQLiteServerStorage()
+{
+	return []() -> std::unique_ptr<IServerStorage>
+	{
+		// delete storage between tests
+		constexpr auto PATH = "storage.sqlite";
+		if (std::filesystem::exists(PATH))
+			std::remove(PATH);
+		return std::make_unique<SqliteServerStorage>(PATH);
+	};
+}
 
 // register the implementations to test
 INSTANTIATE_TEST_SUITE_P(
 	ServerStorageImplementations,
 	ServerStorageTest,
 	::testing::Values(
-		CreateShortTermServerStorage()
+		CreateShortTermServerStorage(),
+		CreateSQLiteServerStorage()
 	)
 );
