@@ -25,16 +25,41 @@ namespace senc::server::storage
 		auto pwdHash = _pwdHasher.hash(password, pwdSalt);
 
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.insert<"Users">(sql::TextView(username), sql::BlobView(pwdSalt), sql::BlobView(pwdHash));
+		try
+		{
+			this->_db.insert<"Users">(
+				sql::TextView(username),
+				sql::BlobView(pwdSalt), sql::BlobView(pwdHash)
+			);
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to insert new user to database",
+				e.what()
+			);
+		}
 	}
 
 	bool SqliteServerStorage::user_exists(const std::string& username)
 	{
 		bool found = false;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Users", sql::SelectArg<"username">>()
-			.where("username = " + sql::Text(username).as_sqlite())
-			>> [&found](const sql::TextView&) { found = true; };
+
+		try
+		{
+			this->_db.select<"Users", sql::SelectArg<"username">>()
+				.where("username = " + sql::Text(username).as_sqlite())
+				>> [&found](const sql::TextView&) { found = true; };
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search user in database",
+				e.what()
+			);
+		}
+
 		return found;
 	}
 
@@ -44,6 +69,7 @@ namespace senc::server::storage
 		PwdSalt pwdSalt{};
 		PwdHash pwdHash{};
 
+		try
 		{
 			const std::lock_guard<std::mutex> lock(_mtxDB);
 			this->_db.select<"Users", sql::SelectArg<"pwd_salt">, sql::SelectArg<"pwd_hash">>()
@@ -55,6 +81,13 @@ namespace senc::server::storage
 					std::memcpy(pwdHash.data(), hash.get().data(), std::min(hash.get().size(), pwdHash.size()));
 					found = true;
 				};
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search user in database",
+				e.what()
+			);
 		}
 
 		// return true iff hash on input equals to stored hash
@@ -79,12 +112,20 @@ namespace senc::server::storage
 		// generate set ID and insert new userset
 		const auto setID = generate_unique_userset_id();
 		const sql::BlobView setIDBlobView(setID.data(), setID.size());
+		try
 		{
 			const std::lock_guard<std::mutex> lock(_mtxDB);
 			this->_db.insert<"UserSets">(
 				setIDBlobView,
 				sql::Int(ownersThreshold),
 				sql::Int(regMembersThreshold)
+			);
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to insert new userset to database",
+				e.what()
 			);
 		}
 
@@ -101,12 +142,22 @@ namespace senc::server::storage
 			shardID.Encode(shardIDBytes.data(), shardIDBytes.size());
 
 			const std::lock_guard<std::mutex> lock(_mtxDB);
-			this->_db.insert<"Members">(
-				sql::TextView(member),
-				setIDBlobView,
-				sql::BlobView(shardIDBytes),
-				sql::Int(isOwner)
-			);
+			try
+			{
+				this->_db.insert<"Members">(
+					sql::TextView(member),
+					setIDBlobView,
+					sql::BlobView(shardIDBytes),
+					sql::Int(isOwner)
+				);
+			}
+			catch (utils::sqlite::SQLiteException& e)
+			{
+				throw ServerStorageException(
+					"Failed to register shard ID into database",
+					e.what()
+				);
+			}
 		}
 
 		return setID;
@@ -116,18 +167,28 @@ namespace senc::server::storage
 	{
 		std::vector<UserSetID> res;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Members", sql::SelectArg<"userset_id">>()
-			.where("username = " + sql::TextView(owner).as_sqlite())
-			.where("is_owner != 0")
-			>> [&res](const sql::BlobView& usersetIDBytes)
-			{
-				res.emplace_back();
-				std::memcpy(
-					res.back().data(),
-					usersetIDBytes.get().data(),
-					std::min(res.back().size(), usersetIDBytes.get().size())
-				);
-			};
+		try
+		{
+			this->_db.select<"Members", sql::SelectArg<"userset_id">>()
+				.where("username = " + sql::TextView(owner).as_sqlite())
+				.where("is_owner != 0")
+				>> [&res](const sql::BlobView& usersetIDBytes)
+				{
+					res.emplace_back();
+					std::memcpy(
+						res.back().data(),
+						usersetIDBytes.get().data(),
+						std::min(res.back().size(), usersetIDBytes.get().size())
+					);
+				};
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset in database",
+				e.what()
+			);
+		}
 		return res;
 	}
 
@@ -135,11 +196,21 @@ namespace senc::server::storage
 	{
 		bool found = false;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Members", sql::SelectArg<"username">>()
-			.where("username = " + sql::TextView(user).as_sqlite())
-			.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
-			.where("is_owner != 0")
-			>> [&found](const sql::TextView&) { found = true; };
+		try
+		{
+			this->_db.select<"Members", sql::SelectArg<"username">>()
+				.where("username = " + sql::TextView(user).as_sqlite())
+				.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
+				.where("is_owner != 0")
+				>> [&found](const sql::TextView&) { found = true; };
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset member in database",
+				e.what()
+			);
+		}
 		return found;
 	}
 
@@ -152,17 +223,28 @@ namespace senc::server::storage
 		{
 			std::tuple<sql::Int, sql::Int> thresholds;
 			const std::lock_guard<std::mutex> lock(_mtxDB);
-			this->_db.select<"UserSets",
-							 sql::SelectArg<"owners_threshold">,
-							 sql::SelectArg<"reg_members_threshold">>()
-				.where("id = " + usersetBlob.as_sqlite())
-				>> thresholds;
-			auto [ownersThreshold, regMembersThreshold] = thresholds;
-			res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
-			res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+			try
+			{
+				this->_db.select<"UserSets",
+					sql::SelectArg<"owners_threshold">,
+					sql::SelectArg<"reg_members_threshold">>()
+					.where("id = " + usersetBlob.as_sqlite())
+					>> thresholds;
+				auto [ownersThreshold, regMembersThreshold] = thresholds;
+				res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
+				res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+			}
+			catch (utils::sqlite::SQLiteException& e)
+			{
+				throw ServerStorageException(
+					"Failed to search userset in database",
+					e.what()
+				);
+			}
 		}
 
 		// locate members from DB
+		try
 		{
 			const std::lock_guard<std::mutex> lock(_mtxDB);
 			this->_db.select<"Members", sql::SelectArg<"username">, sql::SelectArg<"is_owner">>()
@@ -175,6 +257,13 @@ namespace senc::server::storage
 						res.reg_members.emplace_back(name.get());
 				};
 		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset in database",
+				e.what()
+			);
+		}
 
 		return res;
 	}
@@ -183,14 +272,24 @@ namespace senc::server::storage
 	{
 		PrivKeyShardID res{};
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Members", sql::SelectArg<"shard_id">>()
-			.where("username = " + sql::TextView(user).as_sqlite())
-			.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
-			>> [&res](sql::BlobView bytes)
-			{
-				auto view = bytes.get();
-				res.Decode(view.data(), view.size());
-			};
+		try
+		{
+			this->_db.select<"Members", sql::SelectArg<"shard_id">>()
+				.where("username = " + sql::TextView(user).as_sqlite())
+				.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
+				>> [&res](sql::BlobView bytes)
+				{
+					auto view = bytes.get();
+					res.Decode(view.data(), view.size());
+				};
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset member in database",
+				e.what()
+			);
+		}
 		return res;
 	}
 
@@ -198,9 +297,19 @@ namespace senc::server::storage
 	{
 		bool found = false;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"UserSets", sql::SelectArg<"id">>()
-			.where("id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
-			>> [&found](const sql::BlobView&) { found = true; };
+		try
+		{
+			this->_db.select<"UserSets", sql::SelectArg<"id">>()
+				.where("id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
+				>> [&found](const sql::BlobView&) { found = true; };
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset in database",
+				e.what()
+			);
+		}
 		return found;
 	}
 
@@ -218,10 +327,20 @@ namespace senc::server::storage
 
 		bool found = false;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Members", sql::SelectArg<"username">>()
-			.where("shard_id = " + sql::BlobView(shardIDBytes).as_sqlite())
-			.where("userset_id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
-			>> [&found](const sql::TextView&) { found = true; };
+		try
+		{
+			this->_db.select<"Members", sql::SelectArg<"username">>()
+				.where("shard_id = " + sql::BlobView(shardIDBytes).as_sqlite())
+				.where("userset_id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
+				>> [&found](const sql::TextView&) { found = true; };
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search userset member in database",
+				e.what()
+			);
+		}
 		return found;
 	}
 
