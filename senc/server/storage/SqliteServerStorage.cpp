@@ -111,4 +111,42 @@ namespace senc::server::storage
 
 		return setID;
 	}
+
+	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
+	{
+		bool found = false;
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		this->_db.select<"UserSets", sql::SelectArg<"id">>()
+			.where("id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
+			>> [&found](const sql::BlobView&) { found = true; };
+		return found;
+	}
+
+	UserSetID SqliteServerStorage::generate_unique_userset_id()
+	{
+		return UserSetID::generate_not_pred(
+			[this](const UserSetID& id) { return this->userset_exists(id); }
+		);
+	}
+
+	bool SqliteServerStorage::shard_id_exists(const PrivKeyShardID& shardID, const UserSetID& usersetID)
+	{
+		utils::Buffer shardIDBytes(shardID.MinEncodedSize());
+		shardID.Encode(shardIDBytes.data(), shardIDBytes.size());
+
+		bool found = false;
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		this->_db.select<"Members", sql::SelectArg<"username">>()
+			.where("shard_id = " + sql::BlobView(shardIDBytes).as_sqlite())
+			.where("userset_id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
+			>> [&found](const sql::TextView&) { found = true; };
+		return found;
+	}
+
+	PrivKeyShardID SqliteServerStorage::generate_unique_shard_id(const UserSetID& usersetID)
+	{
+		return _shardsDist(
+			[this, &usersetID](const PrivKeyShardID& id) { return this->shard_id_exists(id, usersetID); }
+		);
+	}
 }

@@ -78,10 +78,25 @@ namespace senc::server::storage
 		PwdHasher _pwdHasher;
 
 		/**
+		 * @brief Checks if a userset ID is of an existing userset.
+		 * @param usersetID Userset ID to check if is of an existing userset.
+		 * @return `true` if `usersetID` is an ID of an existing userset, otherwise `false`.
+		 */
+		bool userset_exists(const UserSetID& usersetID);
+
+		/**
 		 * @brief Generates a unique userset ID.
 		 * @return Generated userset ID.
 		 */
-		UserSetID generate_unique_userset_id() const;
+		UserSetID generate_unique_userset_id();
+
+		/**
+		 * @brief Checks if a shard ID exists within a userset.
+		 * @param shardID Shard ID to check if exists, in the form of a blob view.
+		 * @param usersetID Userset ID.
+		 * @return `true` if `shardID` exists in userset with ID `usersetID`, otherwise `false`.
+		 */
+		bool shard_id_exists(const PrivKeyShardID& shardID, const UserSetID& usersetID);
 
 		/**
 		 * @brief Generates a unique shard ID for a userset member.
