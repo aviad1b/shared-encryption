@@ -21,6 +21,7 @@ add_executable(senc_tests
     "../server/managers/DecryptionsManager.cpp"
     "../server/Server_impl.hpp"
     "../server/storage/ShortTermServerStorage.cpp"
+    "../server/storage/SqliteServerStorage.cpp"
     "../server/managers/UpdateManager.cpp"
 )
 
