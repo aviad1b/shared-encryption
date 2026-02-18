@@ -143,6 +143,42 @@ namespace senc::server::storage
 		return found;
 	}
 
+	UserSetInfo SqliteServerStorage::get_userset_info(const UserSetID& userset)
+	{
+		UserSetInfo res{};
+		const sql::BlobView usersetBlob(userset.data(), userset.size());
+
+		// read thresholds from DB
+		{
+			std::tuple<sql::Int, sql::Int> thresholds;
+			const std::lock_guard<std::mutex> lock(_mtxDB);
+			this->_db.select<"UserSets",
+							 sql::SelectArg<"owners_threshold">,
+							 sql::SelectArg<"reg_members_threshold">>()
+				.where("id = " + usersetBlob.as_sqlite())
+				>> thresholds;
+			auto [ownersThreshold, regMembersThreshold] = thresholds;
+			res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
+			res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+		}
+
+		// locate members from DB
+		{
+			const std::lock_guard<std::mutex> lock(_mtxDB);
+			this->_db.select<"Members", sql::SelectArg<"username">, sql::SelectArg<"is_owner">>()
+				.where("userset_id = " + usersetBlob.as_sqlite())
+				>> [&res](sql::TextView name, sql::IntView isOwner)
+				{
+					if (isOwner.get())
+						res.owners.emplace_back(name.get());
+					else
+						res.reg_members.emplace_back(name.get());
+				};
+		}
+
+		return res;
+	}
+
 	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
 	{
 		bool found = false;
