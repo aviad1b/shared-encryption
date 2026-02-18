@@ -135,7 +135,7 @@ namespace senc::server::storage
 	{
 		bool found = false;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
-		this->_db.select<"Members", sql::SelectArg<"username">>
+		this->_db.select<"Members", sql::SelectArg<"username">>()
 			.where("username = " + sql::TextView(user).as_sqlite())
 			.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
 			.where("is_owner != 0")
