@@ -131,6 +131,18 @@ namespace senc::server::storage
 		return res;
 	}
 
+	bool SqliteServerStorage::user_owns_userset(const std::string& user, const UserSetID& userset)
+	{
+		bool found = false;
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		this->_db.select<"Members", sql::SelectArg<"username">>
+			.where("username = " + sql::TextView(user).as_sqlite())
+			.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
+			.where("is_owner != 0")
+			>> [&found](const sql::TextView&) { found = true; };
+		return found;
+	}
+
 	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
 	{
 		bool found = false;
