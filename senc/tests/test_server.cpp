@@ -8,10 +8,12 @@
 
 #include <gtest/gtest.h>
 #include <functional>
+#include <filesystem>
 #include <memory>
 #include "../utils/Socket.hpp" // has to be first because windows is stupid
 #include "tests_utils.hpp"
 #include "../server/storage/ShortTermServerStorage.hpp"
+#include "../server/storage/SqliteServerStorage.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
 #include "../common/PacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
@@ -21,6 +23,7 @@
 namespace pkt = senc::pkt;
 using senc::server::managers::DecryptionsManager;
 using senc::server::storage::ShortTermServerStorage;
+using senc::server::storage::SqliteServerStorage;
 using senc::server::storage::IServerStorage;
 using senc::server::managers::UpdateManager;
 using senc::PacketHandlerImplFactory;
@@ -1566,6 +1569,15 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 // ===== Instantiation of Parameterized Tests =====
 
+static std::unique_ptr<IServerStorage> make_sqlite_server_storage()
+{
+	// delete storage between tests
+	constexpr auto PATH = "storage.sqlite";
+	if (std::filesystem::exists(PATH))
+		std::remove(PATH);
+	return std::make_unique<SqliteServerStorage>(PATH);
+}
+
 const auto SERVER_IMPLS = testing::Values(
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
@@ -1580,9 +1592,15 @@ const auto SERVER_IMPLS = testing::Values(
 		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
 	},
 	ServerTestParams{
+		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
+		[](auto&&... args) { return new_server<IPv4>(args...); },
+		make_sqlite_server_storage,
+		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
+	},
+	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv6>>(IPv6::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv6>(args...); },
-		std::make_unique<ShortTermServerStorage>,
+		make_sqlite_server_storage,
 		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
 	}
 );
