@@ -7,6 +7,7 @@
  *********************************************************************/
 
 #include "values.hpp"
+#include <iomanip>
 
 namespace senc::utils::sqlite
 {
@@ -321,9 +322,9 @@ namespace senc::utils::sqlite
 	std::string BlobView::as_sqlite() const
 	{
 		std::stringstream s;
-		s << "x'";
+		s << "x'" << std::hex << std::setfill('0');
 		for (byte b : get())
-			s << std::hex << static_cast<int>(b);
+			s << std::setw(2) << static_cast<unsigned>(b);
 		s << "'";
 		return s.str();
 	}
