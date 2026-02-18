@@ -100,7 +100,7 @@ namespace senc::server::storage
 			utils::Buffer shardIDBytes(shardID.MinEncodedSize());
 			shardID.Encode(shardIDBytes.data(), shardIDBytes.size());
 
-			const std::unique_lock<std::mutex> lock(_mtxDB);
+			const std::lock_guard<std::mutex> lock(_mtxDB);
 			this->_db.insert<"Members">(
 				sql::TextView(member),
 				setIDBlobView,
