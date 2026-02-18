@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../common/EncryptedPacketHandler.hpp"
-#include "storage/ShortTermServerStorage.hpp"
+#include "storage/SqliteServerStorage.hpp"
 #include "loggers/ConsoleLogger.hpp"
 #include "io/InteractiveConsole.hpp"
 #include "Server.hpp"
@@ -10,6 +10,8 @@ namespace senc::server
 	using utils::Port;
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
+
+	constexpr auto STORAGE_PATH = "storage.sqlite";
 
 	std::tuple<bool, Port> parse_args(int argc, char** argv);
 
@@ -45,7 +47,7 @@ namespace senc::server
 
 		Schema schema;
 		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
-		storage::ShortTermServerStorage storage;
+		storage::SqliteServerStorage storage(STORAGE_PATH);
 		managers::UpdateManager updateManager;
 		managers::DecryptionsManager decryptionsManager;
 		

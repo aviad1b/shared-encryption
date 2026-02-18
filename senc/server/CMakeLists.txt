@@ -4,6 +4,8 @@ add_executable (senc_server
 	"storage/IServerStorage.hpp"
 	"storage/ShortTermServerStorage.hpp"
 	"storage/ShortTermServerStorage.cpp"
+	"storage/SqliteServerStorage.hpp"
+	"storage/SqliteServerStorage.cpp"
 	"handlers/ConnectingClientHandler.hpp"
 	"handlers/ConnectingClientHandler.cpp"
 	"handlers/ConnectedClientHandler.hpp"

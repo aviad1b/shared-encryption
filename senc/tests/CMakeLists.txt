@@ -13,7 +13,7 @@ add_executable(senc_tests
     "test_bytes.cpp"
     "test_sql.cpp"
     "tests_utils.hpp"
-    "test_storage.cpp"
+    "test_server_storage.cpp"
     "test_server.cpp"
     "../server/handlers/ClientHandlerFactory.cpp"
     "../server/handlers/ConnectedClientHandler.cpp"
@@ -21,6 +21,7 @@ add_executable(senc_tests
     "../server/managers/DecryptionsManager.cpp"
     "../server/Server_impl.hpp"
     "../server/storage/ShortTermServerStorage.cpp"
+    "../server/storage/SqliteServerStorage.cpp"
     "../server/managers/UpdateManager.cpp"
 )
 

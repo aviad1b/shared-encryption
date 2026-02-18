@@ -75,9 +75,9 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam name Column name.
 	 * @tparam V Column value type.
 	 * @tparam refTable Name of referenced table.
-	 * @tparam refCol Name of reference column.
+	 * @tparam refCol Name of reference column (defaults to `name`).
 	 */
-	template <FixedString name, Value V, FixedString refTable, FixedString refCol>
+	template <FixedString name, Value V, FixedString refTable, FixedString refCol = name>
 	struct ForeignKey
 	{
 		static constexpr FixedString NAME = name;
@@ -93,9 +93,9 @@ namespace senc::utils::sqlite::schemas
 	 * @tparam name Column name.
 	 * @tparam V Column value type.
 	 * @tparam refTable Name of referenced table.
-	 * @tparam refCol Name of reference column.
+	 * @tparam refCol Name of reference column (defaults to `name`).
 	 */
-	template <FixedString owner, FixedString name, Value V, FixedString refTable, FixedString refCol>
+	template <FixedString owner, FixedString name, Value V, FixedString refTable, FixedString refCol = name>
 	struct OwnedForeignKey
 	{
 		static constexpr FixedString OWNER = owner;
