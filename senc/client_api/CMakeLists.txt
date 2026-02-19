@@ -1,6 +1,8 @@
 add_library(senc_client_api SHARED
 	"main.cpp"
 	"client_api.hpp"
+	"storage/ProfileRecord.hpp"
+	"storage/ProfileRecord.cpp"
 )
 
 set_property(TARGET senc_client_api PROPERTY CXX_STANDARD 20)
