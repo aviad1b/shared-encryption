@@ -22,6 +22,7 @@ namespace senc::utils::pwd
 	 * @class senc::utils::pwd::PBKDF2
 	 * @brief Password-Based Key Derivation Function 2 implementation of `senc::utils::pwrd::PwdHash`.
 	 */
+	template <std::size_t outputSize = 32, std::size_t saltSize = 16>
 	class PBKDF2
 	{
 	public:
@@ -56,5 +57,7 @@ namespace senc::utils::pwd
 		std::size_t _iterations;
 	};
 
-	static_assert(PwdHasher<PBKDF2>);
+	static_assert(PwdHasher<PBKDF2<>>);
 }
+
+#include "PBKDF2_impl.hpp"

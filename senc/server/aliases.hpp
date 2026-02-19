@@ -16,7 +16,7 @@ namespace senc::server
 	 * @typedef senc::server::PwdHasher
 	 * @brief Hasher used for hashing passwords.
 	 */
-	using PwdHasher = utils::pwd::PBKDF2;
+	using PwdHasher = utils::pwd::PBKDF2<>;
 
 	/**
 	 * @typedef senc::server::PwdSalt

@@ -51,7 +51,7 @@
 	"uuid_impl.hpp"
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
-	"pwd/PBKDF2.cpp"
+	"pwd/PBKDF2_impl.hpp"
 	"sqlite/SQLiteException.hpp"
 	"sqlite/values.hpp"
 	"sqlite/values.cpp"
