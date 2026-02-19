@@ -61,6 +61,12 @@ namespace senc::clientapi::storage
 	private:
 		utils::enc::AES1L::Key _key;
 
+		/**
+		 * @brief Derives key for profile access from username and password.
+		 * @param username Username to derive key from.
+		 * @param password Password to derive key from.
+		 * @return Derived key.
+		 */
 		static utils::enc::AES1L::Key derive_key(const std::string& username, const std::string& password);
 	};
 }
