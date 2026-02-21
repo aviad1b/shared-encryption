@@ -81,6 +81,8 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::set_pos(file_pos_t pos)
 	{
+		if (pos == _pos)
+			return;
 		if (0 != std::fseek(_file, pos, SEEK_SET))
 			throw FileException("Failed to set file position");
 		_pos = pos;
@@ -148,6 +150,13 @@ namespace senc::utils
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
+	inline void BinFile<accessFlags, endianess>::refresh_cursor()
+	{
+		if (0 != std::fseek(_file, _pos, SEEK_SET))
+			throw FileException("Failed to refresh file position");
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::update_internal_pos()
 	{
 		_pos = std::ftell(_file);
@@ -164,7 +173,7 @@ namespace senc::utils
 
 		// if prev operation was write, refresh cursor
 		if (UnderlyingOperation::Write == _prevUnderlyingOperation)
-			set_pos(_pos);
+			refresh_cursor();
 
 		if (0 == std::fread(buffer, sizeof(T), count, _file))
 			throw FileException("Failed to read from file");
@@ -185,7 +194,7 @@ namespace senc::utils
 
 		// if prev operation was read, refresh cursor
 		if (UnderlyingOperation::Read == _prevUnderlyingOperation)
-			set_pos(_pos);
+			refresh_cursor();
 
 		if constexpr (std::endian::native == endianess || sizeof(T) <= 1)
 		{

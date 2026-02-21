@@ -218,6 +218,12 @@ namespace senc::utils
 		UnderlyingOperation _prevUnderlyingOperation;
 
 		/**
+		 * @brief Refreshes file cursor (re-sets to same position).
+		 * @note This is needed for switching from read to write or vise-versa.
+		 */
+		void refresh_cursor();
+
+		/**
 		 * @brief Updates `_pos` field based on cursor.
 		 */
 		void update_internal_pos();
