@@ -23,6 +23,16 @@ namespace senc::clientapi::storage
 		using Self = ProfileRecord;
 
 		/**
+		 * @brief Copy constructor of profile record.
+		 */
+		ProfileRecord(const Self&) = default;
+
+		/**
+		 * @brief Copy assignment operator of profile record.
+		 */
+		Self& operator=(const Self&) = default;
+
+		/**
 		 * @brief Constructs a new owner profile record.
 		 * @param usersetID Userset ID (moved).
 		 * @param regLayerPubKey Public key of non-owner layer (moved).
