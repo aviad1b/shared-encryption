@@ -1,5 +1,5 @@
 add_library(senc_client_api SHARED
-	"client_api.hpp"
+	"client_api.h"
 	"client_api.cpp"
 	"Handle.hpp"
 	"Error.hpp"
