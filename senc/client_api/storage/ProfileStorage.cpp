@@ -10,8 +10,6 @@
 
 namespace senc::clientapi::storage
 {
-	const std::size_t ProfileUtils::SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
-
 	profile_record_enc_sizes_t ProfileUtils::read_profile_record_enc_sizes(ProfileInputFile& file)
 	{
 		profile_record_enc_sizes_t res{};
@@ -76,11 +74,11 @@ namespace senc::clientapi::storage
 		it = utils::read_bytes(usersetID, it, end);
 
 		PubKey regLayerPubKey{}, ownerLayerPubKey{};
-		it = parse_pub_key(regLayerPubKey, it, end);
-		it = parse_pub_key(ownerLayerPubKey, it, end);
+		it = read_pub_key(regLayerPubKey, it, end);
+		it = read_pub_key(ownerLayerPubKey, it, end);
 
 		PrivKeyShard regLayerPrivKeyShard{};
-		it = parse_priv_key_shard(regLayerPrivKeyShard, it, end);
+		it = read_priv_key_shard(regLayerPrivKeyShard, it, end);
 
 		// if non-owner record, stop here - no more data to read
 		if (!flags.is_owner)
@@ -92,38 +90,13 @@ namespace senc::clientapi::storage
 
 		// otherwise, read remaining data (owner shard) then return
 		PrivKeyShard ownerLayerPrivKeyShard{};
-		it = parse_priv_key_shard(ownerLayerPrivKeyShard, it, end);
+		it = read_priv_key_shard(ownerLayerPrivKeyShard, it, end);
 
 		return ProfileRecord::owner(
 			std::move(usersetID),
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
 			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
 		);
-	}
-
-	utils::Buffer::iterator ProfileUtils::parse_pub_key(PubKey& out,
-														utils::Buffer::iterator it,
-														utils::Buffer::iterator end)
-	{
-		static thread_local utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
-		it = utils::read_bytes(pubKeyBuff, it, end);
-		out = PubKey::decode(pubKeyBuff);
-		return it;
-	}
-
-	utils::Buffer::iterator ProfileUtils::parse_priv_key_shard(PrivKeyShard& out,
-															   utils::Buffer::iterator it,
-															   utils::Buffer::iterator end)
-	{
-		static thread_local utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
-		static thread_local utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
-		static thread_local utils::BigInt shardValUnderlying{};
-		it = utils::read_bytes(shardIdBuff, it, end);
-		it = utils::read_bytes(shardValBuff, it, end);
-		out.first.Decode(shardIdBuff.data(), shardIdBuff.size());
-		shardValUnderlying.Decode(shardValBuff.data(), shardValBuff.size());
-		out.second = std::move(shardValUnderlying);
-		return it;
 	}
 
 	utils::Buffer ProfileUtils::serialize_profile_record(const ProfileRecord& record)
@@ -136,36 +109,19 @@ namespace senc::clientapi::storage
 		const auto flagsByte = flags.to_byte();
 		utils::write_bytes(res, flagsByte);
 
-		serialize_pub_key(res, record.reg_layer_pub_key());
-		serialize_pub_key(res, record.owner_layer_pub_key());
+		write_pub_key(res, record.reg_layer_pub_key());
+		write_pub_key(res, record.owner_layer_pub_key());
 
-		serialize_priv_key_shard(res, record.reg_layer_priv_key_shard());
+		write_priv_key_shard(res, record.reg_layer_priv_key_shard());
 
 		// if owner, no more data to write
 		if (!record.is_owner())
 			return res;
 
 		// else, write remaining data (owner shard)
-		serialize_priv_key_shard(res, record.owner_layer_priv_key_shard());
+		write_priv_key_shard(res, record.owner_layer_priv_key_shard());
 
 		return res;
-	}
-
-	void ProfileUtils::serialize_pub_key(utils::Buffer& out, const PubKey& pubKey)
-	{
-		utils::write_bytes(out, pubKey.encode());
-	}
-
-	void ProfileUtils::serialize_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard)
-	{
-		const auto oldOutSize = out.size();
-		out.resize(out.size() + SHARD_ID_MAX_SIZE + SHARD_VALUE_MAX_SIZE);
-		auto* outData = out.data() + oldOutSize;
-
-		utils::BigInt shardValUnderlying{};
-		shard.first.Encode(outData, SHARD_ID_MAX_SIZE);
-		shardValUnderlying = shard.second;
-		shardValUnderlying.Encode(outData, SHARD_VALUE_MAX_SIZE);
 	}
 
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,

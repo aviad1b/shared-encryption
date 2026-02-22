@@ -78,14 +78,6 @@ namespace senc::clientapi::storage
 														const ProfileRecord& record);
 
 	private:
-		// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
-		// TODO: move this constant elsewhere in future version
-		static constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
-
-		// this constant is true as shard values are always < modulus
-		// TODO: move this constant elsewhere in future version
-		static const std::size_t SHARD_VALUE_MAX_SIZE;
-
 		/**
 		 * @brief Gets profile encryption schema.
 		 */
@@ -94,19 +86,7 @@ namespace senc::clientapi::storage
 		static ProfileRecord parse_profile_record(utils::Buffer& data);
 		// TODO: Add const once utils::read_bytes accepts const_iterator
 
-		static utils::Buffer::iterator parse_pub_key(PubKey& out,
-													 utils::Buffer::iterator it,
-													 utils::Buffer::iterator end);
-
-		static utils::Buffer::iterator parse_priv_key_shard(PrivKeyShard& out,
-															utils::Buffer::iterator it,
-															utils::Buffer::iterator end);
-
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
-
-		static void serialize_pub_key(utils::Buffer& out, const PubKey& pubKey);
-
-		static void serialize_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
 	};
 
 	/**
