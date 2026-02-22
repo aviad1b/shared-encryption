@@ -25,35 +25,32 @@
 
 #ifdef SENC_CLIENT_API_WINDOWS
 
+#ifndef SENC_CLINK
 #ifdef __cplusplus
-
-#ifdef I_SENC_CLIENT_API
-#define SENC_CLIENT_API_PUBLIC extern "C" __declspec(dllexport)
-#else // !I_SENC_CLIENT_API
-#define SENC_CLIENT_API_PUBLIC extern "C" __declspec(dllimport)
-#endif // end I_SENC_CLIENT_API
-
+#define SENC_CLINK extern "C"
 #else // !__cplusplus
+#define SENC_CLINK
+#endif // end __cplusplus
+#endif // end !CLINK
+
+#ifndef SENC_NOTHROW
+#ifdef __cplusplus
+#define SENC_NOTHROW noexcept
+#else // !__cplusplus
+#define SENC_NOTHROW
+#endif // end __cplusplus
+#endif // end !CLINK
+
 
 #ifdef I_SENC_CLIENT_API
-#define SENC_CLIENT_API_PUBLIC __declspec(dllexport)
+#define SENC_CLIENT_API_PUBLIC SENC_CLINK __declspec(dllexport)
 #else // !I_SENC_CLIENT_API
-#define SENC_CLIENT_API_PUBLIC __declspec(dllimport)
+#define SENC_CLIENT_API_PUBLIC SENC_CLINK __declspec(dllimport)
 #endif // end I_SENC_CLIENT_API
-
-#endif // end __cplusplus
 
 #else // !SENC_CLIENT_API_WINDOWS
 
-#ifdef __cplusplus
-
-#define SENC_CLIENT_API_PUBLIC extern "C" __attribute__((visibility("default")))
-
-#else // !__cplusplus
-
-#define SENC_CLIENT_API_PUBLIC __attribute__((visibility("default")))
-
-#endif // end __cpluspluss
+#define SENC_CLIENT_API_PUBLIC SENC_CLINK __attribute__((visibility("default")))
 
 #endif // end SENC_CLIENT_API_WINDOWS
 
@@ -67,14 +64,14 @@ typedef bool(*nint_predicate_t)(std::uintptr_t);
  * @brief Deallocates previously returned handle.
  * @param handle Handle to deallocate.
  */
-SENC_CLIENT_API_PUBLIC void FreeHandle(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC void FreeHandle(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Checks if a handle contains an error (rather than a value).
  * @param handle Handle to check if contains error.
  * @return `true` if handle has error, `false` if has value.
  */
-SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Gets error message from error handle.
@@ -82,7 +79,7 @@ SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle) noexcept;
  * @return Error message.
  * @note Accessing returned message after handle deallocation is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Gets string value from a string handle.
@@ -90,7 +87,7 @@ SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle) noexcept;
  * @return String stored in handle.
  * @note Calling this function on a non-string handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Gets bytes buffer length from bytes buffer handle.
@@ -98,7 +95,7 @@ SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle) noexcep
  * @return Length of bytes buffer in handle.
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Gets bytes buffer bytes from bytes buffer handle.
@@ -106,7 +103,7 @@ SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept
  * @return Pointer to byte buffer's bytes.
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Converts a bytes buffer to base64 string.
@@ -114,14 +111,14 @@ SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle) 
  * @return String handle (of base64 string).
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetBytesBase64(std::uintptr_t handle) SENC_NOTHROW;
 
 /**
  * @brief Locates user's profile file path based on username.
  * @param username Username.
  * @return Handle to user profile file path (or error if failed).
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username) SENC_NOTHROW;
 
 /**
  * @brief Loads user's profile from storage.
@@ -130,7 +127,7 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username
  * @param password User's password.
  * @return Handle to user profile (or error if failed).
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) SENC_NOTHROW;
 
 /**
  * @brief Iterates over user profile data.
@@ -139,7 +136,7 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const ch
  * @return Nullopt value on success, error if failed.
  * @note Calling this function on a non-profile handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) SENC_NOTHROW;
 
 /**
  * @brief Checks if a profile record pointer is of an owner record.
@@ -147,7 +144,7 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile, n
  * @return `true` if `pRecord` points to an owner record, otherwise `false` (or error if failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC bool IsOwnerProfileRecord(std::uintptr_t pRecord) noexcept;
+SENC_CLIENT_API_PUBLIC bool IsOwnerProfileRecord(std::uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Gets reg layer public key from profile record pointer.
@@ -155,7 +152,7 @@ SENC_CLIENT_API_PUBLIC bool IsOwnerProfileRecord(std::uintptr_t pRecord) noexcep
  * @return Handle to bytes buffer representing reg layer public key (or error if failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Gets owner layer public key from profile record pointer.
@@ -163,7 +160,7 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t p
  * @return Handle to bytes buffer representing owner layer public key (or error if failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Gets reg layer private key shard from profile record pointer.
@@ -171,7 +168,7 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t
  * @return Handle to bytes buffer representing reg layer private key shard (or error if failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Gets owner layer private key shard from profile record pointer.
@@ -180,4 +177,4 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pR
  *		   or error if not an owner record (or failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerShard(std::uintptr_t pRecord) noexcept;
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerShard(std::uintptr_t pRecord) SENC_NOTHROW;
