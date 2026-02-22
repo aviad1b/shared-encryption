@@ -35,6 +35,12 @@
 #endif // end SENC_CLIENT_API_WINDOWS
 
 /**
+ * @typedef handle_predicate_t
+ * @brief Pointer to function which accepts a handle and returns true/false.
+ */
+typedef bool(*handle_predicate_t)(std::uintptr_t);
+
+/**
  * @brief Deallocates previously returned handle.
  * @param handle Handle to deallocate.
  */
