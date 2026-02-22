@@ -133,28 +133,36 @@ namespace senc::clientapi::storage
 		const auto flagsByte = flags.to_byte();
 		utils::write_bytes(res, flagsByte);
 
-		utils::write_bytes(res, record.reg_layer_pub_key().encode());
-		utils::write_bytes(res, record.owner_layer_pub_key().encode());
+		serialize_pub_key(res, record.reg_layer_pub_key());
+		serialize_pub_key(res, record.owner_layer_pub_key());
 
-		utils::BigInt shardValUnderlying{};
-		res.resize(res.size() + SHARD_ID_MAX_SIZE);
-		record.reg_layer_priv_key_shard().first.Encode(res.data() - SHARD_ID_MAX_SIZE, SHARD_ID_MAX_SIZE);
-		res.resize(res.size() + SHARD_VALUE_MAX_SIZE);
-		shardValUnderlying = record.reg_layer_priv_key_shard().second;
-		shardValUnderlying.Encode(res.data() - SHARD_VALUE_MAX_SIZE, SHARD_VALUE_MAX_SIZE);
+		serialize_priv_key_shard(res, record.reg_layer_priv_key_shard());
 
 		// if owner, no more data to write
 		if (!record.is_owner())
 			return res;
 
 		// else, write remaining data (owner shard)
-		res.resize(res.size() + SHARD_ID_MAX_SIZE);
-		record.owner_layer_priv_key_shard().first.Encode(res.data() - SHARD_ID_MAX_SIZE, SHARD_ID_MAX_SIZE);
-		res.resize(res.size() + SHARD_VALUE_MAX_SIZE);
-		shardValUnderlying = record.owner_layer_priv_key_shard().second;
-		shardValUnderlying.Encode(res.data() - SHARD_VALUE_MAX_SIZE, SHARD_VALUE_MAX_SIZE);
+		serialize_priv_key_shard(res, record.owner_layer_priv_key_shard());
 
 		return res;
+	}
+
+	void ProfileUtils::serialize_pub_key(utils::Buffer& out, const PubKey& pubKey)
+	{
+		utils::write_bytes(out, pubKey.encode());
+	}
+
+	void ProfileUtils::serialize_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard)
+	{
+		const auto oldOutSize = out.size();
+		out.resize(out.size() + SHARD_ID_MAX_SIZE + SHARD_VALUE_MAX_SIZE);
+		auto* outData = out.data() + oldOutSize;
+
+		utils::BigInt shardValUnderlying{};
+		shard.first.Encode(outData, SHARD_ID_MAX_SIZE);
+		shardValUnderlying = shard.second;
+		shardValUnderlying.Encode(outData, SHARD_VALUE_MAX_SIZE);
 	}
 
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,

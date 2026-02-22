@@ -91,6 +91,10 @@ namespace senc::clientapi::storage
 															utils::Buffer::iterator end);
 
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
+
+		static void serialize_pub_key(utils::Buffer& out, const PubKey& pubKey);
+
+		static void serialize_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
 	};
 
 	/**
