@@ -69,6 +69,14 @@ namespace senc::clientapi::storage
 														const ProfileRecord& record);
 
 	private:
+		// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
+		// TODO: move this constant elsewhere in future version
+		static constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
+
+		// this constant is true as shard values are always < modulus
+		// TODO: move this constant elsewhere in future version
+		static const std::size_t SHARD_VALUE_MAX_SIZE;
+
 		static ProfileEncSchema& schema();
 
 		static ProfileRecord parse_profile_record(utils::Buffer& data);

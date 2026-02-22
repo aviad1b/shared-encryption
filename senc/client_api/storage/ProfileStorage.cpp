@@ -10,6 +10,8 @@
 
 namespace senc::clientapi::storage
 {
+	const std::size_t ProfileUtils::SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
+
 	profile_record_enc_sizes_t ProfileUtils::read_profile_record_enc_sizes(ProfileInputFile& file)
 	{
 		profile_record_enc_sizes_t res{};
@@ -79,14 +81,6 @@ namespace senc::clientapi::storage
 			ownerLayerPubKey = PubKey::decode(pubKeyBuff);
 		}
 
-		// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
-		// TODO: move this constant elsewhere in future version
-		constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
-
-		// this constant is true as shard values are always < modulus
-		// TODO: move this constant elsewhere in future version
-		const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
-
 		PrivKeyShard regLayerPrivKeyShard{};
 		utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
 		utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
@@ -132,14 +126,6 @@ namespace senc::clientapi::storage
 
 		utils::write_bytes(res, record.reg_layer_pub_key().encode());
 		utils::write_bytes(res, record.owner_layer_pub_key().encode());
-
-		// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
-		// TODO: move this constant elsewhere in future version
-		constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
-
-		// this constant is true as shard values are always < modulus
-		// TODO: move this constant elsewhere in future version
-		const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
 
 		utils::BigInt shardValUnderlying{};
 		res.resize(res.size() + SHARD_ID_MAX_SIZE);
