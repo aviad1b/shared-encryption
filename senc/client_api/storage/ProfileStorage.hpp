@@ -17,10 +17,10 @@
 namespace senc::clientapi::storage
 {
 	/**
-	 * @typedef senc::clientapi::storage::profile_record_enc_size_t
-	 * @brief Size of profile record encryption part on stored memory.
+	 * @typedef senc::clientapi::storage::profile_record_enc_sizes_t
+	 * @brief Sizes of profile record encryption on stored memory.
 	 */
-	using profile_record_enc_size_t = std::uint16_t;
+	using profile_record_enc_sizes_t = std::pair<std::uint16_t, std::uint16_t>;
 
 	/**
 	 * @struct senc::clientapi::storage::ProfileRecordFlags
@@ -58,12 +58,11 @@ namespace senc::clientapi::storage
 	class ProfileUtils
 	{
 	public:
-		static profile_record_enc_size_t read_profile_record_enc_size(ProfileInputFile& file);
+		static profile_record_enc_sizes_t read_profile_record_enc_sizes(ProfileInputFile& file);
 
 		static ProfileRecord read_profile_record(ProfileInputFile& file,
-			const ProfileEncKey& key,
-			profile_record_enc_size_t size1,
-			profile_record_enc_size_t size2);
+												 const ProfileEncKey& key,
+												 profile_record_enc_sizes_t sizes);
 
 	private:
 		static ProfileEncSchema& schema();
@@ -109,7 +108,7 @@ namespace senc::clientapi::storage
 		std::reference_wrapper<const ProfileEncKey> _key;
 		std::reference_wrapper<ProfileInputFile> _file;
 		utils::file_pos_t _pos;
-		profile_record_enc_size_t _recordEncSize1, _recordEncSize2;
+		profile_record_enc_sizes_t _recordEncSizes;
 		ProfileRecord _record;
 
 		utils::file_pos_t next_pos() const;
