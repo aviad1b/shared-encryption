@@ -10,7 +10,7 @@
 
 namespace senc::clientapi
 {
-	template <std::movable T>
+	template <std::move_constructible T>
 	inline Handle* Value<T>::new_instance(T&& value) noexcept
 	{
 		try { return new Self(true, std::move(value)); }
@@ -18,7 +18,7 @@ namespace senc::clientapi
 		catch (const std::exception& e) { return Error::new_instance(e.what()); }
 	}
 
-	template <std::movable T>
+	template <std::move_constructible T>
 	template <typename... Args>
 	requires std::constructible_from<T, Args...>
 	inline Handle* senc::clientapi::Value<T>::new_instance(Args&&... args) noexcept
@@ -26,25 +26,25 @@ namespace senc::clientapi
 		return new_instance(T(std::forward<Args>(args)...));
 	}
 
-	template <std::movable T>
+	template <std::move_constructible T>
 	inline bool Value<T>::has_error() const
 	{
 		return false;
 	}
 
-	template <std::movable T>
+	template <std::move_constructible T>
 	inline T& Value<T>::get() noexcept
 	{
 		return _value;
 	}
 
-	template <std::movable T>
+	template <std::move_constructible T>
 	const T& Value<T>::get() const noexcept
 	{
 		return _value;
 	}
 
-	template <std::movable T>
+	template <std::move_constructible T>
 	inline Value<T>::Value(bool isAllocated, T&& value) noexcept(std::is_nothrow_move_constructible_v<T>)
 		: Base(isAllocated), _value(std::move(value)) { }
 }

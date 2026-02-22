@@ -17,7 +17,7 @@ namespace senc::clientapi
 	 * @class senc::clientapi::Error
 	 * @brief Used to wrap values for API calls.
 	 */
-	template <std::movable T>
+	template <std::move_constructible T>
 	class Value : public Handle
 	{
 	public:
