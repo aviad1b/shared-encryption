@@ -25,15 +25,35 @@
 
 #ifdef SENC_CLIENT_API_WINDOWS
 
+#ifdef __cplusplus
+
 #ifdef I_SENC_CLIENT_API
 #define SENC_CLIENT_API_PUBLIC extern "C" __declspec(dllexport)
 #else // !I_SENC_CLIENT_API
 #define SENC_CLIENT_API_PUBLIC extern "C" __declspec(dllimport)
 #endif // end I_SENC_CLIENT_API
 
+#else // !__cplusplus
+
+#ifdef I_SENC_CLIENT_API
+#define SENC_CLIENT_API_PUBLIC __declspec(dllexport)
+#else // !I_SENC_CLIENT_API
+#define SENC_CLIENT_API_PUBLIC __declspec(dllimport)
+#endif // end I_SENC_CLIENT_API
+
+#endif // end __cplusplus
+
 #else // !SENC_CLIENT_API_WINDOWS
 
+#ifdef __cplusplus
+
 #define SENC_CLIENT_API_PUBLIC extern "C" __attribute__((visibility("default")))
+
+#else // !__cplusplus
+
+#define SENC_CLIENT_API_PUBLIC __attribute__((visibility("default")))
+
+#endif // end __cpluspluss
 
 #endif // end SENC_CLIENT_API_WINDOWS
 
