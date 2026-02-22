@@ -14,7 +14,7 @@ target_compile_definitions(senc_client_api PRIVATE I_SENC_CLIENT_API)
 
 # disable default function exporting on Linux
 if(NOT WIN32)
-	target_compile_options(senc_client_api PRIVATE -fvisibility=hidden)
+	target_compile_options(senc_client_api PRIVATE -fPIC -fvisibility=hidden)
 endif()
 
 target_link_libraries(senc_client_api PRIVATE
