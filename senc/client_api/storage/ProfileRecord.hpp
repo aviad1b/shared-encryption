@@ -64,7 +64,7 @@ namespace senc::clientapi::storage
 		 * @brief Checks if this is an owner profile record.
 		 * @return `true` if owner profile record, `false` if non-owner profile record.
 		 */
-		bool is_owner() const;
+		bool is_owner() const noexcept;
 
 		/**
 		 * @brief Gets userset ID.

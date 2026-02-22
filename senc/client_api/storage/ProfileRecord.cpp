@@ -39,7 +39,7 @@ namespace senc::clientapi::storage
 		);
 	}
 
-	bool ProfileRecord::is_owner() const
+	bool ProfileRecord::is_owner() const noexcept
 	{
 		return _ownerLayerPrivKeyShard.has_value();
 	}
