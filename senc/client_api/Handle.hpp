@@ -44,6 +44,16 @@ namespace senc::clientapi
 			return reinterpret_cast<std::uintptr_t>(this);
 		}
 
+		/**
+		 * @brief Gets instance pointer from "nint" (API) version.
+		 * @param nint API type pointer.
+		 * @return Instance pointer.
+		 */
+		static Self* from_nint(std::uintptr_t nint) noexcept
+		{
+			return reinterpret_cast<Self*>(nint);
+		}
+
 	protected:
 		Handle(bool isAllocated) : _isAllocated(isAllocated) { }
 

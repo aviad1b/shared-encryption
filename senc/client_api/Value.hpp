@@ -25,6 +25,16 @@ namespace senc::clientapi
 		using Base = Handle;
 
 		/**
+		 * @brief Gets instance pointer from "nint" (API) version.
+		 * @param nint API type pointer.
+		 * @return Instance pointer.
+		 */
+		static Self* from_nint(std::uintptr_t nint) noexcept
+		{
+			return reinterpret_cast<Self*>(nint);
+		}
+
+		/**
 		 * @brief Constructs an allocated value instance.
 		 * @param isAllocated Whether or not object was dynamically allocated.
 		 * @param value Value (moved).

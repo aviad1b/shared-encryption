@@ -17,8 +17,7 @@ namespace utils = senc::utils;
 
 void FreeHandle(std::uintptr_t handle) noexcept
 {
-	auto* pHandle = reinterpret_cast<api::Handle*>(handle);
-
+	auto* pHandle = api::Handle::from_nint(handle);
 	if (pHandle->allocated())
 	{
 		try { delete pHandle; }
@@ -28,42 +27,37 @@ void FreeHandle(std::uintptr_t handle) noexcept
 
 bool HasError(std::uintptr_t handle) noexcept
 {
-	auto* pHandle = reinterpret_cast<api::Handle*>(handle);
-
+	auto* pHandle = api::Handle::from_nint(handle);
 	return pHandle->has_error();
 }
 
 const char* GetError(std::uintptr_t handle) noexcept
 {
-	auto* pError = reinterpret_cast<api::Error*>(handle);
-
+	auto* pError = api::Error::from_nint(handle);
 	return pError->what();
 }
 
 const char* GetStringValue(std::uintptr_t handle) noexcept
 {
-	auto* pValue = reinterpret_cast<api::Value<std::string>*>(handle);
-
+	auto* pValue = api::Value<std::string>::from_nint(handle);
 	return pValue->get().c_str();
 }
 
 std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept
 {
-	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
-
+	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return pBuff->get().size();
 }
 
 const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept
 {
-	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
-
+	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return pBuff->get().data();
 }
 
 std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept
 {
-	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
+	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return api::Value<std::string>::ret_new([pBuff]()
 	{
 		return utils::bytes_to_base64(pBuff->get());
