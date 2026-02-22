@@ -27,6 +27,15 @@ namespace senc::clientapi
 	}
 
 	template <std::move_constructible T>
+	inline Handle* Value<T>::ret_new(utils::Callable<T> auto&& f) noexcept
+	{
+		try { return new_instance(f()); }
+		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
+		catch (const std::exception& e) { return Error::new_instance(e.what()); }
+		catch (...) { return Error::new_instance("Unknown error"); }
+	}
+
+	template <std::move_constructible T>
 	inline bool Value<T>::has_error() const noexcept
 	{
 		return false;

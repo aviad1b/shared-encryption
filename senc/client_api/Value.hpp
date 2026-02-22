@@ -8,8 +8,8 @@
 
 #pragma once
 
+#include "../utils/concepts.hpp"
 #include "Error.hpp"
-#include <concepts>
 
 namespace senc::clientapi
 {
@@ -40,6 +40,13 @@ namespace senc::clientapi
 		template <typename... Args>
 		requires std::constructible_from<T, Args...>
 		static Handle* new_instance(Args&&... args) noexcept;
+
+		/**
+		 * @brief Constructs an allocated value instance for API return (preventing exceptions).
+		 * @param f Callback returning internal value instance.
+		 * @return Allocated instance, or fitting `Error` if failed / an excpetion occurred.
+		 */
+		static Handle* ret_new(utils::Callable<T> auto&& f) noexcept;
 
 		Value(const Self&) = delete;
 
