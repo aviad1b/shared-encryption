@@ -38,14 +38,14 @@
  * @brief Deallocates previously returned handle.
  * @param handle Handle to deallocate.
  */
-SENC_CLIENT_API_PUBLIC void FreeHandle(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC void FreeHandle(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Checks if a handle contains an error (rather than a value).
  * @param handle Handle to check if contains error.
  * @return `true` if handle has error, `false` if has value.
  */
-SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Gets error message from error handle.
@@ -53,7 +53,7 @@ SENC_CLIENT_API_PUBLIC bool HasError(std::uintptr_t handle);
  * @return Error message.
  * @note Accessing returned message after handle deallocation is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Gets string value from a string handle.
@@ -61,7 +61,7 @@ SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle);
  * @return String stored in handle.
  * @note Calling this function on a non-string handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Gets bytes buffer length from bytes buffer handle.
@@ -69,7 +69,7 @@ SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle);
  * @return Length of bytes buffer in handle.
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Gets bytes buffer bytes from bytes buffer handle.
@@ -77,7 +77,7 @@ SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle);
  * @return Pointer to byte buffer's bytes.
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Converts a bytes buffer to base64 string.

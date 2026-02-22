@@ -44,7 +44,7 @@ namespace senc::clientapi
 
 		Self& operator=(Self&&) = delete;
 
-		bool has_error() const override;
+		bool has_error() const noexcept override;
 
 		/**
 		 * @brief Gets stored value.

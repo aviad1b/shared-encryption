@@ -25,7 +25,7 @@ namespace senc::clientapi
 		 * @brief Checks if has error (rather than value).
 		 * @return `true` if has error, `false` if has value.
 		 */
-		virtual bool has_error() const = 0;
+		virtual bool has_error() const noexcept = 0;
 
 		/**
 		 * @brief Checks if object was allocated dynamically.

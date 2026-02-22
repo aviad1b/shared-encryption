@@ -15,43 +15,46 @@
 namespace api = senc::clientapi;
 namespace utils = senc::utils;
 
-void FreeHandle(std::uintptr_t handle)
+void FreeHandle(std::uintptr_t handle) noexcept
 {
 	auto* pHandle = reinterpret_cast<api::Handle*>(handle);
 
 	if (pHandle->allocated())
-		delete pHandle;
+	{
+		try { delete pHandle; }
+		catch(...) { }
+	}
 }
 
-bool HasError(std::uintptr_t handle)
+bool HasError(std::uintptr_t handle) noexcept
 {
 	auto* pHandle = reinterpret_cast<api::Handle*>(handle);
 
 	return pHandle->has_error();
 }
 
-const char* GetError(std::uintptr_t handle)
+const char* GetError(std::uintptr_t handle) noexcept
 {
 	auto* pError = reinterpret_cast<api::Error*>(handle);
 
 	return pError->what();
 }
 
-const char* GetStringValue(std::uintptr_t handle)
+const char* GetStringValue(std::uintptr_t handle) noexcept
 {
 	auto* pValue = reinterpret_cast<api::Value<std::string>*>(handle);
 
 	return pValue->get().c_str();
 }
 
-std::uint64_t GetBytesLen(std::uintptr_t handle)
+std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept
 {
 	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
 
 	return pBuff->get().size();
 }
 
-const std::uint8_t* GetBytesValue(std::uintptr_t handle)
+const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept
 {
 	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
 

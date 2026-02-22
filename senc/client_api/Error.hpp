@@ -52,13 +52,13 @@ namespace senc::clientapi
 
 		Self& operator=(Self&&) = delete;
 
-		bool has_error() const override;
+		bool has_error() const noexcept override;
 
 		/**
 		 * @brief Gets error message as a c-string (similarly to exceptions).
 		 * @return Error message c-string.
 		 */
-		const char* what() const;
+		const char* what() const noexcept;
 
 	private:
 		std::string _msg;

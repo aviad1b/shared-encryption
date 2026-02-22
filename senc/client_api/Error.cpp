@@ -26,12 +26,12 @@ namespace senc::clientapi
 		catch (const std::exception& e) { return Error::new_instance(e.what()); }
 	}
 
-	bool Error::has_error() const
+	bool Error::has_error() const noexcept
 	{
 		return true;
 	}
 
-	const char* Error::what() const
+	const char* Error::what() const noexcept
 	{
 		return _msg.c_str();
 	}

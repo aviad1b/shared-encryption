@@ -27,7 +27,7 @@ namespace senc::clientapi
 	}
 
 	template <std::move_constructible T>
-	inline bool Value<T>::has_error() const
+	inline bool Value<T>::has_error() const noexcept
 	{
 		return false;
 	}
