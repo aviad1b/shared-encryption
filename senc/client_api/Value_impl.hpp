@@ -11,7 +11,7 @@
 namespace senc::clientapi
 {
 	template <std::movable T>
-	inline Value<T>::Base* Value<T>::new_instance(T&& value) noexcept
+	inline Handle* Value<T>::new_instance(T&& value) noexcept
 	{
 		try { return new Self(true, std::move(value)); }
 		catch (const std::bad_alloc&) { return Error::ALLOCATION; }

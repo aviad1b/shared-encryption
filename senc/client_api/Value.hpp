@@ -18,11 +18,11 @@ namespace senc::clientapi
 	 * @brief Used to wrap values for API calls.
 	 */
 	template <std::movable T>
-	class Value : public ValueOrError
+	class Value : public Handle
 	{
 	public:
 		using Self = Value<T>;
-		using Base = ValueOrError;
+		using Base = Handle;
 
 		/**
 		 * @brief Constructs an allocated value instance.
@@ -30,7 +30,7 @@ namespace senc::clientapi
 		 * @param value Value (moved).
 		 * @return Allocated instance, or fitting `Error` if failed.
 		 */
-		static Base* new_instance(T&& value) noexcept;
+		static Handle* new_instance(T&& value) noexcept;
 
 		Value(const Self&) = delete;
 

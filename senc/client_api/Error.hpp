@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ValueOrError.hpp"
+#include "Handle.hpp"
 #include <string>
 
 namespace senc::clientapi
@@ -17,11 +17,11 @@ namespace senc::clientapi
 	 * @class senc::clientapi::Error
 	 * @brief Used to wrap error throws for API calls.
 	 */
-	class Error : public ValueOrError
+	class Error : public Handle
 	{
 	public:
 		using Self = Error;
-		using Base = ValueOrError;
+		using Base = Handle;
 
 		/**
 		 * @brief Constant (supposedly) which serves for returning allocation error.
@@ -42,7 +42,7 @@ namespace senc::clientapi
 		 * @param msg Error message (moved).
 		 * @return Allocated instance, or fitting `Error` if failed.
 		 */
-		static ValueOrError* new_instance(std::string&& msg) noexcept;
+		static Handle* new_instance(std::string&& msg) noexcept;
 
 		Error(const Self&) = delete;
 

@@ -19,7 +19,7 @@ namespace senc::clientapi
 		return Self(false, std::move(msg));
 	}
 
-	ValueOrError* Error::new_instance(std::string&& msg) noexcept
+	Handle* Error::new_instance(std::string&& msg) noexcept
 	{
 		try { return new Self(true, std::move(msg)); }
 		catch (const std::bad_alloc&) { return Error::ALLOCATION; }

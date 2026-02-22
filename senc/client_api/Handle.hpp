@@ -1,6 +1,6 @@
 /*********************************************************************
- * \file   ValueOrError.hpp
- * \brief  Contains ValueOrError class.
+ * \file   Handle.hpp
+ * \brief  Contains `Handle` class.
  * 
  * \author aviad1b
  * \date   February 2026, Adar 5786
@@ -11,15 +11,15 @@
 namespace senc::clientapi
 {
 	/**
-	 * @class senc::clientapi::ValueOrError
+	 * @class senc::clientapi::Handle
 	 * @brief Used to wrap function returns and throws for API calls.
 	 */
-	class ValueOrError
+	class Handle
 	{
 	public:
-		using Self = ValueOrError;
+		using Self = Handle;
 
-		virtual ~ValueOrError() { }
+		virtual ~Handle() { }
 
 		/**
 		 * @brief Checks if has error (rather than value).
@@ -34,7 +34,7 @@ namespace senc::clientapi
 		bool allocated() const { return _isAllocated; }
 
 	protected:
-		ValueOrError(bool isAllocated) : _isAllocated(isAllocated) { }
+		Handle(bool isAllocated) : _isAllocated(isAllocated) { }
 
 	private:
 		bool _isAllocated;
