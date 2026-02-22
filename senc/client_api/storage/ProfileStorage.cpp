@@ -146,8 +146,10 @@ namespace senc::clientapi::storage
 		return schema;
 	}
 
-	ProfileStorage::ProfileStorage(const std::string& username, const std::string& password)
-		: _key(derive_key(username, password)) { }
+	ProfileStorage::ProfileStorage(const std::string& path,
+								   const std::string& username,
+								   const std::string& password)
+		: _path(path), _key(derive_key(username, password)) { }
 
 	ProfileEncKey ProfileStorage::derive_key(const std::string& username, const std::string& password)
 	{

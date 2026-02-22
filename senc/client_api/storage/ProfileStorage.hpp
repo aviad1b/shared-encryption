@@ -114,8 +114,10 @@ namespace senc::clientapi::storage
 	public:
 		using File = utils::BinFile<utils::AccessFlags::Read>;
 
+		ProfileDataRange(const std::string& path, const ProfileEncKey& key);
+
 	private:
-		std::reference_wrapper<utils::enc::AES1L::Key> _key;
+		std::reference_wrapper<const ProfileEncKey> _key;
 		File _file;
 	};
 
@@ -130,13 +132,15 @@ namespace senc::clientapi::storage
 
 		/**
 		 * @brief Constructs a profile storage handling instance.
+		 * @param path Profile file path.
 		 * @param username User's username.
 		 * @param password User's password.
 		 * @note This class does not store the password, only uses it to derive key for profile access.
 		 */
-		ProfileStorage(const std::string& username, const std::string& password);
+		ProfileStorage(const std::string& path, const std::string& username, const std::string& password);
 
 	private:
+		std::string _path;
 		ProfileEncKey _key;
 
 		/**
