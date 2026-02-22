@@ -15,7 +15,6 @@ add_library(senc_common
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
 
-set_target_properties(senc_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(senc_common PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(senc_common PRIVATE senc_utils)
-
