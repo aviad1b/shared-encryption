@@ -85,14 +85,14 @@ SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle) 
  * @return String handle (of base64 string).
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t GetBytesBase64(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept;
 
 /**
  * @brief Locates user's profile file path based on username.
  * @param username Username.
  * @return Handle to user profile file path (or error if failed).
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username);
+SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username) noexcept;
 
 /**
  * @brief Loads user's profile from storage.
@@ -101,4 +101,4 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username
  * @param password User's password.
  * @return Handle to user profile (or error if failed).
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password);
+SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept;

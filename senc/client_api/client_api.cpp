@@ -61,25 +61,24 @@ const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept
 	return pBuff->get().data();
 }
 
-std::uintptr_t GetBytesBase64(std::uintptr_t handle)
+std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept
 {
 	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
-
-	api::Handle* ret = api::Value<std::string>::new_instance(
-		utils::bytes_to_base64(pBuff->get())
-	);
-	return reinterpret_cast<std::uintptr_t>(ret);
+	return api::Value<std::string>::ret_new([pBuff]()
+	{
+		return utils::bytes_to_base64(pBuff->get());
+	});
 }
 
-std::uintptr_t LocateUserProfileFile(const char* username)
+std::uintptr_t LocateUserProfileFile(const char* username) noexcept
 {
-	api::Handle* ret = api::Value<std::string>::new_instance(
-		std::string(username) + ".sencp"
-	);
-	return reinterpret_cast<std::uintptr_t>(ret);
+	return api::Value<std::string>::ret_new([username]()
+	{
+		return std::string(username) + ".sencp";
+	});
 }
 
-std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password)
+std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept
 {
 	api::Handle* ret = api::Value<api::storage::ProfileStorage>::new_instance(
 		path, username, password
