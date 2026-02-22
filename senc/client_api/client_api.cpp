@@ -11,6 +11,7 @@
 #include "storage/ProfileStorage.hpp"
 #include "../utils/bytes.hpp"
 #include "Value.hpp"
+#include "client_api.h"
 
 namespace api = senc::clientapi;
 namespace utils = senc::utils;
@@ -76,5 +77,57 @@ std::uintptr_t LoadUserProfile(const char* path, const char* username, const cha
 {
 	return api::Value<api::storage::ProfileStorage>::new_instance(
 		path, username, password
+	)->as_nint();
+}
+
+std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) noexcept
+{
+	auto* pProfileStorage = api::Value<api::storage::ProfileStorage>::from_nint(hProfile);
+	return api::Value<std::nullopt_t>::ret_new([pProfileStorage, callback]()
+	{
+		for (const auto& record : pProfileStorage->get().iter_profile_data())
+			if (!callback(reinterpret_cast<std::uintptr_t>(&record)))
+				break;
+		return std::nullopt;
+	})->as_nint();
+}
+
+bool IsOwnerProfileRecord(std::uintptr_t pRecord) noexcept
+{
+	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return record->is_owner();
+}
+
+std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) noexcept
+{
+	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::new_instance(
+		senc::pub_key_to_bytes(record->reg_layer_pub_key())
+	)->as_nint();
+}
+
+std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) noexcept
+{
+	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::new_instance(
+		senc::pub_key_to_bytes(record->owner_layer_pub_key())
+	)->as_nint();
+}
+
+std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) noexcept
+{
+	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::new_instance(
+		senc::priv_key_shard_to_bytes(record->reg_layer_priv_key_shard())
+	)->as_nint();
+}
+
+std::uintptr_t GetProfileRecordOwnerShard(std::uintptr_t pRecord) noexcept
+{
+	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	if (!record->is_owner())
+		return api::Error::new_instance("Non-owner record has no owner-layer shard")->as_nint();
+	return api::Value<utils::Buffer>::new_instance(
+		senc::priv_key_shard_to_bytes(record->reg_layer_priv_key_shard())
 	)->as_nint();
 }

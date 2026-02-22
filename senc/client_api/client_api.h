@@ -108,3 +108,53 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username
  * @return Handle to user profile (or error if failed).
  */
 SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept;
+
+/**
+ * @brief Iterates over user profile data.
+ * @param hProfile Profile handle.
+ * @param callback Callback function accepting current profile data record pointer, returning `false` to stop.
+ * @return Nullopt value on success, error if failed.
+ * @note Calling this function on a non-profile handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) noexcept;
+
+/**
+ * @brief Checks if a profile record pointer is of an owner record.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return `true` if `pRecord` points to an owner record, otherwise `false` (or error if failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC bool IsOwnerProfileRecord(std::uintptr_t pRecord) noexcept;
+
+/**
+ * @brief Gets reg layer public key from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing reg layer public key (or error if failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) noexcept;
+
+/**
+ * @brief Gets owner layer public key from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing owner layer public key (or error if failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) noexcept;
+
+/**
+ * @brief Gets reg layer private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing reg layer private key shard (or error if failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) noexcept;
+
+/**
+ * @brief Gets owner layer private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing owner layer private key shard,
+ *		   or error if not an owner record (or failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetProfileRecordOwnerShard(std::uintptr_t pRecord) noexcept;
