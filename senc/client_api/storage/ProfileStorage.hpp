@@ -64,11 +64,17 @@ namespace senc::clientapi::storage
 												 const ProfileEncKey& key,
 												 profile_record_enc_sizes_t sizes);
 
+		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														const ProfileEncKey& key,
+														const ProfileRecord& record);
+
 	private:
 		static ProfileEncSchema& schema();
 
 		static ProfileRecord parse_profile_record(utils::Buffer& data);
 		// TODO: Add const once utils::read_bytes accepts const_iterator
+
+		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
 	};
 
 	/**
@@ -167,6 +173,11 @@ namespace senc::clientapi::storage
 		 * @brief Gets a range iterating over profile's data.
 		 */
 		ProfileDataRange iter_profile_data() const;
+
+		/**
+		 * @brief Adds profile record to profile storage.
+		 */
+		void add_profile_data(const ProfileRecord& record);
 
 	private:
 		std::string _path;

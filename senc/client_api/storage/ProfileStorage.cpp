@@ -37,6 +37,21 @@ namespace senc::clientapi::storage
 		return parse_profile_record(profileBytes);
 	}
 
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														   const ProfileEncKey& key,
+														   const ProfileRecord& record)
+	{
+		auto profileBytes = serialize_profile_record(record);
+		const auto [enc1, enc2] = schema().encrypt(profileBytes, key);
+		auto sizes = profile_record_enc_sizes_t{ enc1.size(), enc2.size() };
+
+		file.append(sizes.first);
+		file.append(sizes.second);
+
+		file.append(enc1.data(), enc1.size());
+		file.append(enc2.data(), enc2.size());
+	}
+
 	ProfileEncSchema& ProfileUtils::schema()
 	{
 		static thread_local ProfileEncSchema schema;
@@ -103,6 +118,48 @@ namespace senc::clientapi::storage
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
 			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
 		);
+	}
+
+	utils::Buffer ProfileUtils::serialize_profile_record(const ProfileRecord& record)
+	{
+		utils::Buffer res{};
+
+		ProfileRecordFlags flags{
+			.is_owner = record.is_owner()
+		};
+		const auto flagsByte = flags.to_byte();
+		utils::write_bytes(res, flagsByte);
+
+		utils::write_bytes(res, record.reg_layer_pub_key().encode());
+		utils::write_bytes(res, record.owner_layer_pub_key().encode());
+
+		// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
+		// TODO: move this constant elsewhere in future version
+		constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
+
+		// this constant is true as shard values are always < modulus
+		// TODO: move this constant elsewhere in future version
+		const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
+
+		utils::BigInt shardValUnderlying{};
+		res.resize(res.size() + SHARD_ID_MAX_SIZE);
+		record.reg_layer_priv_key_shard().first.Encode(res.data() - SHARD_ID_MAX_SIZE, SHARD_ID_MAX_SIZE);
+		res.resize(res.size() + SHARD_VALUE_MAX_SIZE);
+		shardValUnderlying = record.reg_layer_priv_key_shard().second;
+		shardValUnderlying.Encode(res.data() - SHARD_VALUE_MAX_SIZE, SHARD_VALUE_MAX_SIZE);
+
+		// if owner, no more data to write
+		if (!record.is_owner())
+			return res;
+
+		// else, write remaining data (owner shard)
+		res.resize(res.size() + SHARD_ID_MAX_SIZE);
+		record.owner_layer_priv_key_shard().first.Encode(res.data() - SHARD_ID_MAX_SIZE, SHARD_ID_MAX_SIZE);
+		res.resize(res.size() + SHARD_VALUE_MAX_SIZE);
+		shardValUnderlying = record.owner_layer_priv_key_shard().second;
+		shardValUnderlying.Encode(res.data() - SHARD_VALUE_MAX_SIZE, SHARD_VALUE_MAX_SIZE);
+
+		return res;
 	}
 
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
@@ -186,6 +243,12 @@ namespace senc::clientapi::storage
 	ProfileDataRange ProfileStorage::iter_profile_data() const
 	{
 		return ProfileDataRange(_path, _key);
+	}
+
+	void ProfileStorage::add_profile_data(const ProfileRecord& record)
+	{
+		ProfileOutputFile file(_path);
+		ProfileUtils::write_profile_record_with_enc_sizes(file, _key, record);
 	}
 
 	ProfileEncKey ProfileStorage::derive_key(const std::string& username, const std::string& password)
