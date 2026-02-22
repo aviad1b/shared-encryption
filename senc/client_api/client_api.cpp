@@ -35,7 +35,7 @@ const char* GetError(std::uintptr_t handle)
 	return pError->what();
 }
 
-const char* GetString(std::uintptr_t handle)
+const char* GetStringValue(std::uintptr_t handle)
 {
 	auto* pValue = reinterpret_cast<api::Value<std::string>*>(handle);
 

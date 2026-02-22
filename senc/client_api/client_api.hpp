@@ -61,7 +61,7 @@ SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle);
  * @return String stored in handle.
  * @note Calling this function on a non-string handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const char* GetString(std::uintptr_t handle);
+SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle);
 
 /**
  * @brief Locates user's profile file path based on username.
