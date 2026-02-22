@@ -146,6 +146,34 @@ namespace senc::clientapi::storage
 		return schema;
 	}
 
+	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key)
+		: _file(path), _key(key) { }
+
+	ProfileDataRange::ProfileDataRange(Self&& other) noexcept
+		: _file(std::move(other._file)), _key(std::move(other._key)) { }
+
+	ProfileDataRange::Self& ProfileDataRange::operator=(Self other)
+	{
+		this->swap(other);
+		return *this;
+	}
+
+	void ProfileDataRange::swap(Self& other)
+	{
+		this->_file.swap(other._file);
+		std::swap(this->_key, other._key);
+	}
+
+	ProfileDataRange::iterator ProfileDataRange::begin()
+	{
+		return iterator(_key, _file);
+	}
+
+	ProfileDataRange::iterator ProfileDataRange::end()
+	{
+		return iterator(_key, _file, _file.size());
+	}
+
 	ProfileStorage::ProfileStorage(const std::string& path,
 								   const std::string& username,
 								   const std::string& password)

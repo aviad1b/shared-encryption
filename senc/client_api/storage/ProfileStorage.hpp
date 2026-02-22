@@ -66,8 +66,8 @@ namespace senc::clientapi::storage
 		using iterator_concept = std::input_iterator_tag;
 
 		ProfileDataIterator(const ProfileEncKey& key,
-							   ProfileInputFile& file,
-							   utils::file_pos_t pos = 0);
+							ProfileInputFile& file,
+							utils::file_pos_t pos = 0);
 
 		ProfileDataIterator(const Self&) = default;
 
@@ -112,13 +112,28 @@ namespace senc::clientapi::storage
 	class ProfileDataRange
 	{
 	public:
-		using File = utils::BinFile<utils::AccessFlags::Read>;
+		using Self = ProfileDataRange;
+		using iterator = ProfileDataIterator;
 
 		ProfileDataRange(const std::string& path, const ProfileEncKey& key);
 
+		ProfileDataRange(const Self&) = delete;
+
+		Self operator=(const Self&) = delete;
+
+		ProfileDataRange(Self&& other) noexcept;
+
+		Self& operator=(Self other);
+
+		void swap(Self& other);
+
+		iterator begin();
+
+		iterator end();
+
 	private:
+		ProfileInputFile _file;
 		std::reference_wrapper<const ProfileEncKey> _key;
-		File _file;
 	};
 
 	/**
