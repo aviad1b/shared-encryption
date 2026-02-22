@@ -1,6 +1,9 @@
 /*********************************************************************
  * \file   client_api.hpp
  * \brief  Main header of the client API.
+ * \details This API provides an abstraction of the client utilities.
+ *          It provides (read-only) access to client profiles, and
+ *          allows for high-level communication with the server.
  * 
  * \author aviad1b
  * \date   February 2026, Adar 5786
