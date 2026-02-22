@@ -32,6 +32,10 @@ namespace senc::clientapi
 		 */
 		static Handle* new_instance(T&& value) noexcept;
 
+		template <typename... Args>
+		requires std::constructible_from<T, Args...>
+		static Handle* new_instance(Args&&... args) noexcept;
+
 		Value(const Self&) = delete;
 
 		Self& operator=(const Self&) = delete;

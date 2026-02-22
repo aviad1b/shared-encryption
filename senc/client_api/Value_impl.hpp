@@ -19,6 +19,14 @@ namespace senc::clientapi
 	}
 
 	template <std::movable T>
+	template <typename... Args>
+	requires std::constructible_from<T, Args...>
+	inline Handle* senc::clientapi::Value<T>::new_instance(Args&&... args) noexcept
+	{
+		return new_instance(T(std::forward<Args>(args)...));
+	}
+
+	template <std::movable T>
 	inline bool Value<T>::has_error() const
 	{
 		return false;
