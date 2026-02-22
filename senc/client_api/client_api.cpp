@@ -6,7 +6,7 @@
  * \date   February 2026, Adar 5786
  *********************************************************************/
 
-#include "client_api.hpp"
+#include "client_api.h"
 
 #include "storage/ProfileStorage.hpp"
 #include "../utils/bytes.hpp"
