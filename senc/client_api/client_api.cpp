@@ -67,7 +67,7 @@ std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept
 	return api::Value<std::string>::ret_new([pBuff]()
 	{
 		return utils::bytes_to_base64(pBuff->get());
-	});
+	})->as_nint();
 }
 
 std::uintptr_t LocateUserProfileFile(const char* username) noexcept
@@ -75,13 +75,12 @@ std::uintptr_t LocateUserProfileFile(const char* username) noexcept
 	return api::Value<std::string>::ret_new([username]()
 	{
 		return std::string(username) + ".sencp";
-	});
+	})->as_nint();
 }
 
 std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept
 {
-	api::Handle* ret = api::Value<api::storage::ProfileStorage>::new_instance(
+	return api::Value<api::storage::ProfileStorage>::new_instance(
 		path, username, password
-	);
-	return reinterpret_cast<std::uintptr_t>(ret);
+	)->as_nint();
 }

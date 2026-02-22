@@ -44,9 +44,9 @@ namespace senc::clientapi
 		/**
 		 * @brief Constructs an allocated value instance for API return (preventing exceptions).
 		 * @param f Callback returning internal value instance.
-		 * @return Allocated instance, or fitting `Error` if failed / an excpetion occurred (in API form).
+		 * @return Allocated instance, or fitting `Error` if failed / an excpetion occurred.
 		 */
-		static std::uintptr_t ret_new(utils::Callable<T> auto&& f) noexcept;
+		static Handle* ret_new(utils::Callable<T> auto&& f) noexcept;
 
 		Value(const Self&) = delete;
 

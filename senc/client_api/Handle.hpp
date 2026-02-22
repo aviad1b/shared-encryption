@@ -33,6 +33,15 @@ namespace senc::clientapi
 		 */
 		bool allocated() const { return _isAllocated; }
 
+		/**
+		 * @brief Gets "nint" (API) version of handle.
+		 * @return API version of handle.
+		 */
+		std::uintptr_t as_nint() const noexcept
+		{
+			return reinterpret_cast<std::uintptr_t>(this);
+		}
+
 	protected:
 		Handle(bool isAllocated) : _isAllocated(isAllocated) { }
 

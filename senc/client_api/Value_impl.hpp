@@ -27,15 +27,12 @@ namespace senc::clientapi
 	}
 
 	template <std::move_constructible T>
-	inline std::uintptr_t Value<T>::ret_new(utils::Callable<T> auto&& f) noexcept
+	inline Handle* Value<T>::ret_new(utils::Callable<T> auto&& f) noexcept
 	{
-		Handle* ret = nullptr;
-		try { ret = new_instance(f()); }
-		catch (const std::bad_alloc&) { ret = Error::ALLOCATION; }
-		catch (const std::exception& e) { ret = Error::new_instance(e.what()); }
-		catch (...) { ret = Error::new_instance("Unknown error"); }
-		
-		return reinterpret_cast<std::uintptr_t>(ret);
+		try { return new_instance(f()); }
+		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
+		catch (const std::exception& e) { return Error::new_instance(e.what()); }
+		return Error::new_instance("Unknown error");
 	}
 
 	template <std::move_constructible T>
