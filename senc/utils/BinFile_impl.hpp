@@ -30,7 +30,7 @@ namespace senc::utils
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
-	inline BinFile<accessFlags, endianess>::BinFile(Self&& other)
+	inline BinFile<accessFlags, endianess>::BinFile(Self&& other) noexcept
 		: _file(other._file), _pos(other._pos),
 		  _prevUnderlyingOperation(other._prevUnderlyingOperation)
 	{

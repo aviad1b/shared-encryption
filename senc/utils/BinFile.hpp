@@ -102,7 +102,7 @@ namespace senc::utils
 		/**
 		 * @brief Move constructor of binary file.
 		 */
-		BinFile(Self&& other);
+		BinFile(Self&& other) noexcept;
 
 		/**
 		 * @brief Move assignment operator of binary file.
