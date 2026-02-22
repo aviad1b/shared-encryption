@@ -180,6 +180,11 @@ namespace senc::clientapi::storage
 								   const std::string& password)
 		: _path(path), _key(derive_key(username, password)) { }
 
+	ProfileDataRange ProfileStorage::iter_profile_data() const
+	{
+		return ProfileDataRange(_path, _key);
+	}
+
 	ProfileEncKey ProfileStorage::derive_key(const std::string& username, const std::string& password)
 	{
 		using KDF = utils::pwd::PBKDF2<utils::enc::AES1L::KEY_SIZE>;
