@@ -45,7 +45,10 @@ namespace senc::clientapi::storage
 	{
 		auto profileBytes = serialize_profile_record(record);
 		const auto [enc1, enc2] = schema().encrypt(profileBytes, key);
-		auto sizes = profile_record_enc_sizes_t{ enc1.size(), enc2.size() };
+		auto sizes = profile_record_enc_sizes_t{
+			static_cast<std::tuple_element_t<0, profile_record_enc_sizes_t>>(enc1.size()),
+			static_cast<std::tuple_element_t<1, profile_record_enc_sizes_t>>(enc2.size())
+		};
 
 		file.append(sizes.first);
 		file.append(sizes.second);
