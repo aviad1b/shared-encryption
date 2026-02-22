@@ -58,12 +58,21 @@ namespace senc::clientapi::storage
 	class ProfileUtils
 	{
 	public:
+		/**
+		 * @brief Reads profile record's encryption sizes.
+		 */
 		static profile_record_enc_sizes_t read_profile_record_enc_sizes(ProfileInputFile& file);
 
+		/**
+		 * @brief Reads profile record (given encryption sizes and key).
+		 */
 		static ProfileRecord read_profile_record(ProfileInputFile& file,
 												 const ProfileEncKey& key,
 												 profile_record_enc_sizes_t sizes);
 
+		/**
+		 * @brief Writes (encrypted) profile record (including encryption sizes).
+		 */
 		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
 														const ProfileEncKey& key,
 														const ProfileRecord& record);
@@ -77,6 +86,9 @@ namespace senc::clientapi::storage
 		// TODO: move this constant elsewhere in future version
 		static const std::size_t SHARD_VALUE_MAX_SIZE;
 
+		/**
+		 * @brief Gets profile encryption schema.
+		 */
 		static ProfileEncSchema& schema();
 
 		static ProfileRecord parse_profile_record(utils::Buffer& data);
