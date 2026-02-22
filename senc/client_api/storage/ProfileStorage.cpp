@@ -10,59 +10,15 @@
 
 namespace senc::clientapi::storage
 {
-	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
-												   ProfileInputFile& file,
-												   utils::file_pos_t pos)
-		: _key(key), _file(file), _pos(pos),
-		  _recordEncSize1(read_profile_record_enc_size(_file)),
-		  _recordEncSize2(read_profile_record_enc_size(_file)),
-		  _record(read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2)) { }
-
-	bool ProfileDataIterator::operator==(const Self& other) const
-	{
-		return (this->_pos == other._pos);
-	}
-
-	ProfileDataIterator::Self& ProfileDataIterator::operator++()
-	{
-		this->_pos = next_pos();
-		this->_file.get().set_pos(this->_pos);
-		this->_recordEncSize1 = read_profile_record_enc_size(_file);
-		this->_recordEncSize2 = read_profile_record_enc_size(_file);
-		this->_record = read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2);
-		return *this;
-	}
-
-	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
-	{
-		return Self(_key, _file, next_pos());
-	}
-
-	ProfileDataIterator::reference ProfileDataIterator::operator*() const
-	{
-		return _record;
-	}
-
-	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
-	{
-		return &_record;
-	}
-
-	utils::file_pos_t ProfileDataIterator::next_pos() const
-	{
-		// next record starts after sizes and record ciphertext
-		return this->_pos + (2 * sizeof(profile_record_enc_size_t)) + _recordEncSize1 + _recordEncSize2;;
-	}
-
-	profile_record_enc_size_t ProfileDataIterator::read_profile_record_enc_size(ProfileInputFile& file)
+	profile_record_enc_size_t ProfileUtils::read_profile_record_enc_size(ProfileInputFile& file)
 	{
 		return file.read<profile_record_enc_size_t>();
 	}
 
-	ProfileRecord ProfileDataIterator::read_profile_record(ProfileInputFile& file,
-															  const ProfileEncKey& key,
-															  profile_record_enc_size_t size1,
-															  profile_record_enc_size_t size2)
+	ProfileRecord ProfileUtils::read_profile_record(ProfileInputFile& file,
+													const ProfileEncKey& key,
+													profile_record_enc_size_t size1,
+													profile_record_enc_size_t size2)
 	{
 		// read encrypted profile
 		ProfileEncCiphertext encProfile{};
@@ -79,7 +35,13 @@ namespace senc::clientapi::storage
 		return parse_profile_record(key, profileBytes);
 	}
 
-	ProfileRecord ProfileDataIterator::parse_profile_record(const ProfileEncKey& key, utils::Buffer& data)
+	ProfileEncSchema& ProfileUtils::schema()
+	{
+		static thread_local ProfileEncSchema schema;
+		return schema;
+	}
+
+	ProfileRecord ProfileUtils::parse_profile_record(const ProfileEncKey& key, utils::Buffer& data)
 	{
 		const auto end = data.end();
 		auto it = data.begin();
@@ -141,10 +103,48 @@ namespace senc::clientapi::storage
 		);
 	}
 
-	ProfileEncSchema& ProfileDataIterator::schema()
+	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
+												   ProfileInputFile& file,
+												   utils::file_pos_t pos)
+		: _key(key), _file(file), _pos(pos),
+		  _recordEncSize1(ProfileUtils::read_profile_record_enc_size(_file)),
+		  _recordEncSize2(ProfileUtils::read_profile_record_enc_size(_file)),
+		  _record(ProfileUtils::read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2)) { }
+
+	bool ProfileDataIterator::operator==(const Self& other) const
 	{
-		static thread_local ProfileEncSchema schema;
-		return schema;
+		return (this->_pos == other._pos);
+	}
+
+	ProfileDataIterator::Self& ProfileDataIterator::operator++()
+	{
+		this->_pos = next_pos();
+		this->_file.get().set_pos(this->_pos);
+		this->_recordEncSize1 = ProfileUtils::read_profile_record_enc_size(_file);
+		this->_recordEncSize2 = ProfileUtils::read_profile_record_enc_size(_file);
+		this->_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2);
+		return *this;
+	}
+
+	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
+	{
+		return Self(_key, _file, next_pos());
+	}
+
+	ProfileDataIterator::reference ProfileDataIterator::operator*() const
+	{
+		return _record;
+	}
+
+	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
+	{
+		return &_record;
+	}
+
+	utils::file_pos_t ProfileDataIterator::next_pos() const
+	{
+		// next record starts after sizes and record ciphertext
+		return this->_pos + (2 * sizeof(profile_record_enc_size_t)) + _recordEncSize1 + _recordEncSize2;;
 	}
 
 	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key)

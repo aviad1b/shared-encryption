@@ -51,6 +51,27 @@ namespace senc::clientapi::storage
 	static_assert(2 == std::tuple_size_v<ProfileEncCiphertext>, "Ciphertext type changed, requires refactor");
 
 	/**
+	 * @class senc::clientapi::storage::ProfileUtils
+	 * @brief Contains utility methods for profile storage.
+	 */
+	class ProfileUtils
+	{
+	public:
+		static profile_record_enc_size_t read_profile_record_enc_size(ProfileInputFile& file);
+
+		static ProfileRecord read_profile_record(ProfileInputFile& file,
+			const ProfileEncKey& key,
+			profile_record_enc_size_t size1,
+			profile_record_enc_size_t size2);
+
+	private:
+		static ProfileEncSchema& schema();
+
+		static ProfileRecord parse_profile_record(const ProfileEncKey& key, utils::Buffer& data);
+		// TODO: Add const once utils::read_bytes accepts const_iterator
+	};
+
+	/**
 	 * @class senc::clientapi::storage::ProfileStorageIterator
 	 * @brief Used for iteration over profile storage.
 	 */
@@ -91,18 +112,6 @@ namespace senc::clientapi::storage
 		ProfileRecord _record;
 
 		utils::file_pos_t next_pos() const;
-
-		static profile_record_enc_size_t read_profile_record_enc_size(ProfileInputFile& file);
-
-		static ProfileRecord read_profile_record(ProfileInputFile& file,
-												 const ProfileEncKey& key,
-												 profile_record_enc_size_t size1,
-												 profile_record_enc_size_t size2);
-
-		static ProfileRecord parse_profile_record(const ProfileEncKey& key, utils::Buffer& data);
-		// TODO: Add const once utils::read_bytes accepts const_iterator
-
-		static ProfileEncSchema& schema();
 	};
 
 	/**
