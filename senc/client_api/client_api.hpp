@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <cstdint>
+
  // define SENC_CLIENT_API_WINDOWS if on windows
 #if defined(WIN32) || defined(_WIN32) || (defined(__WIN32) && !defined(__CYGWIN__))
 #define SENC_CLIENT_API_WINDOWS
@@ -31,3 +33,32 @@
 #define SENC_CLIENT_API_PUBLIC extern "C" __attribute__((visibility("default")))
 
 #endif // end SENC_CLIENT_API_WINDOWS
+
+/**
+ * @brief Deallocates previously returned handle.
+ * @param handle Handle to deallocate.
+ */
+void FreeHandle(std::uintptr_t handle);
+
+/**
+ * @brief Checks if a handle contains an error (rather than a value).
+ * @param handle Handle to check if contains error.
+ * @return `true` if handle has error, `false` if has value.
+ */
+bool HasError(std::uintptr_t handle);
+
+/**
+ * @brief Gets error message from error handle.
+ * @param handle Error handle.
+ * @return Error message.
+ * @note Accessing returned message after handle deallocation is undefined behaviour.
+ */
+const char* GetError(std::uintptr_t handle);
+
+/**
+ * @brief Gets string value from a string handle.
+ * @param handle String handle.
+ * @return String stored in handle.
+ * @note Calling this function on a non-string handle is undefined behaviour.
+ */
+const char* GetString(std::uintptr_t handle);
