@@ -8,6 +8,7 @@
 
 #include "client_api.hpp"
 
+#include "storage/ProfileStorage.hpp"
 #include "Value.hpp"
 
 namespace api = senc::clientapi;
@@ -39,4 +40,20 @@ const char* GetString(std::uintptr_t handle)
 	auto* pValue = reinterpret_cast<api::Value<std::string>*>(handle);
 
 	return pValue->get().c_str();
+}
+
+std::uintptr_t LocateUserProfileFile(const char* username)
+{
+	api::Handle* ret = api::Value<std::string>::new_instance(
+		std::string(username) + ".sencp"
+	);
+	return reinterpret_cast<std::uintptr_t>(ret);
+}
+
+std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password)
+{
+	api::Handle* ret = api::Value<api::storage::ProfileStorage>::new_instance(
+		path, username, password
+	);
+	return reinterpret_cast<std::uintptr_t>(ret);
 }
