@@ -34,7 +34,7 @@ namespace senc::clientapi::storage
 		utils::Buffer profileBytes = schema().decrypt(encProfile, key);
 
 		// parse
-		return parse_profile_record(key, profileBytes);
+		return parse_profile_record(profileBytes);
 	}
 
 	ProfileEncSchema& ProfileUtils::schema()
@@ -43,7 +43,7 @@ namespace senc::clientapi::storage
 		return schema;
 	}
 
-	ProfileRecord ProfileUtils::parse_profile_record(const ProfileEncKey& key, utils::Buffer& data)
+	ProfileRecord ProfileUtils::parse_profile_record(utils::Buffer& data)
 	{
 		const auto end = data.end();
 		auto it = data.begin();

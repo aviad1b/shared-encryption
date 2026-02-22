@@ -67,7 +67,7 @@ namespace senc::clientapi::storage
 	private:
 		static ProfileEncSchema& schema();
 
-		static ProfileRecord parse_profile_record(const ProfileEncKey& key, utils::Buffer& data);
+		static ProfileRecord parse_profile_record(utils::Buffer& data);
 		// TODO: Add const once utils::read_bytes accepts const_iterator
 	};
 
