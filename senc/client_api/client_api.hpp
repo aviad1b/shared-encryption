@@ -64,6 +64,30 @@ SENC_CLIENT_API_PUBLIC const char* GetError(std::uintptr_t handle);
 SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle);
 
 /**
+ * @brief Gets bytes buffer length from bytes buffer handle.
+ * @param handle Bytes buffer handle.
+ * @return Length of bytes buffer in handle.
+ * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uint64_t GetBytesLen(std::uintptr_t handle);
+
+/**
+ * @brief Gets bytes buffer bytes from bytes buffer handle.
+ * @param handle Bytes buffer handle.
+ * @return Pointer to byte buffer's bytes.
+ * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC const std::uint8_t* GetBytesValue(std::uintptr_t handle);
+
+/**
+ * @brief Converts a bytes buffer to base64 string.
+ * @param handle Bytes buffer handle.
+ * @return String handle (of base64 string).
+ * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC std::uintptr_t GetBytesBase64(std::uintptr_t handle);
+
+/**
  * @brief Locates user's profile file path based on username.
  * @param username Username.
  * @return Handle to user profile file path (or error if failed).

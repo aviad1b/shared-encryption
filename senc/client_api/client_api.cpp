@@ -9,9 +9,11 @@
 #include "client_api.hpp"
 
 #include "storage/ProfileStorage.hpp"
+#include "../utils/bytes.hpp"
 #include "Value.hpp"
 
 namespace api = senc::clientapi;
+namespace utils = senc::utils;
 
 void FreeHandle(std::uintptr_t handle)
 {
@@ -40,6 +42,30 @@ const char* GetStringValue(std::uintptr_t handle)
 	auto* pValue = reinterpret_cast<api::Value<std::string>*>(handle);
 
 	return pValue->get().c_str();
+}
+
+std::uint64_t GetBytesLen(std::uintptr_t handle)
+{
+	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
+
+	return pBuff->get().size();
+}
+
+const std::uint8_t* GetBytesValue(std::uintptr_t handle)
+{
+	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
+
+	return pBuff->get().data();
+}
+
+std::uintptr_t GetBytesBase64(std::uintptr_t handle)
+{
+	auto* pBuff = reinterpret_cast<api::Value<utils::Buffer>*>(handle);
+
+	api::Handle* ret = api::Value<std::string>::new_instance(
+		utils::bytes_to_base64(pBuff->get())
+	);
+	return reinterpret_cast<std::uintptr_t>(ret);
 }
 
 std::uintptr_t LocateUserProfileFile(const char* username)
