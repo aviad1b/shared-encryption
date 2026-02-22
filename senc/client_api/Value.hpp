@@ -32,6 +32,11 @@ namespace senc::clientapi
 		 */
 		static Handle* new_instance(T&& value) noexcept;
 
+		/**
+		 * @brief Constructs an allocated value instance.
+		 * @param args Arguments to construct internal value from.
+		 * @return Allocated instance, or fitting `Error` if failed.
+		 */
 		template <typename... Args>
 		requires std::constructible_from<T, Args...>
 		static Handle* new_instance(Args&&... args) noexcept;
