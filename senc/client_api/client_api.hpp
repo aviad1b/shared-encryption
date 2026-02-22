@@ -14,16 +14,9 @@
 #endif
 
 /**
- * @def SENC_API_PRIVATE
- * @brief Macro for private function linkage.
- */
-
-/**
- * @def SENC_API_PUBLIC
+ * @def SENC_CLIENT_API_PUBLIC
  * @brief Macro for public function linkage.
  */
-
-#define SENC_CLIENT_API_PRIVATE
 
 #ifdef SENC_CLIENT_API_WINDOWS
 
