@@ -44,6 +44,7 @@ namespace senc::clientapi::storage
 	};
 
 	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read>;
+	using ProfileOutputFile = utils::BinFile<utils::AccessFlags::Append>;
 	using ProfileEncSchema = utils::enc::AES1L;
 	static_assert(std::same_as<utils::enc::Plaintext<ProfileEncSchema>, utils::Buffer>);
 	using ProfileEncKey = utils::enc::Key<ProfileEncSchema>;
