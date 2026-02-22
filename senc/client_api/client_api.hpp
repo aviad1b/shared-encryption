@@ -68,7 +68,7 @@ SENC_CLIENT_API_PUBLIC const char* GetStringValue(std::uintptr_t handle);
  * @param username Username.
  * @return Handle to user profile file path (or error if failed).
  */
-std::uintptr_t LocateUserProfileFile(const char* username);
+SENC_CLIENT_API_PUBLIC std::uintptr_t LocateUserProfileFile(const char* username);
 
 /**
  * @brief Loads user's profile from storage.
@@ -77,4 +77,4 @@ std::uintptr_t LocateUserProfileFile(const char* username);
  * @param password User's password.
  * @return Handle to user profile (or error if failed).
  */
-std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password);
+SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password);
