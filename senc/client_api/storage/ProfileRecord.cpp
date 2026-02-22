@@ -10,7 +10,7 @@
 
 namespace senc::clientapi::storage
 {
-	inline ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
+	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
 													PubKey&& regLayerPubKey,
 													PubKey&& ownerLayerPubKey,
 													PrivKeyShard&& regLayerPrivKeyShard,
