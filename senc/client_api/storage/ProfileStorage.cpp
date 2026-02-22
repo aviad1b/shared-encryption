@@ -73,23 +73,11 @@ namespace senc::clientapi::storage
 		it = utils::read_bytes(usersetID, it, end);
 
 		PubKey regLayerPubKey{}, ownerLayerPubKey{};
-		{
-			utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
-			it = utils::read_bytes(pubKeyBuff, it, end);
-			regLayerPubKey = PubKey::decode(pubKeyBuff);
-			it = utils::read_bytes(pubKeyBuff, it, end);
-			ownerLayerPubKey = PubKey::decode(pubKeyBuff);
-		}
+		it = parse_pub_key(regLayerPubKey, it, end);
+		it = parse_pub_key(ownerLayerPubKey, it, end);
 
 		PrivKeyShard regLayerPrivKeyShard{};
-		utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
-		utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
-		utils::BigInt shardValUnderlying{};
-		it = utils::read_bytes(shardIdBuff, it, end);
-		it = utils::read_bytes(shardValBuff, it, end);
-		regLayerPrivKeyShard.first.Decode(shardIdBuff.data(), shardIdBuff.size());
-		shardValUnderlying.Decode(shardValBuff.data(), shardValBuff.size());
-		regLayerPrivKeyShard.second = std::move(shardValUnderlying);
+		it = parse_priv_key_shard(regLayerPrivKeyShard, it, end);
 
 		// if non-owner record, stop here - no more data to read
 		if (!flags.is_owner)
@@ -101,17 +89,38 @@ namespace senc::clientapi::storage
 
 		// otherwise, read remaining data (owner shard) then return
 		PrivKeyShard ownerLayerPrivKeyShard{};
-		it = utils::read_bytes(shardIdBuff, it, end);
-		it = utils::read_bytes(shardValBuff, it, end);
-		ownerLayerPrivKeyShard.first.Decode(shardIdBuff.data(), shardIdBuff.size());
-		shardValUnderlying.Decode(shardValBuff.data(), shardValBuff.size());
-		ownerLayerPrivKeyShard.second = std::move(shardValUnderlying);
+		it = parse_priv_key_shard(ownerLayerPrivKeyShard, it, end);
 
 		return ProfileRecord::owner(
 			std::move(usersetID),
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
 			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
 		);
+	}
+
+	utils::Buffer::iterator ProfileUtils::parse_pub_key(PubKey& out,
+														utils::Buffer::iterator it,
+														utils::Buffer::iterator end)
+	{
+		static thread_local utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
+		it = utils::read_bytes(pubKeyBuff, it, end);
+		out = PubKey::decode(pubKeyBuff);
+		return it;
+	}
+
+	utils::Buffer::iterator ProfileUtils::parse_priv_key_shard(PrivKeyShard& out,
+															   utils::Buffer::iterator it,
+															   utils::Buffer::iterator end)
+	{
+		static thread_local utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
+		static thread_local utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
+		static thread_local utils::BigInt shardValUnderlying{};
+		it = utils::read_bytes(shardIdBuff, it, end);
+		it = utils::read_bytes(shardValBuff, it, end);
+		out.first.Decode(shardIdBuff.data(), shardIdBuff.size());
+		shardValUnderlying.Decode(shardValBuff.data(), shardValBuff.size());
+		out.second = std::move(shardValUnderlying);
+		return it;
 	}
 
 	utils::Buffer ProfileUtils::serialize_profile_record(const ProfileRecord& record)

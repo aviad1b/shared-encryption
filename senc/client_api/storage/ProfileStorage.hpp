@@ -82,6 +82,14 @@ namespace senc::clientapi::storage
 		static ProfileRecord parse_profile_record(utils::Buffer& data);
 		// TODO: Add const once utils::read_bytes accepts const_iterator
 
+		static utils::Buffer::iterator parse_pub_key(PubKey& out,
+													 utils::Buffer::iterator it,
+													 utils::Buffer::iterator end);
+
+		static utils::Buffer::iterator parse_priv_key_shard(PrivKeyShard& out,
+															utils::Buffer::iterator it,
+															utils::Buffer::iterator end);
+
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
 	};
 
