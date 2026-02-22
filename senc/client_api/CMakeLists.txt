@@ -1,6 +1,11 @@
 add_library(senc_client_api SHARED
 	"client_api.hpp"
 	"client_api.cpp"
+	"ValueOrError.hpp"
+	"Error.hpp"
+	"Error.cpp"
+	"Value.hpp"
+	"Value_impl.hpp"
 	"storage/ProfileRecord.hpp"
 	"storage/ProfileRecord.cpp"
 	"storage/ProfileStorage.hpp"
