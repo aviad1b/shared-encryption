@@ -30,6 +30,7 @@ namespace senc::clientapi::storage
 		this->_recordEncSize1 = read_profile_record_enc_size(_file);
 		this->_recordEncSize2 = read_profile_record_enc_size(_file);
 		this->_record = read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2);
+		return *this;
 	}
 
 	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
