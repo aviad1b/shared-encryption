@@ -10,7 +10,7 @@
 
 namespace senc::clientapi::storage
 {
-	ProfileStorageIterator::ProfileStorageIterator(const ProfileEncKey& key,
+	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
 												   ProfileInputFile& file,
 												   utils::file_pos_t pos)
 		: _key(key), _file(file), _pos(pos),
@@ -18,12 +18,12 @@ namespace senc::clientapi::storage
 		  _recordEncSize2(read_profile_record_enc_size(_file)),
 		  _record(read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2)) { }
 
-	bool ProfileStorageIterator::operator==(const Self& other) const
+	bool ProfileDataIterator::operator==(const Self& other) const
 	{
 		return (this->_pos == other._pos);
 	}
 
-	ProfileStorageIterator::Self& ProfileStorageIterator::operator++()
+	ProfileDataIterator::Self& ProfileDataIterator::operator++()
 	{
 		this->_pos = next_pos();
 		this->_file.get().set_pos(this->_pos);
@@ -32,33 +32,33 @@ namespace senc::clientapi::storage
 		this->_record = read_profile_record(_file, _key, _recordEncSize1, _recordEncSize2);
 	}
 
-	ProfileStorageIterator::Self ProfileStorageIterator::operator++(int)
+	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
 	{
 		return Self(_key, _file, next_pos());
 	}
 
-	ProfileStorageIterator::reference ProfileStorageIterator::operator*() const
+	ProfileDataIterator::reference ProfileDataIterator::operator*() const
 	{
 		return _record;
 	}
 
-	ProfileStorageIterator::pointer ProfileStorageIterator::operator->() const
+	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
 	{
 		return &_record;
 	}
 
-	utils::file_pos_t ProfileStorageIterator::next_pos() const
+	utils::file_pos_t ProfileDataIterator::next_pos() const
 	{
 		// next record starts after sizes and record ciphertext
 		return this->_pos + (2 * sizeof(profile_record_enc_size_t)) + _recordEncSize1 + _recordEncSize2;;
 	}
 
-	profile_record_enc_size_t ProfileStorageIterator::read_profile_record_enc_size(ProfileInputFile& file)
+	profile_record_enc_size_t ProfileDataIterator::read_profile_record_enc_size(ProfileInputFile& file)
 	{
 		return file.read<profile_record_enc_size_t>();
 	}
 
-	ProfileRecord ProfileStorageIterator::read_profile_record(ProfileInputFile& file,
+	ProfileRecord ProfileDataIterator::read_profile_record(ProfileInputFile& file,
 															  const ProfileEncKey& key,
 															  profile_record_enc_size_t size1,
 															  profile_record_enc_size_t size2)
@@ -78,7 +78,7 @@ namespace senc::clientapi::storage
 		return parse_profile_record(key, profileBytes);
 	}
 
-	ProfileRecord ProfileStorageIterator::parse_profile_record(const ProfileEncKey& key, utils::Buffer& data)
+	ProfileRecord ProfileDataIterator::parse_profile_record(const ProfileEncKey& key, utils::Buffer& data)
 	{
 		const auto end = data.end();
 		auto it = data.begin();
@@ -140,7 +140,7 @@ namespace senc::clientapi::storage
 		);
 	}
 
-	ProfileEncSchema& ProfileStorageIterator::schema()
+	ProfileEncSchema& ProfileDataIterator::schema()
 	{
 		static thread_local ProfileEncSchema schema;
 		return schema;

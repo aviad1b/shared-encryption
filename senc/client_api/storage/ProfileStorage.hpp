@@ -54,10 +54,10 @@ namespace senc::clientapi::storage
 	 * @class senc::clientapi::storage::ProfileStorageIterator
 	 * @brief Used for iteration over profile storage.
 	 */
-	class ProfileStorageIterator
+	class ProfileDataIterator
 	{
 	public:
-		using Self = ProfileStorageIterator;
+		using Self = ProfileDataIterator;
 		using value_type = const ProfileRecord;
 		using reference = const ProfileRecord&;
 		using pointer = const ProfileRecord*;
@@ -65,11 +65,11 @@ namespace senc::clientapi::storage
 		using iterator_category = std::input_iterator_tag;
 		using iterator_concept = std::input_iterator_tag;
 
-		ProfileStorageIterator(const ProfileEncKey& key,
+		ProfileDataIterator(const ProfileEncKey& key,
 							   ProfileInputFile& file,
 							   utils::file_pos_t pos = 0);
 
-		ProfileStorageIterator(const Self&) = default;
+		ProfileDataIterator(const Self&) = default;
 
 		Self& operator=(const Self&) = default;
 
