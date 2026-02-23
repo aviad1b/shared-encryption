@@ -26,6 +26,11 @@
 #endif // end __cplusplus
 #endif // end !CLINK
 
+/**
+ * @def SENC_NOTHROW
+ * @brief Macro for function that doesn't throw.
+ */
+
 #ifndef SENC_NOTHROW
 #ifdef __cplusplus
 #define SENC_NOTHROW noexcept
