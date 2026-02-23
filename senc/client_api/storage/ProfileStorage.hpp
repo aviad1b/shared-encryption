@@ -66,9 +66,9 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Reads profile record (given encryption sizes and key).
 		 */
-		static ProfileRecord read_profile_record(ProfileInputFile& file,
-												 const ProfileEncKey& key,
-												 profile_record_enc_sizes_t sizes);
+		static std::optional<ProfileRecord> read_profile_record(ProfileInputFile& file,
+																const ProfileEncKey& key,
+																profile_record_enc_sizes_t sizes);
 
 		/**
 		 * @brief Writes (encrypted) profile record (including encryption sizes).
@@ -127,7 +127,7 @@ namespace senc::clientapi::storage
 		std::reference_wrapper<ProfileInputFile> _file;
 		utils::file_pos_t _pos;
 		profile_record_enc_sizes_t _recordEncSizes;
-		ProfileRecord _record;
+		std::optional<ProfileRecord> _record;
 
 		utils::file_pos_t next_pos() const;
 	};

@@ -18,9 +18,9 @@ namespace senc::clientapi::storage
 		return res;
 	}
 
-	ProfileRecord ProfileUtils::read_profile_record(ProfileInputFile& file,
-													const ProfileEncKey& key,
-													profile_record_enc_sizes_t sizes)
+	std::optional<ProfileRecord> ProfileUtils::read_profile_record(ProfileInputFile& file,
+																   const ProfileEncKey& key,
+																   profile_record_enc_sizes_t sizes)
 	{
 		// read encrypted profile
 		ProfileEncCiphertext encProfile{};
@@ -154,12 +154,12 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::reference ProfileDataIterator::operator*() const
 	{
-		return _record;
+		return *_record;
 	}
 
 	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
 	{
-		return &_record;
+		return std::to_address(_record);
 	}
 
 	utils::file_pos_t ProfileDataIterator::next_pos() const
