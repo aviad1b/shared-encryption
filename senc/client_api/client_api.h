@@ -18,13 +18,6 @@
 #define SENC_CLIENT_API_WINDOWS
 #endif
 
-/**
- * @def SENC_CLIENT_API_PUBLIC
- * @brief Macro for public function linkage.
- */
-
-#ifdef SENC_CLIENT_API_WINDOWS
-
 #ifndef SENC_CLINK
 #ifdef __cplusplus
 #define SENC_CLINK extern "C"
@@ -41,6 +34,12 @@
 #endif // end __cplusplus
 #endif // end !CLINK
 
+/**
+ * @def SENC_CLIENT_API_PUBLIC
+ * @brief Macro for public function linkage.
+ */
+
+#ifdef SENC_CLIENT_API_WINDOWS
 
 #ifdef I_SENC_CLIENT_API
 #define SENC_CLIENT_API_PUBLIC SENC_CLINK __declspec(dllexport)
