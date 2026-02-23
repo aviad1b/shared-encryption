@@ -13,61 +13,96 @@
 
 using senc::clientapi::storage::ProfileRecord;
 using senc::clientapi::storage::ProfileStorage;
+using senc::utils::ECGroup;
 
 struct ClientStorageTestParams
 {
-    std::string path;
-    std::string username;
-    std::string password;
-    std::vector<ProfileRecord> records;
+	std::string path;
+	std::string username;
+	std::string password;
+	std::vector<ProfileRecord> records;
 };
 
 class ClientStorageTest : public testing::TestWithParam<ClientStorageTestParams>
 {
 protected:
-    std::unique_ptr<ProfileStorage> storage;
+	std::unique_ptr<ProfileStorage> storage;
 
-    void SetUp() override
-    {
-        const auto& params = GetParam();
-        if (std::filesystem::exists(params.path))
-            std::remove(params.path.c_str());
-        storage = std::make_unique<ProfileStorage>(
-            params.path, params.username, params.password
-        );
-    }
+	void SetUp() override
+	{
+		const auto& params = GetParam();
+		if (std::filesystem::exists(params.path))
+			std::remove(params.path.c_str());
+		storage = std::make_unique<ProfileStorage>(
+			params.path, params.username, params.password
+		);
+	}
 
-    void TearDown() override
-    {
-        storage.reset();
-        std::remove(GetParam().path.c_str());
-    }
+	void TearDown() override
+	{
+		storage.reset();
+		std::remove(GetParam().path.c_str());
+	}
 };
 
 TEST_P(ClientStorageTest, WriteReadRoundTrip)
 {
-    const auto& records = GetParam().records;
+	const auto& records = GetParam().records;
 
-    for (const auto& record : records)
-        storage->add_profile_data(record);
+	for (const auto& record : records)
+		storage->add_profile_data(record);
 
-    auto recordsRange = storage->iter_profile_data();
-    std::size_t i = 0;
-    for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
-    {
-        const auto& record = records[i];
-        const auto& storedRecord = *it;
+	auto recordsRange = storage->iter_profile_data();
+	std::size_t i = 0;
+	for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
+	{
+		const auto& record = records[i];
+		const auto& storedRecord = *it;
 
-        EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
-        EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
-        EXPECT_EQ(record.reg_layer_pub_key(), storedRecord.reg_layer_pub_key());
-        EXPECT_EQ(record.owner_layer_pub_key(), storedRecord.owner_layer_pub_key());
-        EXPECT_EQ(record.reg_layer_priv_key_shard(), storedRecord.reg_layer_priv_key_shard());
-        if (record.is_owner() && storedRecord.is_owner())
-        {
-            EXPECT_EQ(record.owner_layer_priv_key_shard(), storedRecord.owner_layer_priv_key_shard());
-        }
-    }
+		EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
+		EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
+		EXPECT_EQ(record.reg_layer_pub_key(), storedRecord.reg_layer_pub_key());
+		EXPECT_EQ(record.owner_layer_pub_key(), storedRecord.owner_layer_pub_key());
+		EXPECT_EQ(record.reg_layer_priv_key_shard(), storedRecord.reg_layer_priv_key_shard());
+		if (record.is_owner() && storedRecord.is_owner())
+		{
+			EXPECT_EQ(record.owner_layer_priv_key_shard(), storedRecord.owner_layer_priv_key_shard());
+		}
+	}
 
-    EXPECT_EQ(i, records.size());
+	EXPECT_EQ(i, records.size());
 }
+
+INSTANTIATE_TEST_SUITE_P(
+	ClientStorageTests,
+	ClientStorageTest,
+	testing::Values(
+		ClientStorageTestParams{
+			.path = "user.sencp",
+			.username = "user",
+			.password = "pass123",
+			.records = {
+				ProfileRecord::owner(
+					"57641e16-e02a-473b-8204-a809a9c435df",
+					ECGroup::generator().pow(111),
+					ECGroup::generator().pow(222),
+					senc::PrivKeyShard{ 3, 333 },
+					senc::PrivKeyShard{ 13, 131313 }
+				),
+				ProfileRecord::reg(
+					"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+					ECGroup::generator().pow(435),
+					ECGroup::generator().pow(256),
+					senc::PrivKeyShard{ 1, 435 }
+				),
+				ProfileRecord::owner(
+					"55b27150-1668-446f-aa50-35d9358eac19",
+					ECGroup::generator().pow(444),
+					ECGroup::generator().pow(555),
+					senc::PrivKeyShard{ 4, 666 },
+					senc::PrivKeyShard{ 14, 161616 }
+				)
+			}
+		}
+	)
+);
