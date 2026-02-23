@@ -77,6 +77,11 @@ namespace senc::clientapi::storage
 	 */
 	using ProfileEncCiphertext = utils::enc::Ciphertext<ProfileEncSchema>;
 	static_assert(
+		utils::TupleSatisfies<ProfileEncCiphertext, utils::sfinae::has_byte_data> &&
+		utils::TupleSatisfies<ProfileEncCiphertext, utils::sfinae::has_mutable_byte_data>,
+		"Profile ciphertext must be bytes compatible"
+	);
+	static_assert(
 		std::tuple_size_v<profile_record_enc_sizes_t> == std::tuple_size_v<ProfileEncCiphertext>,
 		"profile_record_enc_sizes_t must be able to hold sizes of ProfileEncCiphertext elements"
 	);
