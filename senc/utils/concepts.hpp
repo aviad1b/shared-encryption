@@ -60,7 +60,7 @@ namespace senc::utils
 	concept TupleSatisfies = TupleLike<Self> &&
 		[]<std::size_t... is>(std::index_sequence<is...>)
 		{
-			return (ConstraintWrapper<std::tuple_element_t<is, Self>>::value && ...)
+			return (ConstraintWrapper<std::tuple_element_t<is, Self>>::value && ...);
 		}(std::make_index_sequence<std::tuple_size_v<Self>>{});
 
 	/**
