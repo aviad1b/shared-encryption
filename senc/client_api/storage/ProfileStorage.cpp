@@ -15,9 +15,7 @@ namespace senc::clientapi::storage
 		profile_record_enc_sizes_t res{};
 		if (file.get_pos() >= file.size())
 			return res; // nothing to read, file ended
-
-		file.read(&res.first, 1);
-		file.read(&res.second, 1);
+		file.read(res);
 		return res;
 	}
 
@@ -25,16 +23,22 @@ namespace senc::clientapi::storage
 																   const ProfileEncKey& key,
 																   profile_record_enc_sizes_t sizes)
 	{
-		if (0 == sizes.first && 0 == sizes.second)
+		// if sizes are all zero
+		if (std::apply([](auto&&... args) { return ((0 == args) && ...); }, sizes))
 			return std::nullopt; // nothing to read
 
 		// read encrypted profile
 		ProfileEncCiphertext encProfile{};
-		auto& [enc1, enc2] = encProfile;
-		enc1.resize(sizes.first);
-		enc2.resize(sizes.second);
-		file.read(enc1.data(), sizes.first);
-		file.read(enc2.data(), sizes.second);
+		[&encProfile, &sizes, &file]<std::size_t... is>(std::index_sequence<is...>) -> void
+		{
+			([&sizes, &encProfile, &file]()
+			{
+				auto size = std::get<is>(sizes);
+				auto& buff = std::get<is>(encProfile);
+				buff.resize(size);
+				file.read(buff.data(), size);
+			}(), ...);
+		}(std::make_index_sequence<std::tuple_size_v<ProfileEncCiphertext>>{});
 
 		// decrypt
 		utils::Buffer profileBytes = schema().decrypt(encProfile, key);
@@ -48,17 +52,24 @@ namespace senc::clientapi::storage
 														   const ProfileRecord& record)
 	{
 		auto profileBytes = serialize_profile_record(record);
-		const auto [enc1, enc2] = schema().encrypt(profileBytes, key);
-		auto sizes = profile_record_enc_sizes_t{
-			static_cast<std::tuple_element_t<0, profile_record_enc_sizes_t>>(enc1.size()),
-			static_cast<std::tuple_element_t<1, profile_record_enc_sizes_t>>(enc2.size())
-		};
+		const auto enc = schema().encrypt(profileBytes, key);
+		auto sizes = [&enc]<std::size_t... is>(std::index_sequence<is...>) -> profile_record_enc_sizes_t
+		{
+			return profile_record_enc_sizes_t(
+				static_cast<std::tuple_element_t<is, profile_record_enc_sizes_t>>(
+					std::get<is>(enc).size()
+				)...
+			);
+		}(std::make_index_sequence<std::tuple_size_v<profile_record_enc_sizes_t>>{});
 
-		file.append(sizes.first);
-		file.append(sizes.second);
+		// append sizes to file
+		file.append(sizes);
 
-		file.append(enc1.data(), enc1.size());
-		file.append(enc2.data(), enc2.size());
+		// append enc parts to file
+		std::apply([&file](const auto&... parts)
+		{
+			(file.append(parts.data(), parts.size()), ...);
+		}, enc);
 	}
 
 	ProfileEncSchema& ProfileUtils::schema()
@@ -171,10 +182,10 @@ namespace senc::clientapi::storage
 	utils::file_pos_t ProfileDataIterator::next_pos() const
 	{
 		// next record starts after sizes and record ciphertext
-		return this->_pos + 
+		return this->_pos +
 			sizeof(std::tuple_element_t<0, profile_record_enc_sizes_t>) +
 			sizeof(std::tuple_element_t<1, profile_record_enc_sizes_t>) +
-			_recordEncSizes.first + _recordEncSizes.second;
+			std::apply([](auto&&... args) { return (args + ...); }, _recordEncSizes);
 	}
 
 	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key)
