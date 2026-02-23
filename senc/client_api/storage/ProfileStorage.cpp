@@ -109,6 +109,8 @@ namespace senc::clientapi::storage
 		const auto flagsByte = flags.to_byte();
 		utils::write_bytes(res, flagsByte);
 
+		utils::write_bytes(res, record.userset_id());
+
 		write_pub_key(res, record.reg_layer_pub_key());
 		write_pub_key(res, record.owner_layer_pub_key());
 
