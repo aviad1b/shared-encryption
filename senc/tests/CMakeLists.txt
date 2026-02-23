@@ -24,6 +24,9 @@ add_executable(senc_tests
     "../server/storage/ShortTermServerStorage.cpp"
     "../server/storage/SqliteServerStorage.cpp"
     "../server/managers/UpdateManager.cpp"
+    "test_client_storage.cpp"
+    "../client_api/storage/ProfileRecord.cpp"
+    "../client_api/storage/ProfileStorage.cpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
