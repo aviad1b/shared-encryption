@@ -51,6 +51,19 @@ namespace senc::utils
 		(std::tuple_size_v<Self> >= 0);
 
 	/**
+	 * @concept senc::utils::TupleSatisfies
+	 * @brief Looks for a tuple typename where each element satisfies a given constraint.
+	 * @tparam Self Examined typename.
+	 * @tparam ConstraintWrapper A boolean constant SFINAE struct of a constraint for each element.
+	 */
+	template <typename Self, template <typename T> typename ConstraintWrapper>
+	concept TupleSatisfies = TupleLike<Self> &&
+		[]<std::size_t... is>(std::index_sequence<is...>)
+		{
+			return (ConstraintWrapper<std::tuple_element_t<Is, Tuple>>::value && ...)
+		}(std::make_index_sequence<std::tuple_size_v<Self>>{});
+
+	/**
 	 * @concept senc::utils::InputIterator
 	 * @brief Looks for a typename that is an input iterator for a given element type.
 	 * @tparam Self Examined typename.
