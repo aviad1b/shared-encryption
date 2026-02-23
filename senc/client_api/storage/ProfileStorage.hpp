@@ -49,7 +49,7 @@ namespace senc::clientapi::storage
 	static_assert(std::same_as<utils::enc::Plaintext<ProfileEncSchema>, utils::Buffer>);
 	using ProfileEncKey = utils::enc::Key<ProfileEncSchema>;
 	using ProfileEncCiphertext = utils::enc::Ciphertext<ProfileEncSchema>;
-	static_assert(std::tuple_size_v<ProfileEncCiphertext> == std::tuple_size_v<ProfileEncCiphertext>);
+	static_assert(std::tuple_size_v<profile_record_enc_sizes_t> == std::tuple_size_v<ProfileEncCiphertext>);
 
 	/**
 	 * @class senc::clientapi::storage::ProfileUtils
