@@ -25,10 +25,7 @@
  * @param name Desired file name.
  * @return Temporary file path.
  */
-inline std::string temp_file_path(const std::string& name)
-{
-	return (std::filesystem::temp_directory_path() / name).string();
-}
+std::string temp_file_path(const std::string& name);
 
 constexpr std::size_t CONN_RETRY_COUNT = 10;
 
