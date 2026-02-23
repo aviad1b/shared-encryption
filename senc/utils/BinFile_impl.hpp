@@ -90,6 +90,17 @@ namespace senc::utils
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
+	template <TupleSatisfies<std::is_integral> T>
+	inline void BinFile<accessFlags, endianess>::read(T& out)
+	requires ((accessFlags & AccessFlags::Read) || (accessFlags & AccessFlags::Edit))
+	{
+		std::apply([this](auto&... args)
+		{
+			(this->read(&args, 1), ...);
+		}, out);
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
 	template <std::integral T>
 	inline T BinFile<accessFlags, endianess>::read()
 	requires ((accessFlags & AccessFlags::Read) || (accessFlags & AccessFlags::Edit))
@@ -107,6 +118,19 @@ namespace senc::utils
 		(accessFlags & AccessFlags::Append))
 	{
 		underlying_write(buffer, count);
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	template <TupleSatisfies<std::is_integral> T>
+	inline void BinFile<accessFlags, endianess>::write(T& out)
+	requires ((accessFlags & (AccessFlags::Write)) ||
+		(accessFlags & AccessFlags::Edit) ||
+		(accessFlags & AccessFlags::Append))
+	{
+		std::apply([this](const auto&... args)
+		{
+			(this->write(&args, 1), ...);
+		}, out);
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -129,6 +153,19 @@ namespace senc::utils
 		if (0 != std::fseek(_file, 0, SEEK_END))
 			throw FileException("Failed to set file position");
 		underlying_write(buffer, count);
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	template <TupleSatisfies<std::is_integral> T>
+	inline void BinFile<accessFlags, endianess>::append(T& out)
+	requires ((accessFlags & (AccessFlags::Write)) ||
+		(accessFlags & AccessFlags::Edit) ||
+		(accessFlags & AccessFlags::Append))
+	{
+		std::apply([this](const auto&... args)
+		{
+			(this->append(&args, 1), ...);
+		}, out);
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>

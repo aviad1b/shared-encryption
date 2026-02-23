@@ -151,6 +151,15 @@ namespace senc::utils
 		requires ((accessFlags & AccessFlags::Read) || (accessFlags & AccessFlags::Edit));
 
 		/**
+		 * @brief Reads data elements from the binary files.
+		 * @tparam T Tuple type of primitive elements to read.
+		 * @param out Tuple of elements to read (by ref).
+		 */
+		template <TupleSatisfies<std::is_integral> T>
+		void read(T& out)
+		requires ((accessFlags & AccessFlags::Read) || (accessFlags & AccessFlags::Edit));
+
+		/**
 		 * @brief Reads a single data element form the binary file.
 		 * @tparam T Data element type (defaults to byte).
 		 * @return Read element.
@@ -169,6 +178,17 @@ namespace senc::utils
 		 */
 		template <std::integral T>
 		void write(const T* buffer, std::size_t count)
+		requires ((accessFlags & (AccessFlags::Write)) ||
+			(accessFlags & AccessFlags::Edit) ||
+			(accessFlags & AccessFlags::Append));
+
+		/**
+		 * @brief Writes data elements to the binary files.
+		 * @tparam T Tuple type of primitive elements to write.
+		 * @param out Tuple of elements to write (by ref).
+		 */
+		template <TupleSatisfies<std::is_integral> T>
+		void write(T& out)
 		requires ((accessFlags & (AccessFlags::Write)) ||
 			(accessFlags & AccessFlags::Edit) ||
 			(accessFlags & AccessFlags::Append));
@@ -194,6 +214,17 @@ namespace senc::utils
 		 */
 		template <std::integral T>
 		void append(const T* buffer, std::size_t count)
+		requires ((accessFlags & (AccessFlags::Write)) ||
+			(accessFlags & AccessFlags::Edit) ||
+			(accessFlags & AccessFlags::Append));
+
+		/**
+		 * @brief Appends data elements to the binary files.
+		 * @tparam T Tuple type of primitive elements to append.
+		 * @param out Tuple of elements to append (by ref).
+		 */
+		template <TupleSatisfies<std::is_integral> T>
+		void append(T& out)
 		requires ((accessFlags & (AccessFlags::Write)) ||
 			(accessFlags & AccessFlags::Edit) ||
 			(accessFlags & AccessFlags::Append));
