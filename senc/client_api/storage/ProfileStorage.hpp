@@ -276,6 +276,15 @@ namespace senc::clientapi::storage
 		ProfileStorage(const std::string& path, const std::string& username, const std::string& password);
 
 		/**
+		 * @brief Constructs a profile storage handling instance.
+		 * @param path Profile file path (moved).
+		 * @param username User's username.
+		 * @param password User's password.
+		 * @note This class does not store the password, only uses it to derive key for profile access.
+		 */
+		ProfileStorage(std::string&& path, const std::string& username, const std::string& password);
+
+		/**
 		 * @brief Gets a range iterating over profile's data.
 		 */
 		ProfileDataRange iter_profile_data() const;
