@@ -17,7 +17,7 @@ using senc::utils::BinFile;
 using senc::utils::byte;
 
 // helper to create a temp file path
-static std::string tmp_path(const std::string& name)
+static std::string temp_path(const std::string& name)
 {
     return (fs::temp_directory_path() / name).string();
 }
@@ -67,7 +67,7 @@ protected:
 
     void SetUp() override
     {
-        path = tmp_path("binfile_test.bin");
+        path = temp_path("binfile_test.bin");
         // Ensure a clean file exists
         write_raw(path, {});
     }
