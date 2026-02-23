@@ -8,6 +8,8 @@
 
 #include "ProfileStorage.hpp"
 
+#include "../../utils/swap.hpp"
+
 namespace senc::clientapi::storage
 {
 	profile_record_enc_sizes_t ProfileUtils::read_profile_record_enc_sizes(ProfileInputFile& file)
@@ -196,14 +198,14 @@ namespace senc::clientapi::storage
 
 	ProfileDataRange::Self& ProfileDataRange::operator=(Self other)
 	{
-		this->swap(other);
+		utils::swap(*this, other);
 		return *this;
 	}
 
 	void ProfileDataRange::swap(Self& other)
 	{
-		this->_file.swap(other._file);
-		std::swap(this->_key, other._key);
+		utils::swap(this->_file, other._file);
+		utils::swap(this->_key, other._key);
 	}
 
 	ProfileDataRange::iterator ProfileDataRange::begin()

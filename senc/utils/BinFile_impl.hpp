@@ -8,6 +8,8 @@
 
 #include "BinFile.hpp"
 
+#include "swap.hpp"
+
 namespace senc::utils
 {
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -45,17 +47,17 @@ namespace senc::utils
 	inline BinFile<accessFlags, endianess>::Self&
 		BinFile<accessFlags, endianess>::operator=(Self other)
 	{
-		this->swap(other);
+		utils::swap(*this, other);
 		return *this;
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::swap(Self& other)
 	{
-		std::swap(this->_file, other._file);
-		std::swap(this->_pos, other._pos);
-		std::swap(this->_size, other._size);
-		std::swap(this->_prevUnderlyingOperation, other._prevUnderlyingOperation);
+		utils::swap(this->_file, other._file);
+		utils::swap(this->_pos, other._pos);
+		utils::swap(this->_size, other._size);
+		utils::swap(this->_prevUnderlyingOperation, other._prevUnderlyingOperation);
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>

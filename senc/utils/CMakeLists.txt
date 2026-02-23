@@ -10,6 +10,7 @@
 	"BinFile_impl.hpp"
 	"strs.hpp"
 	"concepts.hpp"
+	"swap.hpp"
 	"FixedString.hpp"
 	"hash.hpp"
 	"variants.hpp"
