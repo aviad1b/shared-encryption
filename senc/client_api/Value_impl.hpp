@@ -32,7 +32,7 @@ namespace senc::clientapi
 		try { return new_instance(f()); }
 		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
 		catch (const std::exception& e) { return Error::new_instance(e.what()); }
-		return Error::new_instance("Unknown error");
+		return Error::UNKNOWN;
 	}
 
 	template <std::move_constructible T>
