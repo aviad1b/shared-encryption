@@ -123,7 +123,7 @@ namespace senc::utils
 		 * @brief Gets the file's size.
 		 * @return File's current size.
 		 */
-		file_pos_t size();
+		file_pos_t size() const;
 
 		/**
 		 * @brief Gets current position in file.
@@ -214,7 +214,7 @@ namespace senc::utils
 		enum class UnderlyingOperation { None, Read, Write };
 
 		std::FILE* _file;
-		file_pos_t _pos;
+		file_pos_t _pos, _size;
 		UnderlyingOperation _prevUnderlyingOperation;
 
 		/**
@@ -227,6 +227,11 @@ namespace senc::utils
 		 * @brief Updates `_pos` field based on cursor.
 		 */
 		void update_internal_pos();
+
+		/**
+		 * @brief Updates `_pos` and `_size` fields based on cursor functions.
+		 */
+		void update_internal_pos_and_size();
 
 		/**
 		 * @brief Utility function wrapping `fread`.

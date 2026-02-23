@@ -13,11 +13,11 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
 		: _file(std::fopen(path.c_str(), access_flags_to_binary_mode<accessFlags>().c_str())),
-		  _pos(0), _prevUnderlyingOperation(UnderlyingOperation::None)
+		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None)
 	{
 		if (!_file)
 			throw FileException("Failed to open file");
-		update_internal_pos();
+		update_internal_pos_and_size();
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -26,16 +26,18 @@ namespace senc::utils
 		if (this->_file)
 			std::fclose(this->_file);
 		this->_pos = 0;
+		this->_size = 0;
 		this->_prevUnderlyingOperation = UnderlyingOperation::None;
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::BinFile(Self&& other) noexcept
-		: _file(other._file), _pos(other._pos),
+		: _file(other._file), _pos(other._pos), _size(other._size),
 		  _prevUnderlyingOperation(other._prevUnderlyingOperation)
 	{
 		other._file = nullptr;
 		other._pos = 0;
+		other._size = 0;
 		other._prevUnderlyingOperation = UnderlyingOperation::None;
 	}
 
@@ -52,24 +54,14 @@ namespace senc::utils
 	{
 		std::swap(this->_file, other._file);
 		std::swap(this->_pos, other._pos);
+		std::swap(this->_size, other._size);
 		std::swap(this->_prevUnderlyingOperation, other._prevUnderlyingOperation);
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
-	inline file_pos_t BinFile<accessFlags, endianess>::size()
+	inline file_pos_t BinFile<accessFlags, endianess>::size() const
 	{
-		auto pos = ftell(_file);
-		if (pos < 0)
-			throw FileException("Failed to locate file cursor");
-		if (0 != std::fseek(_file, 0, SEEK_END))
-			throw FileException("Failed to set file position");
-		auto size = ftell(_file);
-		if (size < 0)
-			throw FileException("Failed to locate file cursor");
-		if (0 != std::fseek(_file, pos, SEEK_SET))
-			throw FileException("Failed to set file position");
-		_prevUnderlyingOperation = UnderlyingOperation::None;
-		return size;
+		return _size;
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -165,6 +157,22 @@ namespace senc::utils
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
+	inline void BinFile<accessFlags, endianess>::update_internal_pos_and_size()
+	{
+		_pos = ftell(_file);
+		if (_pos < 0)
+			throw FileException("Failed to locate file cursor");
+		if (0 != std::fseek(_file, 0, SEEK_END))
+			throw FileException("Failed to set file position");
+		_prevUnderlyingOperation = UnderlyingOperation::None;
+		_size = ftell(_file);
+		if (_size < 0)
+			throw FileException("Failed to locate file cursor");
+		if (0 != std::fseek(_file, _pos, SEEK_SET))
+			throw FileException("Failed to set file position");
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
 	template <std::integral T>
 	inline void BinFile<accessFlags, endianess>::underlying_read(T* buffer, std::size_t count)
 	{
@@ -208,7 +216,7 @@ namespace senc::utils
 			if (0 == std::fwrite(tempBuff.data(), sizeof(T), count, _file))
 				throw FileException("Failed to write to file");
 		}
-		update_internal_pos();
+		update_internal_pos_and_size();
 		_prevUnderlyingOperation = UnderlyingOperation::Write;
 	}
 
