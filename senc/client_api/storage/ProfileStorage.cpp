@@ -133,8 +133,8 @@ namespace senc::clientapi::storage
 	}
 
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
-												   ProfileInputFile& file,
-												   utils::file_pos_t pos)
+											 ProfileInputFile& file,
+											 utils::file_pos_t pos)
 		: _key(key), _file(file), _pos(pos),
 		  _recordEncSizes(ProfileUtils::read_profile_record_enc_sizes(_file)),
 		  _record(ProfileUtils::read_profile_record(_file, _key, _recordEncSizes)) { }
