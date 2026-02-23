@@ -146,7 +146,7 @@ namespace senc::clientapi::storage
 
 		ProfileDataRange(const Self&) = delete;
 
-		Self operator=(const Self&) = delete;
+		Self& operator=(const Self&) = delete;
 
 		ProfileDataRange(Self&& other) noexcept;
 
