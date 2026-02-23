@@ -59,12 +59,6 @@
 #endif // end SENC_CLIENT_API_WINDOWS
 
 /**
- * @typedef nint_predicate_t
- * @brief Pointer to function which accepts a nint and returns true/false.
- */
-typedef bool(*nint_predicate_t)(std::uintptr_t);
-
-/**
  * @brief Deallocates previously returned handle.
  * @param handle Handle to deallocate.
  */
@@ -140,7 +134,8 @@ SENC_CLIENT_API_PUBLIC std::uintptr_t LoadUserProfile(const char* path, const ch
  * @return Nullopt value on success, error if failed.
  * @note Calling this function on a non-profile handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC std::uintptr_t IterUserProfile(std::uintptr_t hProfile,
+													  bool(*callback)(std::uintptr_t)) SENC_NOTHROW;
 
 /**
  * @brief Checks if a profile record pointer is of an owner record.

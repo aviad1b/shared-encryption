@@ -80,7 +80,7 @@ std::uintptr_t LoadUserProfile(const char* path, const char* username, const cha
 	)->as_nint();
 }
 
-std::uintptr_t IterUserProfile(std::uintptr_t hProfile, nint_predicate_t callback) noexcept
+std::uintptr_t IterUserProfile(std::uintptr_t hProfile, bool(*callback)(std::uintptr_t)) noexcept
 {
 	auto* pProfileStorage = api::Value<api::storage::ProfileStorage>::from_nint(hProfile);
 	return api::Value<std::nullopt_t>::ret_new([pProfileStorage, callback]()
