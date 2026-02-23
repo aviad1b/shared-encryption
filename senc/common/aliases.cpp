@@ -70,7 +70,7 @@ namespace senc
 		utils::BigInt shardValUnderlying{};
 		shard.first.Encode(outData, SHARD_ID_MAX_SIZE);
 		shardValUnderlying = shard.second;
-		shardValUnderlying.Encode(outData, SHARD_VALUE_MAX_SIZE);
+		shardValUnderlying.Encode(outData + SHARD_ID_MAX_SIZE, SHARD_VALUE_MAX_SIZE);
 	}
 
 	utils::Buffer priv_key_shard_to_bytes(const PrivKeyShard& shard)
