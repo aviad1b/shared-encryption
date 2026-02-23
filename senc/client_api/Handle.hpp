@@ -55,6 +55,10 @@ namespace senc::clientapi
 		}
 
 	protected:
+		/**
+		 * @brief Constructs a handle instance.
+		 * @param isAllocated Whether or no object was dynamically allocated.
+		 */
 		Handle(bool isAllocated) : _isAllocated(isAllocated) { }
 
 	private:
