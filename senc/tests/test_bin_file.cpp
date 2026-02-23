@@ -17,38 +17,6 @@ using senc::utils::AccessFlags;
 using senc::utils::BinFile;
 using senc::utils::byte;
 
-
-// helper to write raw bytes to a file for test setup
-static void write_raw(const std::string& path, const std::vector<byte>& data)
-{
-    std::FILE* f = std::fopen(path.c_str(), "wb");
-    std::fwrite(data.data(), 1, data.size(), f);
-    std::fclose(f);
-}
-
-// helper to convert value to bytes based on endianess
-template <std::integral T>
-static std::vector<byte> to_bytes(T value, std::endian endianess)
-{
-    std::vector<byte> bytes(sizeof(T));
-    std::memcpy(bytes.data(), &value, sizeof(T));
-    if (endianess != std::endian::native)
-        std::reverse(bytes.begin(), bytes.end());
-    return bytes;
-}
-
-static std::vector<byte> read_raw(const std::string& path)
-{
-    std::FILE* f = std::fopen(path.c_str(), "rb");
-    std::fseek(f, 0, SEEK_END);
-    long size = std::ftell(f);
-    std::rewind(f);
-    std::vector<byte> buf(size);
-    std::fread(buf.data(), 1, size, f);
-    std::fclose(f);
-    return buf;
-}
-
 template <typename Self>
 concept EndianessWrapper = requires
 {
