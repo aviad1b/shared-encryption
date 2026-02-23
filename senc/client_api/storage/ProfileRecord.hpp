@@ -56,9 +56,9 @@ namespace senc::clientapi::storage
 		 * @return Constructed profile record.
 		 */
 		static Self reg(UserSetID&& usersetID,
-						  PubKey&& regLayerPubKey,
-						  PubKey&& ownerLayerPubKey,
-						  PrivKeyShard&& regLayerPrivKeyShard);
+						PubKey&& regLayerPubKey,
+						PubKey&& ownerLayerPubKey,
+						PrivKeyShard&& regLayerPrivKeyShard);
 
 		/**
 		 * @brief Checks if this is an owner profile record.
