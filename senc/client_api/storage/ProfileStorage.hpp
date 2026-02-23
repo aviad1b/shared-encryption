@@ -43,13 +43,43 @@ namespace senc::clientapi::storage
 		}
 	};
 
+	/**
+	 * @typedef senc::clientapi::storage::ProfileInputFile
+	 * @brief File used for profile input.
+	 */
 	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read>;
+
+	/**
+	 * @typedef senc::clientapi::storage::ProfileOutputFile
+	 * @brief File used for profile output.
+	 */
 	using ProfileOutputFile = utils::BinFile<utils::AccessFlags::Append>;
+
+	/**
+	 * @typedef senc::clientapi::storage::ProfileEncSchema
+	 * @brief Encryption schema used for encrypting/decrypting profile data.
+	 */
 	using ProfileEncSchema = utils::enc::AES1L;
-	static_assert(std::same_as<utils::enc::Plaintext<ProfileEncSchema>, utils::Buffer>);
+	static_assert(
+		std::same_as<utils::enc::Plaintext<ProfileEncSchema>, utils::Buffer>,
+		"Plaintext of profile encryption schema must be Buffer"
+	);
+
+	/**
+	 * @typedef senc::clientapi::storage::ProfileEncKey
+	 * @brief Key used for encrypting/decrypting profile data.
+	 */
 	using ProfileEncKey = utils::enc::Key<ProfileEncSchema>;
+
+	/**
+	 * @typedef senc::clientapi::storage::ProfileEncCiphertext
+	 * @brief Encrypted version of profile data (ciphertext).
+	 */
 	using ProfileEncCiphertext = utils::enc::Ciphertext<ProfileEncSchema>;
-	static_assert(std::tuple_size_v<profile_record_enc_sizes_t> == std::tuple_size_v<ProfileEncCiphertext>);
+	static_assert(
+		std::tuple_size_v<profile_record_enc_sizes_t> == std::tuple_size_v<ProfileEncCiphertext>,
+		"profile_record_enc_sizes_t must be able to hold sizes of ProfileEncCiphertext elements"
+	);
 
 	/**
 	 * @class senc::clientapi::storage::ProfileUtils
