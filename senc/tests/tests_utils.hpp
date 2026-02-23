@@ -9,6 +9,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
+#include <filesystem>
 #include <algorithm>
 #include <future>
 #include <thread>
@@ -18,6 +19,16 @@
 #include "../utils/Random.hpp"
 #include "../utils/Socket.hpp"
 #include "../utils/hash.hpp"
+
+/**
+ * @brief Creates a temporary file path.
+ * @param name Desired file name.
+ * @return Temporary file path.
+ */
+inline std::string temp_file_path(const std::string& name)
+{
+	return (std::filesystem::temp_directory_path() / name).string();
+}
 
 constexpr std::size_t CONN_RETRY_COUNT = 10;
 

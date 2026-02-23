@@ -10,17 +10,13 @@
 #include <filesystem>
 #include <cstdint>
 #include "../utils/BinFile.hpp"
+#include "tests_utils.hpp"
 
 namespace fs = std::filesystem;
 using senc::utils::AccessFlags;
 using senc::utils::BinFile;
 using senc::utils::byte;
 
-// helper to create a temp file path
-static std::string temp_path(const std::string& name)
-{
-    return (fs::temp_directory_path() / name).string();
-}
 
 // helper to write raw bytes to a file for test setup
 static void write_raw(const std::string& path, const std::vector<byte>& data)
@@ -67,7 +63,7 @@ protected:
 
     void SetUp() override
     {
-        path = temp_path("binfile_test.bin");
+        path = temp_file_path("binfile_test.bin");
         // Ensure a clean file exists
         write_raw(path, {});
     }
