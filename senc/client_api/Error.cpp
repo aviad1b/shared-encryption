@@ -28,6 +28,7 @@ namespace senc::clientapi
 		try { return new Self(true, std::move(msg)); }
 		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
 		catch (const std::exception& e) { return Error::new_instance(e.what()); }
+		return Error::UNKNOWN;
 	}
 
 	bool Error::has_error() const noexcept
