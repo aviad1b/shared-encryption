@@ -139,22 +139,56 @@ namespace senc::clientapi::storage
 		using iterator_category = std::input_iterator_tag;
 		using iterator_concept = std::input_iterator_tag;
 
+		/**
+		 * @brief Constructs a profile data iterator.
+		 * @param key Reference to key used for decrypting read data.
+		 * @param file Reference to file from which data is read.
+		 * @param pos Reading position in file, defaults to `0` (file start).
+		 */
 		ProfileDataIterator(const ProfileEncKey& key,
 							ProfileInputFile& file,
 							utils::file_pos_t pos = 0);
 
+		/**
+		 * @brief Copy constructor of profile data iterator.
+		 */
 		ProfileDataIterator(const Self&) = default;
 
+		/**
+		 * @brief Copy assignment operator of profile data iterator.
+		 */
 		Self& operator=(const Self&) = default;
 
+		/**
+		 * @brief Compares two profile data iterators.
+		 * @note Assumes same input file.
+		 * @param other Other profile data iterator to compare to.
+		 * @return `true` if `*this` points to the same position as `other`, otherwise `false`.
+		 */
 		bool operator==(const Self& other) const;
 
+		/**
+		 * @brief Increments iterator to next profile data record.
+		 * @return `*this`, after incrementing.
+		 */
 		Self& operator++();
 
+		/**
+		 * @brief Increments iterator to next profile data record.
+		 * @return `*this`, before incrementing.
+		 */
 		Self operator++(int);
 
+		/**
+		 * @brief Gets read profile data record.
+		 * @return Read data record.
+		 */
 		reference operator*() const;
 
+		/**
+		 * @brief Gets read profile data record.
+		 * @return Read data record.
+		 */
 		pointer operator->() const;
 
 	private:
@@ -177,20 +211,45 @@ namespace senc::clientapi::storage
 		using Self = ProfileDataRange;
 		using iterator = ProfileDataIterator;
 
+		/**
+		 * @brief Constructs a profile data range.
+		 * @param path Path of file from which profile data is read.
+		 * @param key Reference to key used for decrypting read data.
+		 */
 		ProfileDataRange(const std::string& path, const ProfileEncKey& key);
 
 		ProfileDataRange(const Self&) = delete;
-
 		Self& operator=(const Self&) = delete;
 
+		/**
+		 * @brief Move constructor of profile data range.
+		 * @param other Other profile data range to construct from (moved).
+		 */
 		ProfileDataRange(Self&& other) noexcept;
 
+		/**
+		 * @brief Move assignment of profile data range.
+		 * @param other Other profile data range to assign into this one.
+		 * @note Uses inline construction (move-and-swap).
+		 */
 		Self& operator=(Self other);
 
+		/**
+		 * @brief Swaps with another profile data range.
+		 * @param other Other profile data range to swap with.
+		 */
 		void swap(Self& other);
 
+		/**
+		 * @brief Gets iterator to start of profile data.
+		 * @return Iterator to start of profile data.
+		 */
 		iterator begin();
 
+		/**
+		 * @brief Gets iterator to end of profile data.
+		 * @return Iterator to end of profile data.
+		 */
 		iterator end();
 
 	private:
