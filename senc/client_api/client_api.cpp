@@ -16,7 +16,7 @@
 namespace api = senc::clientapi;
 namespace utils = senc::utils;
 
-void FreeHandle(std::uintptr_t handle) noexcept
+void FreeHandle(uintptr_t handle) noexcept
 {
 	auto* pHandle = api::Handle::from_nint(handle);
 	if (pHandle->allocated())
@@ -26,37 +26,37 @@ void FreeHandle(std::uintptr_t handle) noexcept
 	}
 }
 
-bool HasError(std::uintptr_t handle) noexcept
+bool HasError(uintptr_t handle) noexcept
 {
 	auto* pHandle = api::Handle::from_nint(handle);
 	return pHandle->has_error();
 }
 
-const char* GetError(std::uintptr_t handle) noexcept
+const char* GetError(uintptr_t handle) noexcept
 {
 	auto* pError = api::Error::from_nint(handle);
 	return pError->what();
 }
 
-const char* GetStringValue(std::uintptr_t handle) noexcept
+const char* GetStringValue(uintptr_t handle) noexcept
 {
 	auto* pValue = api::Value<std::string>::from_nint(handle);
 	return pValue->get().c_str();
 }
 
-std::uint64_t GetBytesLen(std::uintptr_t handle) noexcept
+uint64_t GetBytesLen(uintptr_t handle) noexcept
 {
 	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return pBuff->get().size();
 }
 
-const std::uint8_t* GetBytesValue(std::uintptr_t handle) noexcept
+const uint8_t* GetBytesValue(uintptr_t handle) noexcept
 {
 	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return pBuff->get().data();
 }
 
-std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept
+uintptr_t GetBytesBase64(uintptr_t handle) noexcept
 {
 	auto* pBuff = api::Value<utils::Buffer>::from_nint(handle);
 	return api::Value<std::string>::ret_new([pBuff]()
@@ -65,7 +65,7 @@ std::uintptr_t GetBytesBase64(std::uintptr_t handle) noexcept
 	})->as_nint();
 }
 
-std::uintptr_t LocateUserProfileFile(const char* username) noexcept
+uintptr_t LocateUserProfileFile(const char* username) noexcept
 {
 	return api::Value<std::string>::ret_new([username]()
 	{
@@ -73,32 +73,32 @@ std::uintptr_t LocateUserProfileFile(const char* username) noexcept
 	})->as_nint();
 }
 
-std::uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept
+uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept
 {
 	return api::Value<api::storage::ProfileStorage>::new_instance(
 		path, username, password
 	)->as_nint();
 }
 
-std::uintptr_t IterUserProfile(std::uintptr_t hProfile, bool(*callback)(std::uintptr_t)) noexcept
+uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) noexcept
 {
 	auto* pProfileStorage = api::Value<api::storage::ProfileStorage>::from_nint(hProfile);
 	return api::Value<std::nullopt_t>::ret_new([pProfileStorage, callback]()
 	{
 		for (const auto& record : pProfileStorage->get().iter_profile_data())
-			if (!callback(reinterpret_cast<std::uintptr_t>(&record)))
+			if (!callback(reinterpret_cast<uintptr_t>(&record)))
 				break;
 		return std::nullopt;
 	})->as_nint();
 }
 
-bool IsOwnerProfileRecord(std::uintptr_t pRecord) noexcept
+bool IsOwnerProfileRecord(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return record->is_owner();
 }
 
-std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) noexcept
+uintptr_t GetProfileRecordRegPubKey(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::new_instance(
@@ -106,7 +106,7 @@ std::uintptr_t GetProfileRecordRegPubKey(std::uintptr_t pRecord) noexcept
 	)->as_nint();
 }
 
-std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) noexcept
+uintptr_t GetProfileRecordOwnerPubKey(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::new_instance(
@@ -114,7 +114,7 @@ std::uintptr_t GetProfileRecordOwnerPubKey(std::uintptr_t pRecord) noexcept
 	)->as_nint();
 }
 
-std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) noexcept
+uintptr_t GetProfileRecordRegShard(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::new_instance(
@@ -122,7 +122,7 @@ std::uintptr_t GetProfileRecordRegShard(std::uintptr_t pRecord) noexcept
 	)->as_nint();
 }
 
-std::uintptr_t GetProfileRecordOwnerShard(std::uintptr_t pRecord) noexcept
+uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	if (!record->is_owner())
