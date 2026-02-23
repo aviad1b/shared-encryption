@@ -70,25 +70,25 @@ namespace senc::clientapi::storage
 		 * @brief Gets userset ID.
 		 * @return Userset ID.
 		 */
-		const UserSetID& userset_id() const;
+		const UserSetID& userset_id() const noexcept;
 
 		/**
 		 * @brief Gets public key of non-owner layer.
 		 * @return Public key of non-owner layer.
 		 */
-		const PubKey& reg_layer_pub_key() const;
+		const PubKey& reg_layer_pub_key() const noexcept;
 
 		/**
 		 * @brief Gets public key of owner layer.
 		 * @return Public key of owner layer.
 		 */
-		const PubKey& owner_layer_pub_key() const;
+		const PubKey& owner_layer_pub_key() const noexcept;
 
 		/**
 		 * @brief Gets private key shard of non-owner layer.
 		 * @return Private key shard of non-owner layer.
 		 */
-		const PrivKeyShard& reg_layer_priv_key_shard() const;
+		const PrivKeyShard& reg_layer_priv_key_shard() const noexcept;
 		
 		/**
 		 * @brief Gets private key shard of owner layer.
@@ -96,7 +96,7 @@ namespace senc::clientapi::storage
 		 *		 Calling this method on a non-owner record is considered undefined behaviour.
 		 * @return Private key shard of owner layer.
 		 */
-		const PrivKeyShard& owner_layer_priv_key_shard() const;
+		const PrivKeyShard& owner_layer_priv_key_shard() const noexcept;
 
 	private:
 		UserSetID _usersetID;

@@ -44,27 +44,27 @@ namespace senc::clientapi::storage
 		return _ownerLayerPrivKeyShard.has_value();
 	}
 
-	const UserSetID& ProfileRecord::userset_id() const
+	const UserSetID& ProfileRecord::userset_id() const noexcept
 	{
 		return _usersetID;
 	}
 
-	const PubKey& ProfileRecord::reg_layer_pub_key() const
+	const PubKey& ProfileRecord::reg_layer_pub_key() const noexcept
 	{
 		return _regLayerPubKey;
 	}
 
-	const PubKey& ProfileRecord::owner_layer_pub_key() const
+	const PubKey& ProfileRecord::owner_layer_pub_key() const noexcept
 	{
 		return _ownerLayerPubKey;
 	}
 
-	const PrivKeyShard& ProfileRecord::reg_layer_priv_key_shard() const
+	const PrivKeyShard& ProfileRecord::reg_layer_priv_key_shard() const noexcept
 	{
 		return _regLayerPrivKeyShard;
 	}
 
-	const PrivKeyShard& ProfileRecord::owner_layer_priv_key_shard() const
+	const PrivKeyShard& ProfileRecord::owner_layer_priv_key_shard() const noexcept
 	{
 		return *_ownerLayerPrivKeyShard;
 	}
