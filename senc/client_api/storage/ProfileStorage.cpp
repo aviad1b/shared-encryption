@@ -13,6 +13,9 @@ namespace senc::clientapi::storage
 	profile_record_enc_sizes_t ProfileUtils::read_profile_record_enc_sizes(ProfileInputFile& file)
 	{
 		profile_record_enc_sizes_t res{};
+		if (file.get_pos() >= file.size())
+			return res; // nothing to read, file ended
+
 		file.read(&res.first, 1);
 		file.read(&res.second, 1);
 		return res;
@@ -22,6 +25,9 @@ namespace senc::clientapi::storage
 																   const ProfileEncKey& key,
 																   profile_record_enc_sizes_t sizes)
 	{
+		if (0 == sizes.first && 0 == sizes.second)
+			return std::nullopt; // nothing to read
+
 		// read encrypted profile
 		ProfileEncCiphertext encProfile{};
 		auto& [enc1, enc2] = encProfile;
