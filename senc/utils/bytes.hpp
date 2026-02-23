@@ -70,7 +70,7 @@ namespace senc::utils
 		struct has_byte_data : std::bool_constant<HasByteData<T>> { };
 
 		template <typename T>
-		struct has_mytable_byte_data : std::bool_constant<HasMutableByteData<T>> { };
+		struct has_mutable_byte_data : std::bool_constant<HasMutableByteData<T>> { };
 	}
 
 	/**
