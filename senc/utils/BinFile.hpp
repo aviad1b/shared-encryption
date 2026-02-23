@@ -265,6 +265,16 @@ namespace senc::utils
 		void update_internal_pos_and_size();
 
 		/**
+		 * @brief Utility function wrapping `fseek`.
+		 */
+		void underlying_seek(file_pos_t pos, int origin);
+
+		/**
+		 * @brief Utility function wrapping `ftell`.
+		 */
+		file_pos_t underlying_tell();
+
+		/**
 		 * @brief Utility function wrapping `fread`.
 		 */
 		template <std::integral T>

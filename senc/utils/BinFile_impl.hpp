@@ -77,10 +77,8 @@ namespace senc::utils
 	{
 		if (pos == _pos)
 			return;
-		if (0 != std::fseek(_file, pos, SEEK_SET))
-			throw FileException("Failed to set file position");
+		underlying_seek(pos, SEEK_SET);
 		_pos = pos;
-		_prevUnderlyingOperation = UnderlyingOperation::None;
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -152,8 +150,7 @@ namespace senc::utils
 		(accessFlags & AccessFlags::Edit) ||
 		(accessFlags & AccessFlags::Append))
 	{
-		if (0 != std::fseek(_file, 0, SEEK_END))
-			throw FileException("Failed to set file position");
+		underlying_seek(0, SEEK_END);
 		underlying_write(buffer, count);
 	}
 
@@ -183,32 +180,39 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::refresh_cursor()
 	{
-		if (0 != std::fseek(_file, _pos, SEEK_SET))
-			throw FileException("Failed to refresh file position");
+		underlying_seek(_pos, SEEK_SET);
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::update_internal_pos()
 	{
-		_pos = std::ftell(_file);
-		if (_pos < 0)
-			throw FileException("Failed to locate file cursor");
+		_pos = underlying_tell();
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline void BinFile<accessFlags, endianess>::update_internal_pos_and_size()
 	{
-		_pos = ftell(_file);
-		if (_pos < 0)
-			throw FileException("Failed to locate file cursor");
-		if (0 != std::fseek(_file, 0, SEEK_END))
+		_pos = underlying_tell();
+		underlying_seek(0, SEEK_END);
+		_size = underlying_tell();
+		underlying_seek(_pos, SEEK_SET);
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	inline void BinFile<accessFlags, endianess>::underlying_seek(file_pos_t pos, int origin)
+	{
+		if (0 != std::fseek(_file, pos, origin))
 			throw FileException("Failed to set file position");
 		_prevUnderlyingOperation = UnderlyingOperation::None;
-		_size = ftell(_file);
-		if (_size < 0)
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	inline file_pos_t BinFile<accessFlags, endianess>::underlying_tell()
+	{
+		file_pos_t pos = ftell(_file);
+		if (pos < 0)
 			throw FileException("Failed to locate file cursor");
-		if (0 != std::fseek(_file, _pos, SEEK_SET))
-			throw FileException("Failed to set file position");
+		return pos;
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
