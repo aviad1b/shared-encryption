@@ -21,6 +21,18 @@
 namespace senc::utils
 {
 	/**
+	 * @concept senc::utils::ConstantWrapperType
+	 * @brief Looks for a constant wrapper (SFINAE-style) type.
+	 * @tparam Self Examined typename.
+	 * @tparam T Expected wrapped constant type.
+	 */
+	template <typename Self, typename T>
+	concept ConstantWrapperType = requires
+	{
+		{ Self::value } -> std::convertible_to<T>;
+	};
+
+	/**
 	 * @concept senc::utils::OneOf
 	 * @brief Checks for a typename from a provided typename list.
 	 * @tparam Self Examined typename.
