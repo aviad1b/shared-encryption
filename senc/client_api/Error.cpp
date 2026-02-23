@@ -14,6 +14,10 @@ namespace senc::clientapi
 
 	Error::Self* Error::ALLOCATION = &_ALLOCATION;
 
+	Error::Self Error::_UNKNOWN = Error::make_instance("Unknown Error");
+
+	Error::Self* Error::UNKNOWN = &_UNKNOWN;
+
 	Error::Self Error::make_instance(std::string&& msg) noexcept
 	{
 		return Self(false, std::move(msg));

@@ -29,6 +29,11 @@ namespace senc::clientapi
 		static Self* ALLOCATION;
 
 		/**
+		 * @brief Constant (supposedly) which serves for returning unknown error.
+		 */
+		static Self* UNKNOWN;
+
+		/**
 		 * @brief Gets instance pointer from "nint" (API) version.
 		 * @param nint API type pointer.
 		 * @return Instance pointer.
@@ -74,6 +79,8 @@ namespace senc::clientapi
 		std::string _msg;
 
 		static Self _ALLOCATION;
+		
+		static Self _UNKNOWN;
 
 		/**
 		 * @brief Constructs an error instance.
