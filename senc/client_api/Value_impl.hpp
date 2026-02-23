@@ -16,6 +16,7 @@ namespace senc::clientapi
 		try { return new Self(true, std::move(value)); }
 		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
 		catch (const std::exception& e) { return Error::new_instance(e.what()); }
+		return Error::UNKNOWN;
 	}
 
 	template <std::move_constructible T>
