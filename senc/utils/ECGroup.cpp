@@ -90,6 +90,47 @@ namespace senc::utils
 		return res;
 	}
 
+	ECGroup::Self ECGroup::decode(const Buffer& bytes)
+	{
+		if (bytes.size() != ENCODED_SIZE)
+			throw std::invalid_argument("Failed to decode group element: Invalid encoded point size");
+
+		if (0x00 == bytes[0])
+			return identity();
+
+		if (0x02 != bytes[0] && 0x03 != bytes[0])
+			throw std::invalid_argument("Failed to decode group element: Invalid point prefix byte");
+
+		BigInt x{};
+		x.Decode(bytes.data() + 1, ENCODED_FIELD_SIZE);
+
+		// recover Y from X using the curve equation using CryptoPP's ECP DecodePoint
+		Buffer sec1(ENCODED_SIZE);
+		std::memcpy(sec1.data(), bytes.data(), ENCODED_SIZE);
+
+		ECP::Point point{};
+		if (!ec_curve().DecodePoint(point, sec1.data(), ENCODED_SIZE))
+			throw std::invalid_argument("Failed to decode group element: Point is not on the curve");
+
+		return Self(point);
+	}
+
+	Buffer ECGroup::encode() const
+	{
+		Buffer res(ENCODED_SIZE, 0);
+
+		if (is_identity())
+		{
+			res[0] = 0x00;
+			return res;
+		}
+
+		// prefix: 0x02 if Y even, 0x03 if Y odd
+		res[0] = y().IsOdd() ? 0x03 : 0x02;
+		x().Encode(res.data() + 1, ENCODED_FIELD_SIZE); // zero-pads on the left automatically
+		return res;
+	}
+
 	ECGroup::Self ECGroup::from_string(std::string str)
 	{
 		static const std::string PREFIX = "ECGroup(";

@@ -90,6 +90,7 @@ add_subdirectory("utils")
 add_subdirectory("common")
 add_subdirectory("server")
 add_subdirectory("debug_client")
+add_subdirectory("client_api")
 
 option(BUILD_TESTING "Enable unit tests" ON)
 if (BUILD_TESTING)

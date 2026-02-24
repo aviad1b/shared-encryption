@@ -64,6 +64,15 @@ namespace senc::utils
 		{ self.size() } -> std::convertible_to<std::size_t>;
 	};
 
+	namespace sfinae
+	{
+		template <typename T>
+		struct has_byte_data : std::bool_constant<HasByteData<T>> { };
+
+		template <typename T>
+		struct has_mutable_byte_data : std::bool_constant<HasMutableByteData<T>> { };
+	}
+
 	/**
 	 * @concept senc::utils::HasToBytes
 	 * @brief Looks for a typename which has a `to_bytes` method for binary representation.

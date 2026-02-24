@@ -73,6 +73,31 @@ public:
 	}
 };
 
+TEST(CommonTests, PubKeyBytesRoundTrip)
+{
+	for (std::size_t i = 0; i < 256; ++i)
+	{
+		auto pubKey = senc::PubKey::sample();
+		auto bytes = senc::pub_key_to_bytes(pubKey);
+		auto pubKey2 = senc::pub_key_from_bytes(bytes);
+		EXPECT_EQ(pubKey, pubKey2);
+	}
+}
+
+TEST(CommonTests, ShardBytesRoundTrip)
+{
+	for (std::size_t i = 0; i < 256; ++i)
+	{
+		senc::PrivKeyShard shard{
+			senc::utils::Random<senc::utils::BigInt>::sample_below(senc::MAX_MEMBERS),
+			senc::utils::Random<senc::utils::BigInt>::sample_below(senc::utils::ECGroup::order())
+		};
+		auto bytes = senc::priv_key_shard_to_bytes(shard);
+		auto shard2 = senc::priv_key_shard_from_bytes(bytes);
+		EXPECT_EQ(shard, shard2);
+	}
+}
+
 static void error_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};

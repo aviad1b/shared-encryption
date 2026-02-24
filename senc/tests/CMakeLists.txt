@@ -1,6 +1,7 @@
 add_executable(senc_tests
     "test_main.cpp"
     "test_ranges.cpp"
+    "test_bin_file.cpp"
     "test_socket.cpp"
     "test_poly.cpp"
     "test_modint.cpp"
@@ -13,6 +14,7 @@ add_executable(senc_tests
     "test_bytes.cpp"
     "test_sql.cpp"
     "tests_utils.hpp"
+    "tests_utils.cpp"
     "test_server_storage.cpp"
     "test_server.cpp"
     "../server/handlers/ClientHandlerFactory.cpp"
@@ -23,6 +25,9 @@ add_executable(senc_tests
     "../server/storage/ShortTermServerStorage.cpp"
     "../server/storage/SqliteServerStorage.cpp"
     "../server/managers/UpdateManager.cpp"
+    "test_client_storage.cpp"
+    "../client_api/storage/ProfileRecord.cpp"
+    "../client_api/storage/ProfileStorage.cpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)

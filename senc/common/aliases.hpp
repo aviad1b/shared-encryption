@@ -14,6 +14,7 @@
 #include "../utils/ECGroup.hpp"
 #include "../utils/Shamir.hpp"
 #include "../utils/uuid.hpp"
+#include "sizes.hpp"
 #include <string>
 
 namespace senc
@@ -52,6 +53,39 @@ namespace senc
 	using PubKey = utils::enc::PubKey<Schema>;
 
 	/**
+	 * @brief Reads a public key from bytes.
+	 * @param out Variable to store read key to.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::Buffer::iterator read_pub_key(PubKey& out,
+										 utils::Buffer::iterator it,
+										 utils::Buffer::iterator end);
+
+	/**
+	 * @brief Reads a public key from a buffer of bytes.
+	 * @param bytes Bytes to read key from.
+	 * @return Read key.
+	 */
+	PubKey pub_key_from_bytes(utils::Buffer& bytes);
+	// TODO: Add const once utils::read_bytes accepts const_iterator
+
+	/**
+	 * @brief Writes a public key into a buffer.
+	 * @param out Buffer to write public key into.
+	 * @param pubKey Public key to write.
+	 */
+	void write_pub_key(utils::Buffer& out, const PubKey& pubKey);
+
+	/**
+	 * @brief Serializes a public key into bytes.
+	 * @param pubKey Public key to serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer pub_key_to_bytes(const PubKey& pubKey);
+
+	/**
 	 * @typedef PrivKey
 	 * @brief Private key type (for decryption).
 	 */
@@ -83,6 +117,46 @@ namespace senc
 	 * @brief Value of private key Shamir shard (polynomial result, y value).
 	 */
 	using PrivKeyShardValue = typename Shamir::ShardValue;
+
+	// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
+	// TODO: Make shard sampling use a constant from here for range
+	constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
+
+	// this constant is true as shard values are always < modulus
+	static const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
+
+	/**
+	 * @brief Reads a private key shard from bytes.
+	 * @param out Variable to store read key shard to.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::Buffer::iterator read_priv_key_shard(PrivKeyShard& out,
+												utils::Buffer::iterator it,
+												utils::Buffer::iterator end);
+
+	/**
+	 * @brief Reads a private key shard from a buffer of bytes.
+	 * @param bytes Bytes to read key from.
+	 * @return Read key shard.
+	 */
+	PrivKeyShard priv_key_shard_from_bytes(utils::Buffer& bytes);
+	// TODO: Add const once utils::read_bytes accepts const_iterator
+
+	/**
+	 * @brief Writes a private key shard into a buffer.
+	 * @param out Buffer to write private key shard into.
+	 * @param shard Private key shard to write.
+	 */
+	void write_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
+
+	/**
+	 * @brief Serializes a private key shard into bytes.
+	 * @param shard Private key shard to serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer priv_key_shard_to_bytes(const PrivKeyShard& shard);
 
 	/**
 	 * @typedef senc::DecryptionPart

@@ -5,9 +5,12 @@
 	"AtScopeExit.cpp"
 	"bytes.hpp"
 	"bytes.cpp"
-	"strs.hpp"
 	"bytes_impl.hpp"
+	"BinFile.hpp"
+	"BinFile_impl.hpp"
+	"strs.hpp"
 	"concepts.hpp"
+	"swap.hpp"
 	"FixedString.hpp"
 	"hash.hpp"
 	"variants.hpp"
@@ -17,6 +20,7 @@
 	"Exception.hpp"
 	"Exception.cpp"
 	"StrParseException.hpp"
+	"file_exceptions.hpp"
 	"port.hpp"
 	"port.cpp"
 	"ip.hpp"
@@ -51,7 +55,7 @@
 	"uuid_impl.hpp"
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
-	"pwd/PBKDF2.cpp"
+	"pwd/PBKDF2_impl.hpp"
 	"sqlite/SQLiteException.hpp"
 	"sqlite/values.hpp"
 	"sqlite/values.cpp"
@@ -78,6 +82,9 @@ else()
 	target_link_libraries(senc_utils PUBLIC libuuid)
 endif()
 
+set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
+
+set_target_properties(senc_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 target_link_libraries(senc_utils PUBLIC cryptopp sqlite3)
 
-set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
