@@ -599,7 +599,9 @@ namespace senc::client
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(ciphertext, privKeyShard, privKeyShardsIDs);
 
-		cout << "Result decryption part: " << utils::bytes_to_base64(part.to_bytes()) << endl;
+		cout << "Result decryption part: ";
+		io::print_decryption_part(part);
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}
@@ -710,7 +712,7 @@ namespace senc::client
 
 		cout << "Non-owner layer decryption parts:" << endl;
 		for (const auto& part : data.reg_layer_parts)
-			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+			io::print_decryption_part(part);
 		cout << endl;
 
 		cout << "Non-owner layer involved shard IDs: ";
@@ -725,7 +727,7 @@ namespace senc::client
 
 		cout << "Owner layer decryption parts:" << endl;
 		for (const auto& part : data.owner_layer_parts)
-			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+			io::print_decryption_part(part);
 		cout << endl;
 
 		cout << "Owner layer involved shard IDs: ";
