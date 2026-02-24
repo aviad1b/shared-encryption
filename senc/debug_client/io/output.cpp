@@ -51,4 +51,9 @@ namespace senc::client::io
 			 << utils::bytes_to_base64(c3a) << endl
 			 << utils::bytes_to_base64(c3b) << endl;
 	}
+
+	void print_decryption_part(const DecryptionPart& decryptionPart)
+	{
+		cout << utils::bytes_to_base64(decryptionPart.to_bytes()) << endl;
+	}
 }
