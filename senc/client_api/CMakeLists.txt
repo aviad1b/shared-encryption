@@ -14,6 +14,11 @@ add_library(senc_client_api SHARED
 
 set_property(TARGET senc_client_api PROPERTY CXX_STANDARD 20)
 
+# dismiss MSVC warning about fopen
+if(MSVC)
+	target_compile_definitions(senc_client_api PUBLIC _CRT_SECURE_NO_WARNINGS)
+endif()
+
 # define I_SENC_CLIENT_API macro
 target_compile_definitions(senc_client_api PRIVATE I_SENC_CLIENT_API)
 
