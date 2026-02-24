@@ -59,17 +59,16 @@ namespace senc
 	 * @param end Iterator to read untill.
 	 * @return Iterator pointing to the end of read bytes.
 	 */
-	utils::Buffer::iterator read_pub_key(PubKey& out,
-										 utils::Buffer::iterator it,
-										 utils::Buffer::iterator end);
+	utils::Buffer::const_iterator read_pub_key(PubKey& out,
+											   utils::Buffer::const_iterator it,
+											   utils::Buffer::const_iterator end);
 
 	/**
 	 * @brief Reads a public key from a buffer of bytes.
 	 * @param bytes Bytes to read key from.
 	 * @return Read key.
 	 */
-	PubKey pub_key_from_bytes(utils::Buffer& bytes);
-	// TODO: Add const once utils::read_bytes accepts const_iterator
+	PubKey pub_key_from_bytes(const utils::Buffer& bytes);
 
 	/**
 	 * @brief Writes a public key into a buffer.
@@ -132,17 +131,16 @@ namespace senc
 	 * @param end Iterator to read untill.
 	 * @return Iterator pointing to the end of read bytes.
 	 */
-	utils::Buffer::iterator read_priv_key_shard(PrivKeyShard& out,
-												utils::Buffer::iterator it,
-												utils::Buffer::iterator end);
+	utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
+													  utils::Buffer::const_iterator it,
+													  utils::Buffer::const_iterator end);
 
 	/**
 	 * @brief Reads a private key shard from a buffer of bytes.
 	 * @param bytes Bytes to read key from.
 	 * @return Read key shard.
 	 */
-	PrivKeyShard priv_key_shard_from_bytes(utils::Buffer& bytes);
-	// TODO: Add const once utils::read_bytes accepts const_iterator
+	PrivKeyShard priv_key_shard_from_bytes(const utils::Buffer& bytes);
 
 	/**
 	 * @brief Writes a private key shard into a buffer.

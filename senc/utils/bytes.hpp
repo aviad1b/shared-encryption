@@ -248,7 +248,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires StringType<std::remove_cvref_t<decltype(out)>>;
 
 	/**
@@ -260,7 +260,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
 
@@ -273,7 +273,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>;
 }
 

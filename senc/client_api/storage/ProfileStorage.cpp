@@ -80,10 +80,10 @@ namespace senc::clientapi::storage
 		return schema;
 	}
 
-	ProfileRecord ProfileUtils::parse_profile_record(utils::Buffer& data)
+	ProfileRecord ProfileUtils::parse_profile_record(const utils::Buffer& data)
 	{
-		const auto end = data.end();
-		auto it = data.begin();
+		const auto end = data.cend();
+		auto it = data.cbegin();
 
 		utils::byte flagsByte = 0;
 		it = utils::read_bytes(flagsByte, it, end);

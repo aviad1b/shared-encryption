@@ -54,8 +54,8 @@ TYPED_TEST(BytesTests, BufferWriteRead)
 	MyEnum inEnum{};
 	Buffer inSubBuf(outSubBuf.size(), 0);
 
-	const auto end = buff.end();
-	auto it = buff.begin();
+	const auto end = buff.cend();
+	auto it = buff.cbegin();
 
 	it = read_bytes<endianess>(inStr, it, end);
 	EXPECT_EQ(inStr, outStr);
