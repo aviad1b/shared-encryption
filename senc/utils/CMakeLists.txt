@@ -84,6 +84,11 @@ endif()
 
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
 
+# dismiss MSVC warning about fopen
+if(MSVC)
+	target_compile_definitions(senc_utils PUBLIC _CRT_SECURE_NO_WARNINGS)
+endif()
+
 set_target_properties(senc_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(senc_utils PUBLIC cryptopp sqlite3)
