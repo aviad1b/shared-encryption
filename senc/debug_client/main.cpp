@@ -712,7 +712,7 @@ namespace senc::client
 
 		cout << "Non-owner layer decryption parts:" << endl;
 		for (const auto& part : data.reg_layer_parts)
-			cout << utils::bytes_to_base64(part.to_bytes()) << endl;
+			io::print_decryption_part(part);
 		cout << endl;
 
 		cout << "Non-owner layer involved shard IDs: ";
