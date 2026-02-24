@@ -38,4 +38,17 @@ namespace senc
 		// check synchronized keys
 		return (this->_key == pOther->_key);
 	}
+
+	template <std::equality_comparable Key>
+	inline const Key& KeyedPacketHandlerSyncData<Key>::get_key() const
+	{
+		return this->_key;
+	}
+
+	template <std::equality_comparable Key>
+	inline void KeyedPacketHandlerSyncData<Key>::set_key(Key&& key)
+	requires std::is_move_assignable_v<Key>
+	{
+		this->_key = std::move(key);
+	}
 }
