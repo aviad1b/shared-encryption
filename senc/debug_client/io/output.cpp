@@ -19,8 +19,8 @@ namespace senc::client::io
 	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey)
 	{
 		cout << "Encryption key: "
-			 << utils::bytes_to_base64(regLayerPubKey.to_bytes()) << endl
-			 << utils::bytes_to_base64(ownerLayerPubKey.to_bytes()) << endl;
+			 << utils::bytes_to_base64(pub_key_to_bytes(regLayerPubKey)) << endl
+			 << utils::bytes_to_base64(pub_key_to_bytes(ownerLayerPubKey)) << endl;
 	}
 
 	// helper function, not accessed by main
