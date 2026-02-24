@@ -18,6 +18,7 @@
 #include "../utils/concepts.hpp"
 #include "../utils/Random.hpp"
 #include "../utils/Socket.hpp"
+#include "../utils/bytes.hpp"
 #include "../utils/hash.hpp"
 
 /**
