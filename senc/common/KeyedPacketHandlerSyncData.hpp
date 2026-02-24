@@ -47,4 +47,4 @@ namespace senc
 	};
 }
 
-#include "EncPacketHandlerSyncData_impl.hpp"
+#include "KeyedPacketHandlerSyncData_impl.hpp"
