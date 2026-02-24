@@ -11,7 +11,7 @@
 namespace senc::utils::pwd
 {
     template <std::size_t outputSize, std::size_t saltSize>
-    PBKDF2<outputSize, saltSize>::PBKDF2(std::size_t iterations) : _iterations(iterations) { }
+    PBKDF2<outputSize, saltSize>::PBKDF2(int iterations) : _iterations(iterations) { }
 
     template <std::size_t outputSize, std::size_t saltSize>
     PBKDF2<outputSize, saltSize>::Salt PBKDF2<outputSize, saltSize>::generate_salt()

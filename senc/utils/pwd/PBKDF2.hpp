@@ -35,7 +35,7 @@ namespace senc::utils::pwd
 		 * @brief Constructs a PBKDF2 password hash schema.
 		 * @param iterations Amount of iterations to use for PBKDF2 hash.
 		 */
-		PBKDF2(std::size_t iterations = 100000);
+		PBKDF2(int iterations = 100000);
 
 		/**
 		 * @brief Generates salt for password hashing.
@@ -54,7 +54,7 @@ namespace senc::utils::pwd
 	private:
 		CryptoPP::AutoSeededRandomPool _saltRng;
 		CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> _pbkdf2;
-		std::size_t _iterations;
+		int _iterations;
 	};
 
 	static_assert(PwdHasher<PBKDF2<>>);
