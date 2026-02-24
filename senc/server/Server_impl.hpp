@@ -203,11 +203,10 @@ namespace senc::server
 			try { std::tie(status, username) = clientHandler.iteration(); }
 			catch (const utils::SocketException& e)
 			{
-				// might happened because server stopped, in that case, stop here
-				if (!_isRunning)
-					return { false, "" };
-
-				logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+				// might have happened because server stopped, if not - client disconnected
+				if (_isRunning)
+					logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+				return { false, "" };
 			}
 			catch (const std::exception& e)
 			{
@@ -247,11 +246,10 @@ namespace senc::server
 			try { status = handler.iteration(); }
 			catch (const utils::SocketException& e)
 			{
-				// might happened because server stopped, in that case, stop here
-				if (!_isRunning)
-					return;
-
-				logger.log_info(std::string("Lost connection: ") + e.what());
+				// might have happened because server stopped, if not - client disconnected
+				if (_isRunning)
+					logger.log_info(std::string("Lost connection: ") + e.what());
+				return;
 			}
 			catch (const std::exception& e)
 			{
