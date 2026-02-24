@@ -26,7 +26,7 @@ namespace senc::client::io
 	// helper function, not accessed by main
 	static void print_priv_key_any_shard(const char* label, const PrivKeyShard& shard)
 	{
-		cout << label << " decryption key shard: ("
+		cout << label << " decryption key shard: "
 			 << utils::bytes_to_base64(priv_key_shard_to_bytes(shard))
 			 << endl;
 	}
