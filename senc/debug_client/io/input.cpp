@@ -190,36 +190,7 @@ namespace senc::client::io
 
 	PrivKeyShard input_priv_key_shard()
 	{
-		bool valid = false;
-		PrivKeyShard res{};
-		do
-		{
-			std::string str = input();
-			const auto commaIndex = str.find(',');
-			if (str.empty() || str[0] != '(' || str[str.length() - 1] != ')' || commaIndex == std::string::npos)
-			{
-				std::cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			std::string idStr = str.substr(0, commaIndex);
-			std::string valStr = str.substr(commaIndex + 1);
-
-			try
-			{
-				res.first = PrivKeyShardID(idStr.c_str());
-				res.second = utils::BigInt(valStr.c_str());
-			}
-			catch (const std::exception&)
-			{
-				std::cout << "Invalid input, try again: ";
-				continue;
-			}
-
-			valid = true; // if reached here, input is valid
-		} while (!valid);
-
-		return res;
+		return priv_key_shard_from_bytes(utils::bytes_from_base64(input()));
 	}
 
 	PrivKeyShard input_priv_key_shard(const std::string& msg)
