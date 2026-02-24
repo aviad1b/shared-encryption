@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "KeyedPacketHandlerSyncData.hpp"
 #include "ConnEstablishException.hpp"
 #include "../utils/enc/ECHKDF1L.hpp"
 #include "../utils/enc/AES1L.hpp"
@@ -42,7 +43,7 @@ namespace senc
 		 */
 		static Self client(utils::Socket& sock);
 
-		bool validate_synchronization(const Base* other) const override;
+		const IPacketHandlerSyncData& get_sync_data() const override;
 
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
@@ -111,9 +112,9 @@ namespace senc
 		EncryptedPacketHandler(utils::Socket& sock);
 
 	private:
+		KeyedPacketHandlerSyncData<Key> _syncData;
 		Schema _schema;
 		KDF _kdf;
-		Key _key;
 
 		static utils::BigInt sample_pow()
 		{

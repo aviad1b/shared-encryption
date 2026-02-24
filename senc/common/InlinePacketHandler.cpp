@@ -43,10 +43,9 @@ namespace senc
 		return res;
 	}
 
-	bool InlinePacketHandler::validate_synchronization(const Base* other) const
+	const IPacketHandlerSyncData& InlinePacketHandler::get_sync_data() const
 	{
-		// return true iff other is of same type as self
-		return (nullptr != dynamic_cast<const Self*>(other));
+		return _syncData;
 	}
 
 	void InlinePacketHandler::send_response_data(const pkt::ErrorResponse& packet)
