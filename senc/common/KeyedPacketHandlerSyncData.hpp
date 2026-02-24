@@ -35,7 +35,7 @@ namespace senc
 		Self& operator=(Self&& other)
 		requires std::is_move_assignable_v<Key>;
 
-		bool validate_synchronization(const IPacketHandlerSyncData* other) const override;
+		bool validate_synchronization(const IPacketHandlerSyncData& other) const override;
 
 		const Key& get_key() const;
 

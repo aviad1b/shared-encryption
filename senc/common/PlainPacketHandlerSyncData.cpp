@@ -10,9 +10,9 @@
 
 namespace senc
 {
-	bool PlainPacketHandlerSyncData::validate_synchronization(const IPacketHandlerSyncData* other) const
+	bool PlainPacketHandlerSyncData::validate_synchronization(const IPacketHandlerSyncData& other) const
 	{
 		// return true iff other is also non-encrypted sync data
-		return (nullptr != dynamic_cast<const Self*>(other));
+		return (nullptr != dynamic_cast<const Self*>(&other));
 	}
 }

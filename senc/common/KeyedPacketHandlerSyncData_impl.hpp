@@ -28,14 +28,14 @@ namespace senc
 	}
 
 	template <std::equality_comparable Key>
-	inline bool senc::KeyedPacketHandlerSyncData<Key>::validate_synchronization(const IPacketHandlerSyncData* other) const
+	inline bool senc::KeyedPacketHandlerSyncData<Key>::validate_synchronization(const IPacketHandlerSyncData& other) const
 	{
 		// return false if other is not of encrypted handler
-		const Self* other2 = dynamic_cast<const Self*>(other);
-		if (!other2)
+		const Self* pOther = dynamic_cast<const Self*>(&other);
+		if (!pOther)
 			return false;
 
 		// check synchronized keys
-		return (this->_key == other2->_key);
+		return (this->_key == pOther->_key);
 	}
 }

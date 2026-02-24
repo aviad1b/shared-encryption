@@ -25,6 +25,6 @@ namespace senc
 		
 		PlainPacketHandlerSyncData(Self&&) = default;
 
-		bool validate_synchronization(const IPacketHandlerSyncData* other) const override;
+		bool validate_synchronization(const IPacketHandlerSyncData& other) const override;
 	};
 }

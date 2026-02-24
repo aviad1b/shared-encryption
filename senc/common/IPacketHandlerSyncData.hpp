@@ -21,6 +21,6 @@ namespace senc
 		 * @brief Validates that another packet handler data is synchronized with this one.
 		 * @return `true` if synchronized, otherwise `false`.
 		 */
-		virtual bool validate_synchronization(const IPacketHandlerSyncData* other) const = 0;
+		virtual bool validate_synchronization(const IPacketHandlerSyncData& other) const = 0;
 	};
 }
