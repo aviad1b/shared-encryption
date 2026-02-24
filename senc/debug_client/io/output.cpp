@@ -46,8 +46,8 @@ namespace senc::client::io
 		const auto& [c1, c2, c3] = ciphertext;
 		const auto& [c3a, c3b] = c3;
 
-		cout << utils::bytes_to_base64(c1.to_bytes()) << endl
-			 << utils::bytes_to_base64(c2.to_bytes()) << endl
+		cout << utils::bytes_to_base64(c1.encode()) << endl
+			 << utils::bytes_to_base64(c2.encode()) << endl
 			 << utils::bytes_to_base64(c3a) << endl
 			 << utils::bytes_to_base64(c3b) << endl;
 	}

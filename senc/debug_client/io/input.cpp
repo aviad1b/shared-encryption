@@ -201,8 +201,8 @@ namespace senc::client::io
 
 	Ciphertext input_ciphertext()
 	{
-		auto c1 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input()));
-		auto c2 = utils::ECGroup::from_bytes(utils::bytes_from_base64(input()));
+		auto c1 = utils::ECGroup::decode(utils::bytes_from_base64(input()));
+		auto c2 = utils::ECGroup::decode(utils::bytes_from_base64(input()));
 		auto c3aBuffer = utils::bytes_from_base64(input());
 		auto c3b = utils::bytes_from_base64(input());
 
