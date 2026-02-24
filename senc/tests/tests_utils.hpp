@@ -33,14 +33,14 @@ std::string temp_file_path(const std::string& name);
  * @param path File path to write to.
  * @param data Data to write.
  */
-void write_raw(const std::string& path, const std::vector<byte>& data);
+void write_raw(const std::string& path, const std::vector<senc::utils::byte>& data);
 
 /**
  * @brief Reads raw bytes to a file for test.
  * @param path File path to read from to.
  * @return Read data.
  */
-std::vector<byte> read_raw(const std::string& path);
+std::vector<senc::utils::byte> read_raw(const std::string& path);
 
 constexpr std::size_t CONN_RETRY_COUNT = 10;
 
@@ -137,9 +137,9 @@ std::unique_ptr<senc::server::IServer> new_server(auto&&... args)
  * @brief Converts value to bytes based on endianess.
  */
 template <std::integral T>
-static std::vector<byte> to_bytes(T value, std::endian endianess)
+static std::vector<senc::utils::byte> to_bytes(T value, std::endian endianess)
 {
-	std::vector<byte> bytes(sizeof(T));
+	std::vector<senc::utils::byte> bytes(sizeof(T));
 	std::memcpy(bytes.data(), &value, sizeof(T));
 	if (endianess != std::endian::native)
 		std::reverse(bytes.begin(), bytes.end());
