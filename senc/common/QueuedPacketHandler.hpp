@@ -120,6 +120,9 @@ namespace senc
 		std::atomic_bool _stop;
 		std::mutex _mtxUnderlying;
 		std::mutex _mtxOnQueueEmpty;
+		std::size_t _nextQueuePlace;
+		std::queue<std::size_t> _queue;
+		std::mutex _mtxQueue;
 		std::condition_variable _cvQueue;
 
 		/**

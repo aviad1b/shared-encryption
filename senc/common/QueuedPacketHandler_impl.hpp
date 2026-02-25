@@ -314,7 +314,24 @@ namespace senc
 													   std::chrono::milliseconds delay)
 		: _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
-		  _delay(delay) { }
+		  _delay(delay),
+		  _nextQueuePlace(0) { }
+
+	template <PacketHandlerImpl T>
+	inline void QueuedPacketHandler<T>::wait_queue()
+	{
+		std::unique_lock<std::mutex> lock(_mtxQueue);
+
+		const std::size_t place = _nextQueuePlace++;
+		_queue.push(place);
+
+		_cvQueue.wait(
+			lock,
+			[this, place]() { return !_queue.empty() && _queue.front() == place; }
+		);
+
+		_queue.pop();
+	}
 
 	template <PacketHandlerImpl T>
 	template <typename R>
