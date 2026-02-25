@@ -136,6 +136,11 @@ namespace senc
 							std::chrono::milliseconds delay);
 
 		/**
+		 * @brief Thread periodically invoking queue (or onQueueEmpty if empty).
+		 */
+		void queue_thread();
+
+		/**
 		 * @brief Joins queue and waits turn.
 		 */
 		void wait_queue();

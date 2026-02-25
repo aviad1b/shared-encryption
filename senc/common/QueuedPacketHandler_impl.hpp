@@ -318,6 +318,20 @@ namespace senc
 		  _nextQueuePlace(0) { }
 
 	template <PacketHandlerImpl T>
+	inline void QueuedPacketHandler<T>::queue_thread()
+	{
+		while (!_stop)
+		{
+			std::this_thread::sleep_for(_delay);
+
+			if (_queue.empty())
+				_onQueueEmpty(_underlying);
+			else
+				_cvQueue.notify_all();
+		}
+	}
+
+	template <PacketHandlerImpl T>
 	inline void QueuedPacketHandler<T>::wait_queue()
 	{
 		std::unique_lock<std::mutex> lock(_mtxQueue);
