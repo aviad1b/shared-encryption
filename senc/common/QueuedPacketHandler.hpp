@@ -144,7 +144,7 @@ namespace senc
 		void queue_thread();
 
 		/**
-		 * @brief Joins queue and waits turn.
+		 * @brief Joins queue and waits turn (or waits stop if that happens first).
 		 */
 		void wait_queue();
 

@@ -348,6 +348,7 @@ namespace senc
 				_onQueueEmpty(_underlying);
 			}
 		}
+		_cvQueue.notify_all(); // wake up all remaining threads
 	}
 
 	template <PacketHandlerImpl T>
@@ -357,7 +358,10 @@ namespace senc
 
 		const std::size_t myTicket = _nextTicket++;
 
-		_cvQueue.wait(lock, [this, myTicket]() { return myTicket == this->_ticketBeingServed; });
+		_cvQueue.wait(
+			lock,
+			[this, myTicket]() { return this->_stop || myTicket == this->_ticketBeingServed; }
+		);
 	}
 
 	template <PacketHandlerImpl T>
@@ -365,6 +369,8 @@ namespace senc
 	inline void QueuedPacketHandler<T>::queue_request(R&& request)
 	{
 		wait_queue();
+		if (_stop)
+			return;
 
 		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
 		_underlying.send_request_data(request);
@@ -375,6 +381,8 @@ namespace senc
 	inline void QueuedPacketHandler<T>::queue_response(R&& response)
 	{
 		wait_queue();
+		if (_stop)
+			return;
 
 		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
 		_underlying.send_response_data(response);
