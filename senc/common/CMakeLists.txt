@@ -16,6 +16,8 @@ add_library(senc_common
 	"InlinePacketHandler.cpp"
 	"EncryptedPacketHandler.hpp"
 	"EncryptedPacketHandler.cpp"
+	"QueuedPacketHandler.hpp"
+	"QueuedPacketHandler_impl.hpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
