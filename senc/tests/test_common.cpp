@@ -23,7 +23,22 @@ using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-class PacketsTestBase : public testing::TestWithParam<PacketHandlerFactory>
+struct PacketsTestParams
+{
+	PacketHandlerFactory clientPacketHandlerFactory;
+	PacketHandlerFactory serverPacketHandlerFactory;
+
+	PacketsTestParams(PacketHandlerFactory packetHandlerFactory)
+		: clientPacketHandlerFactory(packetHandlerFactory),
+		  serverPacketHandlerFactory(packetHandlerFactory) { }
+
+	PacketsTestParams(PacketHandlerFactory clientPacketHandlerFactory,
+					  PacketHandlerFactory serverPacketHandlerFactory)
+		: clientPacketHandlerFactory(clientPacketHandlerFactory),
+		  serverPacketHandlerFactory(serverPacketHandlerFactory) { }
+};
+
+class PacketsTestBase : public testing::TestWithParam<PacketsTestParams>
 {
 protected:
 	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
@@ -31,19 +46,20 @@ protected:
 
 	void SetUp() override
 	{
-		auto& packetHandlerFactory = GetParam();
+		auto& clientPacketHandlerFactory = GetParam().clientPacketHandlerFactory;
+		auto& serverPacketHandlerFactory = GetParam().serverPacketHandlerFactory;
 		auto [client, server] = prepare_tcp();
 		this->client = std::make_unique<decltype(client)>(std::move(client));
 		this->server = std::make_unique<decltype(server)>(std::move(server));
 		std::tie(clientPacketHandler, serverPacketHandler) =
 			prepare_for_sockets<std::unique_ptr<PacketHandler>>(
-				*this->client, [&packetHandlerFactory](Socket& sock)
+				*this->client, [&clientPacketHandlerFactory](Socket& sock)
 				{
-					return packetHandlerFactory.new_client_packet_handler(sock);
+					return clientPacketHandlerFactory.new_client_packet_handler(sock);
 				},
-				*this->server, [&packetHandlerFactory](Socket& sock)
+				*this->server, [&serverPacketHandlerFactory](Socket& sock)
 				{
-					return packetHandlerFactory.new_server_packet_handler(sock);
+					return serverPacketHandlerFactory.new_server_packet_handler(sock);
 				}
 			);
 		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
