@@ -315,7 +315,7 @@ namespace senc
 		: _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
 		  _delay(delay),
-		  _nextQueuePlace(0) { }
+		  _nextTicket(0), _ticketBeingServed(0) { }
 
 	template <PacketHandlerImpl T>
 	inline void QueuedPacketHandler<T>::queue_thread()
@@ -324,27 +324,31 @@ namespace senc
 		{
 			std::this_thread::sleep_for(_delay);
 
-			if (_queue.empty())
-				_onQueueEmpty(_underlying);
-			else
+			std::unique_lock lock(_mtxQueue);
+
+			// if someone has aquired a ticket that we haven't served yet
+			if (_ticketBeingServed < _nextTicket)
+			{
+				// mark ticket as being served and notify all waiters
+				// (each will check for correct ticket)
+				++_ticketBeingServed;
 				_cvQueue.notify_all();
+			}
+			else
+			{
+				_onQueueEmpty(_underlying);
+			}
 		}
 	}
 
 	template <PacketHandlerImpl T>
 	inline void QueuedPacketHandler<T>::wait_queue()
 	{
-		std::unique_lock<std::mutex> lock(_mtxQueue);
+		std::unique_lock lock(_mtxQueue);
 
-		const std::size_t place = _nextQueuePlace++;
-		_queue.push(place);
+		const std::size_t myTicket = _nextTicket++;
 
-		_cvQueue.wait(
-			lock,
-			[this, place]() { return !_queue.empty() && _queue.front() == place; }
-		);
-
-		_queue.pop();
+		_cvQueue.wait(lock, [this, myTicket]() { return myTicket == this->_ticketBeingServed; });
 	}
 
 	template <PacketHandlerImpl T>

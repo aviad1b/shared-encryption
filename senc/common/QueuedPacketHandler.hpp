@@ -13,7 +13,6 @@
 #include <functional>
 #include <chrono>
 #include <atomic>
-#include <queue>
 #include <mutex>
 
 namespace senc
@@ -121,7 +120,8 @@ namespace senc
 		std::mutex _mtxUnderlying;
 		std::mutex _mtxOnQueueEmpty;
 		std::size_t _nextQueuePlace;
-		std::queue<std::size_t> _queue;
+		std::size_t _nextTicket;
+		std::size_t _ticketBeingServed;
 		std::mutex _mtxQueue;
 		std::condition_variable _cvQueue;
 
