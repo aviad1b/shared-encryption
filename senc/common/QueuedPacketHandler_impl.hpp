@@ -315,4 +315,24 @@ namespace senc
 		: _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
 		  _delay(delay) { }
+
+	template <PacketHandlerImpl T>
+	template <typename R>
+	inline void QueuedPacketHandler<T>::queue_request(R&& request)
+	{
+		wait_queue();
+
+		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		_underlying.send_request_data(request);
+	}
+
+	template <PacketHandlerImpl T>
+	template <typename R>
+	inline void QueuedPacketHandler<T>::queue_response(R&& response)
+	{
+		wait_queue();
+
+		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		_underlying.send_response_data(request);
+	}
 }

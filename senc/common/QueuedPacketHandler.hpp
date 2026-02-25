@@ -133,6 +133,11 @@ namespace senc
 							std::chrono::milliseconds delay);
 
 		/**
+		 * @brief Joins queue and waits turn.
+		 */
+		void wait_queue();
+
+		/**
 		 * @brief Queues request to be sent.
 		 * @param request Request to queue.
 		 */
