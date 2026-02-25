@@ -22,7 +22,7 @@ namespace senc
 		std::function<void(Underlying&)> onQueueEmpty,
 		std::chrono::milliseconds delay)
 	{
-		return Underlying::server(sock);
+		return Self(Underlying::server(sock), onQueueEmpty, delay);
 	}
 
 	template <PacketHandlerImpl T>
@@ -31,7 +31,7 @@ namespace senc
 		std::function<void(Underlying&)> onQueueEmpty,
 		std::chrono::milliseconds delay)
 	{
-		return Underlying::client(sock);
+		return Self(Underlying::client(sock), onQueueEmpty, delay);
 	}
 
 	template <PacketHandlerImpl T>
