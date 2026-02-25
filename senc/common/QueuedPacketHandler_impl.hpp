@@ -377,6 +377,6 @@ namespace senc
 		wait_queue();
 
 		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
-		_underlying.send_response_data(request);
+		_underlying.send_response_data(response);
 	}
 }
