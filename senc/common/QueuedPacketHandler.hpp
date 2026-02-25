@@ -11,8 +11,9 @@
 #include "PacketHandler.hpp"
 #include <condition_variable>
 #include <functional>
-#include <chrono>
+#include <thread>
 #include <atomic>
+#include <chrono>
 #include <mutex>
 
 namespace senc
@@ -24,6 +25,8 @@ namespace senc
 		using Self = QueuedPacketHandler<T>;
 		using Base = PacketHandler;
 		using Underlying = T;
+
+		~QueuedPacketHandler();
 
 		/**
 		 * @brief Gets handler instance for server side.
@@ -123,6 +126,7 @@ namespace senc
 		std::size_t _ticketBeingServed;
 		std::mutex _mtxQueue;
 		std::condition_variable _cvQueue;
+		std::jthread _queueThread;
 
 		/**
 		 * @brief Constructs queued packet handler from underlying handler instance.

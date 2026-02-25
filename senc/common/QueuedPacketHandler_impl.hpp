@@ -11,6 +11,12 @@
 namespace senc
 {
 	template <PacketHandlerImpl T>
+	inline QueuedPacketHandler<T>::~QueuedPacketHandler()
+	{
+		_stop = true;
+	}
+
+	template <PacketHandlerImpl T>
 	inline QueuedPacketHandler<T>::Self QueuedPacketHandler<T>::server(
 		utils::Socket& sock,
 		std::function<void(Underlying&)> onQueueEmpty,
@@ -315,7 +321,8 @@ namespace senc
 		: _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
 		  _delay(delay),
-		  _nextTicket(0), _ticketBeingServed(0) { }
+		  _nextTicket(0), _ticketBeingServed(0),
+		  _queueThread(&Self::queue_thread, this) { }
 
 	template <PacketHandlerImpl T>
 	inline void QueuedPacketHandler<T>::queue_thread()
