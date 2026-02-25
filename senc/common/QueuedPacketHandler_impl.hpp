@@ -336,6 +336,8 @@ namespace senc
 			}
 			else
 			{
+				const std::lock_guard l1(_mtxOnQueueEmpty);
+				const std::lock_guard l2(_mtxUnderlying);
 				_onQueueEmpty(_underlying);
 			}
 		}
