@@ -119,7 +119,6 @@ namespace senc
 		std::atomic_bool _stop;
 		std::mutex _mtxUnderlying;
 		std::mutex _mtxOnQueueEmpty;
-		std::size_t _nextQueuePlace;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
 		std::mutex _mtxQueue;
