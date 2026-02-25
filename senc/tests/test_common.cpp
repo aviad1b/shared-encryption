@@ -23,7 +23,7 @@ using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-class PacketsTest : public testing::TestWithParam<PacketHandlerFactory>
+class PacketsTestBase : public testing::TestWithParam<PacketHandlerFactory>
 {
 protected:
 	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
@@ -72,6 +72,8 @@ public:
 		EXPECT_EQ(respGot.value(), resp);
 	}
 };
+
+class PacketsTest : public PacketsTestBase { };
 
 TEST(CommonTests, PubKeyBytesRoundTrip)
 {
