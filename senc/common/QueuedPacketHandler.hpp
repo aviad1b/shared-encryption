@@ -18,7 +18,8 @@
 
 namespace senc
 {
-	template <PacketHandlerImpl T>
+	template <typename T, typename... Args>
+	requires PacketHandlerImpl<T, Args...>
 	class QueuedPacketHandler : public PacketHandler
 	{
 	public:
@@ -33,22 +34,26 @@ namespace senc
 		 * @param sock Socket to send and receive packets through.
 		 * @param onQueueEmpty Function to run on underlying handler when queue is empty.
 		 * @param delay Delay to wait between queue invocations.
+		 * @param args Other args to construct underlying handler from (*copied*).
 		 * @throw ConnEstablishException If failed to establish connection.
 		 */
 		static Self server(utils::Socket& sock,
 						   std::function<void(Underlying&)> onQueueEmpty,
-						   std::chrono::milliseconds delay);
+						   std::chrono::milliseconds delay,
+						   const Args&... args);
 
 		/**
 		 * @brief Gets handler instance for client side.
 		 * @param sock Socket to send and receive packets through.
 		 * @param onQueueEmpty Function to run on underlying handler when queue is empty.
 		 * @param delay Delay to wait between queue invocations.
+		 * @param args Other args to construct underlying handler from (*copied*).
 		 * @throw ConnEstablishException If failed to establish connection.
 		 */
 		static Self client(utils::Socket& sock,
 						   std::function<void(Underlying&)> onQueueEmpty,
-						   std::chrono::milliseconds delay);
+						   std::chrono::milliseconds delay,
+						   const Args&... args);
 
 		const IPacketHandlerSyncData& get_sync_data() const override;
 
