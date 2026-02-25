@@ -38,7 +38,7 @@ namespace senc
 
 			// compute g^xy and dereive key
 			const Group sharedSecret = gx.pow(y); // gx^y = g^(xy)
-			res._key = res._kdf(sharedSecret);
+			res._syncData.set_key(res._kdf(sharedSecret));
 		}
 		catch (const std::exception& e)
 		{
@@ -73,7 +73,7 @@ namespace senc
 
 			// compute g^xy and dereive key
 			const Group sharedSecret = gy.pow(x); // gy^x = g^(xy)
-			res._key = res._kdf(sharedSecret);
+			res._syncData.set_key(res._kdf(sharedSecret));
 		}
 		catch (const std::exception& e)
 		{
@@ -83,15 +83,9 @@ namespace senc
 		return res;
 	}
 
-	bool EncryptedPacketHandler::validate_synchronization(const Base* other) const
+	const IPacketHandlerSyncData& EncryptedPacketHandler::get_sync_data() const
 	{
-		// return false if other is not of same type as self
-		const Self* other2 = dynamic_cast<const Self*>(other);
-		if (!other2)
-			return false;
-
-		// check synchronized keys
-		return (this->_key == other2->_key);
+		return _syncData;
 	}
 
 	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
@@ -577,7 +571,7 @@ namespace senc
 
 	void EncryptedPacketHandler::send_encrypted_data(const utils::Buffer& data)
 	{
-		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _key);
+		utils::enc::Ciphertext<Schema> encryptedData = _schema.encrypt(data, _syncData.get_key());
 		const auto& [c1, c2] = encryptedData;
 		if (c1.size() > MAX_ENCDATA_SIZE || c2.size() > MAX_ENCDATA_SIZE)
 			throw utils::Exception("Cant send: Packet too big");
@@ -601,7 +595,7 @@ namespace senc
 		_sock.recv_connected_exact_into(c1);
 		_sock.recv_connected_exact_into(c2);
 
-		out = _schema.decrypt(encryptedData, _key);
+		out = _schema.decrypt(encryptedData, _syncData.get_key());
 	}
 
 	void EncryptedPacketHandler::write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value)

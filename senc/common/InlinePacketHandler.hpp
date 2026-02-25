@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "PlainPacketHandlerSyncData.hpp"
 #include "ConnEstablishException.hpp"
 #include "PacketHandler.hpp"
 
@@ -39,7 +40,7 @@ namespace senc
 		 */
 		static Self client(utils::Socket& sock);
 
-		bool validate_synchronization(const Base* other) const override;
+		const IPacketHandlerSyncData& get_sync_data() const override;
 
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
@@ -105,6 +106,8 @@ namespace senc
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
 	private:
+		PlainPacketHandlerSyncData _syncData;
+
 		void send_pub_key(const PubKey& pubKey);
 		void recv_pub_key(PubKey& out);
 

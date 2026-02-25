@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "IPacketHandlerSyncData.hpp"
 #include "../utils/variants.hpp"
 #include "../utils/Socket.hpp"
 #include "packets.hpp"
@@ -29,10 +30,19 @@ namespace senc
 		PacketHandler(Self&&) = default;
 
 		/**
+		 * @brief Gets data synchronized between server and client.
+		 * @return Reference to a `IPacketHandlerData` implementation, containing synchronized data.
+		 */
+		virtual const IPacketHandlerSyncData& get_sync_data() const = 0;
+
+		/**
 		 * @brief Validates that another packet handler is synchronized with this one (for debugging purposes).
 		 * @return `true` if synchronized, otherwise `false`.
 		 */
-		virtual bool validate_synchronization(const Self* other) const = 0;
+		bool validate_synchronization(const Self* other) const
+		{
+			return get_sync_data().validate_synchronization(other->get_sync_data());
+		}
 
 		/**
 		 * @brief Sends given request with fitting code.
