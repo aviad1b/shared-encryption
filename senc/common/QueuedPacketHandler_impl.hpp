@@ -377,8 +377,7 @@ namespace senc
 	template <typename T, typename... Args>
 	requires PacketHandlerImpl<T, Args...>
 	inline QueuedPacketHandler<T, Args...>::QueuedPacketHandler(Underlying&& underlying,
-													   std::function<void(Underlying&)> onQueueEmpty,
-													   std::chrono::milliseconds delay)
+		std::function<void(Underlying&)> onQueueEmpty, std::chrono::milliseconds delay)
 		: Base(std::move(underlying)),
 		  _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
