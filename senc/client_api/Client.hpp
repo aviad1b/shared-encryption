@@ -67,8 +67,12 @@ namespace senc::clientapi
 		OperationID decrypt(const UserSetID& usersetID, const utils::Buffer& ciphertext) override;
 
 	private:
-		Socket _sock;
+		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
+		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
+		std::unique_ptr<PacketHandler> _packetHandler;
+		Schema _schema;
+		Socket _sock;
 	};
 }
 
