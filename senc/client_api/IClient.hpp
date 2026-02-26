@@ -67,10 +67,12 @@ namespace senc::clientapi
 		 * @brief Gets all members of a specific userset.
 		 * @note Requires user to be logged in.
 		 * @param usersetID ID of userset to get members of.
-		 * @param callback Callback function to call on username of each member.
+		 * @param ownersCallback Callback function to call on username of each owner member.
+		 * @param regsCallback Callback function to call on username of each non-owner member.
 		 */
 		virtual void get_userset_members(const UserSetID& usersetID,
-										 std::function<void(const std::string&)> callback) = 0;
+										 std::function<void(const std::string&)> ownersCallback,
+										 std::function<void(const std::string&)> regsCallback) = 0;
 
 		/**
 		 * @brief Encrypts a message under a userset.

@@ -55,7 +55,8 @@ namespace senc::clientapi
 		void get_usersets(std::function<void(const UserSetID&)> callback) override;
 
 		void get_userset_members(const UserSetID& usersetID,
-								 std::function<void(const std::string&)> callback) override;
+								 std::function<void(const std::string&)> ownersCallback,
+								 std::function<void(const std::string&)> regsCallback) override;
 
 		utils::Buffer encrypt(const utils::Buffer& msg) override;
 
