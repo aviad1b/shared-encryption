@@ -14,8 +14,9 @@
 #include "tests_utils.hpp"
 #include "../server/storage/ShortTermServerStorage.hpp"
 #include "../server/storage/SqliteServerStorage.hpp"
+#include "../common/ClientPacketHandlerFactory.hpp"
+#include "../common/ServerPacketHandlerFactory.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
-#include "../common/PacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
 #include "../server/Server.hpp"
 #include "../utils/Random.hpp"
@@ -26,9 +27,11 @@ using senc::server::storage::ShortTermServerStorage;
 using senc::server::storage::SqliteServerStorage;
 using senc::server::storage::IServerStorage;
 using senc::server::managers::UpdateManager;
-using senc::PacketHandlerImplFactory;
+using senc::ServerPacketHandlerImplFactory;
+using senc::ClientPacketHandlerImplFactory;
 using senc::EncryptedPacketHandler;
-using senc::PacketHandlerFactory;
+using senc::ServerPacketHandlerFactory;
+using senc::ClientPacketHandlerFactory;
 using senc::InlinePacketHandler;
 using senc::server::IServer;
 using senc::server::Server;
@@ -56,7 +59,7 @@ using senc::utils::views::zip;
 // factory function types for creating member implementations
 using StorageFactory = std::function<std::unique_ptr<IServerStorage>()>;
 using ServerFactory = std::function<std::unique_ptr<IServer>(
-	Schema&, IServerStorage&, PacketHandlerFactory&,
+	Schema&, IServerStorage&, ServerPacketHandlerFactory&,
 	UpdateManager&, DecryptionsManager&
 )>;
 
@@ -79,7 +82,8 @@ struct ServerTestParams
 	ClientFactory clientFactory;
 	ServerFactory serverFactory;
 	StorageFactory storageFactory;
-	std::function<std::unique_ptr<PacketHandlerFactory>()> getPacketHandlerFactory;
+	std::function<std::unique_ptr<ServerPacketHandlerFactory>()> getServerPacketHandlerFactory;
+	std::function<std::unique_ptr<ClientPacketHandlerFactory>()> getClientPacketHandlerFactory;
 };
 
 class ServerTestBase : public testing::Test
@@ -87,7 +91,8 @@ class ServerTestBase : public testing::Test
 protected:
 	Port port;
 	Schema schema;
-	std::unique_ptr<PacketHandlerFactory> packetHandlerFactory;
+	std::unique_ptr<ServerPacketHandlerFactory> serverPacketHandlerFactory;
+	std::unique_ptr<ClientPacketHandlerFactory> clientPacketHandlerFactory;
 	UpdateManager updateManager;
 	DecryptionsManager decryptionsManager;
 	std::unique_ptr<IServerStorage> storage;
@@ -98,12 +103,13 @@ protected:
 	void SetUp() override
 	{
 		const auto& params = get_server_test_params();
-		packetHandlerFactory = params.getPacketHandlerFactory();
+		serverPacketHandlerFactory = params.getServerPacketHandlerFactory();
+		clientPacketHandlerFactory = params.getClientPacketHandlerFactory();
 		storage = params.storageFactory();
 		server = params.serverFactory(
 			schema,
 			*storage,
-			*packetHandlerFactory,
+			*serverPacketHandlerFactory,
 			updateManager,
 			decryptionsManager
 		);
@@ -122,7 +128,7 @@ protected:
 	{
 		const auto& params = get_server_test_params();
 		auto client = params.clientFactory(port);
-		auto packetHandler = packetHandlerFactory->new_client_packet_handler(*client);
+		auto packetHandler = (*clientPacketHandlerFactory)(*client);
 		return std::make_pair(std::move(client), std::move(packetHandler));
 	}
 
@@ -1583,25 +1589,29 @@ const auto SERVER_IMPLS = testing::Values(
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv4>(args...); },
 		std::make_unique<ShortTermServerStorage>,
-		std::make_unique<PacketHandlerImplFactory<InlinePacketHandler>>
+		std::make_unique<ServerPacketHandlerImplFactory<InlinePacketHandler>>,
+		std::make_unique<ClientPacketHandlerImplFactory<InlinePacketHandler>>
 	},
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv4>(args...); },
 		std::make_unique<ShortTermServerStorage>,
-		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
+		std::make_unique<ServerPacketHandlerImplFactory<EncryptedPacketHandler>>,
+		std::make_unique<ClientPacketHandlerImplFactory<EncryptedPacketHandler>>
 	},
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv4>>(IPv4::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv4>(args...); },
 		make_sqlite_server_storage,
-		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
+		std::make_unique<ServerPacketHandlerImplFactory<EncryptedPacketHandler>>,
+		std::make_unique<ClientPacketHandlerImplFactory<EncryptedPacketHandler>>
 	},
 	ServerTestParams{
 		[](Port port) { return std::make_unique<senc::utils::TcpSocket<IPv6>>(IPv6::loopback(), port); },
 		[](auto&&... args) { return new_server<IPv6>(args...); },
 		make_sqlite_server_storage,
-		std::make_unique<PacketHandlerImplFactory<EncryptedPacketHandler>>
+		std::make_unique<ServerPacketHandlerImplFactory<EncryptedPacketHandler>>,
+		std::make_unique<ClientPacketHandlerImplFactory<EncryptedPacketHandler>>
 	}
 );
 

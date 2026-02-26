@@ -12,14 +12,17 @@
 #include <deque>
 #include "tests_utils.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
-#include "../common/PacketHandlerFactory.hpp"
+#include "../common/ServerPacketHandlerFactory.hpp"
+#include "../common/ClientPacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
 #include "../common/QueuedPacketHandler.hpp"
 
 namespace pkt = senc::pkt;
-using senc::PacketHandlerImplFactory;
+using senc::ServerPacketHandlerImplFactory;
+using senc::ClientPacketHandlerImplFactory;
+using senc::ServerPacketHandlerFactory;
+using senc::ClientPacketHandlerFactory;
 using senc::EncryptedPacketHandler;
-using senc::PacketHandlerFactory;
 using senc::InlinePacketHandler;
 using senc::QueuedPacketHandler;
 using senc::PacketHandler;
@@ -28,15 +31,11 @@ using senc::utils::Socket;
 
 struct PacketsTestParams
 {
-	PacketHandlerFactory clientPacketHandlerFactory;
-	PacketHandlerFactory serverPacketHandlerFactory;
+	ClientPacketHandlerFactory clientPacketHandlerFactory;
+	ServerPacketHandlerFactory serverPacketHandlerFactory;
 
-	PacketsTestParams(PacketHandlerFactory packetHandlerFactory)
-		: clientPacketHandlerFactory(packetHandlerFactory),
-		  serverPacketHandlerFactory(packetHandlerFactory) { }
-
-	PacketsTestParams(PacketHandlerFactory clientPacketHandlerFactory,
-					  PacketHandlerFactory serverPacketHandlerFactory)
+	PacketsTestParams(ClientPacketHandlerFactory clientPacketHandlerFactory,
+					  ServerPacketHandlerFactory serverPacketHandlerFactory)
 		: clientPacketHandlerFactory(clientPacketHandlerFactory),
 		  serverPacketHandlerFactory(serverPacketHandlerFactory) { }
 };
@@ -58,11 +57,11 @@ protected:
 			prepare_for_sockets<std::unique_ptr<PacketHandler>>(
 				*this->client, [&clientPacketHandlerFactory](Socket& sock)
 				{
-					return clientPacketHandlerFactory.new_client_packet_handler(sock);
+					return clientPacketHandlerFactory(sock);
 				},
 				*this->server, [&serverPacketHandlerFactory](Socket& sock)
 				{
-					return serverPacketHandlerFactory.new_server_packet_handler(sock);
+					return serverPacketHandlerFactory(sock);
 				}
 			);
 		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
@@ -442,7 +441,13 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
-		PacketHandlerImplFactory<InlinePacketHandler>{},
-		PacketHandlerImplFactory<EncryptedPacketHandler>{}
+		PacketsTestParams(
+			ClientPacketHandlerImplFactory<InlinePacketHandler>{},
+			ServerPacketHandlerImplFactory<InlinePacketHandler>{}
+		),
+		PacketsTestParams(
+			ClientPacketHandlerImplFactory<EncryptedPacketHandler>{},
+			ServerPacketHandlerImplFactory<EncryptedPacketHandler>{}
+		)
 	)
 );
