@@ -63,21 +63,24 @@ namespace senc
 	/**
 	 * @class senc::PacketHandlerImplFactory
 	 * @brief Used for creating instances of a `PacketHandler` implementation.
-	 * @tparam T `PacketHandler` implementing type, of `PacketHandler` itself for base.
+	 * @tparam T `PacketHandler` implementing type.
+	 * @tparam Args Argument types used for construction for client/server in addition to socket.
+	 * @note Args are *copied* into factory, not moved.
 	 */
-	template <PacketHandlerImpl T>
+	template <typename T, typename... Args>
+	requires PacketHandlerImpl<T, Args...>
 	class PacketHandlerImplFactory : public PacketHandlerFactory
 	{
 	public:
-		using Self = PacketHandlerImplFactory<T>;
+		using Self = PacketHandlerImplFactory<T, Args...>;
 		using Base = PacketHandlerFactory;
 
 		/**
 		 * @brief Default constructor of packet handler factory.
 		 */
-		PacketHandlerImplFactory() : Base(
-			[](utils::Socket& sock) { return std::make_unique<T>(T::server(sock)); },
-			[](utils::Socket& sock) { return std::make_unique<T>(T::client(sock)); }
+		PacketHandlerImplFactory(const Args&... args) : Base(
+			[args...](utils::Socket& sock) { return std::make_unique<T>(T::server(sock, args...)); },
+			[args...](utils::Socket& sock) { return std::make_unique<T>(T::client(sock, args...)); }
 		) { }
 	};
 }

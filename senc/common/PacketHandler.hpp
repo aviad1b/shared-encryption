@@ -215,13 +215,14 @@ namespace senc
 	 * @concept senc::PacketHandlerImpl
 	 * @brief Looks for a typename which implements `PacketHandler` for both client and server side.
 	 * @tparam Self Examined typename.
+	 * @tparam Args Argument types used for construction for client/server in addition to socket.
 	 */
-	template <typename Self>
+	template <typename Self, typename... Args>
 	concept PacketHandlerImpl = std::derived_from<Self, PacketHandler> &&
 		std::move_constructible<Self> &&
-		requires(utils::Socket& sock)
+		requires(utils::Socket& sock, Args... args)
 		{
-			{ Self::server(sock) } -> std::same_as<Self>;
-			{ Self::client(sock) } -> std::same_as<Self>;
+			{ Self::server(sock, args...) } -> std::same_as<Self>;
+			{ Self::client(sock, args...) } -> std::same_as<Self>;
 		};
 }
