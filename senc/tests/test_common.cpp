@@ -13,15 +13,56 @@
 #include "../common/EncryptedPacketHandler.hpp"
 #include "../common/PacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
+#include "../common/QueuedPacketHandler.hpp"
 
 namespace pkt = senc::pkt;
 using senc::PacketHandlerImplFactory;
 using senc::EncryptedPacketHandler;
 using senc::PacketHandlerFactory;
 using senc::InlinePacketHandler;
+using senc::QueuedPacketHandler;
 using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
+
+// used to be able to pass functions (which output updates) as test parameters
+static pkt::UpdateResponse globalUpdates{};
+
+static void clear_global_updates()
+{
+	globalUpdates.added_as_reg_member.clear();
+	globalUpdates.added_as_owner.clear();
+	globalUpdates.on_lookup.clear();
+	globalUpdates.to_decrypt.clear();
+	globalUpdates.finished_decryptions.clear();
+}
+
+static void add_get_to_global_updates(PacketHandler& packetHandler)
+{
+	packetHandler.send_request(pkt::UpdateRequest{});
+	auto response = packetHandler.recv_response<pkt::UpdateResponse>();
+	EXPECT_TRUE(response.has_value());
+	globalUpdates.added_as_reg_member.insert(
+		globalUpdates.added_as_reg_member.end(),
+		response->added_as_reg_member.begin(), response->added_as_reg_member.end()
+	);
+	globalUpdates.added_as_owner.insert(
+		globalUpdates.added_as_owner.end(),
+		response->added_as_owner.begin(), response->added_as_owner.end()
+	);
+	globalUpdates.on_lookup.insert(
+		globalUpdates.on_lookup.end(),
+		response->on_lookup.begin(), response->on_lookup.end()
+	);
+	globalUpdates.to_decrypt.insert(
+		globalUpdates.to_decrypt.end(),
+		response->to_decrypt.begin(), response->to_decrypt.end()
+	);
+	globalUpdates.finished_decryptions.insert(
+		globalUpdates.finished_decryptions.end(),
+		response->finished_decryptions.begin(), response->finished_decryptions.end()
+	);
+}
 
 struct PacketsTestParams
 {
@@ -46,6 +87,7 @@ protected:
 
 	void SetUp() override
 	{
+		clear_global_updates();
 		auto& clientPacketHandlerFactory = GetParam().clientPacketHandlerFactory;
 		auto& serverPacketHandlerFactory = GetParam().serverPacketHandlerFactory;
 		auto [client, server] = prepare_tcp();
@@ -90,6 +132,8 @@ public:
 };
 
 class PacketsTest : public PacketsTestBase { };
+
+class QueuedPacketsTest : public PacketsTestBase { };
 
 TEST(CommonTests, PubKeyBytesRoundTrip)
 {
@@ -437,11 +481,32 @@ TEST_P(PacketsTest, TestRequestVariant)
 	EXPECT_FALSE(reqGot3.has_value());
 }
 
+TEST_P(QueuedPacketsTest, TestQueue)
+{
+
+}
+
 INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
 		PacketHandlerImplFactory<InlinePacketHandler>{},
 		PacketHandlerImplFactory<EncryptedPacketHandler>{}
+	)
+);
+
+INSTANTIATE_TEST_SUITE_P(
+	QueuedPacketTests,
+	QueuedPacketsTest,
+	testing::Values(
+		PacketHandlerImplFactory<
+			QueuedPacketHandler<InlinePacketHandler>,
+			std::function<void(InlinePacketHandler&)>,
+			std::chrono::milliseconds
+		>
+		{
+			add_get_to_global_updates,
+			std::chrono::milliseconds(2000)
+		}
 	)
 );
