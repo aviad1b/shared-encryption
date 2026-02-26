@@ -10,11 +10,23 @@
 
 namespace senc
 {
+	template <typename T, typename ...Args>
+	requires PacketHandlerImpl<T, Args...>
+	inline QueuedPacketHandler<T, Args...>::QueuedPacketHandler(Self&& other)
+		: Base(std::move(other)),
+		  _underlying(std::move(other._underlying)),
+		  _onQueueEmpty(std::move(other._onQueueEmpty)),
+		  _delay(std::move(other._delay)),
+		  _nextTicket(other._nextTicket),
+		  _ticketBeingServed(other._ticketBeingServed),
+		  _queueThread(std::move(other._queueThread)),
+		  _sync(std::move(other._sync)) { }
+
 	template <typename T, typename... Args>
 	requires PacketHandlerImpl<T, Args...>
 	inline QueuedPacketHandler<T, Args...>::~QueuedPacketHandler()
 	{
-		_stop = true;
+		_sync->stop = true;
 	}
 
 	template <typename T, typename... Args>
@@ -43,7 +55,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline const IPacketHandlerSyncData& QueuedPacketHandler<T, Args...>::get_sync_data() const
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		return this->_underlying.get_sync_data();
 	}
 
@@ -58,7 +70,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::ErrorResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -73,7 +85,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::SignupRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -88,7 +100,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::SignupResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -103,7 +115,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::LoginRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -118,7 +130,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::LoginResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -133,7 +145,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::LogoutRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -148,7 +160,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::LogoutResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -163,7 +175,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::MakeUserSetRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -178,7 +190,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -193,7 +205,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::GetUserSetsRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -208,7 +220,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -223,7 +235,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::GetMembersRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -238,7 +250,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::GetMembersResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -253,7 +265,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::DecryptRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -268,7 +280,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::DecryptResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -283,7 +295,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::UpdateRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -298,7 +310,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::UpdateResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -313,7 +325,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::DecryptParticipateRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -328,7 +340,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::DecryptParticipateResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -343,7 +355,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_request_data(pkt::SendDecryptionPartRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_request_data(out);
 	}
 
@@ -358,7 +370,7 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::recv_response_data(pkt::SendDecryptionPartResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		this->_underlying.recv_response_data(out);
 	}
 
@@ -377,11 +389,11 @@ namespace senc
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::queue_thread()
 	{
-		while (!_stop)
+		while (!_sync->stop)
 		{
 			std::this_thread::sleep_for(_delay);
 
-			std::unique_lock lock(_mtxQueue);
+			std::unique_lock lock(_sync->mtxQueue);
 
 			// if someone has aquired a ticket that we haven't served yet
 			if (_ticketBeingServed < _nextTicket)
@@ -389,29 +401,29 @@ namespace senc
 				// mark ticket as being served and notify all waiters
 				// (each will check for correct ticket)
 				++_ticketBeingServed;
-				_cvQueue.notify_all();
+				_sync->cvQueue.notify_all();
 			}
 			else
 			{
-				const std::lock_guard l1(_mtxOnQueueEmpty);
-				const std::lock_guard l2(_mtxUnderlying);
+				const std::lock_guard l1(_sync->mtxOnQueueEmpty);
+				const std::lock_guard l2(_sync->mtxUnderlying);
 				_onQueueEmpty(_underlying);
 			}
 		}
-		_cvQueue.notify_all(); // wake up all remaining threads
+		_sync->cvQueue.notify_all(); // wake up all remaining threads
 	}
 
 	template <typename T, typename... Args>
 	requires PacketHandlerImpl<T, Args...>
 	inline void QueuedPacketHandler<T, Args...>::wait_queue()
 	{
-		std::unique_lock lock(_mtxQueue);
+		std::unique_lock lock(_sync->mtxQueue);
 
 		const std::size_t myTicket = _nextTicket++;
 
-		_cvQueue.wait(
+		_sync->cvQueue.wait(
 			lock,
-			[this, myTicket]() { return this->_stop || myTicket == this->_ticketBeingServed; }
+			[this, myTicket]() { return this->_sync->stop || myTicket == this->_ticketBeingServed; }
 		);
 	}
 
@@ -421,10 +433,10 @@ namespace senc
 	inline void QueuedPacketHandler<T, Args...>::queue_request(R&& request)
 	{
 		wait_queue();
-		if (_stop)
+		if (_sync->stop)
 			return;
 
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		_underlying.send_request_data(request);
 	}
 
@@ -434,10 +446,10 @@ namespace senc
 	inline void QueuedPacketHandler<T, Args...>::queue_response(R&& response)
 	{
 		wait_queue();
-		if (_stop)
+		if (_sync->stop)
 			return;
 
-		const std::lock_guard<std::mutex> lock(_mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		_underlying.send_response_data(response);
 	}
 }

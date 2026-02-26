@@ -11,6 +11,7 @@
 #include "PacketHandler.hpp"
 #include <condition_variable>
 #include <functional>
+#include <memory>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -26,6 +27,11 @@ namespace senc
 		using Self = QueuedPacketHandler<T>;
 		using Base = PacketHandler;
 		using Underlying = T;
+
+		/**
+		 * @brief Move constructor of queued packet handler.
+		 */
+		QueuedPacketHandler(Self&& other);
 
 		~QueuedPacketHandler();
 
@@ -121,17 +127,22 @@ namespace senc
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
 	private:
+		struct Sync
+		{
+			std::mutex mtxUnderlying;
+			std::mutex mtxOnQueueEmpty;
+			std::mutex mtxQueue;
+			std::condition_variable cvQueue;
+			std::atomic_bool stop;
+		};
+
 		Underlying _underlying;
 		std::function<void(Underlying&)> _onQueueEmpty;
 		std::chrono::milliseconds _delay;
-		std::atomic_bool _stop;
-		std::mutex _mtxUnderlying;
-		std::mutex _mtxOnQueueEmpty;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
-		std::mutex _mtxQueue;
-		std::condition_variable _cvQueue;
 		std::jthread _queueThread;
+		std::unique_ptr<Sync> _sync;
 
 		/**
 		 * @brief Constructs queued packet handler from underlying handler instance.
