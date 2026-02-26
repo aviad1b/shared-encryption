@@ -160,7 +160,7 @@ TEST(CommonTests, ShardBytesRoundTrip)
 	}
 }
 
-static void error_cycle(PacketsTest& test)
+static void error_cycle(PacketsTestBase& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::ErrorResponse resp{ "this is an error message..." };
@@ -172,7 +172,7 @@ TEST_P(PacketsTest, ErrorResponseTest)
 	error_cycle(*this);
 }
 
-static void signup_cycle(PacketsTest& test)
+static void signup_cycle(PacketsTestBase& test)
 {
 	pkt::SignupRequest req{ "username", "pass123" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
@@ -184,7 +184,7 @@ TEST_P(PacketsTest, SignupCycleTest)
 	signup_cycle(*this);
 }
 
-static void login_cycle(PacketsTest& test)
+static void login_cycle(PacketsTestBase& test)
 {
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
@@ -196,7 +196,7 @@ TEST_P(PacketsTest, LoginCycleTest)
 	login_cycle(*this);
 }
 
-static void logout_cycle(PacketsTest& test)
+static void logout_cycle(PacketsTestBase& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
@@ -208,7 +208,7 @@ TEST_P(PacketsTest, LogoutCycleTest)
 	logout_cycle(*this);
 }
 
-static void make_user_set_cycle(PacketsTest& test)
+static void make_user_set_cycle(PacketsTestBase& test)
 {
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
@@ -233,7 +233,7 @@ TEST_P(PacketsTest, MakeUserSetCycleTest)
 	make_user_set_cycle(*this);
 }
 
-static void get_user_sets_cycle(PacketsTest& test)
+static void get_user_sets_cycle(PacketsTestBase& test)
 {
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
@@ -251,7 +251,7 @@ TEST_P(PacketsTest, GetUserSetsCycleTest)
 	get_user_sets_cycle(*this);
 }
 
-static void get_members_cycle(PacketsTest& test)
+static void get_members_cycle(PacketsTestBase& test)
 {
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
 	pkt::GetMembersResponse resp{
@@ -266,7 +266,7 @@ TEST_P(PacketsTest, GetMembersCycleTest)
 	get_members_cycle(*this);
 }
 
-static void decrypt_cycle(PacketsTest& test)
+static void decrypt_cycle(PacketsTestBase& test)
 {
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
@@ -288,7 +288,7 @@ TEST_P(PacketsTest, DecryptCycleTest)
 	decrypt_cycle(*this);
 }
 
-static void update_cycle(PacketsTest& test)
+static void update_cycle(PacketsTestBase& test)
 {
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
@@ -377,7 +377,7 @@ TEST_P(PacketsTest, UpdateCycleTest)
 	update_cycle(*this);
 }
 
-static void decrypt_participate_cycle(PacketsTest& test)
+static void decrypt_participate_cycle(PacketsTestBase& test)
 {
 	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
@@ -389,7 +389,7 @@ TEST_P(PacketsTest, DecryptParticipateCycleTest)
 	decrypt_participate_cycle(*this);
 }
 
-static void send_decryption_part_cycle(PacketsTest& test)
+static void send_decryption_part_cycle(PacketsTestBase& test)
 {
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
@@ -483,7 +483,7 @@ TEST_P(PacketsTest, TestRequestVariant)
 
 TEST_P(QueuedPacketsTest, TestQueue)
 {
-
+	
 }
 
 INSTANTIATE_TEST_SUITE_P(
