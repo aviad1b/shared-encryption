@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>
+#include <deque>
 #include "tests_utils.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
 #include "../common/PacketHandlerFactory.hpp"
@@ -25,45 +26,6 @@ using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-// used to be able to pass functions (which output updates) as test parameters
-static pkt::UpdateResponse globalUpdates{};
-
-static void clear_global_updates()
-{
-	globalUpdates.added_as_reg_member.clear();
-	globalUpdates.added_as_owner.clear();
-	globalUpdates.on_lookup.clear();
-	globalUpdates.to_decrypt.clear();
-	globalUpdates.finished_decryptions.clear();
-}
-
-static void add_get_to_global_updates(PacketHandler& packetHandler)
-{
-	packetHandler.send_request(pkt::UpdateRequest{});
-	auto response = packetHandler.recv_response<pkt::UpdateResponse>();
-	EXPECT_TRUE(response.has_value());
-	globalUpdates.added_as_reg_member.insert(
-		globalUpdates.added_as_reg_member.end(),
-		response->added_as_reg_member.begin(), response->added_as_reg_member.end()
-	);
-	globalUpdates.added_as_owner.insert(
-		globalUpdates.added_as_owner.end(),
-		response->added_as_owner.begin(), response->added_as_owner.end()
-	);
-	globalUpdates.on_lookup.insert(
-		globalUpdates.on_lookup.end(),
-		response->on_lookup.begin(), response->on_lookup.end()
-	);
-	globalUpdates.to_decrypt.insert(
-		globalUpdates.to_decrypt.end(),
-		response->to_decrypt.begin(), response->to_decrypt.end()
-	);
-	globalUpdates.finished_decryptions.insert(
-		globalUpdates.finished_decryptions.end(),
-		response->finished_decryptions.begin(), response->finished_decryptions.end()
-	);
-}
-
 struct PacketsTestParams
 {
 	PacketHandlerFactory clientPacketHandlerFactory;
@@ -79,7 +41,7 @@ struct PacketsTestParams
 		  serverPacketHandlerFactory(serverPacketHandlerFactory) { }
 };
 
-class PacketsTestBase : public testing::TestWithParam<PacketsTestParams>
+class PacketsTest : public testing::TestWithParam<PacketsTestParams>
 {
 protected:
 	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
@@ -87,7 +49,6 @@ protected:
 
 	void SetUp() override
 	{
-		clear_global_updates();
 		auto& clientPacketHandlerFactory = GetParam().clientPacketHandlerFactory;
 		auto& serverPacketHandlerFactory = GetParam().serverPacketHandlerFactory;
 		auto [client, server] = prepare_tcp();
@@ -131,10 +92,6 @@ public:
 	}
 };
 
-class PacketsTest : public PacketsTestBase { };
-
-class QueuedPacketsTest : public PacketsTestBase { };
-
 TEST(CommonTests, PubKeyBytesRoundTrip)
 {
 	for (std::size_t i = 0; i < 256; ++i)
@@ -160,7 +117,7 @@ TEST(CommonTests, ShardBytesRoundTrip)
 	}
 }
 
-static void error_cycle(PacketsTestBase& test)
+static void error_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::ErrorResponse resp{ "this is an error message..." };
@@ -172,7 +129,7 @@ TEST_P(PacketsTest, ErrorResponseTest)
 	error_cycle(*this);
 }
 
-static void signup_cycle(PacketsTestBase& test)
+static void signup_cycle(PacketsTest& test)
 {
 	pkt::SignupRequest req{ "username", "pass123" };
 	pkt::SignupResponse resp{ pkt::SignupResponse::Status::UsernameTaken };
@@ -184,7 +141,7 @@ TEST_P(PacketsTest, SignupCycleTest)
 	signup_cycle(*this);
 }
 
-static void login_cycle(PacketsTestBase& test)
+static void login_cycle(PacketsTest& test)
 {
 	pkt::LoginRequest req{ "username", "pass123" };
 	pkt::LoginResponse resp{ pkt::LoginResponse::Status::BadLogin };
@@ -196,7 +153,7 @@ TEST_P(PacketsTest, LoginCycleTest)
 	login_cycle(*this);
 }
 
-static void logout_cycle(PacketsTestBase& test)
+static void logout_cycle(PacketsTest& test)
 {
 	pkt::LogoutRequest req{};
 	pkt::LogoutResponse resp{};
@@ -208,7 +165,7 @@ TEST_P(PacketsTest, LogoutCycleTest)
 	logout_cycle(*this);
 }
 
-static void make_user_set_cycle(PacketsTestBase& test)
+static void make_user_set_cycle(PacketsTest& test)
 {
 	pkt::MakeUserSetRequest req{
 		{ "a", "b", "c" },
@@ -233,7 +190,7 @@ TEST_P(PacketsTest, MakeUserSetCycleTest)
 	make_user_set_cycle(*this);
 }
 
-static void get_user_sets_cycle(PacketsTestBase& test)
+static void get_user_sets_cycle(PacketsTest& test)
 {
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
@@ -251,7 +208,7 @@ TEST_P(PacketsTest, GetUserSetsCycleTest)
 	get_user_sets_cycle(*this);
 }
 
-static void get_members_cycle(PacketsTestBase& test)
+static void get_members_cycle(PacketsTest& test)
 {
 	pkt::GetMembersRequest req{ "51657d81-1d4b-41ca-9749-cd6ee61cc325" };
 	pkt::GetMembersResponse resp{
@@ -266,7 +223,7 @@ TEST_P(PacketsTest, GetMembersCycleTest)
 	get_members_cycle(*this);
 }
 
-static void decrypt_cycle(PacketsTestBase& test)
+static void decrypt_cycle(PacketsTest& test)
 {
 	pkt::DecryptRequest req{
 		"51657d81-1d4b-41ca-9749-cd6ee61cc325",
@@ -288,7 +245,7 @@ TEST_P(PacketsTest, DecryptCycleTest)
 	decrypt_cycle(*this);
 }
 
-static void update_cycle(PacketsTestBase& test)
+static void update_cycle(PacketsTest& test)
 {
 	pkt::UpdateRequest req{};
 	pkt::UpdateResponse resp{
@@ -377,7 +334,7 @@ TEST_P(PacketsTest, UpdateCycleTest)
 	update_cycle(*this);
 }
 
-static void decrypt_participate_cycle(PacketsTestBase& test)
+static void decrypt_participate_cycle(PacketsTest& test)
 {
 	pkt::DecryptParticipateRequest req{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	pkt::DecryptParticipateResponse resp{ pkt::DecryptParticipateResponse::Status::NotRequired };
@@ -389,7 +346,7 @@ TEST_P(PacketsTest, DecryptParticipateCycleTest)
 	decrypt_participate_cycle(*this);
 }
 
-static void send_decryption_part_cycle(PacketsTestBase& test)
+static void send_decryption_part_cycle(PacketsTest& test)
 {
 	pkt::SendDecryptionPartRequest req{
 		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
@@ -481,35 +438,11 @@ TEST_P(PacketsTest, TestRequestVariant)
 	EXPECT_FALSE(reqGot3.has_value());
 }
 
-TEST_P(QueuedPacketsTest, TestQueue)
-{
-	 
-}
-
 INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
 		PacketHandlerImplFactory<InlinePacketHandler>{},
 		PacketHandlerImplFactory<EncryptedPacketHandler>{}
-	)
-);
-
-INSTANTIATE_TEST_SUITE_P(
-	QueuedPacketTests,
-	QueuedPacketsTest,
-	testing::Values(
-		PacketsTestParams{
-			PacketHandlerImplFactory<InlinePacketHandler>{},
-			PacketHandlerImplFactory<
-				QueuedPacketHandler<InlinePacketHandler>,
-				std::function<void(InlinePacketHandler&)>,
-				std::chrono::milliseconds
-			>
-			{
-				add_get_to_global_updates,
-				std::chrono::milliseconds(2000)
-			}
-		}
 	)
 );
