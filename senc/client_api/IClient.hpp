@@ -29,10 +29,10 @@ namespace senc::clientapi
 
 		virtual void logout() = 0;
 
-		virtual void make_userset(utils::ranges::StringViewRange&& owners,
-								  utils::ranges::StringViewRange&& regMembers,
-								  member_count_t ownersThreshold,
-								  member_count_t regMembersThreshold) = 0;
+		virtual UserSetID make_userset(utils::ranges::StringViewRange&& owners,
+									   utils::ranges::StringViewRange&& regMembers,
+									   member_count_t ownersThreshold,
+									   member_count_t regMembersThreshold) = 0;
 
 		virtual void get_usersets(std::function<void(const UserSetID&)> callback) = 0;
 

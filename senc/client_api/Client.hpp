@@ -47,10 +47,10 @@ namespace senc::clientapi
 
 		void logout() override;
 
-		void make_userset(utils::ranges::StringViewRange&& owners,
-						  utils::ranges::StringViewRange&& regMembers,
-						  member_count_t ownersThreshold,
-						  member_count_t regMembersThreshold) override;
+		UserSetID make_userset(utils::ranges::StringViewRange&& owners,
+							   utils::ranges::StringViewRange&& regMembers,
+							   member_count_t ownersThreshold,
+							   member_count_t regMembersThreshold) override;
 
 		void get_usersets(std::function<void(const UserSetID&)> callback) override;
 
