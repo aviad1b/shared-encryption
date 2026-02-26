@@ -23,7 +23,7 @@ namespace senc::server
 							  loggers::ILogger& logger,
 							  Schema& schema,
 							  storage::IServerStorage& storage,
-							  ServerPacketHandlerFactory& packetHandlerFactory,
+							  ServerPacketHandlerFactory packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
@@ -36,7 +36,7 @@ namespace senc::server
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
 							  storage::IServerStorage& storage,
-							  ServerPacketHandlerFactory& packetHandlerFactory,
+							  ServerPacketHandlerFactory packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)
 		: Self(listenPort, _dummyLogger, schema, storage,

@@ -49,7 +49,7 @@ namespace senc::server
 						loggers::ILogger& logger,
 						Schema& schema,
 						storage::IServerStorage& storage,
-						ServerPacketHandlerFactory& packetHandlerFactory,
+						ServerPacketHandlerFactory packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);
 
@@ -66,7 +66,7 @@ namespace senc::server
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
 						storage::IServerStorage& storage,
-						ServerPacketHandlerFactory& packetHandlerFactory,
+						ServerPacketHandlerFactory packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);
 
