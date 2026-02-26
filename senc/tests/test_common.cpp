@@ -483,7 +483,7 @@ TEST_P(PacketsTest, TestRequestVariant)
 
 TEST_P(QueuedPacketsTest, TestQueue)
 {
-	
+	 
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -499,14 +499,17 @@ INSTANTIATE_TEST_SUITE_P(
 	QueuedPacketTests,
 	QueuedPacketsTest,
 	testing::Values(
-		PacketHandlerImplFactory<
-			QueuedPacketHandler<InlinePacketHandler>,
-			std::function<void(InlinePacketHandler&)>,
-			std::chrono::milliseconds
-		>
-		{
-			add_get_to_global_updates,
-			std::chrono::milliseconds(2000)
+		PacketsTestParams{
+			PacketHandlerImplFactory<InlinePacketHandler>{},
+			PacketHandlerImplFactory<
+				QueuedPacketHandler<InlinePacketHandler>,
+				std::function<void(InlinePacketHandler&)>,
+				std::chrono::milliseconds
+			>
+			{
+				add_get_to_global_updates,
+				std::chrono::milliseconds(2000)
+			}
 		}
 	)
 );
