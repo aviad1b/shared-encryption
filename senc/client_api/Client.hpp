@@ -41,11 +41,6 @@ namespace senc::clientapi
 			   ClientPacketHandlerFactory packetHandlerFactory,
 			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
 
-		/**
-		 * @brief Client destructor, closes connection to server.
-		 */
-		~Client();
-
 		void signup(const std::string& username, const std::string& password) override;
 
 		void login(const std::string& username, const std::string& password) override;
