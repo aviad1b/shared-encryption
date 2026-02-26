@@ -72,7 +72,7 @@ namespace senc
 	class PacketHandlerImplFactory : public PacketHandlerFactory
 	{
 	public:
-		using Self = PacketHandlerImplFactory<T>;
+		using Self = PacketHandlerImplFactory<T, Args...>;
 		using Base = PacketHandlerFactory;
 
 		/**
