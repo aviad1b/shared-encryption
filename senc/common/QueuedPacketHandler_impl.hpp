@@ -379,7 +379,8 @@ namespace senc
 	inline QueuedPacketHandler<T, Args...>::QueuedPacketHandler(Underlying&& underlying,
 													   std::function<void(Underlying&)> onQueueEmpty,
 													   std::chrono::milliseconds delay)
-		: _underlying(std::move(underlying)),
+		: Base(std::move(underlying)),
+		  _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
 		  _delay(delay),
 		  _nextTicket(0), _ticketBeingServed(0),
