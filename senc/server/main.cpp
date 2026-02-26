@@ -19,7 +19,7 @@ namespace senc::server
 
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 storage::IServerStorage& storage, ServerPacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, ServerPacketHandlerFactory packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console);
@@ -46,7 +46,6 @@ namespace senc::server
 		loggers::ConsoleLogger logger(*console);
 
 		Schema schema;
-		auto packetHandlerFactory = ServerPacketHandlerImplFactory<EncryptedPacketHandler>{};
 		storage::SqliteServerStorage storage(STORAGE_PATH);
 		managers::UpdateManager updateManager;
 		managers::DecryptionsManager decryptionsManager;
@@ -54,13 +53,13 @@ namespace senc::server
 		if (isIPv6)
 			return start_server<utils::IPv6>(
 				port, logger, *console, schema, storage,
-				packetHandlerFactory,
+				ServerPacketHandlerImplFactory<EncryptedPacketHandler>{},
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
 				port, logger, *console, schema, storage,
-				packetHandlerFactory,
+				ServerPacketHandlerImplFactory<EncryptedPacketHandler>{},
 				updateManager, decryptionsManager
 			);
 	}
@@ -133,7 +132,7 @@ namespace senc::server
 	 */
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 storage::IServerStorage& storage, ServerPacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, ServerPacketHandlerFactory packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;
