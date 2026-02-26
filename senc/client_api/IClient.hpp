@@ -77,10 +77,11 @@ namespace senc::clientapi
 		/**
 		 * @brief Encrypts a message under a userset.
 		 * @note Requires user to be logged in.
+		 * @param usersetID ID of userset to encrypt under.
 		 * @param msg Message to encrypt.
 		 * @return Encrypted message.
 		 */
-		virtual utils::Buffer encrypt(const utils::Buffer& msg) = 0;
+		virtual utils::Buffer encrypt(const UserSetID& usersetID, const utils::Buffer& msg) = 0;
 
 		/**
 		 * @brief Queues a message decryption under a userset.
