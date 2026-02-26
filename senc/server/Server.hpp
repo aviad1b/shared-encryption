@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../common/PacketHandlerFactory.hpp"
+#include "../common/ServerPacketHandlerFactory.hpp"
 #include "handlers/ClientHandlerFactory.hpp"
 #include "loggers/DummyLogger.hpp"
 #include "loggers/ILogger.hpp"
@@ -49,7 +49,7 @@ namespace senc::server
 						loggers::ILogger& logger,
 						Schema& schema,
 						storage::IServerStorage& storage,
-						PacketHandlerFactory& packetHandlerFactory,
+						ServerPacketHandlerFactory& packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);
 
@@ -66,7 +66,7 @@ namespace senc::server
 		explicit Server(utils::Port listenPort,
 						Schema& schema,
 						storage::IServerStorage& storage,
-						PacketHandlerFactory& packetHandlerFactory,
+						ServerPacketHandlerFactory& packetHandlerFactory,
 						managers::UpdateManager& updateManager,
 						managers::DecryptionsManager& decryptionsManager);
 
@@ -84,7 +84,7 @@ namespace senc::server
 		Socket _listenSock;
 		utils::Port _listenPort;
 		loggers::ILogger& _logger;
-		PacketHandlerFactory _packetHandlerFactory;
+		ServerPacketHandlerFactory _packetHandlerFactory;
 		handlers::ClientHandlerFactory _clientHandlerFactory;
 		std::atomic<bool> _isRunning;
 
