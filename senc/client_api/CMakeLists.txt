@@ -10,6 +10,7 @@ add_library(senc_client_api SHARED
 	"storage/ProfileRecord.cpp"
 	"storage/ProfileStorage.hpp"
 	"storage/ProfileStorage.cpp"
+	"ClientException.hpp"
 	"IClient.hpp"
 	"Client.hpp"
 	"Client_impl.hpp"
