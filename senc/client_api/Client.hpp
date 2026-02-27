@@ -63,9 +63,9 @@ namespace senc::clientapi
 								 std::function<void(const std::string&)> ownersCallback,
 								 std::function<void(const std::string&)> regsCallback) override;
 
-		utils::Buffer encrypt(const UserSetID& usersetID, const utils::Buffer& msg) override;
+		Ciphertext encrypt(const UserSetID& usersetID, const utils::Buffer& msg) override;
 
-		OperationID decrypt(const UserSetID& usersetID, const utils::Buffer& ciphertext) override;
+		OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) override;
 
 	private:
 		IP _serverIP;

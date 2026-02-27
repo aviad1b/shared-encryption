@@ -81,7 +81,7 @@ namespace senc::clientapi
 		 * @param msg Message to encrypt.
 		 * @return Encrypted message.
 		 */
-		virtual utils::Buffer encrypt(const UserSetID& usersetID, const utils::Buffer& msg) = 0;
+		virtual Ciphertext encrypt(const UserSetID& usersetID, const utils::Buffer& msg) = 0;
 
 		/**
 		 * @brief Queues a message decryption under a userset.
@@ -89,6 +89,6 @@ namespace senc::clientapi
 		 * @param ciphertext Encrypted message to decrypt.
 		 * @return Decryption operation ID.
 		 */
-		virtual OperationID decrypt(const UserSetID& usersetID, const utils::Buffer& ciphertext) = 0;
+		virtual OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) = 0;
 	};
 }
