@@ -101,6 +101,26 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&)> callback)
+	{
+		auto resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
+		for (const UserSetID& id : resp.user_sets_ids)
+			callback(id);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::get_userset_members(const UserSetID& usersetID,
+												std::function<void(const std::string&)> ownersCallback,
+												std::function<void(const std::string&)> regsCallback)
+	{
+		auto resp = this->post<pkt::GetMembersResponse>(pkt::GetMembersRequest{ usersetID });
+		for (const std::string& owner : resp.owners)
+			ownersCallback(owner);
+		for (const std::string& reg : resp.reg_members)
+			regsCallback(reg);
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
