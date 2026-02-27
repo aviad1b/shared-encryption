@@ -77,6 +77,30 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline UserSetID Client<IP>::make_userset(utils::ranges::StringViewRange&& owners,
+											  utils::ranges::StringViewRange&& regMembers,
+											  member_count_t ownersThreshold,
+											  member_count_t regMembersThreshold)
+	{
+		auto resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
+			.reg_members = utils::to_vector<std::string>(regMembers),
+			.owners = utils::to_vector<std::string>(owners),
+			.reg_members_threshold = regMembersThreshold,
+			.owners_threshold = ownersThreshold
+		});
+
+		this->_storage->add_profile_data(storage::ProfileRecord::owner(
+			UserSetID(resp.user_set_id),
+			std::move(resp.reg_layer_pub_key),
+			std::move(resp.owner_layer_pub_key),
+			std::move(resp.reg_layer_priv_key_shard),
+			std::move(resp.owner_layer_priv_key_shard)
+		));
+
+		return resp.user_set_id;
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
