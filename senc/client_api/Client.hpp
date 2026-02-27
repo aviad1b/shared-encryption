@@ -180,7 +180,7 @@ namespace senc::clientapi
 		 * @brief Attemps to participate in decryption operation.
 		 * @param opid Operation ID (moved).
 		 */
-		void request_participance(OperationID& opid);
+		void request_participance(OperationID&& opid);
 	};
 }
 

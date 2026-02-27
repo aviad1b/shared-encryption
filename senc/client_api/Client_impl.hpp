@@ -300,7 +300,7 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::request_participance(OperationID& opid)
+	inline void Client<IP>::request_participance(OperationID&& opid)
 	{
 		// TODO: Impelement
 	}
