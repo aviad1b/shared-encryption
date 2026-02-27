@@ -226,6 +226,14 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::add_profile_record(const storage::ProfileRecord& record)
+	{
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		_storage->add_profile_data(record);
+	}
+
+	template <utils::IPType IP>
 	template <typename Resp, typename Req>
 	inline Resp senc::clientapi::Client<IP>::post(const Req& request)
 	{

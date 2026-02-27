@@ -118,6 +118,12 @@ namespace senc::clientapi
 		storage::ProfileRecord find_profile_record_by_userset_id(const UserSetID& usersetID);
 
 		/**
+		 * @brief Adds profile record to user storage.
+		 * @param record Record to add.
+		 */
+		void add_profile_record(const storage::ProfileRecord& record);
+
+		/**
 		 * @brief Sends request and returns retrieved response.
 		 * @tparam Resp Response type.
 		 * @tparam Req Request type.
