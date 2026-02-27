@@ -41,6 +41,11 @@ namespace senc::clientapi
 			   ClientPacketHandlerFactory packetHandlerFactory,
 			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
 
+		/**
+		 * @brief Client destructor, logs out of server.
+		 */
+		~Client();
+
 		void signup(const std::string& username, const std::string& password) override;
 
 		void login(const std::string& username, const std::string& password) override;
@@ -63,12 +68,19 @@ namespace senc::clientapi
 		OperationID decrypt(const UserSetID& usersetID, const utils::Buffer& ciphertext) override;
 
 	private:
+		IP _serverIP;
+		utils::Port _serverPort;
 		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
 		std::unique_ptr<PacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
+
+		/**
+		 * @brief Makes sure client is connected to server.
+		 */
+		void ensure_connected();
 	};
 }
 
