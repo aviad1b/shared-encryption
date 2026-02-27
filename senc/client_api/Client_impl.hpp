@@ -106,6 +106,8 @@ namespace senc::clientapi
 	template <typename Resp, typename Req>
 	inline Resp senc::clientapi::Client<IP>::post(const Req& request)
 	{
+		if (!_packetHandler)
+			throw ClientException("Failed to send request", "Not logged in");
 		_packetHandler->send_request(request);
 		auto resp = _packetHandler->recv_response<Resp, pkt::ErrorResponse>();
 		if (!resp)
