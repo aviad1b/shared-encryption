@@ -139,6 +139,36 @@ namespace senc::clientapi
 		 */
 		template <typename Resp, typename Req>
 		static Resp post(PacketHandler& packetHandler, const Req& request);
+
+		/**
+		 * @brief Handles "added as non-owner" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data);
+		
+		/**
+		 * @brief Handles "added as owner" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data);
+
+		/**
+		 * @brief Handles "on lookup" update.
+		 * @param opid Operation ID (moved).
+		 */
+		void handle_on_lookup(OperationID&& opid);
+
+		/**
+		 * @brief Handles "to decrypt" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_to_decrypt(pkt::UpdateResponse::ToDecryptRecord&& data);
+
+		/**
+		 * @brief Handlers "finished decryption" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data);
 	};
 }
 

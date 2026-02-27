@@ -192,7 +192,16 @@ namespace senc::clientapi
 	inline void Client<IP>::update_callback(PacketHandler& packetHandler)
 	{
 		pkt::UpdateResponse resp = Self::post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-		(void)resp; // TODO: do something with response
+		for (auto& record : resp.added_as_reg_member)
+			this->handle_added_as_reg_member(std::move(record));
+		for (auto& record : resp.added_as_owner)
+			this->handle_added_as_owner(std::move(record));
+		for (auto& opid : resp.on_lookup)
+			this->handle_on_lookup(opid);
+		for (auto& record : resp.to_decrypt)
+			this->handle_to_decrypt(std::move(record));
+		for (auto& record : resp.finished_decryptions)
+			this->handle_finished_decryption(std::move(record));
 	}
 
 	template <utils::IPType IP>
@@ -214,6 +223,36 @@ namespace senc::clientapi
 				"Failed to locate userset " + usersetID.to_string()
 			);
 		return *it;
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
+	{
+		// TODO: Implement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data)
+	{
+		// TODO: Implement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_on_lookup(OperationID&& opid)
+	{
+		// TODO: Implement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_to_decrypt(pkt::UpdateResponse::ToDecryptRecord&& data)
+	{
+		// TODO: Implement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
+	{
+		// TODO: Implement
 	}
 
 	template <utils::IPType IP>
