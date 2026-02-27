@@ -226,6 +226,28 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	template <typename Resp, typename Req>
+	inline Resp senc::clientapi::Client<IP>::post(const Req& request)
+	{
+		if (!_packetHandler)
+			throw ClientException("Failed to send request", "Not logged in");
+		return Self::post<Resp, Req>(*_packetHandler, request);
+	}
+
+	template <utils::IPType IP>
+	template <typename Resp, typename Req>
+	inline Resp Client<IP>::post(PacketHandler& packetHandler, const Req& request)
+	{
+		packetHandler->send_request(request);
+		auto resp = packetHandler->recv_response<Resp, pkt::ErrorResponse>();
+		if (!resp)
+			throw ClientException("Unexpected response received");
+		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
+			throw ClientException(std::get<pkt::ErrorResponse>(*resp).msg);
+		return std::get<Resp>(*resp);
+	}
+
+	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
 	{
 		// TODO: Implement
@@ -253,27 +275,5 @@ namespace senc::clientapi
 	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
 	{
 		// TODO: Implement
-	}
-
-	template <utils::IPType IP>
-	template <typename Resp, typename Req>
-	inline Resp senc::clientapi::Client<IP>::post(const Req& request)
-	{
-		if (!_packetHandler)
-			throw ClientException("Failed to send request", "Not logged in");
-		return Self::post<Resp, Req>(*_packetHandler, request);
-	}
-
-	template <utils::IPType IP>
-	template <typename Resp, typename Req>
-	inline Resp Client<IP>::post(PacketHandler& packetHandler, const Req& request)
-	{
-		packetHandler->send_request(request);
-		auto resp = packetHandler->recv_response<Resp, pkt::ErrorResponse>();
-		if (!resp)
-			throw ClientException("Unexpected response received");
-		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
-			throw ClientException(std::get<pkt::ErrorResponse>(*resp).msg);
-		return std::get<Resp>(*resp);
 	}
 }
