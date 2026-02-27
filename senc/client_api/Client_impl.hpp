@@ -10,6 +10,7 @@
 
 #include "ClientException.hpp"
 #include "ClientUtils.hpp"
+#include <algorithm>
 
 namespace senc::clientapi
 {
@@ -146,6 +147,27 @@ namespace senc::clientapi
 	inline void Client<IP>::unload_profile()
 	{
 		_storage.reset();
+	}
+
+	template <utils::IPType IP>
+	inline storage::ProfileRecord Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID)
+	{
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		auto profileData = _storage->iter_profile_data();
+		const auto it = std::find_if(
+			profileData.begin(), profileData.end(),
+			[usersetID](const storage::ProfileRecord& record)
+			{
+				return record.userset_id() == usersetID;
+			}
+		);
+		if (it == profileData.end())
+			throw ClientException(
+				"Local storage error",
+				"Failed to locate userset " + usersetID.to_string()
+			);
+		return *it;
 	}
 
 	template <utils::IPType IP>

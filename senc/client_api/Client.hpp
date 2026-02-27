@@ -95,6 +95,14 @@ namespace senc::clientapi
 		void unload_profile();
 
 		/**
+		 * @brief Locates a profile record from userset ID.
+		 * @param usersetID Userset ID.
+		 * @return Located profile record.
+		 * @throw ClientException If not found or user not logged in.
+		 */
+		storage::ProfileRecord find_profile_record_by_userset_id(const UserSetID& usersetID);
+
+		/**
 		 * @brief Sends request and returns retrieved response.
 		 * @tparam Resp Response type.
 		 * @tparam Req Request type.
