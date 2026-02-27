@@ -83,6 +83,18 @@ namespace senc::clientapi
 		void ensure_connected();
 
 		/**
+		 * @brief Loads user's profile from memory.
+		 * @param username Username of user to load its profile.
+		 * @param password Password of user to load its profile.
+		 */
+		void load_profile(const std::string& username, const std::string& password);
+
+		/**
+		 * @brief Unloads loaded user's profile.
+		 */
+		void unload_profile();
+
+		/**
 		 * @brief Sends request and returns retrieved response.
 		 * @tparam Resp Response type.
 		 * @tparam Req Request type.

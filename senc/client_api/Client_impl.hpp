@@ -9,6 +9,7 @@
 #include "Client.hpp"
 
 #include "ClientException.hpp"
+#include "ClientUtils.hpp"
 
 namespace senc::clientapi
 {
@@ -42,6 +43,21 @@ namespace senc::clientapi
 		// if not connected (disconnected earlier) - reconnect
 		this->_sock = Socket(_serverIP, _serverPort);
 		this->_packetHandler = _packetHandlerFactory(_sock);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::load_profile(const std::string& username, const std::string& password)
+	{
+		_storage.emplace(
+			ClientUtils::locate_user_profile_file(username, password),
+			username, password
+		);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::unload_profile()
+	{
+		_storage.reset();
 	}
 
 	template <utils::IPType IP>
