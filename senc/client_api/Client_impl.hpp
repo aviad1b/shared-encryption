@@ -311,7 +311,34 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
 	{
-		// TODO: Implement
+		// pop entry from pending decryptions map
+		auto node = _pendingDecryptions.extract(data.op_id);
+		if (node.empty())
+			return; // TODO: Inform unexpected operation ID?
+		const auto& [usersetID, ciphertext] = node.mapped();
+
+		// locate fitting record in local storage
+		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
+
+		// compute missing decryption parts and store with existing parts
+		std::vector<DecryptionPart> ownerParts = std::move(data.owner_layer_parts);
+		ownerParts.push_back(Shamir::decrypt_get_2l<OWNER_LAYER>(
+			ciphertext,
+			record.owner_layer_priv_key_shard(),
+			data.owner_layer_shards_ids
+		));
+		std::vector<DecryptionPart> regParts = std::move(data.reg_layer_parts);
+		regParts.push_back(Shamir::decrypt_get_2l<REG_LAYER>(
+			ciphertext,
+			record.reg_layer_priv_key_shard(),
+			data.reg_layer_shards_ids
+		));
+
+		// join all decryption parts
+		utils::Buffer decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts);
+
+		// call callback on decrypted message
+		_decryptFinishedCallback(data.op_id, decrypted);
 	}
 
 	template <utils::IPType IP>
