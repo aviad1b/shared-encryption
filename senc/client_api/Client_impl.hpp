@@ -25,7 +25,11 @@ namespace senc::clientapi
 		  _schema(schemaFactory()),
 		  _sock(serverIP, serverPort)
 	{
-		this->_packetHandler = _packetHandlerFactory(_sock);
+		this->_packetHandler.emplace(QueuedPacketHandler::client(
+			_sock,
+			[](auto&&...) { },
+			std::chrono::milliseconds(2000) // two seconds between update cycles
+		));
 	}
 
 	template <utils::IPType IP>
@@ -152,7 +156,11 @@ namespace senc::clientapi
 
 		// if not connected (disconnected earlier) - reconnect
 		this->_sock = Socket(_serverIP, _serverPort);
-		this->_packetHandler = _packetHandlerFactory(_sock);
+		this->_packetHandler.emplace(QueuedPacketHandler::client(
+			_sock,
+			[](auto&&...) {},
+			std::chrono::milliseconds(2000) // two seconds between update cycles
+		));
 	}
 
 	template <utils::IPType IP>

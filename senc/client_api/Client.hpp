@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../common/ClientPacketHandlerFactory.hpp"
+#include "../common/QueuedPacketHandler.hpp"
 #include "storage/ProfileStorage.hpp"
 #include "../utils/Socket.hpp"
 #include "IClient.hpp"
@@ -73,7 +74,7 @@ namespace senc::clientapi
 		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
-		std::unique_ptr<PacketHandler> _packetHandler;
+		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
 
