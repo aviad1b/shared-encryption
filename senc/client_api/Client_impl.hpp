@@ -344,7 +344,14 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::request_participance(OperationID&& opid)
 	{
-		// TODO: Impelement
+		pkt::DecryptParticipateRequest req{ std::move(opid) };
+		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
+		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)
+			return;
+		_pendingParticipances.insert(std::make_pair(
+			std::move(req.op_id),
+			pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+		));
 	}
 
 	template <utils::IPType IP>
