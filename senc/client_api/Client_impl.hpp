@@ -136,6 +136,15 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
+	{
+		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
+			usersetID, ciphertext
+		});
+		return resp.op_id;
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
