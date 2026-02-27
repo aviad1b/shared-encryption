@@ -81,6 +81,17 @@ namespace senc::clientapi
 		 * @brief Makes sure client is connected to server.
 		 */
 		void ensure_connected();
+
+		/**
+		 * @brief Sends request and returns retrieved response.
+		 * @tparam Resp Response type.
+		 * @tparam Req Request type.
+		 * @param request Request to send.
+		 * @return Received response.
+		 * @throw ClientException If error occured.
+		 */
+		template <typename Resp, typename Req>
+		Resp post(const Req& request);
 	};
 }
 

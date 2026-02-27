@@ -8,6 +8,8 @@
 
 #include "Client.hpp"
 
+#include "ClientException.hpp"
+
 namespace senc::clientapi
 {
 	template <utils::IPType IP>
@@ -40,5 +42,18 @@ namespace senc::clientapi
 		// if not connected (disconnected earlier) - reconnect
 		this->_sock = Socket(_serverIP, _serverPort);
 		this->_packetHandler = _packetHandlerFactory(_sock);
+	}
+
+	template <utils::IPType IP>
+	template <typename Resp, typename Req>
+	inline Resp senc::clientapi::Client<IP>::post(const Req& request)
+	{
+		_packetHandler->send_request(request);
+		auto resp = _packetHandler->recv_response<Resp, pkt::ErrorResponse>();
+		if (!resp)
+			throw ClientException("Unexpected response received");
+		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
+			throw ClientException(std::get<pkt::ErrorResponse>(*resp).msg);
+		return std::get<Resp>(*resp);
 	}
 }
