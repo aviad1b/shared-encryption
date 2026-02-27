@@ -258,13 +258,24 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
 	{
-		// TODO: Implement
+		add_profile_record(storage::ProfileRecord::reg(
+			std::move(data.user_set_id),
+			std::move(data.reg_layer_pub_key),
+			std::move(data.owner_layer_pub_key),
+			std::move(data.reg_layer_priv_key_shard)
+		));
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data)
 	{
-		// TODO: Implement
+		add_profile_record(storage::ProfileRecord::owner(
+			std::move(data.user_set_id),
+			std::move(data.reg_layer_pub_key),
+			std::move(data.owner_layer_pub_key),
+			std::move(data.reg_layer_priv_key_shard),
+			std::move(data.owner_layer_priv_key_shard)
+		));
 	}
 
 	template <utils::IPType IP>
