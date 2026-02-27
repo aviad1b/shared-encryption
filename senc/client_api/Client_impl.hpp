@@ -207,8 +207,15 @@ namespace senc::clientapi
 	{
 		if (!_packetHandler)
 			throw ClientException("Failed to send request", "Not logged in");
-		_packetHandler->send_request(request);
-		auto resp = _packetHandler->recv_response<Resp, pkt::ErrorResponse>();
+		return Self::post<Resp, Req>(*_packetHandler, request);
+	}
+
+	template <utils::IPType IP>
+	template <typename Resp, typename Req>
+	inline Resp Client<IP>::post(PacketHandler& packetHandler, const Req& request)
+	{
+		packetHandler->send_request(request);
+		auto resp = packetHandler->recv_response<Resp, pkt::ErrorResponse>();
 		if (!resp)
 			throw ClientException("Unexpected response received");
 		if (std::holds_alternative<pkt::ErrorResponse>(*resp))

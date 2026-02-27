@@ -118,6 +118,18 @@ namespace senc::clientapi
 		 */
 		template <typename Resp, typename Req>
 		Resp post(const Req& request);
+
+		/**
+		 * @brief Sends request and returns retrieved response.
+		 * @tparam Resp Response type.
+		 * @tparam Req Request type.
+		 * @param packetHandler Packet handler instance to use for sending and receiving.
+		 * @param request Request to send.
+		 * @return Received response.
+		 * @throw ClientException If error occured.
+		 */
+		template <typename Resp, typename Req>
+		static Resp post(PacketHandler& packetHandler, const Req& request);
 	};
 }
 
