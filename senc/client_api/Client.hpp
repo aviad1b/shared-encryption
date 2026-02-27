@@ -175,6 +175,12 @@ namespace senc::clientapi
 		 * @param data Update data (moved).
 		 */
 		void handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data);
+
+		/**
+		 * @brief Attemps to participate in decryption operation.
+		 * @param opid Operation ID (moved).
+		 */
+		void request_participance(OperationID& opid);
 	};
 }
 

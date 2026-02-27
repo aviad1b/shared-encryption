@@ -281,7 +281,10 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_on_lookup(OperationID&& opid)
 	{
-		// TODO: Implement
+		// request to join operation on a non-blocking thread
+		// (packet handler is currently used by update, so can't use it here directly)
+		std::thread t(&Self::request_participance, this, std::move(opid));
+		t.detach();
 	}
 
 	template <utils::IPType IP>
@@ -294,5 +297,11 @@ namespace senc::clientapi
 	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
 	{
 		// TODO: Implement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::request_participance(OperationID& opid)
+	{
+		// TODO: Impelement
 	}
 }
