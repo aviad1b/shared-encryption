@@ -101,6 +101,13 @@ namespace senc::clientapi
 		void unload_profile();
 
 		/**
+		 * @brief Runs update cycle.
+		 * @note Callback function for queue.
+		 * @param packetHandler Underlying packet handler of `_packetHandler`.
+		 */
+		void update(PacketHandler& packetHandler);
+
+		/**
 		 * @brief Locates a profile record from userset ID.
 		 * @param usersetID Userset ID.
 		 * @return Located profile record.

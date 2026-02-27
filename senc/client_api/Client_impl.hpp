@@ -160,7 +160,7 @@ namespace senc::clientapi
 	{
 		this->_packetHandler.emplace(QueuedPacketHandler::client(
 			_sock,
-			[](auto&&...) {},
+			[this](PacketHandler& packetHandler) { return this->update(packetHandler); },
 			std::chrono::milliseconds(2000) // two seconds between update cycles
 		));
 	}
@@ -178,6 +178,13 @@ namespace senc::clientapi
 	inline void Client<IP>::unload_profile()
 	{
 		_storage.reset();
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::update(PacketHandler& packetHandler)
+	{
+		pkt::UpdateResponse resp = Self::post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
+		(void)resp; // TODO: do something with response
 	}
 
 	template <utils::IPType IP>
