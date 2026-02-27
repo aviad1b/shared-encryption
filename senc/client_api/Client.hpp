@@ -84,6 +84,11 @@ namespace senc::clientapi
 		void ensure_connected();
 
 		/**
+		 * @brief Emplaces backet handler to be ready to handle packets.
+		 */
+		void emplace_packet_handler();
+
+		/**
 		 * @brief Loads user's profile from memory.
 		 * @param username Username of user to load its profile.
 		 * @param password Password of user to load its profile.

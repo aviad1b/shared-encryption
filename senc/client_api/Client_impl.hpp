@@ -25,11 +25,7 @@ namespace senc::clientapi
 		  _schema(schemaFactory()),
 		  _sock(serverIP, serverPort)
 	{
-		this->_packetHandler.emplace(QueuedPacketHandler::client(
-			_sock,
-			[](auto&&...) { },
-			std::chrono::milliseconds(2000) // two seconds between update cycles
-		));
+		emplace_packet_handler();
 	}
 
 	template <utils::IPType IP>
@@ -156,6 +152,12 @@ namespace senc::clientapi
 
 		// if not connected (disconnected earlier) - reconnect
 		this->_sock = Socket(_serverIP, _serverPort);
+		emplace_packet_handler();
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::emplace_packet_handler()
+	{
 		this->_packetHandler.emplace(QueuedPacketHandler::client(
 			_sock,
 			[](auto&&...) {},
