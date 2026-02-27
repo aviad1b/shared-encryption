@@ -39,7 +39,7 @@ namespace senc::clientapi
 	{
 		ensure_connected();
 
-		auto resp = this->post<pkt::SignupResponse>(pkt::SignupRequest{
+		pkt::SignupResponse resp = this->post<pkt::SignupResponse>(pkt::SignupRequest{
 			username, password
 		});
 
@@ -56,7 +56,7 @@ namespace senc::clientapi
 	{
 		ensure_connected();
 
-		auto resp = this->post<pkt::LoginResponse>(pkt::LoginRequest{
+		pkt::LoginResponse resp = this->post<pkt::LoginResponse>(pkt::LoginRequest{
 			username, password
 		});
 
@@ -82,7 +82,7 @@ namespace senc::clientapi
 											  member_count_t ownersThreshold,
 											  member_count_t regMembersThreshold)
 	{
-		auto resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
+		pkt::MakeUserSetResponse resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
 			.reg_members = utils::to_vector<std::string>(regMembers),
 			.owners = utils::to_vector<std::string>(owners),
 			.reg_members_threshold = regMembersThreshold,
@@ -103,7 +103,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&)> callback)
 	{
-		auto resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
+		pkt::GetUserSetsResponse resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
 		for (const UserSetID& id : resp.user_sets_ids)
 			callback(id);
 	}
@@ -113,7 +113,9 @@ namespace senc::clientapi
 												std::function<void(const std::string&)> ownersCallback,
 												std::function<void(const std::string&)> regsCallback)
 	{
-		auto resp = this->post<pkt::GetMembersResponse>(pkt::GetMembersRequest{ usersetID });
+		pkt::GetMembersResponse resp = this->post<pkt::GetMembersResponse>(pkt::GetMembersRequest{
+			usersetID
+		});
 		for (const std::string& owner : resp.owners)
 			ownersCallback(owner);
 		for (const std::string& reg : resp.reg_members)
