@@ -12,6 +12,7 @@
 #include "../common/QueuedPacketHandler.hpp"
 #include "storage/ProfileStorage.hpp"
 #include "../utils/Socket.hpp"
+#include "../utils/hash.hpp"
 #include "IClient.hpp"
 #include <optional>
 
@@ -79,6 +80,9 @@ namespace senc::clientapi
 		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
+
+		// maps decryption operation ID to userset ID and ciphertext
+		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
 
 		/**
 		 * @brief Makes sure client is connected to server.

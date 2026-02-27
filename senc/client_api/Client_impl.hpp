@@ -141,6 +141,10 @@ namespace senc::clientapi
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
 			usersetID, ciphertext
 		});
+		_pendingDecryptions.insert(std::make_pair(
+			resp.op_id,
+			std::make_pair(usersetID, std::move(ciphertext))
+		));
 		return resp.op_id;
 	}
 
