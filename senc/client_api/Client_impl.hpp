@@ -160,7 +160,7 @@ namespace senc::clientapi
 	{
 		this->_packetHandler.emplace(QueuedPacketHandler::client(
 			_sock,
-			[this](PacketHandler& packetHandler) { return this->update(packetHandler); },
+			[this](PacketHandler& packetHandler) { return this->update_callback(packetHandler); },
 			std::chrono::milliseconds(2000) // two seconds between update cycles
 		));
 	}
@@ -181,7 +181,7 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::update(PacketHandler& packetHandler)
+	inline void Client<IP>::update_callback(PacketHandler& packetHandler)
 	{
 		pkt::UpdateResponse resp = Self::post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
 		(void)resp; // TODO: do something with response

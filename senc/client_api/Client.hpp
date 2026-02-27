@@ -105,7 +105,7 @@ namespace senc::clientapi
 		 * @note Callback function for queue.
 		 * @param packetHandler Underlying packet handler of `_packetHandler`.
 		 */
-		void update(PacketHandler& packetHandler);
+		void update_callback(PacketHandler& packetHandler);
 
 		/**
 		 * @brief Locates a profile record from userset ID.
