@@ -124,6 +124,18 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline Ciphertext Client<IP>::encrypt(const UserSetID& usersetID, const utils::Buffer& msg)
+	{
+		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
+
+		return _schema.encrypt(
+			msg,
+			record.reg_layer_pub_key(),
+			record.owner_layer_pub_key()
+		); 
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
