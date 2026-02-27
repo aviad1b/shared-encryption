@@ -35,6 +35,48 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::signup(const std::string& username, const std::string& password)
+	{
+		ensure_connected();
+
+		auto resp = this->post<pkt::SignupResponse>(pkt::SignupRequest{
+			username, password
+		});
+
+		if (resp.status == pkt::SignupResponse::Status::UsernameTaken)
+			throw ClientException("Signup failed", "Username already taken");
+		if (resp.status != pkt::SignupResponse::Status::Success)
+			throw ClientException("Signup failed", "Unknown error");
+
+		this->load_profile(username, password);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::login(const std::string& username, const std::string& password)
+	{
+		ensure_connected();
+
+		auto resp = this->post<pkt::LoginResponse>(pkt::LoginRequest{
+			username, password
+		});
+
+		if (resp.status == pkt::LoginResponse::Status::BadLogin)
+			throw ClientException("Login failed", "Bad username or password");
+		if (resp.status != pkt::LoginResponse::Status::Success)
+			throw ClientException("Login failed", "Unknown error");
+
+		this->load_profile(username, password);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::logout()
+	{
+		this->post<pkt::LogoutResponse>(pkt::LogoutRequest{});
+		this->_packetHandler.reset();
+		this->_sock.close();
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
