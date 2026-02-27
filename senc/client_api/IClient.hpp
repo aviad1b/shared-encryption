@@ -90,5 +90,10 @@ namespace senc::clientapi
 		 * @return Decryption operation ID.
 		 */
 		virtual OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) = 0;
+
+		/**
+		 * @brief Forces client update.
+		 */
+		virtual void force_update() = 0;
 	};
 }

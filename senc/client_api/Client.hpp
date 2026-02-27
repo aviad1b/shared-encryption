@@ -68,6 +68,8 @@ namespace senc::clientapi
 
 		OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) override;
 
+		void force_update() override;
+
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;

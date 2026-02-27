@@ -145,6 +145,14 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::force_update()
+	{
+		if (!_packetHandler)
+			throw ClientException("Failed to send request", "Not logged in");
+		this->update_callback(*_packetHandler);
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
