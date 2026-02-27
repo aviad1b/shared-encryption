@@ -148,7 +148,7 @@ namespace senc::clientapi
 		 * @throw ClientException If error occured.
 		 */
 		template <typename Resp, typename Req>
-		static Resp post(PacketHandler& packetHandler, const Req& request);
+		static Resp post_on(PacketHandler& packetHandler, const Req& request);
 
 		/**
 		 * @brief Handles "added as non-owner" update.
