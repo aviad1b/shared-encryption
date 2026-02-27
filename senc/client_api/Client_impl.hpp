@@ -290,7 +290,16 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_to_decrypt(pkt::UpdateResponse::ToDecryptRecord&& data)
 	{
-		// TODO: Implement
+		// join operation on a non-blocking thread
+		// (packet handler is currently used by update, so can't use it here directly)
+		std::thread t(
+			&Self::participate,
+			this,
+			std::move(data.op_id),
+			std::move(data.ciphertext),
+			std::move(data.shards_ids)
+		);
+		t.detach();
 	}
 
 	template <utils::IPType IP>
@@ -303,5 +312,13 @@ namespace senc::clientapi
 	inline void Client<IP>::request_participance(OperationID&& opid)
 	{
 		// TODO: Impelement
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::participate(OperationID&& opid,
+										Ciphertext&& ciphertext,
+										std::vector<PrivKeyShardID>&& shardsIDs)
+	{
+		// TODO: Implement
 	}
 }
