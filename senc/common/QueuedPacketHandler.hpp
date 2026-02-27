@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "ServerPacketHandlerFactory.hpp"
+#include "ClientPacketHandlerFactory.hpp"
 #include "PacketHandler.hpp"
 #include <condition_variable>
 #include <functional>
@@ -19,14 +21,11 @@
 
 namespace senc
 {
-	template <typename T, typename... Args>
-	requires PacketHandlerImpl<T, Args...>
 	class QueuedPacketHandler : public PacketHandler
 	{
 	public:
-		using Self = QueuedPacketHandler<T>;
+		using Self = QueuedPacketHandler;
 		using Base = PacketHandler;
-		using Underlying = T;
 
 		/**
 		 * @brief Move constructor of queued packet handler.
@@ -40,26 +39,26 @@ namespace senc
 		 * @param sock Socket to send and receive packets through.
 		 * @param onQueueEmpty Function to run on underlying handler when queue is empty.
 		 * @param delay Delay to wait between queue invocations.
-		 * @param args Other args to construct underlying handler from (*copied*).
+		 * @param underlyingFactory Packet handler factory used to construct underlying handler.
 		 * @throw ConnEstablishException If failed to establish connection.
 		 */
 		static Self server(utils::Socket& sock,
-						   std::function<void(Underlying&)> onQueueEmpty,
+						   std::function<void(PacketHandler&)> onQueueEmpty,
 						   std::chrono::milliseconds delay,
-						   const Args&... args);
+						   ServerPacketHandlerFactory underlyingFactory);
 
 		/**
 		 * @brief Gets handler instance for client side.
 		 * @param sock Socket to send and receive packets through.
 		 * @param onQueueEmpty Function to run on underlying handler when queue is empty.
 		 * @param delay Delay to wait between queue invocations.
-		 * @param args Other args to construct underlying handler from (*copied*).
+		 * @param underlyingFactory Packet handler factory used to construct underlying handler.
 		 * @throw ConnEstablishException If failed to establish connection.
 		 */
 		static Self client(utils::Socket& sock,
-						   std::function<void(Underlying&)> onQueueEmpty,
+						   std::function<void(PacketHandler&)> onQueueEmpty,
 						   std::chrono::milliseconds delay,
-						   const Args&... args);
+						   ClientPacketHandlerFactory underlyingFactory);
 
 		const IPacketHandlerSyncData& get_sync_data() const override;
 
@@ -136,8 +135,8 @@ namespace senc
 			std::atomic_bool stop;
 		};
 
-		Underlying _underlying;
-		std::function<void(Underlying&)> _onQueueEmpty;
+		std::unique_ptr<PacketHandler> _underlying;
+		std::function<void(PacketHandler&)> _onQueueEmpty;
 		std::chrono::milliseconds _delay;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
@@ -146,12 +145,14 @@ namespace senc
 
 		/**
 		 * @brief Constructs queued packet handler from underlying handler instance.
-		 * @param underlying Underlying handler instance (moved).
+		 * @param sock Socket to send and receive packets through.
+		 * @param underlying Underlying handler instance.
 		 * @param onQueueEmpty Function to run on underlying handler when queue is empty.
 		 * @param delay Delay to wait between queue invocations.
 		 */
-		QueuedPacketHandler(Underlying&& underlying,
-							std::function<void(Underlying&)> onQueueEmpty,
+		QueuedPacketHandler(utils::Socket& sock,
+							std::unique_ptr<PacketHandler>&& underlying,
+							std::function<void(PacketHandler&)> onQueueEmpty,
 							std::chrono::milliseconds delay);
 
 		/**
@@ -179,5 +180,3 @@ namespace senc
 		void queue_response(R&& response);
 	};
 }
-
-#include "QueuedPacketHandler_impl.hpp"
