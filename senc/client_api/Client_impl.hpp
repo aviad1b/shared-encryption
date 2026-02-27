@@ -75,6 +75,8 @@ namespace senc::clientapi
 		this->post<pkt::LogoutResponse>(pkt::LogoutRequest{});
 		this->_packetHandler.reset();
 		this->_sock.close();
+		this->unload_profile();
+		this->_pendingDecryptions.clear();
 	}
 
 	template <utils::IPType IP>
