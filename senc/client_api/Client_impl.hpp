@@ -29,6 +29,17 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline Client<IP>::Client(Self&& other) noexcept
+		: _serverIP(std::move(other._serverIP)),
+		  _serverPort(std::move(other._serverPort)),
+		  _decryptFinishedCallback(other._decryptFinishedCallback),
+		  _packetHandlerFactory(other._packetHandlerFactory),
+		  _storage(std::move(other._storage)),
+		  _packetHandler(std::move(other._packetHandler)),
+		  _schema(std::move(other._schema)),
+		  _sock(std::move(other._sock)) { }
+
+	template <utils::IPType IP>
 	inline Client<IP>::~Client()
 	{
 		if (this->_packetHandler) // if still connected (packet handler not null)

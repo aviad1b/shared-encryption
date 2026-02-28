@@ -44,6 +44,11 @@ namespace senc::clientapi
 			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
 
 		/**
+		 * @brief Move constructor of client.
+		 */
+		Client(Self&& other) noexcept;
+
+		/**
 		 * @brief Client destructor, logs out of server.
 		 */
 		~Client();
