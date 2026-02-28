@@ -399,7 +399,7 @@ namespace senc::clientapi
 			profileData.begin(), profileData.end(),
 			[shardsIDs](const storage::ProfileRecord& record)
 			{
-				return shardsIds.end() != std::find(
+				return shardsIDs.end() != std::find(
 					shardsIDs.begin(), shardsIDs.end(),
 					record.reg_layer_priv_key_shard().first
 				);
