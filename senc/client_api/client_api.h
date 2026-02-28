@@ -164,9 +164,14 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetCiphertextC3b(uintptr_t hCiphertext) SENC_NO
  * @brief Connects to server and returns client handle.
  * @param serverIP Server IP in string form (either IPv4 or IPv6).
  * @param serverPort Server's listen port.
+ * @param decryptFinishedCallback Callback function to invoke on decrypt finish
+ *								  (accepts opid chars, plaintext bytes, plaintext len).
  * @return New client handle.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t Connect(const char* serverIP, uint16_t serverPort) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t Connect(
+	const char* serverIP, uint16_t serverPort,
+	void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t)
+) SENC_NOTHROW;
 
 /**
  * @brief Disconnects client and dellocates resources.
