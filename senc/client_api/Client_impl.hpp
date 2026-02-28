@@ -205,7 +205,7 @@ namespace senc::clientapi
 	inline void Client<IP>::load_profile(const std::string& username, const std::string& password)
 	{
 		_storage.emplace(
-			ClientUtils::locate_user_profile_file(username, password),
+			ClientUtils::locate_user_profile_file(username),
 			username, password
 		);
 	}
