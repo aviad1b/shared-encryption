@@ -112,31 +112,6 @@ SENC_CLIENT_API_PUBLIC const uint8_t* GetBytesValue(uintptr_t handle) SENC_NOTHR
 SENC_CLIENT_API_PUBLIC uintptr_t GetBytesBase64(uintptr_t handle) SENC_NOTHROW;
 
 /**
- * @brief Locates user's profile file path based on username.
- * @param username Username.
- * @return Handle to user profile file path (or error if failed).
- */
-SENC_CLIENT_API_PUBLIC uintptr_t LocateUserProfileFile(const char* username) SENC_NOTHROW;
-
-/**
- * @brief Loads user's profile from storage.
- * @param path Profile file path.
- * @param username User's username.
- * @param password User's password.
- * @return Handle to user profile (or error if failed).
- */
-SENC_CLIENT_API_PUBLIC uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) SENC_NOTHROW;
-
-/**
- * @brief Iterates over user profile data.
- * @param hProfile Profile handle.
- * @param callback Callback function accepting current profile data record pointer, returning `false` to stop.
- * @return Nullopt value on success, error if failed.
- * @note Calling this function on a non-profile handle is undefined behaviour.
- */
-SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) SENC_NOTHROW;
-
-/**
  * @brief Checks if a profile record pointer is of an owner record.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
  * @return `true` if `pRecord` points to an owner record, otherwise `false` (or error if failed).

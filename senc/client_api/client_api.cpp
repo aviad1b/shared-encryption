@@ -65,33 +65,6 @@ uintptr_t GetBytesBase64(uintptr_t handle) noexcept
 	})->as_nint();
 }
 
-uintptr_t LocateUserProfileFile(const char* username) noexcept
-{
-	return api::Value<std::string>::ret_new([username]()
-	{
-		return std::string(username) + ".sencp";
-	})->as_nint();
-}
-
-uintptr_t LoadUserProfile(const char* path, const char* username, const char* password) noexcept
-{
-	return api::Value<api::storage::ProfileStorage>::new_instance(
-		path, username, password
-	)->as_nint();
-}
-
-uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) noexcept
-{
-	auto* pProfileStorage = api::Value<api::storage::ProfileStorage>::from_nint(hProfile);
-	return api::Value<std::nullopt_t>::ret_new([pProfileStorage, callback]()
-	{
-		for (const auto& record : pProfileStorage->get().iter_profile_data())
-			if (!callback(reinterpret_cast<uintptr_t>(&record)))
-				break;
-		return std::nullopt;
-	})->as_nint();
-}
-
 bool IsOwnerProfileRecord(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
