@@ -274,8 +274,8 @@ namespace senc::clientapi
 	template <typename Resp, typename Req>
 	inline Resp Client<IP>::post_on(PacketHandler& packetHandler, const Req& request)
 	{
-		packetHandler->send_request(request);
-		auto resp = packetHandler->recv_response<Resp, pkt::ErrorResponse>();
+		packetHandler.send_request(request);
+		auto resp = packetHandler.recv_response<Resp, pkt::ErrorResponse>();
 		if (!resp)
 			throw ClientException("Unexpected response received");
 		if (std::holds_alternative<pkt::ErrorResponse>(*resp))
