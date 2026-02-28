@@ -43,6 +43,13 @@ namespace senc::clientapi
 		virtual void logout() = 0;
 
 		/**
+		 * @brief Iterates over user's profile records.
+		 * @note Requires user to be logged in.
+		 * @param callback Callback function accepting current profile data record, returning `false` to stop.
+		 */
+		virtual void iter_profile(bool(*callback)(const storage::ProfileRecord&)) = 0;
+
+		/**
 		 * @brief Creates a new userset.
 		 * @note Requires user to be logged in.
 		 * @param owners Usernames of userset's owner members.

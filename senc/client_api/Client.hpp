@@ -54,6 +54,8 @@ namespace senc::clientapi
 
 		void logout() override;
 
+		void iter_profile(bool(*callback)(const storage::ProfileRecord&)) override;
+
 		UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 							   utils::ranges::StringViewRange&& regMembers,
 							   member_count_t ownersThreshold,

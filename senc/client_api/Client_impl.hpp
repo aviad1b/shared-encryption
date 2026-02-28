@@ -80,6 +80,17 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::iter_profile(bool(*callback)(const storage::ProfileRecord&))
+	{
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		auto profileData = _storage->iter_profile_data();
+		for (const auto& record : profileData)
+			if (!callback(record))
+				break;
+	}
+
+	template <utils::IPType IP>
 	inline UserSetID Client<IP>::make_userset(utils::ranges::StringViewRange&& owners,
 											  utils::ranges::StringViewRange&& regMembers,
 											  member_count_t ownersThreshold,
