@@ -130,7 +130,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t NewCiphertext(const uint8_t* c1Bytes,
 											   const uint8_t* c3aBytes,
 											   uint64_t c3aLen,
 											   const uint8_t* c3bBytes,
-											   uint64_t c3bLen);
+											   uint64_t c3bLen) SENC_NOTHROW;
 
 /**
  * @brief Gets c1 length from ciphertext handle.
