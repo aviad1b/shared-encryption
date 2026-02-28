@@ -65,6 +65,62 @@ uintptr_t GetBytesBase64(uintptr_t handle) noexcept
 	})->as_nint();
 }
 
+uintptr_t NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
+						const uint8_t* c2Bytes, uint64_t c2Len,
+						const uint8_t* c3aBytes, uint64_t c3aLen,
+						const uint8_t* c3bBytes, uint64_t c3bLen) noexcept
+{
+	return api::Value<senc::Ciphertext>::ret_new(
+		[c1Bytes, c1Len, c2Bytes, c2Len, c3aBytes, c3aLen, c3bBytes, c3bLen]()
+		{
+			senc::Ciphertext res{};
+			auto& [c1, c2, c3] = res;
+			auto& [c3a, c3b] = c3;
+
+			c1 = utils::ECGroup::decode({ c1Bytes, c1Len });
+			c2 = utils::ECGroup::decode({ c2Bytes, c2Len });
+			c3a.Assign(c3aBytes, c3aLen);
+			c3b.assign(c3bBytes, c3bBytes + c3bLen);
+
+			return res;
+		}
+	)->as_nint();
+}
+
+uintptr_t GetCiphertextC1(uintptr_t hCiphertext) noexcept
+{
+	auto* ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext);
+	return api::Value<utils::Buffer>::new_instance(
+		std::get<0>(ciphertext->get()).encode()
+	)->as_nint();
+}
+
+uintptr_t GetCiphertextC2(uintptr_t hCiphertext) noexcept
+{
+	auto* ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext);
+	return api::Value<utils::Buffer>::new_instance(
+		std::get<1>(ciphertext->get()).encode()
+	)->as_nint();
+}
+
+uintptr_t GetCiphertextC3a(uintptr_t hCiphertext) noexcept
+{
+	auto* ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext);
+	return api::Value<utils::Buffer>::ret_new([ciphertext]()
+	{
+		auto& c3a = std::get<0>(std::get<2>(ciphertext->get()));
+		return utils::Buffer(c3a.begin(), c3a.end());
+	})->as_nint();
+}
+
+uintptr_t GetCiphertextC3b(uintptr_t hCiphertext) noexcept
+{
+	auto* ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext);
+	return api::Value<utils::Buffer>::new_instance(
+		std::get<1>(std::get<2>(ciphertext->get()))
+	)->as_nint();
+}
+
 bool IsOwnerProfileRecord(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
