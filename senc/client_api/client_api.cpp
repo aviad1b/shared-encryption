@@ -11,7 +11,6 @@
 #include "storage/ProfileStorage.hpp"
 #include "../utils/bytes.hpp"
 #include "Value.hpp"
-#include "client_api.h"
 
 namespace api = senc::clientapi;
 namespace utils = senc::utils;
