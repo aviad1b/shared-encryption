@@ -197,7 +197,8 @@ namespace senc::clientapi
 		this->_packetHandler.emplace(QueuedPacketHandler::client(
 			_sock,
 			[this](PacketHandler& packetHandler) { return this->update_callback(packetHandler); },
-			std::chrono::milliseconds(2000) // two seconds between update cycles
+			std::chrono::milliseconds(2000), // two seconds between update cycles
+			_packetHandlerFactory
 		));
 	}
 
