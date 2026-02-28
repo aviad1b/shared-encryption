@@ -120,4 +120,15 @@ namespace senc::utils
 		out->sin6_family = AF_INET6; // IPv6
 		out->sin6_addr = this->_addr;
 	}
+
+	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str)
+	{
+		try { return IPv4(str); }
+		catch (const Exception&) { }
+
+		try { return IPv6(str); }
+		catch (const Exception&) { }
+
+		return std::nullopt;
+	}
 }

@@ -61,7 +61,6 @@ namespace senc::client
 		PacketHandlerFunc func;
 	};
 
-	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str);
 	int start_client(const IPType auto& ip, Port port);
 	void run_client(Socket& sock);
 	bool login_menu(PacketHandler& packetHandler);
@@ -115,7 +114,7 @@ namespace senc::client
 			return 1;
 		}
 
-		auto ip = parse_ip(argv[1]);
+		auto ip = utils::parse_ip(argv[1]);
 		if (!ip.has_value())
 		{
 			cout << "Bad IP: " << argv[1] << endl;
@@ -137,22 +136,6 @@ namespace senc::client
 			[port](const auto& x) { return start_client(x, port); },
 			*ip
 		);
-	}
-
-	/**
-	 * @brief Parses IP instance from string representation.
-	 * @param str String representation of IP address.
-	 * @return IP instance, or `std::nullopt` if invalid.
-	 */
-	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str)
-	{
-		try { return IPv4(str); }
-		catch (const Exception&) { }
-
-		try { return IPv6(str); }
-		catch (const Exception&) { }
-
-		return std::nullopt;
 	}
 
 	/**
