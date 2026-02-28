@@ -92,6 +92,7 @@ namespace senc::clientapi
 
 		/**
 		 * @brief Queues a message decryption under a userset.
+		 * @note Requires user to be logged in.
 		 * @param usersetID ID of userset to decrypt under.
 		 * @param ciphertext Encrypted message to decrypt.
 		 * @return Decryption operation ID.
