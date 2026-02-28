@@ -112,6 +112,120 @@ SENC_CLIENT_API_PUBLIC const uint8_t* GetBytesValue(uintptr_t handle) SENC_NOTHR
 SENC_CLIENT_API_PUBLIC uintptr_t GetBytesBase64(uintptr_t handle) SENC_NOTHROW;
 
 /**
+ * @brief Constructs a new ciphertext handle.
+ * @param c1Bytes C1 bytes.
+ * @param c1Len Length of C1 bytes.
+ * @param c2Bytes C2 bytes.
+ * @param c2Len Length of C2 bytes.
+ * @param c3Bytes C3 bytes.
+ * @param c3Len Length of C3 bytes.
+ * @return Ciphertext handle.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t NewCiphertext(const uint8_t* c1Bytes,
+											   uint64_t c1Len,
+											   const uint8_t* c2Bytes,
+											   uint64_t c2Len,
+											   const uint8_t* c3Bytes,
+											   uint64_t c3Len);
+
+/**
+ * @brief Gets c1 length from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C1 length.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC1Len(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Gets c1 bytes from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C1 bytes.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC1Bytes(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Gets c2 length from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C2 length.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC2Len(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Gets c2 bytes from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C2 bytes.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC2Bytes(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Gets c3 length from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C3 length.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC3Len(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Gets c3 bytes from ciphertext handle.
+ * @param hCiphertext Ciphertext handle.
+ * @return C3 bytes.
+ * @note Calling this function on a non-ciphertext handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC3Bytes(uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Connects to server and returns client handle.
+ * @param serverIP Server IP in string form (either IPv4 or IPv6).
+ * @param serverPort Server's listen port.
+ * @return New client handle.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t Connect(const char* serverIP, uint16_t serverPort) SENC_NOTHROW;
+
+/**
+ * @brief Disconnects client and dellocates resources.
+ * @param hClient Client handle.
+ * @note After calling this function, `hClient` becomes unusable.
+ */
+SENC_CLIENT_API_PUBLIC void Disconnect(uintptr_t hClient) SENC_NOTHROW;
+
+/**
+ * @brief Signs up as a new username (and stays logged in).
+ * @param hClient Client handle.
+ * @param username Username to signup with.
+ * @param password Password to signup with.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void SignUp(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
+
+/**
+ * @brief Logs in to server (and stays logged in).
+ * @param username Username to login with.
+ * @param password Password to login with.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void Login(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
+
+/**
+ * @brief Logs out of server.
+ * @param hClient Client handle.
+ * @note This function does not deallocate resources - calling `Disconnect` is still required.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void Logout(uintptr_t hClient) SENC_NOTHROW;
+
+/**
+ * @brief Iterates over user profile data.
+ * @param hClient Client handle.
+ * @param callback Callback function accepting current profile data record pointer, returning `false` to stop.
+ * @return Nullopt value on success, error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) SENC_NOTHROW;
+
+/**
  * @brief Checks if a profile record pointer is of an owner record.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
  * @return `true` if `pRecord` points to an owner record, otherwise `false` (or error if failed).
@@ -151,3 +265,79 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetProfileRecordRegShard(uintptr_t pRecord) SEN
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) SENC_NOTHROW;
+
+/**
+ * @brief Creates a new userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param owners Usernames of userset's owner members.
+ * @param regMembers Usernames of userset's non-owner members.
+ * @param ownersThreshold Minimum amount of owners required for decryption.
+ * @param regMembersThreshold Minimum amount of non-owners required for decryption.
+ * @return Userset's ID (string handle).
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t MakeUserSet(uintptr_t hClient,
+											 uint8_t ownersCount,
+											 uint8_t regMembersCount,
+											 const char** owners,
+											 const char** regMembers,
+											 uint8_t ownersThreshold,
+											 uint8_t regMembersThreshold) SENC_NOTHROW;
+
+/**
+ * @brief Gets all usersets owned by user.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param callback Callback function to call on the ID of each userset owned by user (string chars).
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void GetUserSets(uintptr_t hClient, void(*callback)(const char*)) SENC_NOTHROW;
+
+/**
+ * @brief Gets all members of a specific userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param usersetID ID of userset to get members of.
+ * @param ownersCallback Callback function to call on username of each owner member (string chars).
+ * @param regsCallback Callback function to call on username of each non-owner member (string chars).
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void GetUserSetMembers(uintptr_t hClient,
+											  void(*ownersCallback)(const char*),
+											  void(*regsCallback)(const char*)) SENC_NOTHROW;
+
+/**
+ * @brief Encrypts a message under a userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param usersetID ID of userset to encrypt under.
+ * @param msg Message to encrypt.
+ * @return Ciphertext handle of encrypted message.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t Encrypt(uintptr_t hClient,
+										 const char* usersetID,
+										 const uint8_t* msg,
+										 uint64_t msgLen) SENC_NOTHROW;
+
+/**
+ * @brief Queues a message decryption under a userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param usersetID ID of userset to decrypt under.
+ * @param ciphertext Encrypted message to decrypt.
+ * @return Decryption operation ID (string handle).
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t Decrypt(uintptr_t hClient,
+										 const char* usersetID,
+										 uintptr_t hCiphertext) SENC_NOTHROW;
+
+/**
+ * @brief Forces client update.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC void ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
