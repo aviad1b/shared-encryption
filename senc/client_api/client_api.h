@@ -129,68 +129,36 @@ SENC_CLIENT_API_PUBLIC uintptr_t NewCiphertext(const uint8_t* c1Bytes, uint64_t 
 											   const uint8_t* c3bBytes, uint64_t c3bLen) SENC_NOTHROW;
 
 /**
- * @brief Gets c1 length from ciphertext handle.
+ * @brief Gets c1 from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C1 length.
+ * @return C1 (bytes buffer handle).
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC1Len(uintptr_t hCiphertext) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetCiphertextC1(uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
- * @brief Gets c1 bytes from ciphertext handle.
+ * @brief Gets c2 from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C1 bytes.
+ * @return C2 (bytes buffer handle).
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC1Bytes(uintptr_t hCiphertext) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetCiphertextC2(uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
- * @brief Gets c2 length from ciphertext handle.
+ * @brief Gets c3a from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C2 length.
+ * @return C3a (bytes buffer handle).
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC2Len(uintptr_t hCiphertext) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetCiphertextC3a(uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
- * @brief Gets c2 bytes from ciphertext handle.
+ * @brief Gets c3b from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C2 bytes.
+ * @return C3b (bytes buffer handle).
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC2Bytes(uintptr_t hCiphertext) SENC_NOTHROW;
-
-/**
- * @brief Gets c3a length from ciphertext handle.
- * @param hCiphertext Ciphertext handle.
- * @return C3a length.
- * @note Calling this function on a non-ciphertext handle is undefined behaviour.
- */
-SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC3aLen(uintptr_t hCiphertext) SENC_NOTHROW;
-
-/**
- * @brief Gets c3a bytes from ciphertext handle.
- * @param hCiphertext Ciphertext handle.
- * @return C3a bytes.
- * @note Calling this function on a non-ciphertext handle is undefined behaviour.
- */
-SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC3aBytes(uintptr_t hCiphertext) SENC_NOTHROW;
-
-/**
- * @brief Gets c3b length from ciphertext handle.
- * @param hCiphertext Ciphertext handle.
- * @return C3b length.
- * @note Calling this function on a non-ciphertext handle is undefined behaviour.
- */
-SENC_CLIENT_API_PUBLIC uint64_t GetCiphertextC3bLen(uintptr_t hCiphertext) SENC_NOTHROW;
-
-/**
- * @brief Gets c3b bytes from ciphertext handle.
- * @param hCiphertext Ciphertext handle.
- * @return C3b bytes.
- * @note Calling this function on a non-ciphertext handle is undefined behaviour.
- */
-SENC_CLIENT_API_PUBLIC const uint8_t* GetCiphertextC3bBytes(uintptr_t hCiphertext) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetCiphertextC3b(uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
  * @brief Connects to server and returns client handle.
