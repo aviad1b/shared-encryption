@@ -123,14 +123,10 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetBytesBase64(uintptr_t handle) SENC_NOTHROW;
  * @param c3bLen Length of C3b bytes.
  * @return Ciphertext handle.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t NewCiphertext(const uint8_t* c1Bytes,
-											   uint64_t c1Len,
-											   const uint8_t* c2Bytes,
-											   uint64_t c2Len,
-											   const uint8_t* c3aBytes,
-											   uint64_t c3aLen,
-											   const uint8_t* c3bBytes,
-											   uint64_t c3bLen) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
+											   const uint8_t* c2Bytes, uint64_t c2Len,
+											   const uint8_t* c3aBytes, uint64_t c3aLen,
+											   const uint8_t* c3bBytes, uint64_t c3bLen) SENC_NOTHROW;
 
 /**
  * @brief Gets c1 length from ciphertext handle.
