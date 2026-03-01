@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
  // define SENC_CLIENT_API_WINDOWS if on windows
