@@ -284,16 +284,23 @@ uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*, uintptr_t)
 
 uintptr_t GetUserSetMembers(uintptr_t hClient,
 							const char* usersetID,
-							void(*ownersCallback)(const char*),
-							void(*regsCallback)(const char*)) noexcept
+							void(*ownersCallback)(const char*, uintptr_t),
+							void(*regsCallback)(const char*, uintptr_t),
+							uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, usersetID, ownersCallback, regsCallback]()
+	return api::Error::ret_null_or_err([&client, usersetID, ownersCallback, regsCallback, context]()
 	{
 		client.get_userset_members(
 			usersetID,
-			[ownersCallback](const std::string& username) { ownersCallback(username.c_str()); },
-			[regsCallback](const std::string& username) { regsCallback(username.c_str()); }
+			[ownersCallback, context](const std::string& username)
+			{
+				ownersCallback(username.c_str(), context);
+			},
+			[regsCallback, context](const std::string& username)
+			{
+				regsCallback(username.c_str(), context);
+			}
 		);
 	})->as_nint();
 }

@@ -301,15 +301,17 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetUserSets(uintptr_t hClient,
  * @note Requires user to be logged in.
  * @param hClient Client handle.
  * @param usersetID ID of userset to get members of (string chars).
- * @param ownersCallback Callback function to call on username of each owner member (string chars).
- * @param regsCallback Callback function to call on username of each non-owner member (string chars).
+ * @param ownersCallback Callback func accepting username of each owner member (string chars) and context.
+ * @param regsCallback Callback func accepting username of each non-owner member (string chars) and context.
+ * @param context Context to pass `ownersCallback` and `regsCallback`.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t GetUserSetMembers(uintptr_t hClient,
 												   const char* usersetID,
-												   void(*ownersCallback)(const char*),
-												   void(*regsCallback)(const char*)) SENC_NOTHROW;
+												   void(*ownersCallback)(const char*, uintptr_t),
+												   void(*regsCallback)(const char*, uintptr_t),
+												   uintptr_t context) SENC_NOTHROW;
 
 /**
  * @brief Encrypts a message under a userset.
