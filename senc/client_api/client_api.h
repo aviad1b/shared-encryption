@@ -185,25 +185,28 @@ SENC_CLIENT_API_PUBLIC void Disconnect(uintptr_t hClient) SENC_NOTHROW;
  * @param hClient Client handle.
  * @param username Username to signup with.
  * @param password Password to signup with.
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void SignUp(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SignUp(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
 
 /**
  * @brief Logs in to server (and stays logged in).
  * @param username Username to login with.
  * @param password Password to login with.
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void Login(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t Login(uintptr_t hClient, const char* username, const char* password) SENC_NOTHROW;
 
 /**
  * @brief Logs out of server.
  * @param hClient Client handle.
+ * @return Null on success, error if failed.
  * @note This function does not deallocate resources - calling `Disconnect` is still required.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void Logout(uintptr_t hClient) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t Logout(uintptr_t hClient) SENC_NOTHROW;
 
 /**
  * @brief Iterates over user profile data.
@@ -279,9 +282,10 @@ SENC_CLIENT_API_PUBLIC uintptr_t MakeUserSet(uintptr_t hClient,
  * @note Requires user to be logged in.
  * @param hClient Client handle.
  * @param callback Callback function to call on the ID of each userset owned by user (string chars).
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void GetUserSets(uintptr_t hClient, void(*callback)(const char*)) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*)) SENC_NOTHROW;
 
 /**
  * @brief Gets all members of a specific userset.
@@ -290,11 +294,12 @@ SENC_CLIENT_API_PUBLIC void GetUserSets(uintptr_t hClient, void(*callback)(const
  * @param usersetID ID of userset to get members of.
  * @param ownersCallback Callback function to call on username of each owner member (string chars).
  * @param regsCallback Callback function to call on username of each non-owner member (string chars).
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void GetUserSetMembers(uintptr_t hClient,
-											  void(*ownersCallback)(const char*),
-											  void(*regsCallback)(const char*)) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetUserSetMembers(uintptr_t hClient,
+												   void(*ownersCallback)(const char*),
+												   void(*regsCallback)(const char*)) SENC_NOTHROW;
 
 /**
  * @brief Encrypts a message under a userset.
@@ -327,6 +332,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t Decrypt(uintptr_t hClient,
  * @brief Forces client update.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC void ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
