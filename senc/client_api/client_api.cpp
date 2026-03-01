@@ -126,34 +126,40 @@ uintptr_t GetCiphertextC3b(uintptr_t hCiphertext) noexcept
 }
 
 uintptr_t Connect(const char* serverIP, uint16_t serverPort,
-				  void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t)) noexcept
+				  void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t, uintptr_t),
+				  uintptr_t decryptFinishedContext) noexcept
 {
-	return api::Value<std::unique_ptr<api::IClient>>::ret_new([serverIP, serverPort, decryptFinishedCallback]()
-	{
-		auto ip = utils::parse_ip(serverIP);
-		if (!ip.has_value())
-			throw api::ClientException("Failed to connect", "Bad IP: " + std::string(serverIP));
-		return std::visit(
-			[serverPort, decryptFinishedCallback](const auto& ipInstance) -> std::unique_ptr<api::IClient>
-			{
-				using IP = std::remove_cvref_t<decltype(ipInstance)>;
-				return std::make_unique<api::Client<IP>>(
-					ipInstance, serverPort,
-					[]() { return senc::Schema{}; },
-					senc::ClientPacketHandlerImplFactory<senc::EncryptedPacketHandler>{},
-					[decryptFinishedCallback](const senc::OperationID& opid, const utils::Buffer& plaintext)
-					{
-						decryptFinishedCallback(
-							opid.to_string().c_str(),
-							plaintext.data(),
-							static_cast<std::uint64_t>(plaintext.size())
-						);
-					}
-				);
-			},
-			*ip
-		);
-	})->as_nint();
+	return api::Value<std::unique_ptr<api::IClient>>::ret_new(
+		[serverIP, serverPort, decryptFinishedCallback, decryptFinishedContext]()
+		{
+			auto ip = utils::parse_ip(serverIP);
+			if (!ip.has_value())
+				throw api::ClientException("Failed to connect", "Bad IP: " + std::string(serverIP));
+			return std::visit(
+				[serverPort, decryptFinishedCallback, decryptFinishedContext]
+				(const auto& ipInstance) -> std::unique_ptr<api::IClient>
+				{
+					using IP = std::remove_cvref_t<decltype(ipInstance)>;
+					return std::make_unique<api::Client<IP>>(
+						ipInstance, serverPort,
+						[]() { return senc::Schema{}; },
+						senc::ClientPacketHandlerImplFactory<senc::EncryptedPacketHandler>{},
+						[decryptFinishedCallback, decryptFinishedContext]
+						(const senc::OperationID& opid, const utils::Buffer& plaintext)
+						{
+							decryptFinishedCallback(
+								opid.to_string().c_str(),
+								plaintext.data(),
+								static_cast<std::uint64_t>(plaintext.size()),
+								decryptFinishedContext
+							);
+						}
+					);
+				},
+				*ip
+			);
+		}
+	)->as_nint();
 }
 
 void Disconnect(uintptr_t hClient) noexcept
