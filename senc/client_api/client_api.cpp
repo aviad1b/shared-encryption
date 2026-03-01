@@ -303,3 +303,12 @@ uintptr_t Decrypt(uintptr_t hClient, const char* usersetID, uintptr_t hCiphertex
 		return client.decrypt(usersetID, ciphertext).to_string();
 	})->as_nint();
 }
+
+uintptr_t ForceUpdate(uintptr_t hClient) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client]()
+	{
+		client.force_update();
+	})->as_nint();
+}
