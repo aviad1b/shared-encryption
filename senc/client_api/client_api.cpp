@@ -236,3 +236,50 @@ uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
 		senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard())
 	)->as_nint();
 }
+
+uintptr_t MakeUserSet(uintptr_t hClient, uint8_t ownersCount, uint8_t regMembersCount,
+					  const char** owners, const char** regMembers,
+					  uint8_t ownersThreshold, uint8_t regMembersThreshold) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Value<std::string>::ret_new(
+		[&client, ownersCount, regMembersCount, owners, regMembers, ownersThreshold, regMembersThreshold]()
+		{
+			std::span ownersSpan(owners, ownersCount);
+			std::span regMembersSpan(regMembers, regMembersCount);
+			return client.make_userset(
+				utils::ranges::strings(ownersSpan),
+				utils::ranges::strings(regMembersSpan),
+				ownersThreshold, regMembersThreshold
+			).to_string();
+		}
+	)->as_nint();
+}
+
+uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*)) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, callback]()
+	{
+		client.get_usersets([callback](const senc::UserSetID& usersetID)
+		{
+			callback(usersetID.to_string().c_str());
+		});
+	})->as_nint();
+}
+
+uintptr_t GetUserSetMembers(uintptr_t hClient,
+							const char* usersetID,
+							void(*ownersCallback)(const char*),
+							void(*regsCallback)(const char*)) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, usersetID, ownersCallback, regsCallback]()
+	{
+		client.get_userset_members(
+			usersetID,
+			[ownersCallback](const std::string& username) { ownersCallback(username.c_str()); },
+			[regsCallback](const std::string& username) { regsCallback(username.c_str()); }
+		);
+	})->as_nint();
+}
