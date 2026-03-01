@@ -209,7 +209,7 @@ SENC_CLIENT_API_PUBLIC void Logout(uintptr_t hClient) SENC_NOTHROW;
  * @brief Iterates over user profile data.
  * @param hClient Client handle.
  * @param callback Callback function accepting current profile data record pointer, returning `false` to stop.
- * @return Nullopt value on success, error if failed.
+ * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) SENC_NOTHROW;
