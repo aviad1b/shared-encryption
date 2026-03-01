@@ -91,7 +91,7 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::iter_profile(bool(*callback)(const storage::ProfileRecord&))
+	inline void Client<IP>::iter_profile(std::function<bool(const storage::ProfileRecord&)> callback)
 	{
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");

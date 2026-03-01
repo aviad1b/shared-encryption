@@ -59,7 +59,7 @@ namespace senc::clientapi
 
 		void logout() override;
 
-		void iter_profile(bool(*callback)(const storage::ProfileRecord&)) override;
+		void iter_profile(std::function<bool(const storage::ProfileRecord&)> callback) override;
 
 		UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 							   utils::ranges::StringViewRange&& regMembers,

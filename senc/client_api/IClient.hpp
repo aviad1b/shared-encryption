@@ -47,7 +47,7 @@ namespace senc::clientapi
 		 * @note Requires user to be logged in.
 		 * @param callback Callback function accepting current profile data record, returning `false` to stop.
 		 */
-		virtual void iter_profile(bool(*callback)(const storage::ProfileRecord&)) = 0;
+		virtual void iter_profile(std::function<bool(const storage::ProfileRecord&)> callback) = 0;
 
 		/**
 		 * @brief Creates a new userset.
