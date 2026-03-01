@@ -283,3 +283,23 @@ uintptr_t GetUserSetMembers(uintptr_t hClient,
 		);
 	})->as_nint();
 }
+
+uintptr_t Encrypt(uintptr_t hClient, const char* usersetID,
+				  const uint8_t* msg, uint64_t msgLen) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Value<senc::Ciphertext>::ret_new([&client, usersetID, msg, msgLen]()
+	{
+		return client.encrypt(usersetID, utils::Buffer(msg, msg + msgLen));
+	})->as_nint();
+}
+
+uintptr_t Decrypt(uintptr_t hClient, const char* usersetID, uintptr_t hCiphertext) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
+	return api::Value<std::string>::ret_new([&client, usersetID, &ciphertext]()
+	{
+		return client.decrypt(usersetID, ciphertext).to_string();
+	})->as_nint();
+}
