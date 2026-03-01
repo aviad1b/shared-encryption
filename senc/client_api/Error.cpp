@@ -31,6 +31,15 @@ namespace senc::clientapi
 		return Error::UNKNOWN;
 	}
 
+	Error* Error::ret_null_or_err(utils::Callable<void> auto&& f)
+	{
+		try { f(); }
+		catch (const std::bad_alloc&) { return Error::ALLOCATION; }
+		catch (const std::exception& e) { return Error::new_instance(e.what()); }
+		catch (...) { return Error::UNKNOWN; }
+		return nullptr; // success
+	}
+
 	bool Error::has_error() const noexcept
 	{
 		return true;
