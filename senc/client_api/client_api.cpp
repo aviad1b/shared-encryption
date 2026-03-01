@@ -140,20 +140,29 @@ uintptr_t SENC_Connect(const char* serverIP, uint16_t serverPort,
 				(const auto& ipInstance) -> std::unique_ptr<api::IClient>
 				{
 					using IP = std::remove_cvref_t<decltype(ipInstance)>;
+
+					// if `decryptFinishedCallback` isn't null, wrap it for logic; otherwise, use empty lambda
+					std::function<void(const senc::OperationID&, const utils::Buffer&)> outerCallback;
+					if (decryptFinishedCallback)
+						outerCallback =
+							[decryptFinishedCallback, decryptFinishedContext]
+							(const senc::OperationID& opid, const utils::Buffer& plaintext)
+							{
+								decryptFinishedCallback(
+									opid.to_string().c_str(),
+									plaintext.data(),
+									static_cast<std::uint64_t>(plaintext.size()),
+									decryptFinishedContext
+								);
+							};
+					else
+						outerCallback = [](const senc::OperationID&, const utils::Buffer&) { };
+
 					return std::make_unique<api::Client<IP>>(
 						ipInstance, serverPort,
 						[]() { return senc::Schema{}; },
 						senc::ClientPacketHandlerImplFactory<senc::EncryptedPacketHandler>{},
-						[decryptFinishedCallback, decryptFinishedContext]
-						(const senc::OperationID& opid, const utils::Buffer& plaintext)
-						{
-							decryptFinishedCallback(
-								opid.to_string().c_str(),
-								plaintext.data(),
-								static_cast<std::uint64_t>(plaintext.size()),
-								decryptFinishedContext
-							);
-						}
+						outerCallback
 					);
 				},
 				*ip
