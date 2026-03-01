@@ -195,14 +195,14 @@ uintptr_t Logout(uintptr_t hClient) noexcept
 	})->as_nint();
 }
 
-uintptr_t IterUserProfile(uintptr_t hClient, bool(*callback)(uintptr_t)) noexcept
+uintptr_t IterUserProfile(uintptr_t hClient, bool(*callback)(uintptr_t, uintptr_t), uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, callback]()
+	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
-		client.iter_profile([callback](const api::storage::ProfileRecord& record)
+		client.iter_profile([callback, context](const api::storage::ProfileRecord& record)
 		{
-			return callback(reinterpret_cast<uintptr_t>(&record));
+			return callback(reinterpret_cast<uintptr_t>(&record), context);
 		});
 	})->as_nint();
 }

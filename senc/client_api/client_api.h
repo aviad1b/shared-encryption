@@ -213,11 +213,15 @@ SENC_CLIENT_API_PUBLIC uintptr_t Logout(uintptr_t hClient) SENC_NOTHROW;
 /**
  * @brief Iterates over user profile data.
  * @param hClient Client handle.
- * @param callback Callback function accepting current profile data record pointer, returning `false` to stop.
+ * @param callback Callback function accepting current profile data record pointer and context,
+ *				   returning `false` to stop.
+ * @param context Context to pass `callback`.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hClient, bool(*callback)(uintptr_t)) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hClient,
+												 bool(*callback)(uintptr_t, uintptr_t),
+												 uintptr_t context) SENC_NOTHROW;
 
 /**
  * @brief Checks if a profile record pointer is of an owner record.
