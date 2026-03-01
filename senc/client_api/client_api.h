@@ -215,7 +215,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t Logout(uintptr_t hClient) SENC_NOTHROW;
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hProfile, bool(*callback)(uintptr_t)) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t IterUserProfile(uintptr_t hClient, bool(*callback)(uintptr_t)) SENC_NOTHROW;
 
 /**
  * @brief Checks if a profile record pointer is of an owner record.
