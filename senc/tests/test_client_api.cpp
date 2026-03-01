@@ -142,7 +142,6 @@ void ASSERT_NO_ERROR(const SENC_Handle& handle)
 
 TEST_F(ClientApiTest, RoundTripFlow)
 {
-	SENC_Handle status;
 	DecsMap decs;
 
 	// connect 4 clients
