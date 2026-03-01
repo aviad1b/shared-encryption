@@ -15,7 +15,7 @@
 namespace senc::clientapi
 {
 	template <utils::IPType IP>
-	inline Client<IP>::Client(const IP& serverIP, utils::Port& serverPort,
+	inline Client<IP>::Client(const IP& serverIP, utils::Port serverPort,
 							  std::function<Schema()> schemaFactory,
 							  ClientPacketHandlerFactory packetHandlerFactory,
 							  std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback)

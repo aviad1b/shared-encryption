@@ -38,7 +38,7 @@ namespace senc::clientapi
 		 * @param packetHandlerFactory Factory constructing implementation of `PacketHandler`.
 		 * @param decryptFinishedCallback Callback function to call on decryption finish.
 		 */
-		Client(const IP& serverIP, utils::Port& serverPort,
+		Client(const IP& serverIP, utils::Port serverPort,
 			   std::function<Schema()> schemaFactory,
 			   ClientPacketHandlerFactory packetHandlerFactory,
 			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
