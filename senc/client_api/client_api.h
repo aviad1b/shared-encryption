@@ -357,6 +357,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_ForceUpdate(uintptr_t hClient) SENC_NOTHRO
 
 
 #ifdef __cplusplus
+#include <utility>
 
 /**
  * @struct SENC_Handle
@@ -368,19 +369,32 @@ struct SENC_Handle
 
 	uintptr_t handle;
 
-	SENC_Handle();
+	SENC_Handle(): Self(0) { }
 
-	SENC_Handle(uintptr_t handle);
+	SENC_Handle(uintptr_t handle) : handle(handle) { }
 
-	SENC_Handle(const SENC_Handle& other);
+	SENC_Handle(const SENC_Handle&) = default;
 
-	SENC_Handle& operator=(SENC_Handle other);
+	SENC_Handle& operator=(SENC_Handle other)
+	{
+		this->swap(other);
+		return *this;
+	}
 
-	~SENC_Handle();
+	~SENC_Handle()
+	{
+		SENC_FreeHandle(handle);
+	}
 
-	operator uintptr_t() const;
+	operator uintptr_t() const
+	{
+		return handle;
+	}
 
-	void swap(SENC_Handle& other);
+	void swap(SENC_Handle& other)
+	{
+		std::swap(handle, other.handle);
+	}
 };
 
 #endif // end __cplusplus
