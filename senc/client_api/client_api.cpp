@@ -211,10 +211,17 @@ uintptr_t SENC_IterUserProfile(uintptr_t hClient,
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
-		client.iter_profile([callback, context](const api::storage::ProfileRecord& record)
-		{
-			return callback(reinterpret_cast<uintptr_t>(&record), context);
-		});
+		// if `callback` isn't null, wrap it for logic; otherwise, use empty lambda
+		std::function<bool(const api::storage::ProfileRecord&)> outerCallback;
+		if (callback)
+			outerCallback = [callback, context](const api::storage::ProfileRecord& record)
+			{
+				return callback(reinterpret_cast<uintptr_t>(&record), context);
+			};
+		else
+			outerCallback = [](const api::storage::ProfileRecord&) { return true; };
+
+		client.iter_profile(outerCallback);
 	})->as_nint();
 }
 
