@@ -334,17 +334,26 @@ uintptr_t SENC_GetUserSetMembers(uintptr_t hClient,
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client, usersetID, ownersCallback, regsCallback, context]()
 	{
-		client.get_userset_members(
-			usersetID,
-			[ownersCallback, context](const std::string& username)
+		// for each callback, if isn't null, wrap it for logic; otherwise, use empty lambda
+		std::function<void(const std::string&)> outerOwnersCallback, outerRegsCallback;
+
+		if (ownersCallback)
+			outerOwnersCallback = [ownersCallback, context](const std::string& username)
 			{
 				ownersCallback(username.c_str(), context);
-			},
-			[regsCallback, context](const std::string& username)
+			};
+		else
+			outerOwnersCallback = [](const std::string&) { };
+
+		if (regsCallback)
+			outerRegsCallback = [regsCallback, context](const std::string& username)
 			{
 				regsCallback(username.c_str(), context);
-			}
-		);
+			};
+		else
+			outerRegsCallback = [](const std::string&) { };
+
+		client.get_userset_members(usersetID, outerOwnersCallback, outerRegsCallback);
 	})->as_nint();
 }
 
