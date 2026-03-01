@@ -386,7 +386,7 @@ struct SENC_Handle
 		SENC_FreeHandle(handle);
 	}
 
-	operator uintptr_t() const
+	constexpr operator uintptr_t() const
 	{
 		return handle;
 	}
