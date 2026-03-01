@@ -159,6 +159,45 @@ void Disconnect(uintptr_t hClient) noexcept
 	client->get().reset();
 }
 
+uintptr_t SignUp(uintptr_t hClient, const char* username, const char* password) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, username, password]()
+	{
+		client.signup(username, password);
+	})->as_nint();
+}
+
+uintptr_t Login(uintptr_t hClient, const char* username, const char* password) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, username, password]()
+	{
+		client.login(username, password);
+	})->as_nint();
+}
+
+uintptr_t Logout(uintptr_t hClient) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client]()
+	{
+		client.logout();
+	})->as_nint();
+}
+
+uintptr_t IterUserProfile(uintptr_t hClient, bool(*callback)(uintptr_t)) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, callback]()
+	{
+		client.iter_profile([callback](const api::storage::ProfileRecord& record)
+		{
+			return callback(reinterpret_cast<uintptr_t>(&record));
+		});
+	})->as_nint();
+}
+
 bool IsOwnerProfileRecord(uintptr_t pRecord) noexcept
 {
 	auto* record = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
