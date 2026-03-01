@@ -365,7 +365,13 @@ struct SENC_Handle
 {
 	uintptr_t handle;
 
+	SENC_Handle() : SENC_Handle(0) { }
+
 	SENC_Handle(uintptr_t handle) : handle(handle) { }
+
+	SENC_Handle(const SENC_Handle&) = default;
+
+	SENC_Handle& operator=(const SENC_Handle&) = default;
 
 	~SENC_Handle() { SENC_FreeHandle(handle); }
 
