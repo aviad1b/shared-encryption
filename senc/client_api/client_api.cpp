@@ -270,14 +270,14 @@ uintptr_t MakeUserSet(uintptr_t hClient, uint8_t ownersCount, uint8_t regMembers
 	)->as_nint();
 }
 
-uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*)) noexcept
+uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*, uintptr_t), uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, callback]()
+	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
-		client.get_usersets([callback](const senc::UserSetID& usersetID)
+		client.get_usersets([callback, context](const senc::UserSetID& usersetID)
 		{
-			callback(usersetID.to_string().c_str());
+			callback(usersetID.to_string().c_str(), context);
 		});
 	})->as_nint();
 }

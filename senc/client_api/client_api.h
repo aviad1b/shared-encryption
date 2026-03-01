@@ -287,11 +287,14 @@ SENC_CLIENT_API_PUBLIC uintptr_t MakeUserSet(uintptr_t hClient,
  * @brief Gets all usersets owned by user.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
- * @param callback Callback function to call on the ID of each userset owned by user (string chars).
+ * @param callback Callback function accepting ID of each userset owned by user (string chars) and context.
+ * @param context Context to pass `callback`.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(const char*)) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t GetUserSets(uintptr_t hClient,
+											 void(*callback)(const char*, uintptr_t),
+											 uintptr_t context) SENC_NOTHROW;
 
 /**
  * @brief Gets all members of a specific userset.
