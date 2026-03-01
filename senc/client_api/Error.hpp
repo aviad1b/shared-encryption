@@ -65,7 +65,7 @@ namespace senc::clientapi
 		 * @param f Callback with potential throws to turn into an error instance.
 		 * @return `nullptr`, or fitting `Error` if an excpetion occurred.
 		 */
-		static Error* ret_null_or_err(utils::Callable<void> auto&& f)
+		static Handle* ret_null_or_err(utils::Callable<void> auto&& f)
 		{
 			try { f(); }
 			catch (const std::bad_alloc&) { return Error::ALLOCATION; }
