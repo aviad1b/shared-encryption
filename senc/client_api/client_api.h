@@ -276,12 +276,12 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) S
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t MakeUserSet(uintptr_t hClient,
-											 uint8_t ownersCount,
-											 uint8_t regMembersCount,
+											 uint64_t ownersCount,
+											 uint64_t regMembersCount,
 											 const char** owners,
 											 const char** regMembers,
-											 uint8_t ownersThreshold,
-											 uint8_t regMembersThreshold) SENC_NOTHROW;
+											 uint64_t ownersThreshold,
+											 uint64_t regMembersThreshold) SENC_NOTHROW;
 
 /**
  * @brief Gets all usersets owned by user.

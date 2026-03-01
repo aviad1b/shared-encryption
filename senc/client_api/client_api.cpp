@@ -251,20 +251,36 @@ uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
 	})->as_nint();
 }
 
-uintptr_t MakeUserSet(uintptr_t hClient, uint8_t ownersCount, uint8_t regMembersCount,
+uintptr_t MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t regMembersCount,
 					  const char** owners, const char** regMembers,
-					  uint8_t ownersThreshold, uint8_t regMembersThreshold) noexcept
+					  uint64_t ownersThreshold, uint64_t regMembersThreshold) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Value<std::string>::ret_new(
 		[&client, ownersCount, regMembersCount, owners, regMembers, ownersThreshold, regMembersThreshold]()
 		{
+			if (ownersCount + regMembersCount > senc::MAX_MEMBERS)
+				throw api::ClientException(
+					"Failed to create userset",
+					"Invalid members count, maximum is " + std::to_string(senc::MAX_MEMBERS)
+				);
+			if (ownersThreshold > senc::MAX_MEMBERS)
+				throw api::ClientException(
+					"Failed to create userset",
+					"Invalid owners threshold, maximum is " + std::to_string(senc::MAX_MEMBERS)
+				);
+			if (regMembersThreshold > senc::MAX_MEMBERS)
+				throw api::ClientException(
+					"Failed to create userset",
+					"Invalid non-owners threshold, maximum is " + std::to_string(senc::MAX_MEMBERS)
+				);
 			std::span ownersSpan(owners, ownersCount);
 			std::span regMembersSpan(regMembers, regMembersCount);
 			return client.make_userset(
 				utils::ranges::strings(ownersSpan),
 				utils::ranges::strings(regMembersSpan),
-				ownersThreshold, regMembersThreshold
+				static_cast<senc::member_count_t>(ownersThreshold),
+				static_cast<senc::member_count_t>(regMembersThreshold)
 			).to_string();
 		}
 	)->as_nint();
