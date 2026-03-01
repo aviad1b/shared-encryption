@@ -291,13 +291,14 @@ SENC_CLIENT_API_PUBLIC uintptr_t GetUserSets(uintptr_t hClient, void(*callback)(
  * @brief Gets all members of a specific userset.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
- * @param usersetID ID of userset to get members of.
+ * @param usersetID ID of userset to get members of (string chars).
  * @param ownersCallback Callback function to call on username of each owner member (string chars).
  * @param regsCallback Callback function to call on username of each non-owner member (string chars).
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t GetUserSetMembers(uintptr_t hClient,
+												   const char* usersetID,
 												   void(*ownersCallback)(const char*),
 												   void(*regsCallback)(const char*)) SENC_NOTHROW;
 
