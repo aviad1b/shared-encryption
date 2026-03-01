@@ -385,3 +385,30 @@ uintptr_t SENC_ForceUpdate(uintptr_t hClient) noexcept
 		client.force_update();
 	})->as_nint();
 }
+
+SENC_Handle::SENC_Handle() : Self(0) { }
+
+SENC_Handle::SENC_Handle(uintptr_t handle) : handle(handle) { }
+
+SENC_Handle::SENC_Handle(const SENC_Handle& other) : Self(other.handle) { }
+
+SENC_Handle& SENC_Handle::operator=(SENC_Handle other)
+{
+	utils::swap(*this, other);
+	return *this;
+}
+
+SENC_Handle::~SENC_Handle()
+{
+	SENC_FreeHandle(handle);
+}
+
+SENC_Handle::operator uintptr_t() const
+{
+	return handle;
+}
+
+void SENC_Handle::swap(SENC_Handle& other)
+{
+	utils::swap(handle, other.handle);
+}
