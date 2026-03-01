@@ -20,7 +20,7 @@ namespace utils = senc::utils;
 void FreeHandle(uintptr_t handle) noexcept
 {
 	auto* pHandle = api::Handle::from_nint(handle);
-	if (pHandle->allocated())
+	if (pHandle && pHandle->allocated())
 	{
 		try { delete pHandle; }
 		catch(...) { }
