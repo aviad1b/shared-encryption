@@ -58,6 +58,7 @@
 
 #endif // end SENC_CLIENT_API_WINDOWS
 
+
 /**
  * @brief Deallocates previously returned handle.
  * @param handle Handle to deallocate.
@@ -352,3 +353,23 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
+
+
+#ifdef __cplusplus
+
+/**
+ * @struct SENC_Handle
+ * @brief Wraps `uintptr_t` handle and frees handle on descruction.
+ */
+struct SENC_Handle
+{
+	uintptr_t handle;
+
+	SENC_Handle(uintptr_t handle) : handle(handle) { }
+
+	~SENC_Handle() { SENC_FreeHandle(handle); }
+
+	operator uintptr_t() const { return handle; }
+};
+
+#endif // end __cplusplus
