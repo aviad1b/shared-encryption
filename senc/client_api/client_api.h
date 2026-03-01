@@ -373,7 +373,10 @@ struct SENC_Handle
 
 	SENC_Handle(uintptr_t handle) : handle(handle) { }
 
-	SENC_Handle(const SENC_Handle&) = default;
+	SENC_Handle(SENC_Handle&& other) : handle(other.handle)
+	{
+		other.handle = 0;
+	}
 
 	SENC_Handle& operator=(SENC_Handle other)
 	{
