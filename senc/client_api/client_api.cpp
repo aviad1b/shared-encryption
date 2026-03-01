@@ -60,9 +60,10 @@ const uint8_t* GetBytesValue(uintptr_t handle) noexcept
 uintptr_t GetBytesBase64(uintptr_t handle) noexcept
 {
 	auto& buff = api::Value<utils::Buffer>::from_nint(handle)->get();
-	return api::Value<std::string>::new_instance(
-		utils::bytes_to_base64(buff)
-	)->as_nint();
+	return api::Value<std::string>::ret_new([&buff]()
+	{
+		return utils::bytes_to_base64(buff);
+	})->as_nint();
 }
 
 uintptr_t NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
@@ -90,17 +91,19 @@ uintptr_t NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
 uintptr_t GetCiphertextC1(uintptr_t hCiphertext) noexcept
 {
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
-	return api::Value<utils::Buffer>::new_instance(
-		std::get<0>(ciphertext).encode()
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
+	{
+		return std::get<0>(ciphertext).encode();
+	})->as_nint();
 }
 
 uintptr_t GetCiphertextC2(uintptr_t hCiphertext) noexcept
 {
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
-	return api::Value<utils::Buffer>::new_instance(
-		std::get<1>(ciphertext).encode()
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
+	{
+		return std::get<1>(ciphertext).encode();
+	})->as_nint();
 }
 
 uintptr_t GetCiphertextC3a(uintptr_t hCiphertext) noexcept
@@ -116,9 +119,10 @@ uintptr_t GetCiphertextC3a(uintptr_t hCiphertext) noexcept
 uintptr_t GetCiphertextC3b(uintptr_t hCiphertext) noexcept
 {
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
-	return api::Value<utils::Buffer>::new_instance(
-		std::get<1>(std::get<2>(ciphertext))
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
+	{
+		return std::get<1>(std::get<2>(ciphertext));
+	})->as_nint();
 }
 
 uintptr_t Connect(const char* serverIP, uint16_t serverPort,
@@ -206,35 +210,39 @@ bool IsOwnerProfileRecord(uintptr_t pRecord) noexcept
 uintptr_t GetProfileRecordRegPubKey(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
-	return api::Value<utils::Buffer>::new_instance(
-		senc::pub_key_to_bytes(rpRecord->reg_layer_pub_key())
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		return senc::pub_key_to_bytes(rpRecord->reg_layer_pub_key());
+	})->as_nint();
 }
 
 uintptr_t GetProfileRecordOwnerPubKey(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
-	return api::Value<utils::Buffer>::new_instance(
-		senc::pub_key_to_bytes(rpRecord->owner_layer_pub_key())
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		return senc::pub_key_to_bytes(rpRecord->owner_layer_pub_key());
+	})->as_nint();
 }
 
 uintptr_t GetProfileRecordRegShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
-	return api::Value<utils::Buffer>::new_instance(
-		senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard())
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+			return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+	})->as_nint();
 }
 
 uintptr_t GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
-	if (!rpRecord->is_owner())
-		return api::Error::new_instance("Non-owner record has no owner-layer shard")->as_nint();
-	return api::Value<utils::Buffer>::new_instance(
-		senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard())
-	)->as_nint();
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		if (!rpRecord->is_owner())
+			throw api::ClientException("Non-owner record has no owner-layer shard");
+		return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+	})->as_nint();
 }
 
 uintptr_t MakeUserSet(uintptr_t hClient, uint8_t ownersCount, uint8_t regMembersCount,
