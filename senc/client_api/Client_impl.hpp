@@ -241,7 +241,7 @@ namespace senc::clientapi
 		auto profileData = _storage->iter_profile_data();
 		const auto it = std::find_if(
 			profileData.begin(), profileData.end(),
-			[usersetID](const storage::ProfileRecord& record)
+			[&usersetID](const storage::ProfileRecord& record)
 			{
 				return record.userset_id() == usersetID;
 			}
@@ -398,7 +398,7 @@ namespace senc::clientapi
 		auto profileData = _storage->iter_profile_data();
 		const auto it = std::find_if(
 			profileData.begin(), profileData.end(),
-			[shardsIDs](const storage::ProfileRecord& record)
+			[&shardsIDs](const storage::ProfileRecord& record)
 			{
 				return shardsIDs.end() != std::find(
 					shardsIDs.begin(), shardsIDs.end(),
