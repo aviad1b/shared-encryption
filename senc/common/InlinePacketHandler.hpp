@@ -108,6 +108,8 @@ namespace senc
 	private:
 		PlainPacketHandlerSyncData _syncData;
 
+		InlinePacketHandler(utils::Socket& sock);
+
 		void send_pub_key(const PubKey& pubKey);
 		void recv_pub_key(PubKey& out);
 
@@ -134,9 +136,6 @@ namespace senc
 
 		void send_update_record(const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
 		void recv_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out);
-
-		private:
-			InlinePacketHandler(utils::Socket& sock);
 	};
 
 	static_assert(PacketHandlerImpl<InlinePacketHandler>);
