@@ -10,9 +10,9 @@
 
 namespace senc
 {
-	utils::Buffer::const_iterator read_pub_key(PubKey& out,
-											   utils::Buffer::const_iterator it,
-											   utils::Buffer::const_iterator end)
+	utils::BytesView::iterator read_pub_key(PubKey& out,
+											utils::BytesView::iterator it,
+											utils::BytesView::iterator end)
 	{
 		static thread_local utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
 		it = utils::read_bytes(pubKeyBuff, it, end);
@@ -20,7 +20,7 @@ namespace senc
 		return it;
 	}
 
-	PubKey pub_key_from_bytes(const utils::Buffer& bytes)
+	PubKey pub_key_from_bytes(utils::BytesView bytes)
 	{
 		PubKey res{};
 		read_pub_key(res, bytes.begin(), bytes.end());
@@ -39,9 +39,9 @@ namespace senc
 		return res;
 	}
 
-	utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
-													  utils::Buffer::const_iterator it,
-													  utils::Buffer::const_iterator end)
+	utils::BytesView::iterator read_priv_key_shard(PrivKeyShard& out,
+												   utils::BytesView::iterator it,
+												   utils::BytesView::iterator end)
 	{
 		static thread_local utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
 		static thread_local utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
@@ -54,7 +54,7 @@ namespace senc
 		return it;
 	}
 
-	PrivKeyShard priv_key_shard_from_bytes(const utils::Buffer& bytes)
+	PrivKeyShard priv_key_shard_from_bytes(utils::BytesView bytes)
 	{
 		PrivKeyShard res{};
 		read_priv_key_shard(res, bytes.begin(), bytes.end());
