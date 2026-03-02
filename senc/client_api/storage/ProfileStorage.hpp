@@ -125,6 +125,11 @@ namespace senc::clientapi::storage
 		 */
 		static ProfileRecord parse_profile_record(const utils::Buffer& data);
 
+		/**
+		 * @brief Serializes profile record into binary data.
+		 * @param record Profile record.
+		 * @return Serialized version of `record`.
+		 */
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
 	};
 
