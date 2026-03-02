@@ -205,7 +205,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_SignUp(uintptr_t hClient,
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_Login(uintptr_t hClient,
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_LogIn(uintptr_t hClient,
 											const char* username,
 											const char* password) SENC_NOTHROW;
 

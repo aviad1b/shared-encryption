@@ -151,7 +151,7 @@ TEST_F(ClientApiTest, SignupLoginLogout)
 
 	ASSERT_NO_ERROR(SENC_Logout(hClient));
 
-	ASSERT_NO_ERROR(SENC_Login(hClient, username, password));
+	ASSERT_NO_ERROR(SENC_LogIn(hClient, username, password));
 
 	ASSERT_NO_ERROR(SENC_Logout(hClient));
 

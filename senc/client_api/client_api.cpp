@@ -186,7 +186,7 @@ uintptr_t SENC_SignUp(uintptr_t hClient, const char* username, const char* passw
 	})->as_nint();
 }
 
-uintptr_t SENC_Login(uintptr_t hClient, const char* username, const char* password) noexcept
+uintptr_t SENC_LogIn(uintptr_t hClient, const char* username, const char* password) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client, username, password]()
