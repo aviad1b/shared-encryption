@@ -133,6 +133,10 @@ namespace senc
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
 	private:
+		/**
+		 * @struct senc::QueuedPacketHandler::Sync
+		 * @brief Holds synchronization fields for QueuedPacketHandler.
+		 */
 		struct Sync
 		{
 			std::mutex mtxUnderlying;
