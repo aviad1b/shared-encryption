@@ -15,6 +15,11 @@
 
 namespace senc::utils
 {
+	/**
+	 * @brief `constexpr` function which gets C-string's length.
+	 * @param str C-string to get its length.
+	 * @return `str`'s length.
+	 */
 	template <std::size_t n>
 	constexpr std::size_t constexpr_strlen(const char(&str)[n])
 	{
@@ -181,6 +186,7 @@ namespace senc::utils
 
 	namespace sfinae
 	{
+		// used to check for any instantation of FixedString
 		template <typename T>
 		struct is_fixed_string_type : std::false_type { };
 

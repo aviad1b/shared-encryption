@@ -21,6 +21,10 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::QueuedPacketHandler
+	 * @brief Implementation of `senc::PacketHandler` which wraps another implementation with a packets queue.
+	 */
 	class QueuedPacketHandler : public PacketHandler
 	{
 	public:
@@ -32,6 +36,9 @@ namespace senc
 		 */
 		QueuedPacketHandler(Self&& other) noexcept;
 
+		/**
+		 * @brief Destructor of queued packet handler, stops queue.
+		 */
 		~QueuedPacketHandler();
 
 		/**
@@ -126,6 +133,10 @@ namespace senc
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
 	private:
+		/**
+		 * @struct senc::QueuedPacketHandler::Sync
+		 * @brief Holds synchronization fields for QueuedPacketHandler.
+		 */
 		struct Sync
 		{
 			std::mutex mtxUnderlying;

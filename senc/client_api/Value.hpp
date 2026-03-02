@@ -59,11 +59,8 @@ namespace senc::clientapi
 		static Handle* ret_new(utils::Callable<T> auto&& f) noexcept;
 
 		Value(const Self&) = delete;
-
 		Self& operator=(const Self&) = delete;
-
 		Value(Self&&) = delete;
-
 		Self& operator=(Self&&) = delete;
 
 		bool has_error() const noexcept override;

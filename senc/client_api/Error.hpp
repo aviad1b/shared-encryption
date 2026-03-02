@@ -75,13 +75,9 @@ namespace senc::clientapi
 		}
 
 		Error(const Self&) = delete;
-
 		Self& operator=(const Self&) = delete;
-
 		Error(Self&&) = delete;
-
 		Self& operator=(Self&&) = delete;
-
 		bool has_error() const noexcept override;
 
 		/**

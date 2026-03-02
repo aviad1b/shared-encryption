@@ -50,7 +50,7 @@ namespace senc::server::storage
 		{
 			this->_db.select<"Users", sql::SelectArg<"username">>()
 				.where("username = " + sql::Text(username).as_sqlite())
-				>> [&found](const sql::TextView&) { found = true; };
+				>> [&found](sql::TextView) { found = true; };
 		}
 		catch (utils::sqlite::SQLiteException& e)
 		{
@@ -172,7 +172,7 @@ namespace senc::server::storage
 			this->_db.select<"Members", sql::SelectArg<"userset_id">>()
 				.where("username = " + sql::TextView(owner).as_sqlite())
 				.where("is_owner != 0")
-				>> [&res](const sql::BlobView& usersetIDBytes)
+				>> [&res](sql::BlobView usersetIDBytes)
 				{
 					res.emplace_back();
 					std::memcpy(
@@ -202,7 +202,7 @@ namespace senc::server::storage
 				.where("username = " + sql::TextView(user).as_sqlite())
 				.where("userset_id = " + sql::BlobView(userset.data(), userset.size()).as_sqlite())
 				.where("is_owner != 0")
-				>> [&found](const sql::TextView&) { found = true; };
+				>> [&found](sql::TextView) { found = true; };
 		}
 		catch (utils::sqlite::SQLiteException& e)
 		{
@@ -301,7 +301,7 @@ namespace senc::server::storage
 		{
 			this->_db.select<"UserSets", sql::SelectArg<"id">>()
 				.where("id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
-				>> [&found](const sql::BlobView&) { found = true; };
+				>> [&found](sql::BlobView) { found = true; };
 		}
 		catch (utils::sqlite::SQLiteException& e)
 		{
@@ -332,7 +332,7 @@ namespace senc::server::storage
 			this->_db.select<"Members", sql::SelectArg<"username">>()
 				.where("shard_id = " + sql::BlobView(shardIDBytes).as_sqlite())
 				.where("userset_id = " + sql::BlobView(usersetID.data(), usersetID.size()).as_sqlite())
-				>> [&found](const sql::TextView&) { found = true; };
+				>> [&found](sql::TextView) { found = true; };
 		}
 		catch (utils::sqlite::SQLiteException& e)
 		{

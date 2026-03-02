@@ -118,8 +118,18 @@ namespace senc::clientapi::storage
 		 */
 		static ProfileEncSchema& schema();
 
+		/**
+		 * @brief Parses profile record from binary data.
+		 * @param data Binary data.
+		 * @return Parsed profile record.
+		 */
 		static ProfileRecord parse_profile_record(const utils::Buffer& data);
 
+		/**
+		 * @brief Serializes profile record into binary data.
+		 * @param record Profile record.
+		 * @return Serialized version of `record`.
+		 */
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
 	};
 
@@ -197,6 +207,10 @@ namespace senc::clientapi::storage
 		profile_record_enc_sizes_t _recordEncSizes;
 		std::optional<ProfileRecord> _record;
 
+		/**
+		 * @brief Gets start position of next profile record data in file.
+		 * @return Start position of next profile record data in file.
+		 */
 		utils::file_pos_t next_pos() const;
 	};
 

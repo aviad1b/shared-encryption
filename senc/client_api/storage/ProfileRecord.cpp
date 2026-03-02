@@ -11,10 +11,10 @@
 namespace senc::clientapi::storage
 {
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
-													PubKey&& regLayerPubKey,
-													PubKey&& ownerLayerPubKey,
-													PrivKeyShard&& regLayerPrivKeyShard,
-													PrivKeyShard&& ownerLayerPrivKeyShard)
+											 PubKey&& regLayerPubKey,
+											 PubKey&& ownerLayerPubKey,
+											 PrivKeyShard&& regLayerPrivKeyShard,
+											 PrivKeyShard&& ownerLayerPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
