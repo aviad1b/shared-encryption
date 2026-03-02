@@ -21,8 +21,14 @@ namespace senc
 	public:
 		using Self = PlainPacketHandlerSyncData;
 
+		/**
+		 * @brief Default constructor of plain packet handler data.
+		 */
 		PlainPacketHandlerSyncData() = default;
 		
+		/**
+		 * @brief Move constructor of plain packet handler data.
+		 */
 		PlainPacketHandlerSyncData(Self&&) = default;
 
 		bool validate_synchronization(const IPacketHandlerSyncData& other) const override;
