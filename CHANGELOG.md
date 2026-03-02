@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.1
+
+### Added or Changed
+- Added long term server storage (sqlite).
+- Added Beta client API with automatic updates &amp; storage.
+- Changed print of Elliptic-Curve elements to use base64 of SEC 1 standard (in client).
+
 ## v1.1.0
 
 ### Added or Changed
