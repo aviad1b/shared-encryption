@@ -189,7 +189,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	SENC_Handle hCiphertext = SENC_Encrypt(
 		hClient1, usersetID,
 		reinterpret_cast<const uint8_t*>(msg.c_str()),
-		msg.length() + 1
+		msg.length()
 	);
 	ASSERT_NO_ERROR(hCiphertext);
 
