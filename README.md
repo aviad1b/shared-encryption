@@ -34,8 +34,9 @@
     <li>
 		<a href="#usage">Usage</a>
 		<ul>
-		  <li><a href="#server"> Server</a></li>
-		  <li><a href="#client"> Client</a></li>
+			<li><a href="#server">Server</a></li>
+			<li><a href="#client">Client</a></li>
+			<li><a href="#client-api">Client API</a></li>
 		</ul>
 	</li>
 	<li>
@@ -45,6 +46,7 @@
 			<li><a href="#protocol">Protocol</a></li>
 		</ul>
 	</li>
+	<li><a href="#known-issues">Known Issues</a></li>
     <li><a href="#non-contribution">(Non-)Contribution</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -167,6 +169,18 @@ After that, the user is presented with a menu of options:
 
 The client as of now is fairly primitive, contains no automatic storage and expects user to constantly copy-paste previously-provided data;
 that is to be changed in the near future.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Client API
+
+The provided shared library `senc_client_api` provides an ABI-based client API which can be used in C, C++ or C#.
+
+Documentation of the API functions can be found in [client_api.h](senc/client_api/client_api.h).
+
+Unlike the current client, the client API provides automatic storage in the form of user profile files (`.sencp`).
+
+The client API as of now is in Beta version, with known existing bugs (which require protocol changes to fix).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -442,11 +456,21 @@ Server responds.
 - [x] Version 1.1.0
     - [x] User authentication.
     - [x] Packet encryption.
-- [ ] Version 1.1.1
-	- [ ] Server long term storage.
-	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.
+- [x] Version 1.1.1
+	- [x] Server long term storage.
+ 	- [x] Beta version of client API.
 - [ ] Version 1.2.0
+	- [ ] Standarization of protocol.
+	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.
 	- [ ] Key evolution.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+## Known Issues
+
+- Client API failure to identify userset ID with low probability when participating in a decryption during a background update.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
