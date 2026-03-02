@@ -142,7 +142,7 @@ namespace senc
 		std::chrono::milliseconds _delay;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
-		std::optional<std::jthread> _queueThread;
+		std::jthread _queueThread;
 		Sync _sync;
 
 		/**
