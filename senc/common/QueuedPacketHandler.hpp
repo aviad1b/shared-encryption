@@ -21,6 +21,10 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::QueuedPacketHandler
+	 * @brief Implementation of `senc::PacketHandler` which wraps another implementation with a packets queue.
+	 */
 	class QueuedPacketHandler : public PacketHandler
 	{
 	public:
