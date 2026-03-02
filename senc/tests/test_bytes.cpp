@@ -12,6 +12,7 @@
 
 using senc::utils::write_bytes;
 using senc::utils::read_bytes;
+using senc::utils::BytesView;
 using senc::utils::Buffer;
 
 template <typename Self>
@@ -54,8 +55,9 @@ TYPED_TEST(BytesTests, BufferWriteRead)
 	MyEnum inEnum{};
 	Buffer inSubBuf(outSubBuf.size(), 0);
 
-	const auto end = buff.cend();
-	auto it = buff.cbegin();
+	BytesView view(buff.data(), buff.size());
+	const auto end = view.end();
+	auto it = view.begin();
 
 	it = read_bytes<endianess>(inStr, it, end);
 	EXPECT_EQ(inStr, outStr);
