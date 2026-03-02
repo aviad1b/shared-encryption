@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../utils/concepts.hpp"
 #include "Handle.hpp"
 #include <string>
 
@@ -58,6 +59,20 @@ namespace senc::clientapi
 		 * @return Allocated instance, or fitting `Error` if failed.
 		 */
 		static Handle* new_instance(std::string&& msg) noexcept;
+
+		/**
+		 * @brief Provides null ot error for API return (preventing exceptions).
+		 * @param f Callback with potential throws to turn into an error instance.
+		 * @return `nullptr`, or fitting `Error` if an excpetion occurred.
+		 */
+		static Handle* ret_null_or_err(utils::Callable<void> auto&& f)
+		{
+			try { f(); }
+			catch (const std::bad_alloc&) { return Error::ALLOCATION; }
+			catch (const std::exception& e) { return Error::new_instance(e.what()); }
+			catch (...) { return Error::UNKNOWN; }
+			return nullptr; // success
+		}
 
 		Error(const Self&) = delete;
 

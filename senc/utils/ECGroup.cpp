@@ -90,7 +90,7 @@ namespace senc::utils
 		return res;
 	}
 
-	ECGroup::Self ECGroup::decode(const Buffer& bytes)
+	ECGroup::Self ECGroup::decode(BytesView bytes)
 	{
 		if (bytes.size() != ENCODED_SIZE)
 			throw std::invalid_argument("Failed to decode group element: Invalid encoded point size");

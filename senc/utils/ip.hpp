@@ -18,6 +18,8 @@
 #endif
 
 #include <concepts>
+#include <optional>
+#include <variant>
 
 #include "Exception.hpp"
 #include "port.hpp"
@@ -275,4 +277,11 @@ namespace senc::utils
 		std::string _addrStr;
 	};
 	static_assert(IPType<IPv6>);
+
+	/**
+	 * @brief Parses IP instance from string representation.
+	 * @param str String representation of IP address.
+	 * @return IP instance, or `std::nullopt` if invalid.
+	 */
+	std::optional<std::variant<IPv4, IPv6>> parse_ip(const char* str);
 }

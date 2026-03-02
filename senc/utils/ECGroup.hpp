@@ -125,10 +125,10 @@ namespace senc::utils
 		/**
 		 * @brief Parses group element from bytes by SEC 1 standard.
 		 * @note In a future version this implementation will replace current `from_bytes`.
-		 * @param bytes Buffer of bytes.
+		 * @param bytes View of bytes.
 		 * @return Parsed group element.
 		 */
-		static Self decode(const Buffer& bytes);
+		static Self decode(BytesView bytes);
 
 		/**
 		 * @brief Serializes group element to bytes by SEC 1 standard.

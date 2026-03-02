@@ -28,7 +28,14 @@ add_executable(senc_tests
     "test_client_storage.cpp"
     "../client_api/storage/ProfileRecord.cpp"
     "../client_api/storage/ProfileStorage.cpp"
+    "test_client_api.cpp"
+    "../client_api/client_api.cpp"
+    "../client_api/ClientUtils.cpp"
+    "../client_api/Error.cpp"
 )
+
+# define I_SENC_TEST macro
+target_compile_definitions(senc_tests PRIVATE I_SENC_TEST)
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
 
