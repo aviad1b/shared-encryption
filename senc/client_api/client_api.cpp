@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   main.cpp
- * \brief  Main file of the client API (public function implementatoin).
+ * \brief  Main file of the client API (public function implementation).
  * 
  * \author aviad1b
  * \date   February 2026, Adar 5786
