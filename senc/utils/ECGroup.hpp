@@ -110,14 +110,14 @@ namespace senc::utils
 		static Self sample();
 
 		/**
-		 * @brief Parses group element from bytes.
+		 * @brief Parses group element from bytes by SEC 1 standard.
 		 * @param bytes Bytes to parse from.
 		 * @return Parsed group element.
 		 */
 		static Self from_bytes(BytesView bytes);
 
 		/**
-		 * @brief Serializes group element to bytes.
+		 * @brief Serializes group element to bytes by SEC 1 standard.
 		 * @return Serialized group element.
 		 */
 		Buffer to_bytes() const;
