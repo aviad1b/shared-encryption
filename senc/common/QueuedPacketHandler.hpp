@@ -143,7 +143,7 @@ namespace senc
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
 		std::optional<std::jthread> _queueThread;
-		std::unique_ptr<Sync> _sync;
+		Sync _sync;
 
 		/**
 		 * @brief Constructs queued packet handler from underlying handler instance.

@@ -19,16 +19,14 @@ namespace senc
 		  _ticketBeingServed(other._ticketBeingServed)
 	{
 		// signal other to stop (awaits operations finish)
-		other._sync->stop = true;
+		other._sync.stop = true;
 
-		this->_sync = std::make_unique<Sync>();
 		this->_queueThread.emplace(&Self::queue_thread, this);
 	}
 
 	QueuedPacketHandler::~QueuedPacketHandler()
 	{
-		if (_sync)
-			_sync->stop = true;
+		_sync.stop = true;
 	}
 
 	QueuedPacketHandler::Self QueuedPacketHandler::server(
@@ -51,7 +49,6 @@ namespace senc
 
 	const IPacketHandlerSyncData& QueuedPacketHandler::get_sync_data() const
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
 		return this->_underlying->get_sync_data();
 	}
 
@@ -62,7 +59,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::ErrorResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -73,7 +70,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::SignupRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -84,7 +81,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::SignupResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -95,7 +92,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::LoginRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -106,7 +103,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::LoginResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -117,7 +114,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::LogoutRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -128,7 +125,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::LogoutResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -139,7 +136,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -150,7 +147,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -161,7 +158,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -172,7 +169,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -183,7 +180,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::GetMembersRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -194,7 +191,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::GetMembersResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -205,7 +202,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -216,7 +213,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::DecryptResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -227,7 +224,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::UpdateRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -238,7 +235,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::UpdateResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -249,7 +246,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::DecryptParticipateRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -260,7 +257,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::DecryptParticipateResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -271,7 +268,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_request_data(pkt::SendDecryptionPartRequest& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_request_data(out);
 	}
 
@@ -282,7 +279,7 @@ namespace senc
 
 	void QueuedPacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
 	{
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		this->_underlying->recv_response_data(out);
 	}
 
@@ -297,17 +294,16 @@ namespace senc
 		  _delay(delay),
 		  _nextTicket(0), _ticketBeingServed(0)
 	{
-		this->_sync = std::make_unique<Sync>();
 		this->_queueThread.emplace(&Self::queue_thread, this);
 	}
 
 	void QueuedPacketHandler::queue_thread()
 	{
-		while (!_sync->stop)
+		while (!_sync.stop)
 		{
 			std::this_thread::sleep_for(_delay);
 
-			std::unique_lock lock(_sync->mtxQueue);
+			std::unique_lock lock(_sync.mtxQueue);
 
 			// if someone has aquired a ticket that we haven't served yet
 			if (_ticketBeingServed < _nextTicket)
@@ -315,27 +311,27 @@ namespace senc
 				// mark ticket as being served and notify all waiters
 				// (each will check for correct ticket)
 				++_ticketBeingServed;
-				_sync->cvQueue.notify_all();
+				_sync.cvQueue.notify_all();
 			}
 			else
 			{
-				const std::lock_guard l1(_sync->mtxOnQueueEmpty);
-				const std::lock_guard l2(_sync->mtxUnderlying);
+				const std::lock_guard l1(_sync.mtxOnQueueEmpty);
+				const std::lock_guard l2(_sync.mtxUnderlying);
 				_onQueueEmpty(*_underlying);
 			}
 		}
-		_sync->cvQueue.notify_all(); // wake up all remaining threads
+		_sync.cvQueue.notify_all(); // wake up all remaining threads
 	}
 
 	void QueuedPacketHandler::wait_queue()
 	{
-		std::unique_lock lock(_sync->mtxQueue);
+		std::unique_lock lock(_sync.mtxQueue);
 
 		const std::size_t myTicket = _nextTicket++;
 
-		_sync->cvQueue.wait(
+		_sync.cvQueue.wait(
 			lock,
-			[this, myTicket]() { return this->_sync->stop || myTicket == this->_ticketBeingServed; }
+			[this, myTicket]() { return this->_sync.stop || myTicket == this->_ticketBeingServed; }
 		);
 	}
 
@@ -343,10 +339,10 @@ namespace senc
 	void QueuedPacketHandler::queue_request(R&& request)
 	{
 		wait_queue();
-		if (_sync->stop)
+		if (_sync.stop)
 			return;
 
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		_underlying->send_request_data(request);
 	}
 
@@ -354,10 +350,10 @@ namespace senc
 	void QueuedPacketHandler::queue_response(R&& response)
 	{
 		wait_queue();
-		if (_sync->stop)
+		if (_sync.stop)
 			return;
 
-		const std::lock_guard<std::mutex> lock(_sync->mtxUnderlying);
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		_underlying->send_response_data(response);
 	}
 }
