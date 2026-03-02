@@ -23,7 +23,7 @@ namespace senc::server
 							  loggers::ILogger& logger,
 							  Schema& schema,
 							  storage::IServerStorage& storage,
-							  PacketHandlerFactory& packetHandlerFactory,
+							  ServerPacketHandlerFactory packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)
 		: _listenPort(listenPort), _logger(logger), _packetHandlerFactory(packetHandlerFactory),
@@ -36,7 +36,7 @@ namespace senc::server
 	inline Server<IP>::Server(utils::Port listenPort,
 							  Schema& schema,
 							  storage::IServerStorage& storage,
-							  PacketHandlerFactory& packetHandlerFactory,
+							  ServerPacketHandlerFactory packetHandlerFactory,
 							  managers::UpdateManager& updateManager,
 							  managers::DecryptionsManager& decryptionsManager)
 		: Self(listenPort, _dummyLogger, schema, storage,
@@ -177,7 +177,7 @@ namespace senc::server
 		if (!_isRunning)
 			return;
 
-		auto packetHandler = _packetHandlerFactory.new_server_packet_handler(sock);
+		auto packetHandler = _packetHandlerFactory(sock);
 		
 		const auto [connected, username] = connect_client(*packetHandler, ip, port);
 
@@ -203,11 +203,10 @@ namespace senc::server
 			try { std::tie(status, username) = clientHandler.iteration(); }
 			catch (const utils::SocketException& e)
 			{
-				// might happened because server stopped, in that case, stop here
-				if (!_isRunning)
-					return { false, "" };
-
-				logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+				// might have happened because server stopped, if not - client disconnected
+				if (_isRunning)
+					logger.log_info(std::string("Lost connection: ") + e.what() + ".");
+				return { false, "" };
 			}
 			catch (const std::exception& e)
 			{
@@ -247,11 +246,10 @@ namespace senc::server
 			try { status = handler.iteration(); }
 			catch (const utils::SocketException& e)
 			{
-				// might happened because server stopped, in that case, stop here
-				if (!_isRunning)
-					return;
-
-				logger.log_info(std::string("Lost connection: ") + e.what());
+				// might have happened because server stopped, if not - client disconnected
+				if (_isRunning)
+					logger.log_info(std::string("Lost connection: ") + e.what());
+				return;
 			}
 			catch (const std::exception& e)
 			{

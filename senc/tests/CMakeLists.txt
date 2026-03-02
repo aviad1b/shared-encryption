@@ -1,6 +1,7 @@
 add_executable(senc_tests
     "test_main.cpp"
     "test_ranges.cpp"
+    "test_bin_file.cpp"
     "test_socket.cpp"
     "test_poly.cpp"
     "test_modint.cpp"
@@ -11,8 +12,10 @@ add_executable(senc_tests
     "test_common.cpp"
     "test_strs.cpp"
     "test_bytes.cpp"
+    "test_sql.cpp"
     "tests_utils.hpp"
-    "test_storage.cpp"
+    "tests_utils.cpp"
+    "test_server_storage.cpp"
     "test_server.cpp"
     "../server/handlers/ClientHandlerFactory.cpp"
     "../server/handlers/ConnectedClientHandler.cpp"
@@ -20,8 +23,19 @@ add_executable(senc_tests
     "../server/managers/DecryptionsManager.cpp"
     "../server/Server_impl.hpp"
     "../server/storage/ShortTermServerStorage.cpp"
+    "../server/storage/SqliteServerStorage.cpp"
     "../server/managers/UpdateManager.cpp"
+    "test_client_storage.cpp"
+    "../client_api/storage/ProfileRecord.cpp"
+    "../client_api/storage/ProfileStorage.cpp"
+    "test_client_api.cpp"
+    "../client_api/client_api.cpp"
+    "../client_api/ClientUtils.cpp"
+    "../client_api/Error.cpp"
 )
+
+# define I_SENC_TEST macro
+target_compile_definitions(senc_tests PRIVATE I_SENC_TEST)
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
 

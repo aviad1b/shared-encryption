@@ -36,4 +36,10 @@ namespace senc::client::io
 	 * @param ciphertext Ciphertext to print.
 	 */
 	void print_ciphertext(const Ciphertext& ciphertext);
+
+	/**
+	 * @brief Prints decryption part.
+	 * @param decryptionPart Decryption part to print.
+	 */
+	void print_decryption_part(const DecryptionPart& decryptionPart);
 }

@@ -9,21 +9,38 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <memory>
+#include <deque>
 #include "tests_utils.hpp"
 #include "../common/EncryptedPacketHandler.hpp"
-#include "../common/PacketHandlerFactory.hpp"
+#include "../common/ServerPacketHandlerFactory.hpp"
+#include "../common/ClientPacketHandlerFactory.hpp"
 #include "../common/InlinePacketHandler.hpp"
+#include "../common/QueuedPacketHandler.hpp"
 
 namespace pkt = senc::pkt;
-using senc::PacketHandlerImplFactory;
+using senc::ServerPacketHandlerImplFactory;
+using senc::ClientPacketHandlerImplFactory;
+using senc::ServerPacketHandlerFactory;
+using senc::ClientPacketHandlerFactory;
 using senc::EncryptedPacketHandler;
-using senc::PacketHandlerFactory;
 using senc::InlinePacketHandler;
+using senc::QueuedPacketHandler;
 using senc::PacketHandler;
 using senc::utils::ECGroup;
 using senc::utils::Socket;
 
-class PacketsTest : public testing::TestWithParam<PacketHandlerFactory>
+struct PacketsTestParams
+{
+	ClientPacketHandlerFactory clientPacketHandlerFactory;
+	ServerPacketHandlerFactory serverPacketHandlerFactory;
+
+	PacketsTestParams(ClientPacketHandlerFactory clientPacketHandlerFactory,
+					  ServerPacketHandlerFactory serverPacketHandlerFactory)
+		: clientPacketHandlerFactory(clientPacketHandlerFactory),
+		  serverPacketHandlerFactory(serverPacketHandlerFactory) { }
+};
+
+class PacketsTest : public testing::TestWithParam<PacketsTestParams>
 {
 protected:
 	std::unique_ptr<PacketHandler> clientPacketHandler, serverPacketHandler;
@@ -31,19 +48,20 @@ protected:
 
 	void SetUp() override
 	{
-		auto& packetHandlerFactory = GetParam();
+		auto& clientPacketHandlerFactory = GetParam().clientPacketHandlerFactory;
+		auto& serverPacketHandlerFactory = GetParam().serverPacketHandlerFactory;
 		auto [client, server] = prepare_tcp();
 		this->client = std::make_unique<decltype(client)>(std::move(client));
 		this->server = std::make_unique<decltype(server)>(std::move(server));
 		std::tie(clientPacketHandler, serverPacketHandler) =
 			prepare_for_sockets<std::unique_ptr<PacketHandler>>(
-				*this->client, [&packetHandlerFactory](Socket& sock)
+				*this->client, [&clientPacketHandlerFactory](Socket& sock)
 				{
-					return packetHandlerFactory.new_client_packet_handler(sock);
+					return clientPacketHandlerFactory(sock);
 				},
-				*this->server, [&packetHandlerFactory](Socket& sock)
+				*this->server, [&serverPacketHandlerFactory](Socket& sock)
 				{
-					return packetHandlerFactory.new_server_packet_handler(sock);
+					return serverPacketHandlerFactory(sock);
 				}
 			);
 		EXPECT_TRUE(serverPacketHandler->validate_synchronization(clientPacketHandler.get()));
@@ -72,6 +90,31 @@ public:
 		EXPECT_EQ(respGot.value(), resp);
 	}
 };
+
+TEST(CommonTests, PubKeyBytesRoundTrip)
+{
+	for (std::size_t i = 0; i < 256; ++i)
+	{
+		auto pubKey = senc::PubKey::sample();
+		auto bytes = senc::pub_key_to_bytes(pubKey);
+		auto pubKey2 = senc::pub_key_from_bytes(bytes);
+		EXPECT_EQ(pubKey, pubKey2);
+	}
+}
+
+TEST(CommonTests, ShardBytesRoundTrip)
+{
+	for (std::size_t i = 0; i < 256; ++i)
+	{
+		senc::PrivKeyShard shard{
+			senc::utils::Random<senc::utils::BigInt>::sample_below(senc::MAX_MEMBERS),
+			senc::utils::Random<senc::utils::BigInt>::sample_below(senc::utils::ECGroup::order())
+		};
+		auto bytes = senc::priv_key_shard_to_bytes(shard);
+		auto shard2 = senc::priv_key_shard_from_bytes(bytes);
+		EXPECT_EQ(shard, shard2);
+	}
+}
 
 static void error_cycle(PacketsTest& test)
 {
@@ -398,7 +441,13 @@ INSTANTIATE_TEST_SUITE_P(
 	PacketTests,
 	PacketsTest,
 	testing::Values(
-		PacketHandlerImplFactory<InlinePacketHandler>{},
-		PacketHandlerImplFactory<EncryptedPacketHandler>{}
+		PacketsTestParams(
+			ClientPacketHandlerImplFactory<InlinePacketHandler>{},
+			ServerPacketHandlerImplFactory<InlinePacketHandler>{}
+		),
+		PacketsTestParams(
+			ClientPacketHandlerImplFactory<EncryptedPacketHandler>{},
+			ServerPacketHandlerImplFactory<EncryptedPacketHandler>{}
+		)
 	)
 );

@@ -5,9 +5,13 @@
 	"AtScopeExit.cpp"
 	"bytes.hpp"
 	"bytes.cpp"
-	"strs.hpp"
 	"bytes_impl.hpp"
+	"BinFile.hpp"
+	"BinFile_impl.hpp"
+	"strs.hpp"
 	"concepts.hpp"
+	"swap.hpp"
+	"FixedString.hpp"
 	"hash.hpp"
 	"variants.hpp"
 	"ranges.hpp"
@@ -16,6 +20,7 @@
 	"Exception.hpp"
 	"Exception.cpp"
 	"StrParseException.hpp"
+	"file_exceptions.hpp"
 	"port.hpp"
 	"port.cpp"
 	"ip.hpp"
@@ -50,7 +55,25 @@
 	"uuid_impl.hpp"
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
-	"pwd/PBKDF2.cpp"
+	"pwd/PBKDF2_impl.hpp"
+	"sqlite/SQLiteException.hpp"
+	"sqlite/values.hpp"
+	"sqlite/values.cpp"
+	"sqlite/values_impl.hpp"
+	"sqlite/aggr.hpp"
+	"sqlite/args.hpp"
+	"sqlite/schemas/all.hpp"
+	"sqlite/schemas/columns.hpp"
+	"sqlite/schemas/tables.hpp"
+	"sqlite/schemas/DBs.hpp"
+	"sqlite/schemas/select.hpp"
+	"sqlite/schemas/join.hpp"
+	"sqlite/sqlite_utils.hpp"
+	"sqlite/sqlite_utils_impl.hpp"
+	"sqlite/TableView.hpp"
+	"sqlite/TableView_impl.hpp"
+	"sqlite/Database.hpp"
+	"sqlite/Database_impl.hpp"
 )
 
 if (WIN32)
@@ -59,6 +82,14 @@ else()
 	target_link_libraries(senc_utils PUBLIC libuuid)
 endif()
 
-target_link_libraries(senc_utils PUBLIC cryptopp)
-
 set_property(TARGET senc_utils PROPERTY CXX_STANDARD 20)
+
+# dismiss MSVC warning about fopen
+if(MSVC)
+	target_compile_definitions(senc_utils PUBLIC _CRT_SECURE_NO_WARNINGS)
+endif()
+
+set_target_properties(senc_utils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_link_libraries(senc_utils PUBLIC cryptopp sqlite3)
+

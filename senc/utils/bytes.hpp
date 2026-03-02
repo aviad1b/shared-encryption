@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <ranges>
+#include <span>
 #include <bit>
 
 #include "concepts.hpp"
@@ -32,6 +33,12 @@ namespace senc::utils
 	 * @brief Stores sequential binary data.
 	 */
 	using Buffer = std::vector<byte>;
+
+	/**
+	 * @typedef senc::utils::BytesView
+	 * @brief Views continuous bytes data.
+	 */
+	using BytesView = std::span<const byte>;
 
 	/**
 	 * @concept senc::utils::HasByteData
@@ -56,6 +63,17 @@ namespace senc::utils
 		{ self.data() } -> std::convertible_to<byte*>;
 		{ self.size() } -> std::convertible_to<std::size_t>;
 	};
+
+	namespace sfinae
+	{
+		// used to check for a typename which stores sequential data of bytes
+		template <typename T>
+		struct has_byte_data : std::bool_constant<HasByteData<T>> { };
+
+		// used to check for a typename which stores sequential data of bytes that can be modified
+		template <typename T>
+		struct has_mutable_byte_data : std::bool_constant<HasMutableByteData<T>> { };
+	}
 
 	/**
 	 * @concept senc::utils::HasToBytes
@@ -232,7 +250,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires StringType<std::remove_cvref_t<decltype(out)>>;
 
 	/**
@@ -244,7 +262,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
 
@@ -257,7 +275,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>;
 }
 

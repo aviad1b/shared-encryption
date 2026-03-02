@@ -9,6 +9,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
+#include <filesystem>
 #include <algorithm>
 #include <future>
 #include <thread>
@@ -17,7 +18,29 @@
 #include "../utils/concepts.hpp"
 #include "../utils/Random.hpp"
 #include "../utils/Socket.hpp"
+#include "../utils/bytes.hpp"
 #include "../utils/hash.hpp"
+
+/**
+ * @brief Creates a temporary file path.
+ * @param name Desired file name.
+ * @return Temporary file path.
+ */
+std::string temp_file_path(const std::string& name);
+
+/**
+ * @brief Writes raw bytes to a file for test.
+ * @param path File path to write to.
+ * @param data Data to write.
+ */
+void write_raw(const std::string& path, const std::vector<senc::utils::byte>& data);
+
+/**
+ * @brief Reads raw bytes to a file for test.
+ * @param path File path to read from to.
+ * @return Read data.
+ */
+std::vector<senc::utils::byte> read_raw(const std::string& path);
 
 constexpr std::size_t CONN_RETRY_COUNT = 10;
 
@@ -108,6 +131,19 @@ std::unique_ptr<senc::server::IServer> new_server(auto&&... args)
 	// if still failed, try another time, this time without a `try` block
 	auto port = Random<Port>::sample_from_range(49152, 65535);
 	return std::make_unique<senc::server::Server<IP>>(port, args...);
+}
+
+/**
+ * @brief Converts value to bytes based on endianess.
+ */
+template <std::integral T>
+static std::vector<senc::utils::byte> to_bytes(T value, std::endian endianess)
+{
+	std::vector<senc::utils::byte> bytes(sizeof(T));
+	std::memcpy(bytes.data(), &value, sizeof(T));
+	if (endianess != std::endian::native)
+		std::reverse(bytes.begin(), bytes.end());
+	return bytes;
 }
 
 /**

@@ -1,0 +1,103 @@
+/*********************************************************************
+ * \file   Error.hpp
+ * \brief  Header of `Error` class.
+ * 
+ * \author aviad1b
+ * \date   February 2026, Adar 5786
+ *********************************************************************/
+
+#pragma once
+
+#include "../utils/concepts.hpp"
+#include "Handle.hpp"
+#include <string>
+
+namespace senc::clientapi
+{
+	/**
+	 * @class senc::clientapi::Error
+	 * @brief Used to wrap error throws for API calls.
+	 */
+	class Error : public Handle
+	{
+	public:
+		using Self = Error;
+		using Base = Handle;
+
+		/**
+		 * @brief Constant (supposedly) which serves for returning allocation error.
+		 */
+		static Self* ALLOCATION;
+
+		/**
+		 * @brief Constant (supposedly) which serves for returning unknown error.
+		 */
+		static Self* UNKNOWN;
+
+		/**
+		 * @brief Gets instance pointer from "nint" (API) version.
+		 * @param nint API type pointer.
+		 * @return Instance pointer.
+		 */
+		static Self* from_nint(std::uintptr_t nint) noexcept
+		{
+			return reinterpret_cast<Self*>(nint);
+		}
+
+		/**
+		 * @brief Constructs an error instance.
+		 * @param isAllocated Whether or not object was dynamically allocated.
+		 * @param msg Error message (moved).
+		 * @return Allocated instance, or fitting `Error` if failed.
+		 */
+		static Self make_instance(std::string&& msg) noexcept;
+
+		/**
+		 * @brief Constructs an allocated error instance.
+		 * @param isAllocated Whether or not object was dynamically allocated.
+		 * @param msg Error message (moved).
+		 * @return Allocated instance, or fitting `Error` if failed.
+		 */
+		static Handle* new_instance(std::string&& msg) noexcept;
+
+		/**
+		 * @brief Provides null ot error for API return (preventing exceptions).
+		 * @param f Callback with potential throws to turn into an error instance.
+		 * @return `nullptr`, or fitting `Error` if an excpetion occurred.
+		 */
+		static Handle* ret_null_or_err(utils::Callable<void> auto&& f)
+		{
+			try { f(); }
+			catch (const std::bad_alloc&) { return Error::ALLOCATION; }
+			catch (const std::exception& e) { return Error::new_instance(e.what()); }
+			catch (...) { return Error::UNKNOWN; }
+			return nullptr; // success
+		}
+
+		Error(const Self&) = delete;
+		Self& operator=(const Self&) = delete;
+		Error(Self&&) = delete;
+		Self& operator=(Self&&) = delete;
+		bool has_error() const noexcept override;
+
+		/**
+		 * @brief Gets error message as a c-string (similarly to exceptions).
+		 * @return Error message c-string.
+		 */
+		const char* what() const noexcept;
+
+	private:
+		std::string _msg;
+
+		static Self _ALLOCATION;
+		
+		static Self _UNKNOWN;
+
+		/**
+		 * @brief Constructs an error instance.
+		 * @param isAllocated Whether or no object was dynamically allocated.
+		 * @param msg Error message (moved).
+		 */
+		Error(bool isAllocated, std::string&& msg) noexcept;
+	};
+}

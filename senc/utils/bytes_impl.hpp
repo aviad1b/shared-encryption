@@ -124,7 +124,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires StringType<std::remove_cvref_t<decltype(out)>>
 	{
 		using Str = std::remove_cvref_t<decltype(out)>;
@@ -149,7 +149,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
 	{
@@ -174,7 +174,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::iterator read_bytes(auto& out, Buffer::iterator it, Buffer::iterator end)
+	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
 	{
 		const std::size_t size = std::min<std::size_t>(std::distance(it, end), out.size());

@@ -1,6 +1,6 @@
 /*********************************************************************
  * \file   concepts.hpp
- * \brief  Contains general concept declarations.
+ * \brief  Contains general concept & type traits declarations.
  * 
  * \author aviad1b
  * \date   November 2025, Heshvan 5786
@@ -21,6 +21,18 @@
 namespace senc::utils
 {
 	/**
+	 * @concept senc::utils::ConstantWrapperType
+	 * @brief Looks for a constant wrapper (SFINAE-style) type.
+	 * @tparam Self Examined typename.
+	 * @tparam T Expected wrapped constant type.
+	 */
+	template <typename Self, typename T>
+	concept ConstantWrapperType = requires
+	{
+		{ Self::value } -> std::convertible_to<T>;
+	};
+
+	/**
 	 * @concept senc::utils::OneOf
 	 * @brief Checks for a typename from a provided typename list.
 	 * @tparam Self Examined typename.
@@ -37,6 +49,19 @@ namespace senc::utils
 	template <typename Self>
 	concept TupleLike = requires { typename std::tuple_size<Self>::type; } &&
 		(std::tuple_size_v<Self> >= 0);
+
+	/**
+	 * @concept senc::utils::TupleSatisfies
+	 * @brief Looks for a tuple typename where each element satisfies a given constraint.
+	 * @tparam Self Examined typename.
+	 * @tparam ConstraintWrapper A boolean constant SFINAE struct of a constraint for each element.
+	 */
+	template <typename Self, template <typename T> typename ConstraintWrapper>
+	concept TupleSatisfies = TupleLike<Self> &&
+		[]<std::size_t... is>(std::index_sequence<is...>)
+		{
+			return (ConstraintWrapper<std::tuple_element_t<is, Self>>::value && ...);
+		}(std::make_index_sequence<std::tuple_size_v<Self>>{});
 
 	/**
 	 * @concept senc::utils::InputIterator

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../common/EncryptedPacketHandler.hpp"
-#include "storage/ShortTermServerStorage.hpp"
+#include "storage/SqliteServerStorage.hpp"
 #include "loggers/ConsoleLogger.hpp"
 #include "io/InteractiveConsole.hpp"
 #include "Server.hpp"
@@ -11,13 +11,15 @@ namespace senc::server
 
 	constexpr Port DEFAULT_LISTEN_PORT = 4435;
 
+	constexpr auto STORAGE_PATH = "storage.sqlite";
+
 	std::tuple<bool, Port> parse_args(int argc, char** argv);
 
 	bool handle_cmd(io::InteractiveConsole& console, const std::string& cmd);
 
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, ServerPacketHandlerFactory packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager);
 
 	void run_server(IServer& server, loggers::ILogger& logger, io::InteractiveConsole& console);
@@ -44,21 +46,20 @@ namespace senc::server
 		loggers::ConsoleLogger logger(*console);
 
 		Schema schema;
-		auto packetHandlerFactory = PacketHandlerImplFactory<EncryptedPacketHandler>{};
-		storage::ShortTermServerStorage storage;
+		storage::SqliteServerStorage storage(STORAGE_PATH);
 		managers::UpdateManager updateManager;
 		managers::DecryptionsManager decryptionsManager;
 		
 		if (isIPv6)
 			return start_server<utils::IPv6>(
 				port, logger, *console, schema, storage,
-				packetHandlerFactory,
+				ServerPacketHandlerImplFactory<EncryptedPacketHandler>{},
 				updateManager, decryptionsManager
 			);
 		else
 			return start_server<utils::IPv4>(
 				port, logger, *console, schema, storage,
-				packetHandlerFactory,
+				ServerPacketHandlerImplFactory<EncryptedPacketHandler>{},
 				updateManager, decryptionsManager
 			);
 	}
@@ -131,7 +132,7 @@ namespace senc::server
 	 */
 	template <utils::IPType IP>
 	int start_server(Port port, loggers::ILogger& logger, io::InteractiveConsole& console, Schema& schema,
-					 storage::IServerStorage& storage, PacketHandlerFactory& packetHandlerFactory,
+					 storage::IServerStorage& storage, ServerPacketHandlerFactory packetHandlerFactory,
 					 managers::UpdateManager& updateManager, managers::DecryptionsManager& decryptionsManager)
 	{
 		std::optional<Server<IP>> server;

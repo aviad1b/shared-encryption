@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "KeyedPacketHandlerSyncData.hpp"
 #include "ConnEstablishException.hpp"
 #include "../utils/enc/ECHKDF1L.hpp"
 #include "../utils/enc/AES1L.hpp"
@@ -42,7 +43,7 @@ namespace senc
 		 */
 		static Self client(utils::Socket& sock);
 
-		bool validate_synchronization(const Base* other) const override;
+		const IPacketHandlerSyncData& get_sync_data() const override;
 
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
@@ -111,9 +112,9 @@ namespace senc
 		EncryptedPacketHandler(utils::Socket& sock);
 
 	private:
+		KeyedPacketHandlerSyncData<Key> _syncData;
 		Schema _schema;
 		KDF _kdf;
-		Key _key;
 
 		static utils::BigInt sample_pow()
 		{
@@ -139,48 +140,48 @@ namespace senc
 		void recv_encrypted_data(utils::Buffer& out);
 
 		void write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value);
-		utils::Buffer::iterator read_big_int(std::optional<utils::BigInt>& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_big_int(std::optional<utils::BigInt>& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem);
-		utils::Buffer::iterator read_ecgroup_elem(utils::ECGroup& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_ecgroup_elem(utils::ECGroup& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_pub_key(utils::Buffer& out, const PubKey& pubKey);
-		utils::Buffer::iterator read_pub_key(PubKey& out, 
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_pub_key(PubKey& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_priv_key_shard_id(utils::Buffer& out, const PrivKeyShardID& shardID);
-		utils::Buffer::iterator read_priv_key_shard_id(PrivKeyShardID& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_priv_key_shard_id(PrivKeyShardID& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
-		utils::Buffer::iterator read_priv_key_shard(PrivKeyShard& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_ciphertext(utils::Buffer& out, const Ciphertext& ciphertext);
-		utils::Buffer::iterator read_ciphertext(Ciphertext& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_ciphertext(Ciphertext& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_decryption_part(utils::Buffer& out, const DecryptionPart& part);
-		utils::Buffer::iterator read_decryption_part(DecryptionPart& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_decryption_part(DecryptionPart& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsOwnerRecord& record);
-		utils::Buffer::iterator read_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record);
-		utils::Buffer::iterator read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToDecryptRecord& record);
-		utils::Buffer::iterator read_update_record(pkt::UpdateResponse::ToDecryptRecord& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::ToDecryptRecord& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
-		utils::Buffer::iterator read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out,
-			utils::Buffer::iterator it, utils::Buffer::iterator end);
+		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out,
+			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
 	};
 
 	static_assert(PacketHandlerImpl<EncryptedPacketHandler>);
