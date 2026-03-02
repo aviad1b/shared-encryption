@@ -82,8 +82,9 @@ namespace senc::clientapi::storage
 
 	ProfileRecord ProfileUtils::parse_profile_record(const utils::Buffer& data)
 	{
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		utils::byte flagsByte = 0;
 		it = utils::read_bytes(flagsByte, it, end);

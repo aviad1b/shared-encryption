@@ -30,7 +30,7 @@ namespace senc::utils
 
 	template <typename T>
 	requires std::is_fundamental_v<T> || std::is_enum_v<T>
-	inline T from_bytes(const Buffer& bytes)
+	inline T from_bytes(BytesView bytes)
 	{
 		if (bytes.size() != sizeof(T))
 			throw Exception("Bad size for parse");
@@ -54,7 +54,7 @@ namespace senc::utils
 	}
 
 	template <StringType T>
-	inline T from_bytes(const Buffer& bytes)
+	inline T from_bytes(BytesView bytes)
 	{
 		using C = typename T::value_type;
 		const C nullchr = 0;
@@ -70,7 +70,7 @@ namespace senc::utils
 	}
 
 	template <HasFromBytes T>
-	inline T from_bytes(const Buffer& bytes)
+	inline T from_bytes(BytesView bytes)
 	{
 		return T::from_bytes(bytes);
 	}
@@ -124,7 +124,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires StringType<std::remove_cvref_t<decltype(out)>>
 	{
 		using Str = std::remove_cvref_t<decltype(out)>;
@@ -149,7 +149,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>)
 	{
@@ -174,7 +174,7 @@ namespace senc::utils
 	}
 
 	template <std::endian endianess>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>
 	{
 		const std::size_t size = std::min<std::size_t>(std::distance(it, end), out.size());

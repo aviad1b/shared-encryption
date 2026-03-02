@@ -99,8 +99,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.msg, it, end);
 	}
@@ -119,8 +120,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -138,8 +140,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -158,8 +161,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -177,8 +181,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -223,8 +228,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.owners_threshold, it, end);
 		it = utils::read_bytes(out.reg_members_threshold, it, end);
@@ -261,8 +267,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_pub_key(out.reg_layer_pub_key, it, end);
@@ -296,8 +303,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		userset_count_t usersetsCount{};
 		it = utils::read_bytes(usersetsCount, it, end);
@@ -319,8 +327,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 	}
@@ -343,8 +352,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		member_count_t ownersCount{};
 		it = utils::read_bytes(ownersCount, it, end);
@@ -375,8 +385,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_ciphertext(out.ciphertext, it, end);
@@ -395,8 +406,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
@@ -449,8 +461,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		// read vector lengths
 
@@ -510,8 +523,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
@@ -529,8 +543,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -549,8 +564,9 @@ namespace senc
 	{
 		utils::Buffer data{};
 		recv_encrypted_data(data);
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 		it = read_decryption_part(out.decryption_part, it, end);
@@ -613,8 +629,8 @@ namespace senc
 		value->Encode(out.data() + oldSize, value->MinEncodedSize());
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_big_int(std::optional<utils::BigInt>& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_big_int(std::optional<utils::BigInt>& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		utils::bigint_size_t size{};
 		it = utils::read_bytes(size, it, end);
@@ -642,8 +658,8 @@ namespace senc
 		write_big_int(out, elem.y());
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_ecgroup_elem(utils::ECGroup& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_ecgroup_elem(utils::ECGroup& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		std::optional<utils::BigInt> x, y;
 
@@ -666,8 +682,8 @@ namespace senc
 		return write_ecgroup_elem(out, elem);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_pub_key(PubKey& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_pub_key(PubKey& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		return read_ecgroup_elem(out, it, end);
 	}
@@ -677,8 +693,8 @@ namespace senc
 		return write_big_int(out, shardID);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_priv_key_shard_id(PrivKeyShardID& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_priv_key_shard_id(PrivKeyShardID& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		std::optional<utils::BigInt> value;
 		it = read_big_int(value, it, end);
@@ -694,8 +710,8 @@ namespace senc
 		write_big_int(out, shard.second);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_priv_key_shard(PrivKeyShard& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_priv_key_shard(PrivKeyShard& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = read_priv_key_shard_id(out.first, it, end);
 
@@ -720,8 +736,8 @@ namespace senc
 		utils::write_bytes(out, c3b);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_ciphertext(Ciphertext& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_ciphertext(Ciphertext& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		auto& [c1, c2, c3] = out;
 		auto& [c3a, c3b] = c3;
@@ -751,8 +767,8 @@ namespace senc
 		write_ecgroup_elem(out, part);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_decryption_part(DecryptionPart& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+	utils::BytesView::iterator EncryptedPacketHandler::read_decryption_part(DecryptionPart& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		return read_ecgroup_elem(out, it, end);
 	}
@@ -766,9 +782,9 @@ namespace senc
 		write_priv_key_shard(out, record.owner_layer_priv_key_shard);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_update_record(
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
 		pkt::UpdateResponse::AddedAsOwnerRecord& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = read_update_record(
 			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out),
@@ -787,9 +803,9 @@ namespace senc
 		write_priv_key_shard(out, record.reg_layer_priv_key_shard);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_update_record(
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
 		pkt::UpdateResponse::AddedAsMemberRecord& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_pub_key(out.reg_layer_pub_key, it, end);
@@ -807,9 +823,9 @@ namespace senc
 			write_priv_key_shard_id(out, shardID);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_update_record(
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
 		pkt::UpdateResponse::ToDecryptRecord& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.op_id, it, end);
 		it = read_ciphertext(out.ciphertext, it, end);
@@ -840,9 +856,9 @@ namespace senc
 			write_priv_key_shard_id(out, shardID);
 	}
 
-	utils::Buffer::const_iterator EncryptedPacketHandler::read_update_record(
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
 		pkt::UpdateResponse::FinishedDecryptionsRecord& out,
-		utils::Buffer::const_iterator it, utils::Buffer::const_iterator end)
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		// NOTE: Assuming each shards IDs vector has is exactly one more than its corresponding parts vector
 
