@@ -110,7 +110,7 @@ SENC_CLIENT_API_PUBLIC const uint8_t* SENC_GetBytesValue(uintptr_t handle) SENC_
 /**
  * @brief Converts a bytes buffer to base64 string.
  * @param handle Bytes buffer handle.
- * @return String handle (of base64 string).
+ * @return String handle (of base64 string) or error if failed.
  * @note Calling this function on a non-bytes-buffer handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetBytesBase64(uintptr_t handle) SENC_NOTHROW;
@@ -125,7 +125,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetBytesBase64(uintptr_t handle) SENC_NOTH
  * @param c3aLen Length of C3a bytes.
  * @param c3bBytes C3b bytes.
  * @param c3bLen Length of C3b bytes.
- * @return Ciphertext handle.
+ * @return Ciphertext handle, or error if failed.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
 													const uint8_t* c2Bytes, uint64_t c2Len,
@@ -135,7 +135,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_NewCiphertext(const uint8_t* c1Bytes, uint
 /**
  * @brief Gets c1 from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C1 (bytes buffer handle).
+ * @return C1 (bytes buffer handle), or error if failed.
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC1(uintptr_t hCiphertext) SENC_NOTHROW;
@@ -143,7 +143,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC1(uintptr_t hCiphertext) SEN
 /**
  * @brief Gets c2 from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C2 (bytes buffer handle).
+ * @return C2 (bytes buffer handle), or error if failed.
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC2(uintptr_t hCiphertext) SENC_NOTHROW;
@@ -151,7 +151,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC2(uintptr_t hCiphertext) SEN
 /**
  * @brief Gets c3a from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C3a (bytes buffer handle).
+ * @return C3a (bytes buffer handle), or error if failed.
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC3a(uintptr_t hCiphertext) SENC_NOTHROW;
@@ -159,7 +159,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC3a(uintptr_t hCiphertext) SE
 /**
  * @brief Gets c3b from ciphertext handle.
  * @param hCiphertext Ciphertext handle.
- * @return C3b (bytes buffer handle).
+ * @return C3b (bytes buffer handle), or error if failed.
  * @note Calling this function on a non-ciphertext handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC3b(uintptr_t hCiphertext) SENC_NOTHROW;
@@ -171,7 +171,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC3b(uintptr_t hCiphertext) SE
  * @param decryptFinishedCallback Callback function to invoke on decrypt finish
  *								  (accepts opid chars, plaintext bytes, plaintext len, context).
  * @param decryptFinishedContext Context to pass `decryptFinishedCallback`.
- * @return New client handle.
+ * @return New client handle, or error if failed.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_Connect(
 	const char* serverIP, uint16_t serverPort,
@@ -242,7 +242,7 @@ SENC_CLIENT_API_PUBLIC bool SENC_IsOwnerProfileRecord(uintptr_t pRecord) SENC_NO
 /**
  * @brief Gets reg layer public key from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing reg layer public key (or error if failed).
+ * @return Handle to bytes buffer representing reg layer public key, or error if failed.
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecord) SENC_NOTHROW;
@@ -250,7 +250,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecor
 /**
  * @brief Gets owner layer public key from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing owner layer public key (or error if failed).
+ * @return Handle to bytes buffer representing owner layer public key, or error if failed.
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRecord) SENC_NOTHROW;
@@ -258,7 +258,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRec
 /**
  * @brief Gets reg layer private key shard from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing reg layer private key shard (or error if failed).
+ * @return Handle to bytes buffer representing reg layer private key shard, or error if failed.
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegShard(uintptr_t pRecord) SENC_NOTHROW;
@@ -280,7 +280,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pReco
  * @param regMembers Usernames of userset's non-owner members.
  * @param ownersThreshold Minimum amount of owners required for decryption.
  * @param regMembersThreshold Minimum amount of non-owners required for decryption.
- * @return Userset's ID (string handle).
+ * @return Userset's ID (string handle), or error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_MakeUserSet(uintptr_t hClient,
@@ -327,7 +327,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetUserSetMembers(uintptr_t hClient,
  * @param hClient Client handle.
  * @param usersetID ID of userset to encrypt under.
  * @param msg Message to encrypt.
- * @return Ciphertext handle of encrypted message.
+ * @return Ciphertext handle of encrypted message, or error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_Encrypt(uintptr_t hClient,
@@ -341,7 +341,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Encrypt(uintptr_t hClient,
  * @param hClient Client handle.
  * @param usersetID ID of userset to decrypt under.
  * @param ciphertext Encrypted message to decrypt.
- * @return Decryption operation ID (string handle).
+ * @return Decryption operation ID (string handle), or error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
