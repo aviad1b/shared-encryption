@@ -207,6 +207,10 @@ namespace senc::clientapi::storage
 		profile_record_enc_sizes_t _recordEncSizes;
 		std::optional<ProfileRecord> _record;
 
+		/**
+		 * @brief Gets start position of next profile record data in file.
+		 * @return Start position of next profile record data in file.
+		 */
 		utils::file_pos_t next_pos() const;
 	};
 
