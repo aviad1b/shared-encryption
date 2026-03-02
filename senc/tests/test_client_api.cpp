@@ -149,11 +149,11 @@ TEST_F(ClientApiTest, SignupLoginLogout)
 
 	ASSERT_NO_ERROR(SENC_SignUp(hClient, username, password));
 
-	ASSERT_NO_ERROR(SENC_Logout(hClient));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
 	ASSERT_NO_ERROR(SENC_LogIn(hClient, username, password));
 
-	ASSERT_NO_ERROR(SENC_Logout(hClient));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
 	SENC_Disconnect(hClient);
 }
@@ -233,10 +233,10 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	}
 
 	// logout all users
-	ASSERT_NO_ERROR(SENC_Logout(hClient1));
-	ASSERT_NO_ERROR(SENC_Logout(hClient2));
-	ASSERT_NO_ERROR(SENC_Logout(hClient3));
-	ASSERT_NO_ERROR(SENC_Logout(hClient4));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient1));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient2));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient3));
+	ASSERT_NO_ERROR(SENC_LogOut(hClient4));
 
 	// disconnect happens in destructor
 }

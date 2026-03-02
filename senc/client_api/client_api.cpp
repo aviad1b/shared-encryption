@@ -195,7 +195,7 @@ uintptr_t SENC_LogIn(uintptr_t hClient, const char* username, const char* passwo
 	})->as_nint();
 }
 
-uintptr_t SENC_Logout(uintptr_t hClient) noexcept
+uintptr_t SENC_LogOut(uintptr_t hClient) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client]()

@@ -216,7 +216,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_LogIn(uintptr_t hClient,
  * @note This function does not deallocate resources - calling `Disconnect` is still required.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_Logout(uintptr_t hClient) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_LogOut(uintptr_t hClient) SENC_NOTHROW;
 
 /**
  * @brief Iterates over user profile data.
