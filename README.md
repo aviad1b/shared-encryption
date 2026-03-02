@@ -471,6 +471,7 @@ Server responds.
 ## Known Issues
 
 - Client API failure to identify userset ID with low probability when participating in a decryption during a background update.
+- Force-disconnection crashes hyper-specific to Windows GCC.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
