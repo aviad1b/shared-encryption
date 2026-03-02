@@ -32,6 +32,9 @@ namespace senc
 		 */
 		QueuedPacketHandler(Self&& other) noexcept;
 
+		/**
+		 * @brief Destructor of queued packet handler, stops queue.
+		 */
 		~QueuedPacketHandler();
 
 		/**
