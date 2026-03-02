@@ -46,14 +46,14 @@ namespace senc::client::io
 		const auto& [c1, c2, c3] = ciphertext;
 		const auto& [c3a, c3b] = c3;
 
-		cout << utils::bytes_to_base64(c1.encode()) << endl
-			 << utils::bytes_to_base64(c2.encode()) << endl
+		cout << utils::bytes_to_base64(utils::to_bytes(c1)) << endl
+			 << utils::bytes_to_base64(utils::to_bytes(c2)) << endl
 			 << utils::bytes_to_base64(c3a) << endl
 			 << utils::bytes_to_base64(c3b) << endl;
 	}
 
 	void print_decryption_part(const DecryptionPart& decryptionPart)
 	{
-		cout << utils::bytes_to_base64(decryptionPart.encode()) << endl;
+		cout << utils::bytes_to_base64(utils::to_bytes(decryptionPart)) << endl;
 	}
 }

@@ -91,16 +91,6 @@ namespace senc::utils
 		return res;
 	}
 
-	ECGroup::Self ECGroup::decode(BytesView bytes)
-	{
-		return Self::from_bytes(bytes);
-	}
-
-	Buffer ECGroup::encode() const
-	{
-		return this->to_bytes();
-	}
-
 	ECGroup::Self ECGroup::from_string(std::string str)
 	{
 		static const std::string PREFIX = "ECGroup(";

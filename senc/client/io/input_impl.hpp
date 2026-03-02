@@ -114,7 +114,7 @@ namespace senc::client::io
 		if constexpr (allowEmpty)
 			if (str.empty())
 				return std::nullopt;
-		return DecryptionPart::decode(utils::bytes_from_base64(str));
+		return utils::from_bytes<DecryptionPart>(utils::bytes_from_base64(str));
 	}
 
 	template <bool allowEmpty>
