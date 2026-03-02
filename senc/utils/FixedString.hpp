@@ -186,6 +186,7 @@ namespace senc::utils
 
 	namespace sfinae
 	{
+		// used to check for any instantation of FixedString
 		template <typename T>
 		struct is_fixed_string_type : std::false_type { };
 
