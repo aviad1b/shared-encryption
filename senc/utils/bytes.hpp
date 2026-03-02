@@ -66,9 +66,11 @@ namespace senc::utils
 
 	namespace sfinae
 	{
+		// used to check for a typename which stores sequential data of bytes
 		template <typename T>
 		struct has_byte_data : std::bool_constant<HasByteData<T>> { };
 
+		// used to check for a typename which stores sequential data of bytes that can be modified
 		template <typename T>
 		struct has_mutable_byte_data : std::bool_constant<HasMutableByteData<T>> { };
 	}
