@@ -30,7 +30,7 @@ void SENC_FreeHandle(uintptr_t handle) noexcept
 bool SENC_HasError(uintptr_t handle) noexcept
 {
 	auto* pHandle = api::Handle::from_nint(handle);
-	return pHandle->has_error();
+	return (pHandle && pHandle->has_error());
 }
 
 const char* SENC_GetError(uintptr_t handle) noexcept
