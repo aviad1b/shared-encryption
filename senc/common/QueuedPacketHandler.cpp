@@ -22,7 +22,8 @@ namespace senc
 
 	QueuedPacketHandler::~QueuedPacketHandler()
 	{
-		_sync->stop = true;
+		if (_sync)
+			_sync->stop = true;
 	}
 
 	QueuedPacketHandler::Self QueuedPacketHandler::server(
