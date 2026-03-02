@@ -16,9 +16,14 @@ namespace senc
 		  _onQueueEmpty(std::move(other._onQueueEmpty)),
 		  _delay(std::move(other._delay)),
 		  _nextTicket(other._nextTicket),
-		  _ticketBeingServed(other._ticketBeingServed),
-		  _queueThread(std::move(other._queueThread)),
-		  _sync(std::move(other._sync)) { }
+		  _ticketBeingServed(other._ticketBeingServed)
+	{
+		// signal other to stop (awaits operations finish)
+		other._sync->stop = true;
+
+		this->_sync = std::make_unique<Sync>();
+		this->_queueThread.emplace(&Self::queue_thread, this);
+	}
 
 	QueuedPacketHandler::~QueuedPacketHandler()
 	{
@@ -290,8 +295,11 @@ namespace senc
 		  _underlying(std::move(underlying)),
 		  _onQueueEmpty(onQueueEmpty),
 		  _delay(delay),
-		  _nextTicket(0), _ticketBeingServed(0),
-		  _queueThread(&Self::queue_thread, this) { }
+		  _nextTicket(0), _ticketBeingServed(0)
+	{
+		this->_sync = std::make_unique<Sync>();
+		this->_queueThread.emplace(&Self::queue_thread, this);
+	}
 
 	void QueuedPacketHandler::queue_thread()
 	{

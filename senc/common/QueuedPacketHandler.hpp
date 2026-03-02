@@ -133,6 +133,8 @@ namespace senc
 			std::mutex mtxQueue;
 			std::condition_variable cvQueue;
 			std::atomic_bool stop;
+
+			Sync() = default;
 		};
 
 		std::unique_ptr<PacketHandler> _underlying;
@@ -140,7 +142,7 @@ namespace senc
 		std::chrono::milliseconds _delay;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
-		std::jthread _queueThread;
+		std::optional<std::jthread> _queueThread;
 		std::unique_ptr<Sync> _sync;
 
 		/**
