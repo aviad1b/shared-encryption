@@ -92,7 +92,7 @@ namespace senc::utils
 	 * @tparam Self Examined typename.
 	 */
 	template <typename Self>
-	concept HasFromBytes = requires(const Buffer bytes)
+	concept HasFromBytes = requires(BytesView bytes)
 	{
 		{ Self::from_bytes(bytes) } -> std::convertible_to<Self>;
 	};
@@ -126,12 +126,12 @@ namespace senc::utils
 
 	/**
 	 * @brief Parses a fundamental/enum value from a buffer of bytes.
-	 * @param bytes Buffer of bytes to parse value from.
+	 * @param bytes Bytes to parse value from.
 	 * @return Parsed value.
 	 */
 	template <typename T>
 	requires std::is_fundamental_v<T> || std::is_enum_v<T>
-	T from_bytes(const Buffer& bytes);
+	T from_bytes(BytesView bytes);
 
 	/**
 	 * @brief Converts a string value to a buffer of bytes.
@@ -143,11 +143,11 @@ namespace senc::utils
 
 	/**
 	 * @brief Parses a string value from a buffer of bytes.
-	 * @param bytes Buffer of bytes to parse value from.
+	 * @param bytes Bytes to parse value from.
 	 * @return Parsed string.
 	 */
 	template <StringType T>
-	T from_bytes(const Buffer& bytes);
+	T from_bytes(BytesView bytes);
 
 	/**
 	 * @brief Converts a `HasToBytes` object to a buffer of bytes.
@@ -159,11 +159,11 @@ namespace senc::utils
 
 	/**
 	 * @brief Parses a `HasFromBytes` object from a buffer of bytes.
-	 * @param bytes Buffer of bytes to parse object from.
+	 * @param bytes Bytes to parse object from.
 	 * @return Parsed object.
 	 */
 	template <HasFromBytes T>
-	T from_bytes(const Buffer& bytes);
+	T from_bytes(BytesView bytes);
 
 	/**
 	 * @concept senc::utils::ByteConvertible
@@ -182,7 +182,7 @@ namespace senc::utils
 	 * @tparam Self Examied typename.
 	 */
 	template <typename Self>
-	concept ByteParsable = requires(const Buffer& bytes)
+	concept ByteParsable = requires(BytesView bytes)
 	{
 		{ ::senc::utils::from_bytes<Self>(bytes) } -> std::convertible_to<Self>;
 	};
@@ -250,7 +250,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires StringType<std::remove_cvref_t<decltype(out)>>;
 
 	/**
@@ -262,7 +262,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires (std::is_fundamental_v<std::remove_cvref_t<decltype(out)>> ||
 		std::is_enum_v<std::remove_cvref_t<decltype(out)>>);
 
@@ -275,7 +275,7 @@ namespace senc::utils
 	 * @return Iterator pointing to after read value.
 	 */
 	template <std::endian endianess = std::endian::big>
-	Buffer::const_iterator read_bytes(auto& out, Buffer::const_iterator it, Buffer::const_iterator end)
+	BytesView::iterator read_bytes(auto& out, BytesView::iterator it, BytesView::iterator end)
 	requires HasMutableByteData<std::remove_cvref_t<decltype(out)>>;
 }
 
