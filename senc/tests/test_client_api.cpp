@@ -92,12 +92,12 @@ static void test_ctx_streq(const char* str, uintptr_t context)
 
 struct test_userset_members_param_t
 {
-	std::vector<const char*>& owners;
-	std::vector<const char*>& regs;
+	const std::vector<const char*>& owners;
+	const std::vector<const char*>& regs;
 	std::size_t ownersFound, regsFound;
 
-	test_userset_members_param_t(std::vector<const char*>& owners,
-								 std::vector<const char*>& regs)
+	test_userset_members_param_t(const std::vector<const char*>& owners,
+								 const std::vector<const char*>& regs)
 		: owners(owners), regs(regs), ownersFound(0), regsFound(0) {  }
 
 	void test() const
