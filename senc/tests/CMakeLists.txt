@@ -34,8 +34,8 @@ add_executable(senc_tests
     "../client_api/Error.cpp"
 )
 
-# define I_SENC_CLIENT_API macro to prevent DLL linkage
-target_compile_definitions(senc_client_api PRIVATE I_SENC_CLIENT_API)
+# define I_SENC_TEST macro
+target_compile_definitions(senc_tests PRIVATE I_SENC_TEST)
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
 

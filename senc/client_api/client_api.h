@@ -47,11 +47,13 @@
 
 #ifdef SENC_CLIENT_API_WINDOWS
 
-#ifdef I_SENC_CLIENT_API
+#if defined(I_SENC_CLIENT_API)
 #define SENC_CLIENT_API_PUBLIC SENC_CLINK __declspec(dllexport)
-#else // !I_SENC_CLIENT_API
+#elif defined(I_SENC_TEST)
+#define SENC_CLIENT_API_PUBLIC SENC_CLINK
+#else // !I_SENC_CLIENT_API && !I_SENC_TEST
 #define SENC_CLIENT_API_PUBLIC SENC_CLINK __declspec(dllimport)
-#endif // end I_SENC_CLIENT_API
+#endif // end I_SENC_CLIENT_API, I_SENC_TEST
 
 #else // !SENC_CLIENT_API_WINDOWS
 
