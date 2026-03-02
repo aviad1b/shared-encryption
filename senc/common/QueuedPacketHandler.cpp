@@ -10,7 +10,7 @@
 
 namespace senc
 {
-	QueuedPacketHandler::QueuedPacketHandler(Self&& other)
+	QueuedPacketHandler::QueuedPacketHandler(Self&& other) noexcept
 		: Base(std::move(other)),
 		  _underlying(std::move(other._underlying)),
 		  _onQueueEmpty(std::move(other._onQueueEmpty)),

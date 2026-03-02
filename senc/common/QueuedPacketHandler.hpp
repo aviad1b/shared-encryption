@@ -30,7 +30,7 @@ namespace senc
 		/**
 		 * @brief Move constructor of queued packet handler.
 		 */
-		QueuedPacketHandler(Self&& other);
+		QueuedPacketHandler(Self&& other) noexcept;
 
 		~QueuedPacketHandler();
 
