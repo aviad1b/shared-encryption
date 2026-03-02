@@ -111,10 +111,10 @@ namespace senc::utils
 
 		/**
 		 * @brief Parses group element from bytes.
-		 * @param bytes Buffer of bytes.
+		 * @param bytes Bytes to parse from.
 		 * @return Parsed group element.
 		 */
-		static Self from_bytes(const Buffer& bytes);
+		static Self from_bytes(BytesView bytes);
 
 		/**
 		 * @brief Serializes group element to bytes.

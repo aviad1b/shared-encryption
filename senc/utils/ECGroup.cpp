@@ -50,7 +50,7 @@ namespace senc::utils
 		return from_scalar(dist()());
 	}
 
-	ECGroup::Self ECGroup::from_bytes(const Buffer& bytes)
+	ECGroup::Self ECGroup::from_bytes(BytesView bytes)
 	{
 		const bigint_size_t xSize = *reinterpret_cast<const bigint_size_t*>(
 			bytes.data()
