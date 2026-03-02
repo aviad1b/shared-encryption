@@ -137,13 +137,13 @@ namespace senc
 			Sync() = default;
 		};
 
+		Sync _sync;
 		std::unique_ptr<PacketHandler> _underlying;
 		std::function<void(PacketHandler&)> _onQueueEmpty;
 		std::chrono::milliseconds _delay;
 		std::size_t _nextTicket;
 		std::size_t _ticketBeingServed;
 		std::jthread _queueThread;
-		Sync _sync;
 
 		/**
 		 * @brief Constructs queued packet handler from underlying handler instance.
