@@ -29,7 +29,13 @@ add_executable(senc_tests
     "../client_api/storage/ProfileRecord.cpp"
     "../client_api/storage/ProfileStorage.cpp"
     "test_client_api.cpp"
+    "../client_api/client_api.cpp"
+    "../client_api/ClientUtils.cpp"
+    "../client_api/Error.cpp"
 )
+
+# define I_SENC_CLIENT_API macro to prevent DLL linkage
+target_compile_definitions(senc_client_api PRIVATE I_SENC_CLIENT_API)
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)
 
@@ -37,7 +43,6 @@ target_link_libraries(senc_tests PRIVATE
     GTest::gtest_main
     senc_utils
     senc_common
-    senc_client_api
 )
 
 enable_testing()
