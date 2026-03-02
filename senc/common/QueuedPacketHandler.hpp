@@ -135,6 +135,18 @@ namespace senc
 			std::atomic_bool stop;
 
 			Sync() = default;
+
+			/**
+			 * @brief Dummy move constructor of Sync: Awaits all mutexes to release, and sets stop to true.
+			 * @details This is used to make sure all operations inished before moving QueuedPacketHandler.
+			 */
+			Sync(Sync&& other) : Sync()
+			{
+				const std::lock_guard<std::mutex> a(other.mtxUnderlying);
+				const std::lock_guard<std::mutex> b(other.mtxOnQueueEmpty);
+				const std::lock_guard<std::mutex> c(other.mtxQueue);
+				other.stop = true;
+			}
 		};
 
 		Sync _sync;

@@ -12,16 +12,13 @@ namespace senc
 {
 	QueuedPacketHandler::QueuedPacketHandler(Self&& other) noexcept
 		: Base(std::move(other)),
+		  _sync(std::move(other._sync)),
 		  _underlying(std::move(other._underlying)),
 		  _onQueueEmpty(std::move(other._onQueueEmpty)),
 		  _delay(std::move(other._delay)),
 		  _nextTicket(other._nextTicket),
 		  _ticketBeingServed(other._ticketBeingServed),
-		  _queueThread(&Self::queue_thread, this)
-	{
-		// signal other to stop (awaits operations finish)
-		other._sync.stop = true;
-	}
+		  _queueThread(&Self::queue_thread, this) { }
 
 	QueuedPacketHandler::~QueuedPacketHandler()
 	{
