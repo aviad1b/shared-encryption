@@ -118,6 +118,11 @@ namespace senc::clientapi::storage
 		 */
 		static ProfileEncSchema& schema();
 
+		/**
+		 * @brief Parses profile record from binary data.
+		 * @param data Binary data.
+		 * @return Parsed profile record.
+		 */
 		static ProfileRecord parse_profile_record(const utils::Buffer& data);
 
 		static utils::Buffer serialize_profile_record(const ProfileRecord& record);
