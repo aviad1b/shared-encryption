@@ -179,7 +179,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	// try getting userset members and check equals
 	test_userset_members_param_t testMembersParam(owners, regs);
 	ASSERT_NO_ERROR(SENC_GetUserSetMembers(
-		hClient1, usersetID, test_ctx_owners, test_ctx_owners,
+		hClient1, usersetID, test_ctx_owners, test_ctx_regs,
 		reinterpret_cast<uintptr_t>(&testMembersParam)
 	));
 	testMembersParam.test();
