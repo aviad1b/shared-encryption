@@ -220,17 +220,24 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::update_callback(PacketHandler& packetHandler)
 	{
-		pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-		for (auto& record : resp.added_as_reg_member)
-			this->handle_added_as_reg_member(std::move(record));
-		for (auto& record : resp.added_as_owner)
-			this->handle_added_as_owner(std::move(record));
-		for (auto& opid : resp.on_lookup)
-			this->handle_on_lookup(std::move(opid));
-		for (auto& record : resp.to_decrypt)
-			this->handle_to_decrypt(std::move(record));
-		for (auto& record : resp.finished_decryptions)
-			this->handle_finished_decryption(std::move(record));
+		try
+		{
+			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
+			for (auto& record : resp.added_as_reg_member)
+				this->handle_added_as_reg_member(std::move(record));
+			for (auto& record : resp.added_as_owner)
+				this->handle_added_as_owner(std::move(record));
+			for (auto& opid : resp.on_lookup)
+				this->handle_on_lookup(std::move(opid));
+			for (auto& record : resp.to_decrypt)
+				this->handle_to_decrypt(std::move(record));
+			for (auto& record : resp.finished_decryptions)
+				this->handle_finished_decryption(std::move(record));
+		}
+		catch (const ClientException&)
+		{
+			// silently ignore background update errors for now
+		}
 	}
 
 	template <utils::IPType IP>
