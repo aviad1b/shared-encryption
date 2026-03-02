@@ -162,6 +162,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 
 	// create userset where aaa,bbb are owners and ccc,ddd are non-owners
 	std::vector<const char*> owners{ "bbb" };
+	std::vector<const char*> allOwners{ "aaa", "bbb" }; // including group creator
 	std::vector<const char*> regs{ "ccc", "ddd" };
 	SENC_Handle hUserSetID = SENC_MakeUserSet(
 		hClient1,
@@ -177,7 +178,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	ASSERT_NO_ERROR(SENC_GetUserSets(hClient2, test_ctx_streq, reinterpret_cast<uintptr_t>(usersetID)));
 
 	// try getting userset members and check equals
-	test_userset_members_param_t testMembersParam(owners, regs);
+	test_userset_members_param_t testMembersParam(allOwners, regs);
 	ASSERT_NO_ERROR(SENC_GetUserSetMembers(
 		hClient1, usersetID, test_ctx_owners, test_ctx_regs,
 		reinterpret_cast<uintptr_t>(&testMembersParam)
