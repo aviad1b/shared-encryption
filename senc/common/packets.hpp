@@ -19,9 +19,10 @@ namespace senc::pkt
 {
 	// protocol versions:
 	// 1 : v1.0.0-v1.0.1
-	// 2 : v1.1.0+
+	// 2 : v1.1.0-v1.1.1
+	// 3 : v1.2.0+
 	using protocol_version_t = std::uint8_t;
-	constexpr protocol_version_t PROTOCOL_VERSION = 2; // v1.1.0+
+	constexpr protocol_version_t PROTOCOL_VERSION = 3; // v1.2.0+
 
 	/**
 	 * @enum Code
