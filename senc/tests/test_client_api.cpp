@@ -140,6 +140,24 @@ void ASSERT_NO_ERROR(const SENC_Handle& handle)
 	ASSERT_FALSE(SENC_HasError(handle));
 }
 
+TEST_F(ClientApiTest, SignupLoginLogout)
+{
+	SENC_Handle hClient = SENC_Connect(ip, port, nullptr, 0);
+
+	const char* username = "user";
+	const char* password = "pass123";
+
+	ASSERT_NO_ERROR(SENC_SignUp(hClient, username, password));
+
+	ASSERT_NO_ERROR(SENC_Logout(hClient));
+
+	ASSERT_NO_ERROR(SENC_Login(hClient, username, password));
+
+	ASSERT_NO_ERROR(SENC_Logout(hClient));
+
+	SENC_Disconnect(hClient);
+}
+
 TEST_F(ClientApiTest, RoundTripFlow)
 {
 	DecsMap decs;
