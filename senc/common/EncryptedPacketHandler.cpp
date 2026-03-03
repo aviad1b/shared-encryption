@@ -92,11 +92,9 @@ namespace senc
 	{
 		pkt::Code res{};
 
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(res, it, end);
 
@@ -114,11 +112,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::ErrorResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.msg, it, end);
 	}
@@ -137,11 +133,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::SignupRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -159,11 +153,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::SignupResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -182,11 +174,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::LoginRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -204,11 +194,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::LoginResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -253,11 +241,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.owners_threshold, it, end);
 		it = utils::read_bytes(out.reg_members_threshold, it, end);
@@ -294,11 +280,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_pub_key(out.reg_layer_pub_key, it, end);
@@ -332,11 +316,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		userset_count_t usersetsCount{};
 		it = utils::read_bytes(usersetsCount, it, end);
@@ -358,11 +340,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::GetMembersRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 	}
@@ -385,11 +365,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::GetMembersResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		member_count_t ownersCount{};
 		it = utils::read_bytes(ownersCount, it, end);
@@ -420,11 +398,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_ciphertext(out.ciphertext, it, end);
@@ -443,11 +419,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::DecryptResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
@@ -500,11 +474,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::UpdateResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		// read vector lengths
 
@@ -564,11 +536,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::DecryptParticipateRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
@@ -586,11 +556,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::DecryptParticipateResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
@@ -609,11 +577,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::SendDecryptionPartRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data();
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 		it = read_decryption_part(out.decryption_part, it, end);
@@ -651,7 +617,7 @@ namespace senc
 		_sock.send_connected(c2);
 	}
 
-	void EncryptedPacketHandler::recv_encrypted_data(utils::Buffer& out)
+	void EncryptedPacketHandler::recv_encrypted_data()
 	{
 		utils::enc::Ciphertext<Schema> encryptedData{};
 		auto& [c1, c2] = encryptedData;
@@ -665,7 +631,8 @@ namespace senc
 		_sock.recv_connected_exact_into(c1);
 		_sock.recv_connected_exact_into(c2);
 
-		out = _schema.decrypt(encryptedData, _syncData.get_key());
+		_buff = _schema.decrypt(encryptedData, _syncData.get_key());
+		_buffView = utils::BytesView(_buff.data(), _buff.size());
 	}
 
 	void EncryptedPacketHandler::write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value)

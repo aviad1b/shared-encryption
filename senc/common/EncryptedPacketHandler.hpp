@@ -122,6 +122,8 @@ namespace senc
 
 	private:
 		KeyedPacketHandlerSyncData<Key> _syncData;
+		utils::BytesView _buffView;
+		utils::Buffer _buff;
 		Schema _schema;
 		KDF _kdf;
 
@@ -148,7 +150,7 @@ namespace senc
 
 		void send_encrypted_data(const utils::Buffer& data);
 		
-		void recv_encrypted_data(utils::Buffer& out);
+		void recv_encrypted_data(); // receives into `buff`.
 
 		void write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value);
 		utils::BytesView::iterator read_big_int(std::optional<utils::BigInt>& out,
