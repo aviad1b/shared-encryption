@@ -228,7 +228,7 @@ namespace senc::clientapi
 			for (auto& record : resp.added_as_owner)
 				this->handle_added_as_owner(std::move(record));
 			for (auto& record : resp.on_lookup)
-				this->handle_on_lookup(std::move(record.opid));
+				this->handle_on_lookup(std::move(record));
 			for (auto& record : resp.to_decrypt)
 				this->handle_to_decrypt(std::move(record));
 			for (auto& record : resp.finished_decryptions)
@@ -315,11 +315,11 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::handle_on_lookup(OperationID&& opid)
+	inline void Client<IP>::handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data)
 	{
 		// request to join operation on a non-blocking thread
 		// (packet handler is currently used by update, so can't use it here directly)
-		std::thread t(&Self::request_participance, this, std::move(opid));
+		std::thread t(&Self::request_participance, this, std::move(data.opid));
 		t.detach();
 	}
 

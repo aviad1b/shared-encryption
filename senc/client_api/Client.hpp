@@ -174,9 +174,9 @@ namespace senc::clientapi
 
 		/**
 		 * @brief Handles "on lookup" update.
-		 * @param opid Operation ID (moved).
+		 * @param data Update data (moved).
 		 */
-		void handle_on_lookup(OperationID&& opid);
+		void handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data);
 
 		/**
 		 * @brief Handles "to decrypt" update.
