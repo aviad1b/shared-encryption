@@ -52,10 +52,9 @@ namespace senc::server::managers
 										const OperationID& opid,
 										const UserSetID& usersetID)
 	{
-		(void)usersetID;
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].on_lookup.push_back(pkt::UpdateResponse::OnLookupRecord{
-			opid
+			opid, usersetID
 		});
 	}
 

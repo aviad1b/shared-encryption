@@ -279,8 +279,14 @@ static void update_cycle(PacketsTest& test)
 			}
 		},
 		{
-			{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" },
-			{ "0db2e378-9fdb-4f2a-8ea6-df3e1e9a9d2c" }
+			{
+				"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325"
+			},
+			{
+				"0db2e378-9fdb-4f2a-8ea6-df3e1e9a9d2c",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325"
+			}
 		},
 		{
 			{

@@ -458,6 +458,9 @@ namespace senc::pkt
 
 			/// ID of operation server wants requester to participate in.
 			OperationID opid;
+
+			/// ID of userset under which operation is being performed.
+			UserSetID user_set_id;
 		};
 		
 		/// List of decryption operations under which server wants requester to participate.
