@@ -21,8 +21,8 @@ namespace senc
 	 * @class senc::EncryptedPacketHandler
 	 * @brief Encrypted implementation of `senc::PacketHandler`.
 	 * @note For encryption efficiency, this class heavily relies on the assumption that 
-	 *       `recv_code` is always and only called before `recv_packet_data`, and
-	 *       `recv_packet_data` is always and only called after `recv_code`.
+	 *       `recv_code` is always and only called before `recv_request_data`/`recv_response_data`, and
+	 *       `recv_request_data`/`recv_response_data` is always and only called after `recv_code`.
 	 */
 	class EncryptedPacketHandler : public PacketHandler
 	{
