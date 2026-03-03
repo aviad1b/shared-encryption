@@ -146,8 +146,6 @@ namespace senc
 		 */
 		static constexpr std::size_t MAX_ENCDATA_SIZE = std::numeric_limits<encdata_size_t>::max();
 
-		void send_code(pkt::Code code);
-
 		void send_encrypted_data(const utils::Buffer& data);
 		
 		void recv_encrypted_data(); // receives into `buff`.
