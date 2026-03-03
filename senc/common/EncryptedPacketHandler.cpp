@@ -92,42 +92,41 @@ namespace senc
 	{
 		pkt::Code res{};
 
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		recv_encrypted_data(); // assumes trailing data will be read by recv_request or recv_response
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(res, it, end);
+
+		// update _buffView to point to after code
+		_buffView = utils::BytesView(it, end);
 
 		return res;
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::ErrorResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
 		utils::write_bytes(data, packet.msg);
+
 		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_response_data(pkt::ErrorResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.msg, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::SignupRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.username);
 		utils::write_bytes(data, packet.password);
@@ -137,11 +136,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::SignupRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -149,9 +146,9 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::SignupResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
 		utils::write_bytes(data, packet.status);
 
 		send_encrypted_data(data);
@@ -159,20 +156,17 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::SignupResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::LoginRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.username);
 		utils::write_bytes(data, packet.password);
@@ -182,11 +176,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::LoginRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.username, it, end);
 		it = utils::read_bytes(out.password, it, end);
@@ -194,9 +186,9 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::LoginResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
 		utils::write_bytes(data, packet.status);
 
 		send_encrypted_data(data);
@@ -204,18 +196,19 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::LoginResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::LogoutRequest& packet)
 	{
-		send_code(packet.CODE);
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::LogoutRequest& out)
@@ -225,7 +218,10 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::LogoutResponse& packet)
 	{
-		send_code(packet.CODE);
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_response_data(pkt::LogoutResponse& out)
@@ -235,9 +231,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_request(const pkt::MakeUserSetRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.owners_threshold);
 		utils::write_bytes(data, packet.reg_members_threshold);
@@ -253,11 +248,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.owners_threshold, it, end);
 		it = utils::read_bytes(out.reg_members_threshold, it, end);
@@ -279,9 +272,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
 		write_pub_key(data, packet.reg_layer_pub_key);
@@ -294,11 +286,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_pub_key(out.reg_layer_pub_key, it, end);
@@ -309,7 +299,10 @@ namespace senc
 
 	void EncryptedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
 	{
-		send_code(packet.CODE);
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
@@ -319,9 +312,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::GetUserSetsResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, static_cast<userset_count_t>(packet.user_sets_ids.size()));
 		for (const auto& userSetID : packet.user_sets_ids)
@@ -332,11 +324,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		userset_count_t usersetsCount{};
 		it = utils::read_bytes(usersetsCount, it, end);
@@ -347,9 +337,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_request(const pkt::GetMembersRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
 
@@ -358,20 +347,17 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::GetMembersRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::GetMembersResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, static_cast<member_count_t>(packet.owners.size()));
 		utils::write_bytes(data, static_cast<member_count_t>(packet.reg_members.size()));
@@ -385,11 +371,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::GetMembersResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		member_count_t ownersCount{};
 		it = utils::read_bytes(ownersCount, it, end);
@@ -408,9 +392,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_request(const pkt::DecryptRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
 		write_ciphertext(data, packet.ciphertext);
@@ -420,11 +403,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
 		it = read_ciphertext(out.ciphertext, it, end);
@@ -432,9 +413,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::DecryptResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.op_id);
 
@@ -443,18 +423,19 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::DecryptResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::UpdateRequest& packet)
 	{
-		send_code(packet.CODE);
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::UpdateRequest& out)
@@ -464,9 +445,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::UpdateResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		// write vector lengths
 		utils::write_bytes(data, static_cast<userset_count_t>(packet.added_as_owner.size()));
@@ -500,11 +480,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::UpdateResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		// read vector lengths
 
@@ -553,9 +531,8 @@ namespace senc
 
 	void EncryptedPacketHandler::send_request(const pkt::DecryptParticipateRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.op_id);
 
@@ -564,20 +541,17 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::DecryptParticipateRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::DecryptParticipateResponse& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.status);
 
@@ -586,20 +560,17 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_response_data(pkt::DecryptParticipateResponse& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.status, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::SendDecryptionPartRequest& packet)
 	{
-		send_code(packet.CODE);
-
 		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.op_id);
 		write_decryption_part(data, packet.decryption_part);
@@ -609,11 +580,9 @@ namespace senc
 
 	void EncryptedPacketHandler::recv_request_data(pkt::SendDecryptionPartRequest& out)
 	{
-		utils::Buffer data{};
-		recv_encrypted_data(data);
-		utils::BytesView view(data.data(), data.size());
-		const auto end = view.end();
-		auto it = view.begin();
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.op_id, it, end);
 		it = read_decryption_part(out.decryption_part, it, end);
@@ -621,7 +590,10 @@ namespace senc
 
 	void EncryptedPacketHandler::send_response(const pkt::SendDecryptionPartResponse& packet)
 	{
-		send_code(packet.CODE);
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
 	}
 
 	void EncryptedPacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
@@ -631,13 +603,6 @@ namespace senc
 
 	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
 		: Base(sock) { }
-
-	void EncryptedPacketHandler::send_code(pkt::Code code)
-	{
-		utils::Buffer data{};
-		utils::write_bytes(data, code);
-		send_encrypted_data(data);
-	}
 
 	void EncryptedPacketHandler::send_encrypted_data(const utils::Buffer& data)
 	{
@@ -651,7 +616,7 @@ namespace senc
 		_sock.send_connected(c2);
 	}
 
-	void EncryptedPacketHandler::recv_encrypted_data(utils::Buffer& out)
+	void EncryptedPacketHandler::recv_encrypted_data()
 	{
 		utils::enc::Ciphertext<Schema> encryptedData{};
 		auto& [c1, c2] = encryptedData;
@@ -665,7 +630,8 @@ namespace senc
 		_sock.recv_connected_exact_into(c1);
 		_sock.recv_connected_exact_into(c2);
 
-		out = _schema.decrypt(encryptedData, _syncData.get_key());
+		_buff = _schema.decrypt(encryptedData, _syncData.get_key());
+		_buffView = utils::BytesView(_buff.data(), _buff.size());
 	}
 
 	void EncryptedPacketHandler::write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value)
