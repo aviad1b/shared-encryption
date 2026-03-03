@@ -278,7 +278,7 @@ namespace senc
 		
 		// send on_lookup records
 		for (const auto& record : packet.on_lookup)
-			_sock.send_connected_value(record);
+			_sock.send_connected_value(record.opid);
 
 		// send to_decrypt records
 		for (const auto& record : packet.to_decrypt)
@@ -311,7 +311,7 @@ namespace senc
 		// recv on_lookup records
 		out.on_lookup.resize(onLookupCount);
 		for (auto& record : out.on_lookup)
-			_sock.recv_connected_value(record);
+			_sock.recv_connected_value(record.opid);
 
 		// recv to_decrypt records
 		out.to_decrypt.resize(toDecryptCount);

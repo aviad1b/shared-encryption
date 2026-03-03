@@ -438,11 +438,11 @@ TEST_P(ServerTest, DecryptFlowSimple)
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
-	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
+	EXPECT_EQ(memberOnLookup.front().opid, ownerOpid);
 
 	// 3) member tells server that they're willing to participate in operation
 	auto dp = post<pkt::DecryptParticipateResponse>(*memberPacketHandler, pkt::DecryptParticipateRequest{
-		memberOnLookup.front()
+		memberOnLookup.front().opid
 	});
 	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
@@ -595,19 +595,19 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
-	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
+	EXPECT_EQ(memberOnLookup.front().opid, ownerOpid);
 
 	EXPECT_EQ(member2OnLookup.size(), 1);
-	EXPECT_EQ(member2OnLookup.front(), ownerOpid);
+	EXPECT_EQ(member2OnLookup.front().opid, ownerOpid);
 
 	// 3) members tell server that they're willing to participate in operation
 	auto dp1 = post<pkt::DecryptParticipateResponse>(*memberPacketHandler, pkt::DecryptParticipateRequest{
-		memberOnLookup.front()
+		memberOnLookup.front().opid
 	});
 	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(*member2PacketHandler, pkt::DecryptParticipateRequest{
-		member2OnLookup.front()
+		member2OnLookup.front().opid
 	});
 	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
@@ -771,7 +771,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
-	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
+	EXPECT_EQ(memberOnLookup.front().opid, ownerOpid);
 
 	// (extra does same, but will not participate in decryption)
 	auto upe = post<pkt::UpdateResponse>(*extraPacketHandler, pkt::UpdateRequest{});
@@ -786,7 +786,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 
 	// 3) member tells server that they're willing to participate in operation
 	auto dp = post<pkt::DecryptParticipateResponse>(*memberPacketHandler, pkt::DecryptParticipateRequest{
-		memberOnLookup.front()
+		memberOnLookup.front().opid
 	});
 	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
@@ -937,19 +937,19 @@ TEST_P(ServerTest, DecryptFlow2L)
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
-	EXPECT_EQ(memberOnLookup.front(), ownerOpid);
+	EXPECT_EQ(memberOnLookup.front().opid, ownerOpid);
 
 	EXPECT_EQ(owner2OnLookup.size(), 1);
-	EXPECT_EQ(owner2OnLookup.front(), ownerOpid);
+	EXPECT_EQ(owner2OnLookup.front().opid, ownerOpid);
 
 	// 3) members tell server that they're willing to participate in operation
 	auto dp = post<pkt::DecryptParticipateResponse>(*memberPacketHandler, pkt::DecryptParticipateRequest{
-		memberOnLookup.front()
+		memberOnLookup.front().opid
 	});
 	EXPECT_TRUE(dp.has_value() && dp->status == pkt::DecryptParticipateResponse::Status::SendRegLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(*owner2PacketHandler, pkt::DecryptParticipateRequest{
-		owner2OnLookup.front()
+		owner2OnLookup.front().opid
 	});
 	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
@@ -1122,19 +1122,19 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(owner2OnLookup.size(), 1);
-	EXPECT_EQ(owner2OnLookup.front(), ownerOpid);
+	EXPECT_EQ(owner2OnLookup.front().opid, ownerOpid);
 
 	EXPECT_EQ(owner3OnLookup.size(), 1);
-	EXPECT_EQ(owner3OnLookup.front(), ownerOpid);
+	EXPECT_EQ(owner3OnLookup.front().opid, ownerOpid);
 
 	// 3) members tell server that they're willing to participate in operation
 	auto dp1 = post<pkt::DecryptParticipateResponse>(*owner2PacketHandler, pkt::DecryptParticipateRequest{
-		owner2OnLookup.front()
+		owner2OnLookup.front().opid
 	});
 	EXPECT_TRUE(dp1.has_value() && dp1->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
 	auto dp2 = post<pkt::DecryptParticipateResponse>(*owner3PacketHandler, pkt::DecryptParticipateRequest{
-		owner3OnLookup.front()
+		owner3OnLookup.front().opid
 	});
 	EXPECT_TRUE(dp2.has_value() && dp2->status == pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart);
 
@@ -1434,7 +1434,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			auto up = post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->on_lookup.size(), 1);
-			EXPECT_EQ(up->on_lookup.back(), opid);
+			EXPECT_EQ(up->on_lookup.back().opid, opid);
 		}
 
 		// 3) involved members tell server that they're willing to participate in operation

@@ -227,8 +227,8 @@ namespace senc::clientapi
 				this->handle_added_as_reg_member(std::move(record));
 			for (auto& record : resp.added_as_owner)
 				this->handle_added_as_owner(std::move(record));
-			for (auto& opid : resp.on_lookup)
-				this->handle_on_lookup(std::move(opid));
+			for (auto& record : resp.on_lookup)
+				this->handle_on_lookup(std::move(record.opid));
 			for (auto& record : resp.to_decrypt)
 				this->handle_to_decrypt(std::move(record));
 			for (auto& record : resp.finished_decryptions)

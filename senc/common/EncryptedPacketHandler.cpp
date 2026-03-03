@@ -466,7 +466,7 @@ namespace senc
 		
 		// write on_lookup records
 		for (const auto& record : packet.on_lookup)
-			utils::write_bytes(data, record);
+			utils::write_bytes(data, record.opid);
 
 		// send to_decrypt records
 		for (const auto& record : packet.to_decrypt)
@@ -519,7 +519,7 @@ namespace senc
 		// read on_lookup records
 		out.on_lookup.resize(onLookupCount);
 		for (auto& record : out.on_lookup)
-			it = utils::read_bytes(record, it, end);
+			it = utils::read_bytes(record.opid, it, end);
 
 		// read to_decrypt records
 		out.to_decrypt.resize(toDecryptCount);
