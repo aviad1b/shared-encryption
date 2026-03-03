@@ -131,6 +131,9 @@ namespace senc
 		void send_update_record(const pkt::UpdateResponse::AddedAsMemberRecord& record);
 		void recv_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out);
 
+		void send_update_record(const pkt::UpdateResponse::OnLookupRecord& record);
+		void recv_update_record(pkt::UpdateResponse::OnLookupRecord& out);
+
 		void send_update_record(const pkt::UpdateResponse::ToDecryptRecord& record);
 		void recv_update_record(pkt::UpdateResponse::ToDecryptRecord& out);
 

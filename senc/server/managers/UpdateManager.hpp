@@ -67,8 +67,9 @@ namespace senc::server::managers
 		 * @brief Registers user to look for in order to perform a decryption operation.
 		 * @param username Username of user to include in lookup for operation.
 		 * @param opid Operation ID.
+		 * @param usersetID ID of userset under which operation is being performed.
 		 */
-		void register_lookup(const std::string& username, const OperationID& opid);
+		void register_lookup(const std::string& username, const OperationID& opid, const UserSetID& usersetID);
 
 		/**
 		 * @brief Registers a user's participance in a decryption operation.

@@ -91,8 +91,8 @@ namespace senc::clientapi
 		// maps decryption operation ID to userset ID and ciphertext
 		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
 
-		// maps decryption operation ID to participance type (owner/reg)
-		utils::HashMap<OperationID, bool> _pendingParticipances;
+		// maps decryption operation ID to userset ID and participance type (owner/reg)
+		utils::HashMap<OperationID, std::pair<UserSetID, bool>> _pendingParticipances;
 
 		/**
 		 * @brief Makes sure client is connected to server.
@@ -174,9 +174,9 @@ namespace senc::clientapi
 
 		/**
 		 * @brief Handles "on lookup" update.
-		 * @param opid Operation ID (moved).
+		 * @param data Update data (moved).
 		 */
-		void handle_on_lookup(OperationID&& opid);
+		void handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data);
 
 		/**
 		 * @brief Handles "to decrypt" update.
@@ -193,18 +193,19 @@ namespace senc::clientapi
 		/**
 		 * @brief Attemps to participate in decryption operation.
 		 * @param opid Operation ID (moved).
+		 * @param usersetID ID of userset under which operation is being perfomed (moved).
 		 */
-		void request_participance(OperationID&& opid);
+		void request_participance(OperationID opid, UserSetID usersetID);
 
 		/**
 		 * @brief Participates in a decryption operation.
 		 * @param opid Operation ID (moved).
 		 * @param ciphertext Ciphertext being decrypted (moved).
-		 * @param shardsIDs IDs of shards involved in decryption.
+		 * @param shardsIDs IDs of shards involved in decryption (moved).
 		 */
-		void participate(OperationID&& opid,
-						 Ciphertext&& ciphertext,
-						 std::vector<PrivKeyShardID>&& shardsIDs);
+		void participate(OperationID opid,
+						 Ciphertext ciphertext,
+						 std::vector<PrivKeyShardID> shardsIDs);
 	};
 }
 

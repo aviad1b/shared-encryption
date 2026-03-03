@@ -448,9 +448,23 @@ namespace senc::pkt
 		/// List of usersets the user was added to as owner.
 		std::vector<AddedAsOwnerRecord> added_as_owner;
 
+		/**
+		 * @struct OnLookupRecord
+		 * @brief Record indicating server wants requester to participate in an operation.
+		 */
+		struct OnLookupRecord
+		{
+			bool operator==(const OnLookupRecord&) const = default;
 
-		/// IDs of decryption operations under which server wants requester to participate.
-		std::vector<OperationID> on_lookup;
+			/// ID of operation server wants requester to participate in.
+			OperationID opid;
+
+			/// ID of userset under which operation is being performed.
+			UserSetID user_set_id;
+		};
+		
+		/// List of decryption operations under which server wants requester to participate.
+		std::vector<OnLookupRecord> on_lookup;
 
 
 		/**

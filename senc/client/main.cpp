@@ -516,8 +516,8 @@ namespace senc::client
 		{
 			hadUpdates = true;
 			cout << "IDs of operations looking for you:" << endl;
-			for (const auto& [i, opid] : resp.on_lookup | utils::views::enumerate)
-				cout << (i + 1) << ".\t" << opid << endl;
+			for (const auto& [i, data] : resp.on_lookup | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << data.opid << endl;
 		}
 
 		if (!resp.to_decrypt.empty())

@@ -48,10 +48,14 @@ namespace senc::server::managers
 		);
 	}
 
-	void UpdateManager::register_lookup(const std::string& username, const OperationID& opid)
+	void UpdateManager::register_lookup(const std::string& username,
+										const OperationID& opid,
+										const UserSetID& usersetID)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		_updates[username].on_lookup.push_back(opid);
+		_updates[username].on_lookup.push_back(pkt::UpdateResponse::OnLookupRecord{
+			opid, usersetID
+		});
 	}
 
 	void UpdateManager::register_decryption_participating(const std::string& username,

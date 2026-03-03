@@ -227,8 +227,8 @@ namespace senc::clientapi
 				this->handle_added_as_reg_member(std::move(record));
 			for (auto& record : resp.added_as_owner)
 				this->handle_added_as_owner(std::move(record));
-			for (auto& opid : resp.on_lookup)
-				this->handle_on_lookup(std::move(opid));
+			for (auto& record : resp.on_lookup)
+				this->handle_on_lookup(std::move(record));
 			for (auto& record : resp.to_decrypt)
 				this->handle_to_decrypt(std::move(record));
 			for (auto& record : resp.finished_decryptions)
@@ -315,11 +315,16 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::handle_on_lookup(OperationID&& opid)
+	inline void Client<IP>::handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data)
 	{
 		// request to join operation on a non-blocking thread
 		// (packet handler is currently used by update, so can't use it here directly)
-		std::thread t(&Self::request_participance, this, std::move(opid));
+		std::thread t(
+			&Self::request_participance,
+			this,
+			std::move(data.opid),
+			std::move(data.user_set_id)
+		);
 		t.detach();
 	}
 
@@ -372,7 +377,7 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::request_participance(OperationID&& opid)
+	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
 		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
@@ -380,53 +385,37 @@ namespace senc::clientapi
 			return;
 		_pendingParticipances.insert(std::make_pair(
 			std::move(req.op_id),
-			pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			std::make_pair(
+				std::move(usersetID),
+				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			)
 		));
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::participate(OperationID&& opid,
-										Ciphertext&& ciphertext,
-										std::vector<PrivKeyShardID>&& shardsIDs)
+	inline void Client<IP>::participate(OperationID opid,
+										Ciphertext ciphertext,
+										std::vector<PrivKeyShardID> shardsIDs)
 	{
 		// pop entry from pending participances map
 		auto node = _pendingParticipances.extract(opid);
 		if (node.empty())
 			return; // TODO: Inform unexpected operation ID?
-		const bool isOwner = node.mapped();
+		const auto& [usersetID, isOwner] = node.mapped();
 
-		// locate fitting record in local storage
-		// TODO: since the protocol was poorly designed on this part,
-		//       the best thing possible to do here is look for a record where
-		//       the user'd shard ID exists.
-		//       REFACTOR AS SOON AS POSSIBLE
-		if (!_storage)
-			return; // TODO: Inform bad participance?
-		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
-			profileData.begin(), profileData.end(),
-			[&shardsIDs](const storage::ProfileRecord& record)
-			{
-				return shardsIDs.end() != std::find(
-					shardsIDs.begin(), shardsIDs.end(),
-					record.reg_layer_priv_key_shard().first
-				);
-			}
-		);
-		if (it == profileData.end())
-			return; // TODO: Inform bad participance?
+		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
 
 		DecryptionPart part{};
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
 				ciphertext,
-				it->owner_layer_priv_key_shard(),
+				record.owner_layer_priv_key_shard(),
 				shardsIDs
 			);
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				it->reg_layer_priv_key_shard(),
+				record.reg_layer_priv_key_shard(),
 				shardsIDs
 			);
 

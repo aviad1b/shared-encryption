@@ -278,7 +278,7 @@ namespace senc
 		
 		// send on_lookup records
 		for (const auto& record : packet.on_lookup)
-			_sock.send_connected_value(record);
+			send_update_record(record);
 
 		// send to_decrypt records
 		for (const auto& record : packet.to_decrypt)
@@ -311,7 +311,7 @@ namespace senc
 		// recv on_lookup records
 		out.on_lookup.resize(onLookupCount);
 		for (auto& record : out.on_lookup)
-			_sock.recv_connected_value(record);
+			recv_update_record(record);
 
 		// recv to_decrypt records
 		out.to_decrypt.resize(toDecryptCount);
@@ -475,6 +475,18 @@ namespace senc
 		recv_pub_key(out.reg_layer_pub_key);
 		recv_pub_key(out.owner_layer_pub_key);
 		recv_priv_key_shard(out.reg_layer_priv_key_shard);
+	}
+
+	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::OnLookupRecord& record)
+	{
+		_sock.send_connected_value(record.opid);
+		_sock.send_connected_value(record.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::OnLookupRecord& out)
+	{
+		_sock.recv_connected_value(out.opid);
+		_sock.recv_connected_value(out.user_set_id);
 	}
 
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::ToDecryptRecord& record)

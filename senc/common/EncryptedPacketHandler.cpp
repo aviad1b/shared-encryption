@@ -466,7 +466,7 @@ namespace senc
 		
 		// write on_lookup records
 		for (const auto& record : packet.on_lookup)
-			utils::write_bytes(data, record);
+			write_update_record(data, record);
 
 		// send to_decrypt records
 		for (const auto& record : packet.to_decrypt)
@@ -519,7 +519,7 @@ namespace senc
 		// read on_lookup records
 		out.on_lookup.resize(onLookupCount);
 		for (auto& record : out.on_lookup)
-			it = utils::read_bytes(record, it, end);
+			it = read_update_record(record, it, end);
 
 		// read to_decrypt records
 		out.to_decrypt.resize(toDecryptCount);
@@ -833,6 +833,21 @@ namespace senc
 		it = read_pub_key(out.reg_layer_pub_key, it, end);
 		it = read_pub_key(out.owner_layer_pub_key, it, end);
 		it = read_priv_key_shard(out.reg_layer_priv_key_shard, it, end);
+		return it;
+	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::OnLookupRecord& record)
+	{
+		utils::write_bytes(out, record.opid);
+		utils::write_bytes(out, record.user_set_id);
+	}
+
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
+		pkt::UpdateResponse::OnLookupRecord& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
+	{
+		it = utils::read_bytes(out.opid, it, end);
+		it = utils::read_bytes(out.user_set_id, it, end);
 		return it;
 	}
 
