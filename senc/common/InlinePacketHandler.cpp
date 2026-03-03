@@ -480,11 +480,13 @@ namespace senc
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::OnLookupRecord& record)
 	{
 		_sock.send_connected_value(record.opid);
+		_sock.send_connected_value(record.user_set_id);
 	}
 
 	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::OnLookupRecord& out)
 	{
 		_sock.recv_connected_value(out.opid);
+		_sock.recv_connected_value(out.user_set_id);
 	}
 
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::ToDecryptRecord& record)

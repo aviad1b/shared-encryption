@@ -839,6 +839,7 @@ namespace senc
 	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::OnLookupRecord& record)
 	{
 		utils::write_bytes(out, record.opid);
+		utils::write_bytes(out, record.user_set_id);
 	}
 
 	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
@@ -846,6 +847,7 @@ namespace senc
 		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.opid, it, end);
+		it = utils::read_bytes(out.user_set_id, it, end);
 		return it;
 	}
 
