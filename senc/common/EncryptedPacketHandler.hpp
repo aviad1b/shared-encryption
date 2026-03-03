@@ -179,6 +179,10 @@ namespace senc
 		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out,
 			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
+		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::OnLookupRecord& record);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::OnLookupRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
+
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToDecryptRecord& record);
 		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::ToDecryptRecord& out,
 			utils::BytesView::iterator it, utils::BytesView::iterator end);
