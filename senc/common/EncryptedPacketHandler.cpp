@@ -88,6 +88,28 @@ namespace senc
 		return _syncData;
 	}
 
+	void EncryptedPacketHandler::send_code(pkt::Code code)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, code);
+		send_encrypted_data(data);
+	}
+
+	pkt::Code EncryptedPacketHandler::recv_code()
+	{
+		pkt::Code res{};
+
+		utils::Buffer data{};
+		recv_encrypted_data(data);
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
+
+		it = utils::read_bytes(res, it, end);
+
+		return res;
+	}
+
 	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
 	{
 		utils::Buffer data{};

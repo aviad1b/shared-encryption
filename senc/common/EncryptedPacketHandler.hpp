@@ -45,6 +45,10 @@ namespace senc
 
 		const IPacketHandlerSyncData& get_sync_data() const override;
 
+		void send_code(pkt::Code code) override;
+
+		pkt::Code recv_code() override;
+
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
 

@@ -45,13 +45,31 @@ namespace senc
 		}
 
 		/**
+		 * @brief Sends a packet code.
+		 * @param code Packet code to send.
+		 */
+		virtual void send_code(pkt::Code code)
+		{
+			_sock.send_connected_primitive(code);
+		}
+
+		/**
+		 * @brief Receives a packet code.
+		 * @return Received packet code.
+		 */
+		virtual pkt::Code recv_code()
+		{
+			return _sock.recv_connected_primitive<pkt::Code>();
+		}
+
+		/**
 		 * @brief Sends given request with fitting code.
 		 * @param packet Packet to send.
 		 */
 		template <typename T>
 		inline void send_request(const T& packet)
 		{
-			_sock.send_connected_primitive(T::CODE);
+			send_code(T::CODE);
 			send_request_data(packet);
 		}
 
@@ -74,7 +92,7 @@ namespace senc
 		template <typename T>
 		inline void send_response(const T& packet)
 		{
-			_sock.send_connected_primitive(T::CODE);
+			send_code(T::CODE);
 			send_response_data(packet);
 		}
 
@@ -194,7 +212,7 @@ namespace senc
 		inline std::optional<utils::VariantOrSingular<Ts...>> recv_packet()
 		{
 			std::optional<utils::VariantOrSingular<Ts...>> ret;
-			const auto code = _sock.recv_connected_primitive<pkt::Code>();
+			const auto code = recv_code();
 
 			// for every type in Ts, check if its `CODE` is `code`, if so, set ret:
 			([this, &ret, code]
