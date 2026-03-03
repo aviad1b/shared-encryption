@@ -401,40 +401,21 @@ namespace senc::clientapi
 		auto node = _pendingParticipances.extract(opid);
 		if (node.empty())
 			return; // TODO: Inform unexpected operation ID?
-		const bool isOwner = node.mapped().second;
+		const auto& [usersetID, isOwner] = node.mapped();
 
-		// locate fitting record in local storage
-		// TODO: since the protocol was poorly designed on this part,
-		//       the best thing possible to do here is look for a record where
-		//       the user'd shard ID exists.
-		//       REFACTOR AS SOON AS POSSIBLE
-		if (!_storage)
-			return; // TODO: Inform bad participance?
-		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
-			profileData.begin(), profileData.end(),
-			[&shardsIDs](const storage::ProfileRecord& record)
-			{
-				return shardsIDs.end() != std::find(
-					shardsIDs.begin(), shardsIDs.end(),
-					record.reg_layer_priv_key_shard().first
-				);
-			}
-		);
-		if (it == profileData.end())
-			return; // TODO: Inform bad participance?
+		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
 
 		DecryptionPart part{};
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
 				ciphertext,
-				it->owner_layer_priv_key_shard(),
+				record.owner_layer_priv_key_shard(),
 				shardsIDs
 			);
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				it->reg_layer_priv_key_shard(),
+				record.reg_layer_priv_key_shard(),
 				shardsIDs
 			);
 
