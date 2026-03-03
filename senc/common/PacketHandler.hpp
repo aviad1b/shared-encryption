@@ -45,32 +45,12 @@ namespace senc
 		}
 
 		/**
-		 * @brief Sends a packet code.
-		 * @param code Packet code to send.
-		 */
-		virtual void send_code(pkt::Code code)
-		{
-			_sock.send_connected_primitive(code);
-		}
-
-		/**
 		 * @brief Receives a packet code.
 		 * @return Received packet code.
 		 */
 		virtual pkt::Code recv_code()
 		{
 			return _sock.recv_connected_primitive<pkt::Code>();
-		}
-
-		/**
-		 * @brief Sends given request with fitting code.
-		 * @param packet Packet to send.
-		 */
-		template <typename T>
-		inline void send_request(const T& packet)
-		{
-			send_code(T::CODE);
-			send_request_data(packet);
 		}
 
 		/**
@@ -86,17 +66,6 @@ namespace senc
 		}
 
 		/**
-		 * @brief Sends given response with fitting code.
-		 * @param packet Packet to send.
-		 */
-		template <typename T>
-		inline void send_response(const T& packet)
-		{
-			send_code(T::CODE);
-			send_response_data(packet);
-		}
-
-		/**
 		 * @brief Receives a response of one of the given types.
 		 * @tparam Ts Potential packet types (structs).
 		 * @return Received packet, or `std::nullopt` if was of wrong type.
@@ -108,67 +77,67 @@ namespace senc
 			return recv_packet<PacketKind::Response, Ts...>();
 		}
 
-		virtual void send_response_data(const pkt::ErrorResponse& packet) = 0;
+		virtual void send_response(const pkt::ErrorResponse& packet) = 0;
 		virtual void recv_response_data(pkt::ErrorResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::SignupRequest& packet) = 0;
+		virtual void send_request(const pkt::SignupRequest& packet) = 0;
 		virtual void recv_request_data(pkt::SignupRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::SignupResponse& packet) = 0;
+		virtual void send_response(const pkt::SignupResponse& packet) = 0;
 		virtual void recv_response_data(pkt::SignupResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::LoginRequest& packet) = 0;
+		virtual void send_request(const pkt::LoginRequest& packet) = 0;
 		virtual void recv_request_data(pkt::LoginRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::LoginResponse& packet) = 0;
+		virtual void send_response(const pkt::LoginResponse& packet) = 0;
 		virtual void recv_response_data(pkt::LoginResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::LogoutRequest& packet) = 0;
+		virtual void send_request(const pkt::LogoutRequest& packet) = 0;
 		virtual void recv_request_data(pkt::LogoutRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::LogoutResponse& packet) = 0;
+		virtual void send_response(const pkt::LogoutResponse& packet) = 0;
 		virtual void recv_response_data(pkt::LogoutResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::MakeUserSetRequest& packet) = 0;
+		virtual void send_request(const pkt::MakeUserSetRequest& packet) = 0;
 		virtual void recv_request_data(pkt::MakeUserSetRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::MakeUserSetResponse& packet) = 0;
+		virtual void send_response(const pkt::MakeUserSetResponse& packet) = 0;
 		virtual void recv_response_data(pkt::MakeUserSetResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::GetUserSetsRequest& packet) = 0;
+		virtual void send_request(const pkt::GetUserSetsRequest& packet) = 0;
 		virtual void recv_request_data(pkt::GetUserSetsRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::GetUserSetsResponse& packet) = 0;
+		virtual void send_response(const pkt::GetUserSetsResponse& packet) = 0;
 		virtual void recv_response_data(pkt::GetUserSetsResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::GetMembersRequest& packet) = 0;
+		virtual void send_request(const pkt::GetMembersRequest& packet) = 0;
 		virtual void recv_request_data(pkt::GetMembersRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::GetMembersResponse& packet) = 0;
+		virtual void send_response(const pkt::GetMembersResponse& packet) = 0;
 		virtual void recv_response_data(pkt::GetMembersResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::DecryptRequest& packet) = 0;
+		virtual void send_request(const pkt::DecryptRequest& packet) = 0;
 		virtual void recv_request_data(pkt::DecryptRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::DecryptResponse& packet) = 0;
+		virtual void send_response(const pkt::DecryptResponse& packet) = 0;
 		virtual void recv_response_data(pkt::DecryptResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::UpdateRequest& packet) = 0;
+		virtual void send_request(const pkt::UpdateRequest& packet) = 0;
 		virtual void recv_request_data(pkt::UpdateRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::UpdateResponse& packet) = 0;
+		virtual void send_response(const pkt::UpdateResponse& packet) = 0;
 		virtual void recv_response_data(pkt::UpdateResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::DecryptParticipateRequest& packet) = 0;
+		virtual void send_request(const pkt::DecryptParticipateRequest& packet) = 0;
 		virtual void recv_request_data(pkt::DecryptParticipateRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::DecryptParticipateResponse& packet) = 0;
+		virtual void send_response(const pkt::DecryptParticipateResponse& packet) = 0;
 		virtual void recv_response_data(pkt::DecryptParticipateResponse& out) = 0;
 
-		virtual void send_request_data(const pkt::SendDecryptionPartRequest& packet) = 0;
+		virtual void send_request(const pkt::SendDecryptionPartRequest& packet) = 0;
 		virtual void recv_request_data(pkt::SendDecryptionPartRequest& out) = 0;
 
-		virtual void send_response_data(const pkt::SendDecryptionPartResponse& packet) = 0;
+		virtual void send_response(const pkt::SendDecryptionPartResponse& packet) = 0;
 		virtual void recv_response_data(pkt::SendDecryptionPartResponse& out) = 0;
 
 	protected:

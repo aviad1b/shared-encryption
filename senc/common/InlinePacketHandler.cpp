@@ -48,8 +48,10 @@ namespace senc
 		return _syncData;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::ErrorResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::ErrorResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.msg);
 	}
 
@@ -58,8 +60,10 @@ namespace senc
 		_sock.recv_connected_value(out.msg);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::SignupRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::SignupRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.username);
 		_sock.send_connected_value(packet.password);
 	}
@@ -70,8 +74,10 @@ namespace senc
 		_sock.recv_connected_value(out.password);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::SignupResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::SignupResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -80,8 +86,10 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::LoginRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::LoginRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.username);
 		_sock.send_connected_value(packet.password);
 	}
@@ -92,8 +100,10 @@ namespace senc
 		_sock.recv_connected_value(out.password);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::LoginResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::LoginResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -102,9 +112,9 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::LogoutRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::LogoutRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::LogoutRequest& out)
@@ -112,9 +122,9 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::LogoutResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::LogoutResponse& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::LogoutResponse& out)
@@ -122,8 +132,10 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::MakeUserSetRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::MakeUserSetRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.owners_threshold);
 		_sock.send_connected_value(packet.reg_members_threshold);
 		_sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
@@ -152,8 +164,10 @@ namespace senc
 			_sock.recv_connected_value(regMember);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::MakeUserSetResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
 		send_pub_key(packet.reg_layer_pub_key);
 		send_pub_key(packet.owner_layer_pub_key);
@@ -170,9 +184,9 @@ namespace senc
 		recv_priv_key_shard(out.owner_layer_priv_key_shard);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::GetUserSetsRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
@@ -180,8 +194,10 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::GetUserSetsResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::GetUserSetsResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
 		for (const auto& userSetID : packet.user_sets_ids)
 			_sock.send_connected_value(userSetID);
@@ -195,8 +211,10 @@ namespace senc
 			_sock.recv_connected_value(userSetID);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::GetMembersRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::GetMembersRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
 	}
 
@@ -205,8 +223,10 @@ namespace senc
 		_sock.recv_connected_value(out.user_set_id);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::GetMembersResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::GetMembersResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
 		_sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
@@ -227,8 +247,10 @@ namespace senc
 			_sock.recv_connected_value(regMember);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::DecryptRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::DecryptRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
 		send_ciphertext(packet.ciphertext);
 	}
@@ -239,8 +261,10 @@ namespace senc
 		recv_ciphertext(out.ciphertext);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::DecryptResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::DecryptResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 	}
 
@@ -249,9 +273,9 @@ namespace senc
 		_sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::UpdateRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::UpdateRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::UpdateRequest& out)
@@ -259,8 +283,10 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::UpdateResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::UpdateResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		// send vector lengths
 		_sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_owner.size()));
 		_sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_reg_member.size()));
@@ -324,8 +350,10 @@ namespace senc
 			recv_update_record(record);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::DecryptParticipateRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::DecryptParticipateRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 	}
 
@@ -334,8 +362,10 @@ namespace senc
 		_sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::DecryptParticipateResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::DecryptParticipateResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -344,8 +374,10 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::SendDecryptionPartRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::SendDecryptionPartRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 		send_decryption_part(packet.decryption_part);
 	}
@@ -356,9 +388,9 @@ namespace senc
 		recv_decryption_part(out.decryption_part);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::SendDecryptionPartResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::SendDecryptionPartResponse& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)

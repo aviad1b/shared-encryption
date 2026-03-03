@@ -88,13 +88,6 @@ namespace senc
 		return _syncData;
 	}
 
-	void EncryptedPacketHandler::send_code(pkt::Code code)
-	{
-		utils::Buffer data{};
-		utils::write_bytes(data, code);
-		send_encrypted_data(data);
-	}
-
 	pkt::Code EncryptedPacketHandler::recv_code()
 	{
 		pkt::Code res{};
@@ -110,8 +103,10 @@ namespace senc
 		return res;
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::ErrorResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.msg);
 		send_encrypted_data(data);
@@ -128,8 +123,10 @@ namespace senc
 		it = utils::read_bytes(out.msg, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::SignupRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::SignupRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.username);
@@ -150,8 +147,10 @@ namespace senc
 		it = utils::read_bytes(out.password, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::SignupResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::SignupResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.status);
 
@@ -169,8 +168,10 @@ namespace senc
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::LoginRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::LoginRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.username);
@@ -191,8 +192,10 @@ namespace senc
 		it = utils::read_bytes(out.password, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::LoginResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::LoginResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.status);
 
@@ -210,9 +213,9 @@ namespace senc
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::LogoutRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::LogoutRequest& packet)
 	{
-		(void)packet;
+		send_code(packet.CODE);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::LogoutRequest& out)
@@ -220,9 +223,9 @@ namespace senc
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::LogoutResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::LogoutResponse& packet)
 	{
-		(void)packet;
+		send_code(packet.CODE);
 	}
 
 	void EncryptedPacketHandler::recv_response_data(pkt::LogoutResponse& out)
@@ -230,8 +233,10 @@ namespace senc
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::MakeUserSetRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::MakeUserSetRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.owners_threshold);
@@ -272,8 +277,10 @@ namespace senc
 			it = utils::read_bytes(regMember, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::MakeUserSetResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.user_set_id);
@@ -300,9 +307,9 @@ namespace senc
 		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::GetUserSetsRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
 	{
-		(void)packet;
+		send_code(packet.CODE);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
@@ -310,8 +317,10 @@ namespace senc
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::GetUserSetsResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::GetUserSetsResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, static_cast<userset_count_t>(packet.user_sets_ids.size()));
@@ -336,8 +345,10 @@ namespace senc
 			it = utils::read_bytes(userSetID, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::GetMembersRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::GetMembersRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.user_set_id);
@@ -356,8 +367,10 @@ namespace senc
 		it = utils::read_bytes(out.user_set_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::GetMembersResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::GetMembersResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, static_cast<member_count_t>(packet.owners.size()));
@@ -393,8 +406,10 @@ namespace senc
 			it = utils::read_bytes(regMember, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::DecryptRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::DecryptRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.user_set_id);
@@ -415,8 +430,10 @@ namespace senc
 		it = read_ciphertext(out.ciphertext, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::DecryptResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::DecryptResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
@@ -435,9 +452,9 @@ namespace senc
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::UpdateRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::UpdateRequest& packet)
 	{
-		(void)packet;
+		send_code(packet.CODE);
 	}
 
 	void EncryptedPacketHandler::recv_request_data(pkt::UpdateRequest& out)
@@ -445,8 +462,10 @@ namespace senc
 		(void)out;
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::UpdateResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::UpdateResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		// write vector lengths
@@ -532,8 +551,10 @@ namespace senc
 			it = read_update_record(record, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::DecryptParticipateRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::DecryptParticipateRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
@@ -552,8 +573,10 @@ namespace senc
 		it = utils::read_bytes(out.op_id, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::DecryptParticipateResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::DecryptParticipateResponse& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.status);
@@ -572,8 +595,10 @@ namespace senc
 		it = utils::read_bytes(out.status, it, end);
 	}
 
-	void EncryptedPacketHandler::send_request_data(const pkt::SendDecryptionPartRequest& packet)
+	void EncryptedPacketHandler::send_request(const pkt::SendDecryptionPartRequest& packet)
 	{
+		send_code(packet.CODE);
+
 		utils::Buffer data{};
 
 		utils::write_bytes(data, packet.op_id);
@@ -594,9 +619,9 @@ namespace senc
 		it = read_decryption_part(out.decryption_part, it, end);
 	}
 
-	void EncryptedPacketHandler::send_response_data(const pkt::SendDecryptionPartResponse& packet)
+	void EncryptedPacketHandler::send_response(const pkt::SendDecryptionPartResponse& packet)
 	{
-		(void)packet;
+		send_code(packet.CODE);
 	}
 
 	void EncryptedPacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
@@ -606,6 +631,13 @@ namespace senc
 
 	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
 		: Base(sock) { }
+
+	void EncryptedPacketHandler::send_code(pkt::Code code)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, code);
+		send_encrypted_data(data);
+	}
 
 	void EncryptedPacketHandler::send_encrypted_data(const utils::Buffer& data)
 	{

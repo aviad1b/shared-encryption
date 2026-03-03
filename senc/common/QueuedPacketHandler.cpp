@@ -48,23 +48,16 @@ namespace senc
 		return this->_underlying->get_sync_data();
 	}
 
-	void QueuedPacketHandler::send_code(pkt::Code code)
-	{
-		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		wait_queue();
-		this->_underlying->send_code(code);
-	}
-
 	pkt::Code QueuedPacketHandler::recv_code()
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
 		return this->_underlying->recv_code();
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::ErrorResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::ErrorResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::ErrorResponse& out)
@@ -73,10 +66,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::SignupRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::SignupRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::SignupRequest& out)
@@ -85,10 +78,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::SignupResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::SignupResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::SignupResponse& out)
@@ -97,10 +90,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::LoginRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::LoginRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::LoginRequest& out)
@@ -109,10 +102,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::LoginResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::LoginResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::LoginResponse& out)
@@ -121,10 +114,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::LogoutRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::LogoutRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::LogoutRequest& out)
@@ -133,10 +126,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::LogoutResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::LogoutResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::LogoutResponse& out)
@@ -145,10 +138,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::MakeUserSetRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::MakeUserSetRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
@@ -157,10 +150,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::MakeUserSetResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
@@ -169,10 +162,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::GetUserSetsRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
@@ -181,10 +174,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::GetUserSetsResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::GetUserSetsResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
@@ -193,10 +186,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::GetMembersRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::GetMembersRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::GetMembersRequest& out)
@@ -205,10 +198,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::GetMembersResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::GetMembersResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::GetMembersResponse& out)
@@ -217,10 +210,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::DecryptRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::DecryptRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::DecryptRequest& out)
@@ -229,10 +222,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::DecryptResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::DecryptResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::DecryptResponse& out)
@@ -241,10 +234,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::UpdateRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::UpdateRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::UpdateRequest& out)
@@ -253,10 +246,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::UpdateResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::UpdateResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::UpdateResponse& out)
@@ -265,10 +258,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::DecryptParticipateRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::DecryptParticipateRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::DecryptParticipateRequest& out)
@@ -277,10 +270,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::DecryptParticipateResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::DecryptParticipateResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::DecryptParticipateResponse& out)
@@ -289,10 +282,10 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
-	void QueuedPacketHandler::send_request_data(const pkt::SendDecryptionPartRequest& packet)
+	void QueuedPacketHandler::send_request(const pkt::SendDecryptionPartRequest& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_request_data(packet);
+		this->_underlying->send_request(packet);
 	}
 
 	void QueuedPacketHandler::recv_request_data(pkt::SendDecryptionPartRequest& out)
@@ -301,10 +294,10 @@ namespace senc
 		this->_underlying->recv_request_data(out);
 	}
 
-	void QueuedPacketHandler::send_response_data(const pkt::SendDecryptionPartResponse& packet)
+	void QueuedPacketHandler::send_response(const pkt::SendDecryptionPartResponse& packet)
 	{
 		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
-		this->_underlying->send_response_data(packet);
+		this->_underlying->send_response(packet);
 	}
 
 	void QueuedPacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
