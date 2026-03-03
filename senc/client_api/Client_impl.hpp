@@ -319,7 +319,12 @@ namespace senc::clientapi
 	{
 		// request to join operation on a non-blocking thread
 		// (packet handler is currently used by update, so can't use it here directly)
-		std::thread t(&Self::request_participance, this, std::move(data.opid));
+		std::thread t(
+			&Self::request_participance,
+			this,
+			std::move(data.opid),
+			std::move(data.user_set_id)
+		);
 		t.detach();
 	}
 
@@ -372,8 +377,9 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::request_participance(OperationID&& opid)
+	inline void Client<IP>::request_participance(OperationID&& opid, UserSetID&& usersetID)
 	{
+		(void)usersetID;
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
 		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
 		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)

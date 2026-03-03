@@ -193,8 +193,9 @@ namespace senc::clientapi
 		/**
 		 * @brief Attemps to participate in decryption operation.
 		 * @param opid Operation ID (moved).
+		 * @param usersetID ID of userset under which operation is being perfomed (moved).
 		 */
-		void request_participance(OperationID&& opid);
+		void request_participance(OperationID&& opid, UserSetID&& usersetID);
 
 		/**
 		 * @brief Participates in a decryption operation.
