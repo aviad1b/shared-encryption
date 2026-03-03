@@ -377,7 +377,7 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::request_participance(OperationID&& opid, UserSetID&& usersetID)
+	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
 		(void)usersetID;
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
@@ -391,9 +391,9 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::participate(OperationID&& opid,
-										Ciphertext&& ciphertext,
-										std::vector<PrivKeyShardID>&& shardsIDs)
+	inline void Client<IP>::participate(OperationID opid,
+										Ciphertext ciphertext,
+										std::vector<PrivKeyShardID> shardsIDs)
 	{
 		// pop entry from pending participances map
 		auto node = _pendingParticipances.extract(opid);

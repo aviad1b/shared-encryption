@@ -195,17 +195,17 @@ namespace senc::clientapi
 		 * @param opid Operation ID (moved).
 		 * @param usersetID ID of userset under which operation is being perfomed (moved).
 		 */
-		void request_participance(OperationID&& opid, UserSetID&& usersetID);
+		void request_participance(OperationID opid, UserSetID usersetID);
 
 		/**
 		 * @brief Participates in a decryption operation.
 		 * @param opid Operation ID (moved).
 		 * @param ciphertext Ciphertext being decrypted (moved).
-		 * @param shardsIDs IDs of shards involved in decryption.
+		 * @param shardsIDs IDs of shards involved in decryption (moved).
 		 */
-		void participate(OperationID&& opid,
-						 Ciphertext&& ciphertext,
-						 std::vector<PrivKeyShardID>&& shardsIDs);
+		void participate(OperationID opid,
+						 Ciphertext ciphertext,
+						 std::vector<PrivKeyShardID> shardsIDs);
 	};
 }
 
