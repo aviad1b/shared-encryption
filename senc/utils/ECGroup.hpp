@@ -110,32 +110,17 @@ namespace senc::utils
 		static Self sample();
 
 		/**
-		 * @brief Parses group element from bytes.
+		 * @brief Parses group element from bytes by SEC 1 standard.
 		 * @param bytes Bytes to parse from.
 		 * @return Parsed group element.
 		 */
 		static Self from_bytes(BytesView bytes);
 
 		/**
-		 * @brief Serializes group element to bytes.
+		 * @brief Serializes group element to bytes by SEC 1 standard.
 		 * @return Serialized group element.
 		 */
 		Buffer to_bytes() const;
-
-		/**
-		 * @brief Parses group element from bytes by SEC 1 standard.
-		 * @note In a future version this implementation will replace current `from_bytes`.
-		 * @param bytes View of bytes.
-		 * @return Parsed group element.
-		 */
-		static Self decode(BytesView bytes);
-
-		/**
-		 * @brief Serializes group element to bytes by SEC 1 standard.
-		 * @note In a future version this implementation will replace current `to_bytes`.
-		 * @return Serialized group element.
-		 */
-		Buffer encode() const;
 
 		/**
 		 * @brief Parses group element from string.

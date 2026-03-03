@@ -78,8 +78,8 @@ uintptr_t SENC_NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
 			auto& [c1, c2, c3] = res;
 			auto& [c3a, c3b] = c3;
 
-			c1 = utils::ECGroup::decode({ c1Bytes, c1Len });
-			c2 = utils::ECGroup::decode({ c2Bytes, c2Len });
+			c1 = senc::utils::from_bytes<std::tuple_element_t<0, senc::Ciphertext>>({ c1Bytes, c1Len });
+			c2 = senc::utils::from_bytes<std::tuple_element_t<1, senc::Ciphertext>>({ c2Bytes, c2Len });
 			c3a.Assign(c3aBytes, c3aLen);
 			c3b.assign(c3bBytes, c3bBytes + c3bLen);
 
@@ -93,7 +93,7 @@ uintptr_t SENC_GetCiphertextC1(uintptr_t hCiphertext) noexcept
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
 	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
 	{
-		return std::get<0>(ciphertext).encode();
+		return senc::utils::to_bytes(std::get<0>(ciphertext));
 	})->as_nint();
 }
 
@@ -102,7 +102,7 @@ uintptr_t SENC_GetCiphertextC2(uintptr_t hCiphertext) noexcept
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
 	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
 	{
-		return std::get<1>(ciphertext).encode();
+		return senc::utils::to_bytes(std::get<1>(ciphertext));
 	})->as_nint();
 }
 

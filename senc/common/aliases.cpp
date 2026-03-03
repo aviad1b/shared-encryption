@@ -16,7 +16,7 @@ namespace senc
 	{
 		static thread_local utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
 		it = utils::read_bytes(pubKeyBuff, it, end);
-		out = PubKey::decode(pubKeyBuff);
+		out = utils::from_bytes<PubKey>(pubKeyBuff);
 		return it;
 	}
 
@@ -29,7 +29,7 @@ namespace senc
 
 	void write_pub_key(utils::Buffer& out, const PubKey& pubKey)
 	{
-		utils::write_bytes(out, pubKey.encode());
+		utils::write_bytes(out, utils::to_bytes(pubKey));
 	}
 
 	utils::Buffer pub_key_to_bytes(const PubKey& pubKey)

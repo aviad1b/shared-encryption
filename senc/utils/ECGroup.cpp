@@ -52,46 +52,6 @@ namespace senc::utils
 
 	ECGroup::Self ECGroup::from_bytes(BytesView bytes)
 	{
-		const bigint_size_t xSize = *reinterpret_cast<const bigint_size_t*>(
-			bytes.data()
-		);
-		if (!xSize) // if no x size, means no contents, means identity
-			return identity();
-
-		const bigint_size_t ySize = *reinterpret_cast<const bigint_size_t*>(
-			bytes.data() + sizeof(bigint_size_t)
-		);
-
-		const byte* data = bytes.data() + (2 * sizeof(bigint_size_t)); // after sizes
-		BigInt x, y;
-		x.Decode(data, xSize);
-		y.Decode(data + xSize, ySize);
-
-		return Self(std::move(x), std::move(y));
-	}
-
-	Buffer ECGroup::to_bytes() const
-	{
-		if (is_identity())
-			return Buffer(1, 0); // size 1, value 0
-
-		// buffer will contain x size then y size then x then y
-		Buffer res((2 * sizeof(bigint_size_t)) + x().MinEncodedSize() + y().MinEncodedSize());
-		bigint_size_t* pXSize = reinterpret_cast<bigint_size_t*>(res.data());
-		bigint_size_t* pYSize = pXSize + 1;
-		byte* pX = reinterpret_cast<byte*>(pYSize + 1);
-		byte* pY = pX + x().MinEncodedSize();
-
-		*pXSize = x().MinEncodedSize();
-		*pYSize = y().MinEncodedSize();
-		x().Encode(pX, x().MinEncodedSize());
-		y().Encode(pY, y().MinEncodedSize());
-
-		return res;
-	}
-
-	ECGroup::Self ECGroup::decode(BytesView bytes)
-	{
 		if (bytes.size() != ENCODED_SIZE)
 			throw std::invalid_argument("Failed to decode group element: Invalid encoded point size");
 
@@ -115,7 +75,7 @@ namespace senc::utils
 		return Self(point);
 	}
 
-	Buffer ECGroup::encode() const
+	Buffer ECGroup::to_bytes() const
 	{
 		Buffer res(ENCODED_SIZE, 0);
 
