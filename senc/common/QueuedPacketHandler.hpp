@@ -69,6 +69,10 @@ namespace senc
 
 		const IPacketHandlerSyncData& get_sync_data() const override;
 
+		void send_code(pkt::Code code) override;
+
+		pkt::Code recv_code() override;
+
 		void send_response_data(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
 
@@ -189,19 +193,5 @@ namespace senc
 		 * @brief Joins queue and waits turn (or waits stop if that happens first).
 		 */
 		void wait_queue();
-
-		/**
-		 * @brief Queues request to be sent.
-		 * @param request Request to queue.
-		 */
-		template <typename R>
-		void queue_request(R&& request);
-
-		/**
-		 * @brief Queues response to be sent.
-		 * @param response Response to queue.
-		 */
-		template <typename R>
-		void queue_response(R&& response);
 	};
 }
