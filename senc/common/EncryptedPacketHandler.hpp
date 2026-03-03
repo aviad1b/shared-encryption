@@ -17,6 +17,10 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::EncryptedPacketHandler
+	 * @brief Encrypted implementation of `senc::PacketHandler`.
+	 */
 	class EncryptedPacketHandler : public PacketHandler
 	{
 	public:
