@@ -379,14 +379,16 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
-		(void)usersetID;
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
 		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
 		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)
 			return;
 		_pendingParticipances.insert(std::make_pair(
 			std::move(req.op_id),
-			pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			std::make_pair(
+				std::move(usersetID),
+				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			)
 		));
 	}
 
@@ -399,7 +401,7 @@ namespace senc::clientapi
 		auto node = _pendingParticipances.extract(opid);
 		if (node.empty())
 			return; // TODO: Inform unexpected operation ID?
-		const bool isOwner = node.mapped();
+		const bool isOwner = node.mapped().second;
 
 		// locate fitting record in local storage
 		// TODO: since the protocol was poorly designed on this part,

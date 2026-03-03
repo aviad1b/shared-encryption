@@ -91,8 +91,8 @@ namespace senc::clientapi
 		// maps decryption operation ID to userset ID and ciphertext
 		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
 
-		// maps decryption operation ID to participance type (owner/reg)
-		utils::HashMap<OperationID, bool> _pendingParticipances;
+		// maps decryption operation ID to userset ID and participance type (owner/reg)
+		utils::HashMap<OperationID, std::pair<UserSetID, bool>> _pendingParticipances;
 
 		/**
 		 * @brief Makes sure client is connected to server.
