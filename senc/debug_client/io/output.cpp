@@ -14,7 +14,7 @@
 using std::cout;
 using std::endl;
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey)
 	{

@@ -10,7 +10,7 @@
 
 #include "../../common/aliases.hpp"
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	/**
 	 * @brief Prints public keys.

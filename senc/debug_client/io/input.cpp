@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	std::string input()
 	{
