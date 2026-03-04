@@ -149,8 +149,7 @@ namespace senc::server::handlers
 		// get shards IDs of all participants (including requester)
 
 		const auto requesterRegShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
-		const auto requesterOwnerShardID = 
-			(opPrepRecord.requester == _username) ? MAX_MEMBERS + 1 : requesterRegShardID;
+		const auto requesterOwnerShardID =  MAX_MEMBERS + 1;
 		// on owners layer, initiator uses internal shard, whose ID is max plus one
 
 		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterOwnerShardID };
