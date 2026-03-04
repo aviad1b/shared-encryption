@@ -1440,6 +1440,11 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		// initiator counts as a non-owner for the decryption of layer1
 		regMemberShardsIDs.push_back(ownerRegLayerShardsIDs[initiatorIndex]);
 
+		// generate vector of receiver usernames
+		std::vector<std::string> receivers;
+		for (std::size_t i = 0; i < params.dstCount; ++i)
+			receivers.push_back(getOwnerUsername(i));
+
 		// 1) initiator starts decryption
 		auto dc = post<pkt::DecryptResponse>(initiatorPacketHandler, pkt::DecryptRequest{
 			usersetID, ciphertext, { initiatorUsername }
