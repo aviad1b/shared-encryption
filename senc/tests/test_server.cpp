@@ -1397,7 +1397,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_owner.back().owner_pub_key, pubOwnerLayerKey);
 		ownerRegLayerShardsIDs.push_back(up->added_as_owner.back().reg_priv_key_shard.first);
 		ownerRegLayerShards.emplace_back(std::move(up->added_as_owner.back().reg_priv_key_shard));
-		ownerOwnerLayerShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
+		ownerOwnerLayerShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
 		ownerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));
 		ownerOwnerInternalShards.emplace_back(std::move(up->added_as_owner.back().owner_internal_priv_key_shard));
 	}
