@@ -172,6 +172,7 @@ namespace senc::server::handlers
 		opCollRecord.reg_layer_shards_ids.push_back(requesterShardID);
 		opCollRecord.owner_layer_shards_ids.push_back(requesterShardID);
 		_updateManager.register_finished_decrpytion(
+			{ opCollRecord.requester },
 			opid, opCollRecord.requester,
 			std::move(opCollRecord.reg_layer_parts),
 			std::move(opCollRecord.owner_layer_parts),

@@ -69,15 +69,25 @@ namespace senc::server::managers
 		);
 	}
 
-	void UpdateManager::register_finished_decrpytion(const OperationID& opid,
+	void UpdateManager::register_finished_decrpytion(const std::vector<std::string>& dstUsers,
+													 const OperationID& opid,
 													 const std::string& initiator,
 													 std::vector<DecryptionPart>&& regLayerParts,
 													 std::vector<DecryptionPart>&& ownerLayerParts,
 													 std::vector<PrivKeyShardID>&& regLayerShardsIDs,
 													 std::vector<PrivKeyShardID>&& ownerLayerShardsIDs)
 	{
+		if (dstUsers.empty())
+			return; // nobody to send to
+
+		// for all dst users, copy; for last - move
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		_updates[initiator].finished_decryptions.emplace_back(
+		for (const auto& dstUser: dstUsers | std::views::take(dstUsers.size() - 1))
+			_updates[dstUser].finished_decryptions.emplace_back(
+				opid, initiator, regLayerParts, ownerLayerParts,
+				regLayerShardsIDs, ownerLayerShardsIDs
+			);
+		_updates[dstUsers.back()].finished_decryptions.emplace_back(
 			opid, initiator, std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
