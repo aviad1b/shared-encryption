@@ -36,6 +36,7 @@ namespace senc::server::managers
 		 */
 		struct CollectedRecord
 		{
+			std::vector<std::string> dst_users;
 			std::string requester;
 			UserSetID userset_id;
 			member_count_t required_owners;
@@ -45,11 +46,13 @@ namespace senc::server::managers
 			std::vector<DecryptionPart> owner_layer_parts;
 			std::vector<PrivKeyShardID> owner_layer_shards_ids;
 
-			CollectedRecord(const std::string& requester,
+			CollectedRecord(std::vector<std::string>&& dstUsers,
+							const std::string& requester,
 							const UserSetID& usersetID,
 							member_count_t requiredOwners,
 							member_count_t requiredRegMembers)
-				: requester(requester),
+				: dst_users(dstUsers),
+				  requester(requester),
 				  userset_id(usersetID),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }

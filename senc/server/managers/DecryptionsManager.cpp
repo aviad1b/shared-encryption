@@ -89,6 +89,7 @@ namespace senc::server::managers
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
+				{ it->second.requester },
 				it->second.requester,
 				it->second.userset_id,
 				it->second.required_owners,
