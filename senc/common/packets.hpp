@@ -241,16 +241,16 @@ namespace senc::pkt
 		UserSetID user_set_id;
 
 		/// Public key for encryption on non-owner layer.
-		PubKey reg_layer_pub_key;
+		PubKey reg_pub_key;
 
 		/// Public key for encryption on owner layer.
-		PubKey owner_layer_pub_key;
+		PubKey owner_pub_key;
 
 		/// Private key shard for non-owner layer.
-		PrivKeyShard reg_layer_priv_key_shard;
+		PrivKeyShard reg_priv_key_shard;
 
 		/// Private key shard for owner layer.
-		PrivKeyShard owner_layer_priv_key_shard;
+		PrivKeyShard owner_priv_key_shard;
 	};
 
 
@@ -407,13 +407,13 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
 			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			PrivKeyShard reg_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as non-owner.
@@ -432,16 +432,16 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
 			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			PrivKeyShard reg_priv_key_shard;
 
 			/// Private key shard for owner layer decryption.
-			PrivKeyShard owner_layer_priv_key_shard;
+			PrivKeyShard owner_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as owner.

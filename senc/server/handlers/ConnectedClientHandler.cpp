@@ -62,8 +62,8 @@ namespace senc::server::handlers
 
 		// generate keys, and shards for each member
 		PrivKey regLayerPrivKey{}, ownerLayerPrivKey{};
-		std::tie(res.reg_layer_pub_key, regLayerPrivKey) = _schema.keygen();
-		std::tie(res.owner_layer_pub_key, ownerLayerPrivKey) = _schema.keygen();
+		std::tie(res.reg_pub_key, regLayerPrivKey) = _schema.keygen();
+		std::tie(res.owner_pub_key, ownerLayerPrivKey) = _schema.keygen();
 
 		auto regLayerPoly = Shamir::sample_poly(regLayerPrivKey, regMembersThreshold);
 		auto ownerLayerPoly = Shamir::sample_poly(ownerLayerPrivKey, ownersThreshold);
@@ -78,8 +78,8 @@ namespace senc::server::handlers
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members
-		res.reg_layer_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
-		res.owner_layer_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
+		res.reg_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
+		res.owner_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
 		auto ownerLayerOwnersShards = Shamir::make_shards(ownerLayerPoly, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(regLayerPoly, regMembersShardsIDs);
@@ -89,13 +89,13 @@ namespace senc::server::handlers
 		for (auto [owner, regLayerShard, ownerLayerShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
 			_updateManager.register_owner(
 				owner, res.user_set_id,
-				res.reg_layer_pub_key, res.owner_layer_pub_key,
+				res.reg_pub_key, res.owner_pub_key,
 				std::move(regLayerShard), std::move(ownerLayerShard)
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
 				regMember, res.user_set_id,
-				res.reg_layer_pub_key, res.owner_layer_pub_key,
+				res.reg_pub_key, res.owner_pub_key,
 				std::move(shard)
 			);
 

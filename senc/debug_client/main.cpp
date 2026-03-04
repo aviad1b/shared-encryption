@@ -387,13 +387,13 @@ namespace senc::debug_client
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		io::print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
+		io::print_pub_keys(resp.reg_pub_key, resp.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
+		io::print_reg_layer_priv_key_shard(resp.reg_priv_key_shard);
 		cout << endl;
 		
-		io::print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
+		io::print_owner_layer_priv_key_shard(resp.owner_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -651,15 +651,15 @@ namespace senc::debug_client
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		io::print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
+		io::print_pub_keys(data.reg_pub_key, data.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
+		io::print_reg_layer_priv_key_shard(data.reg_priv_key_shard);
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
 			cout << endl;
-			io::print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
+			io::print_owner_layer_priv_key_shard(data.owner_priv_key_shard);
 		}
 
 		cout << "==============================" << endl << endl << endl;

@@ -116,10 +116,10 @@ namespace senc::clientapi
 
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
-			std::move(resp.reg_layer_pub_key),
-			std::move(resp.owner_layer_pub_key),
-			std::move(resp.reg_layer_priv_key_shard),
-			std::move(resp.owner_layer_priv_key_shard)
+			std::move(resp.reg_pub_key),
+			std::move(resp.owner_pub_key),
+			std::move(resp.reg_priv_key_shard),
+			std::move(resp.owner_priv_key_shard)
 		));
 
 		return resp.user_set_id;
@@ -299,9 +299,9 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::reg(
 			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard)
+			std::move(data.reg_pub_key),
+			std::move(data.owner_pub_key),
+			std::move(data.reg_priv_key_shard)
 		));
 	}
 
@@ -310,10 +310,10 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::owner(
 			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard),
-			std::move(data.owner_layer_priv_key_shard)
+			std::move(data.reg_pub_key),
+			std::move(data.owner_pub_key),
+			std::move(data.reg_priv_key_shard),
+			std::move(data.owner_priv_key_shard)
 		));
 	}
 
