@@ -73,6 +73,7 @@ struct CycleParams
 	member_count_t nonMembers;
 	member_count_t ownersThreshold;
 	member_count_t regMembersThreshold;
+	member_count_t dstCount; // amount of dst users
 	std::size_t msgSize;
 	int rounds;
 };
@@ -1643,6 +1644,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 0,
 		.ownersThreshold     = 0,
 		.regMembersThreshold = 0,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 3
 	},
@@ -1652,6 +1654,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 0,
 		.ownersThreshold     = 0,
 		.regMembersThreshold = 1,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 3
 	},
@@ -1661,6 +1664,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 0,
 		.ownersThreshold     = 1,
 		.regMembersThreshold = 0,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 3
 	},
@@ -1670,6 +1674,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 0,
 		.ownersThreshold     = 1,
 		.regMembersThreshold = 1,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 3
 	},
@@ -1679,6 +1684,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 1,
 		.ownersThreshold     = 1,
 		.regMembersThreshold = 1,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 3
 	},
@@ -1688,6 +1694,7 @@ const auto CYCLE_PARAMS = testing::Values(
 		.nonMembers          = 7,
 		.ownersThreshold     = 5,
 		.regMembersThreshold = 10,
+		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 5
 	}
