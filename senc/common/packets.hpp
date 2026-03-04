@@ -500,6 +500,9 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
+			/// User who initiated decryption.
+			std::string initiator;
+
 			/// Decryption parts for non-owner layer.
 			std::vector<DecryptionPart> reg_layer_parts;
 

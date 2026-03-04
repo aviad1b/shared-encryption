@@ -78,7 +78,7 @@ namespace senc::server::managers
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].finished_decryptions.emplace_back(
-			opid, std::move(regLayerParts), std::move(ownerLayerParts),
+			opid, username, std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
 	}
