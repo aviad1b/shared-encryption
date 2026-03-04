@@ -481,11 +481,13 @@ namespace senc::debug_client
 		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
 		cout << endl;
 
-		std::string username = io::input_username("Enter username: ");
+		std::vector<std::string> usernames = io::input_usernames(
+			"Enter usernames to send decryption to (including yourself, if so you wish):\n"
+		);
 		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(packetHandler, pkt::DecryptRequest{
-			usersetID, std::move(ciphertext), { username }
+			usersetID, std::move(ciphertext), std::move(usernames)
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
