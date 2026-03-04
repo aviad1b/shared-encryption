@@ -178,9 +178,13 @@ namespace senc::server::handlers
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
-		const auto requesterShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
-		opCollRecord.reg_layer_shards_ids.push_back(requesterShardID);
-		opCollRecord.owner_layer_shards_ids.push_back(requesterShardID);
+		const auto requesterRegShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
+		const auto requesterOwnerShardID =
+			(opCollRecord.requester == _username) ? MAX_MEMBERS + 1 : requesterRegShardID;
+		// on owners layer, initiator uses internal shard, whose ID is max plus one
+		
+		opCollRecord.reg_layer_shards_ids.push_back(requesterRegShardID);
+		opCollRecord.owner_layer_shards_ids.push_back(requesterOwnerShardID);
 		_updateManager.register_finished_decrpytion(
 			opCollRecord.dst_users,
 			opid, opCollRecord.requester,
