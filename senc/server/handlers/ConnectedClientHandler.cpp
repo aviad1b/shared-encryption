@@ -259,7 +259,14 @@ namespace senc::server::handlers
 	{
 		OperationID opid{};
 
-		try { opid = initiate_decryption({ _username }, request.user_set_id, std::move(request.ciphertext)); }
+		try
+		{
+			opid = initiate_decryption(
+				{ _username },
+				request.user_set_id,
+				std::move(request.ciphertext)
+			);
+		}
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{
