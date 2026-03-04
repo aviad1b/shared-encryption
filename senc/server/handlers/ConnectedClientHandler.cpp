@@ -179,8 +179,7 @@ namespace senc::server::handlers
 												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
 		const auto requesterRegShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
-		const auto requesterOwnerShardID =
-			(opCollRecord.requester == _username) ? MAX_MEMBERS + 1 : requesterRegShardID;
+		const auto requesterOwnerShardID = MAX_MEMBERS + 1;
 		// on owners layer, initiator uses internal shard, whose ID is max plus one
 		
 		opCollRecord.reg_layer_shards_ids.push_back(requesterRegShardID);
