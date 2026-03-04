@@ -87,11 +87,12 @@ namespace senc::server::handlers
 
 		// for all non-creator members, register update for userset
 		// (note that the zip view provides all elements by reference wrapper)
-		for (auto [owner, regLayerShard, ownerLayerShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
+		for (auto [owner, regLayerShard, ownerExternalShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
 			_updateManager.register_owner(
 				owner, res.user_set_id,
 				res.reg_pub_key, res.owner_pub_key,
-				std::move(regLayerShard), std::move(ownerLayerShard)
+				std::move(regLayerShard), std::move(ownerExternalShard),
+				res.owner_internal_priv_key_shard // same internal shard as creator
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(

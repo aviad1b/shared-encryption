@@ -38,13 +38,16 @@ namespace senc::server::managers
 									   const PubKey& regLayerPubKey,
 									   const PubKey& ownerLayerPubKey,
 									   PrivKeyShard&& regLayerPrivKeyShard,
-									   PrivKeyShard&& ownerLayerPrivKeyShard)
+									   PrivKeyShard&& ownerExternalPrivKeyShard,
+									   const PrivKeyShard& ownerInternalPrivKeyShard)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
 			regLayerPubKey, ownerLayerPubKey,
-			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
+			std::move(regLayerPrivKeyShard),
+			std::move(ownerExternalPrivKeyShard),
+			ownerInternalPrivKeyShard
 		);
 	}
 
