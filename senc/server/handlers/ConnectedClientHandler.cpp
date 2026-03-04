@@ -77,10 +77,10 @@ namespace senc::server::handlers
 		auto ownersShardsIDs = owners | std::views::transform(getShardID);
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
-		// make private key shards for all members (shard ID for internal shard is external plus max)
+		// make private key shards for all members (shard ID for internal shard is max plus one)
 		res.reg_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
 		res.owner_external_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
-		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID + MAX_MEMBERS);
+		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, MAX_MEMBERS + 1);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
 		auto ownerLayerOwnersShards = Shamir::make_shards(ownerLayerPoly, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(regLayerPoly, regMembersShardsIDs);
@@ -147,9 +147,8 @@ namespace senc::server::handlers
 	{
 		// get shards IDs of all participants (including requester)
 
-		// requester uses internal shard, whose ID is external plus max
-		const auto requesterShardID =
-			_storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id) + MAX_MEMBERS;
+		// requester uses internal shard, whose ID is max plus one
+		const auto requesterShardID = MAX_MEMBERS + 1;
 
 		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterShardID };
 		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterShardID };
