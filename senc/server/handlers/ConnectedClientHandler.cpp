@@ -102,7 +102,9 @@ namespace senc::server::handlers
 		return res;
 	}
 
-	OperationID ConnectedClientHandler::initiate_decryption(const UserSetID& usersetID, Ciphertext&& ciphertext)
+	OperationID ConnectedClientHandler::initiate_decryption(std::vector<std::string>&& dstUsers,
+															const UserSetID& usersetID,
+															Ciphertext&& ciphertext)
 	{
 		auto info = _storage.get_userset_info(usersetID);
 
@@ -114,7 +116,7 @@ namespace senc::server::handlers
 		{
 			// in this case, finish operation and return.
 			finish_operation(opid, managers::DecryptionsManager::CollectedRecord(
-				{ _username },
+				std::move(dstUsers),
 				_username, usersetID,
 				info.owners_threshold, info.reg_members_threshold
 			));
@@ -123,7 +125,7 @@ namespace senc::server::handlers
 
 		// prepare decryption operation
 		_decryptionsManager.prepare_operation(
-			{ _username }, opid,
+			std::move(dstUsers), opid,
 			_username, usersetID,
 			std::move(ciphertext),
 			info.owners_threshold,
@@ -257,7 +259,7 @@ namespace senc::server::handlers
 	{
 		OperationID opid{};
 
-		try { opid = initiate_decryption(request.user_set_id, std::move(request.ciphertext)); }
+		try { opid = initiate_decryption({ _username }, request.user_set_id, std::move(request.ciphertext)); }
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{

@@ -76,11 +76,13 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Initiates a decryption operation.
+		 * @param dstUsers Usernames of users that should get decryption parts (moved).
 		 * @param usersetID ID of userset under which decryption should be computed.
 		 * @param ciphertext Ciphertext to decrypt.
 		 * @return Operation ID of initiated decryption operation.
 		 */
-		OperationID initiate_decryption(const UserSetID& usersetID,
+		OperationID initiate_decryption(std::vector<std::string>&& dstUsers,
+										const UserSetID& usersetID,
 										Ciphertext&& ciphertext);
 
 		/**
