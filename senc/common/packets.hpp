@@ -344,10 +344,15 @@ namespace senc::pkt
 		/// Ciphertext to decrypt.
 		Ciphertext ciphertext;
 
-		DecryptRequest() : user_set_id(), ciphertext() { }
+		/// Usernames of users that should get decryption parts.
+		std::vector<std::string> dst_users;
 
-		DecryptRequest(UserSetID userSetID, Ciphertext ciphertext)
-			: user_set_id(std::move(userSetID)), ciphertext(std::move(ciphertext)) { }
+		DecryptRequest() : user_set_id(), ciphertext(), dst_users() { }
+
+		DecryptRequest(UserSetID userSetID, Ciphertext ciphertext, std::vector<std::string> dstUsers)
+			: user_set_id(std::move(userSetID)),
+			  ciphertext(std::move(ciphertext)),
+			  dst_users(std::move(dstUsers)) { }
 	};
 
 	/**

@@ -418,7 +418,8 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	// 1) owner starts decryption
 	auto dc = post<pkt::DecryptResponse>(*ownerPacketHandler, pkt::DecryptRequest{
 		ownerUsersetID,
-		ownerCiphertext
+		ownerCiphertext,
+		{ "owner" }
 	});
 	EXPECT_TRUE(dc.has_value());
 	const auto& ownerOpid = dc->op_id;
@@ -559,7 +560,8 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	// 1) owner starts decryption
 	auto dc = post<pkt::DecryptResponse>(*ownerPacketHandler, pkt::DecryptRequest{
 		ownerUsersetID,
-		ownerCiphertext
+		ownerCiphertext,
+		{ "owner" }
 	});
 	EXPECT_TRUE(dc.has_value());
 	const auto& ownerOpid = dc->op_id;
@@ -751,7 +753,8 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	// 1) owner starts decryption
 	auto dc = post<pkt::DecryptResponse>(*ownerPacketHandler, pkt::DecryptRequest{
 		ownerUsersetID,
-		ownerCiphertext
+		ownerCiphertext,
+		{ "owner" }
 	});
 	EXPECT_TRUE(dc.has_value());
 	const auto& ownerOpid = dc->op_id;
@@ -906,7 +909,8 @@ TEST_P(ServerTest, DecryptFlow2L)
 	// 1) owner starts decryption
 	auto dc = post<pkt::DecryptResponse>(*ownerPacketHandler, pkt::DecryptRequest{
 		ownerUsersetID,
-		ownerCiphertext
+		ownerCiphertext,
+		{ "owner" }
 	});
 	EXPECT_TRUE(dc.has_value());
 	const auto& ownerOpid = dc->op_id;
@@ -1091,7 +1095,8 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	// 1) owner starts decryption
 	auto dc = post<pkt::DecryptResponse>(*ownerPacketHandler, pkt::DecryptRequest{
 		ownerUsersetID,
-		ownerCiphertext
+		ownerCiphertext,
+		{ "owner" }
 	});
 	EXPECT_TRUE(dc.has_value());
 	const auto& ownerOpid = dc->op_id;
@@ -1414,13 +1419,15 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		const auto initiatorIndex = involvedOwnerDist();
 		auto& initiatorPacketHandler = (0 == initiatorIndex) ? creatorPacketHandler
 			: nonCreatorInvolvedOwnerPacketHandlers[initiatorIndex - 1];
+		const std::string initiatorUsername = (0 == initiatorIndex) ? "creator"
+			: "owner" + std::to_string(initiatorIndex - 1);
 
 		// initiator counts as a non-owner for the decryption of layer1
 		regMemberShardsIDs.push_back(ownerRegLayerShardsIDs[initiatorIndex]);
 
 		// 1) initiator starts decryption
 		auto dc = post<pkt::DecryptResponse>(initiatorPacketHandler, pkt::DecryptRequest{
-			usersetID, ciphertext
+			usersetID, ciphertext, { initiatorUsername }
 		});
 		EXPECT_TRUE(dc.has_value());
 		const OperationID opid = std::move(dc->op_id);

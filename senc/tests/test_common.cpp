@@ -233,7 +233,8 @@ static void decrypt_cycle(PacketsTest& test)
 				CryptoPP::SecByteBlock{},
 				{ 5, 6, 7, 8, 9 }
 			}
-		}
+		},
+		{ "user1", "user2", "user3" }
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	test.cycle_flow(req, resp);

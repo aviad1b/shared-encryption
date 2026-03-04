@@ -162,8 +162,11 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
 	{
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
-			usersetID, ciphertext
+			usersetID, ciphertext, { _storage->username() }
 		});
 		_pendingDecryptions.insert(std::make_pair(
 			resp.op_id,

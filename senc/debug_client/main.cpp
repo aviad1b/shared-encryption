@@ -479,10 +479,13 @@ namespace senc::debug_client
 		cout << endl;
 
 		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
+		cout << endl;
+
+		std::string username = io::input_username("Enter username: ");
 		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(packetHandler, pkt::DecryptRequest{
-			usersetID, std::move(ciphertext)
+			usersetID, std::move(ciphertext), { username }
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
