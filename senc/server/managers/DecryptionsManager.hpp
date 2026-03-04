@@ -98,6 +98,7 @@ namespace senc::server::managers
 
 		/**
 		 * @brief Prepares a decryption operation.
+		 * @param dstUsers Usernames of users that should get decryption parts (moved).
 		 * @param opid Operation ID.
 		 * @param requester Username of requesting user.
 		 * @param usersetID ID of userset under which decryption is performed.
@@ -105,7 +106,8 @@ namespace senc::server::managers
 		 * @param requiredOwners Amount of owners required for performing the decryption.
 		 * @param requiredRegMembers Amount of non-owner members required for performing the decryption.
 		 */
-		void prepare_operation(const OperationID& opid,
+		void prepare_operation(std::vector<std::string>&& dstUsers,
+							   const OperationID& opid,
 							   const std::string& requester,
 							   const UserSetID& usersetID,
 							   Ciphertext&& ciphertext,

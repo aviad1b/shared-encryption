@@ -123,7 +123,7 @@ namespace senc::server::handlers
 
 		// prepare decryption operation
 		_decryptionsManager.prepare_operation(
-			opid,
+			{ _username }, opid,
 			_username, usersetID,
 			std::move(ciphertext),
 			info.owners_threshold,

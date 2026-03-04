@@ -32,7 +32,8 @@ namespace senc::server::managers
 		return opid;
 	}
 
-	void DecryptionsManager::prepare_operation(const OperationID& opid,
+	void DecryptionsManager::prepare_operation(std::vector<std::string>&& dstUsers,
+											   const OperationID& opid,
 											   const std::string& requester,
 											   const UserSetID& usersetID,
 											   Ciphertext&& ciphertext,
@@ -41,7 +42,7 @@ namespace senc::server::managers
 	{
 		const std::unique_lock<std::mutex> lock(_mtxPrep);
 		_prep.emplace(opid, PrepareRecord{
-			{ requester },
+			std::move(dstUsers),
 			requester,
 			usersetID,
 			std::move(ciphertext),
