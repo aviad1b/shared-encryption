@@ -11,7 +11,7 @@
 #include "../../common/packets.hpp"
 #include "../../utils/ModInt.hpp"
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	/**
 	 * @concept senc::client::NumInputable
