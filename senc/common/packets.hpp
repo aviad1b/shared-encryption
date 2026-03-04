@@ -249,8 +249,11 @@ namespace senc::pkt
 		/// Private key shard for non-owner layer.
 		PrivKeyShard reg_priv_key_shard;
 
-		/// Private key shard for owner layer.
-		PrivKeyShard owner_priv_key_shard;
+		/// Private key shard for owner layer for external use (decryptions for others).
+		PrivKeyShard owner_external_priv_key_shard;
+
+		/// Private key shard for owner layer for internal use (decryptions for self).
+		PrivKeyShard owner_internal_priv_key_shard;
 	};
 
 
@@ -440,8 +443,11 @@ namespace senc::pkt
 			/// Private key shard for non-owner layer decryption.
 			PrivKeyShard reg_priv_key_shard;
 
-			/// Private key shard for owner layer decryption.
-			PrivKeyShard owner_priv_key_shard;
+			/// Private key shard for owner layer for external use (decryptions for others).
+			PrivKeyShard owner_external_priv_key_shard;
+
+			/// Private key shard for owner layer for internal use (decryptions for self).
+			PrivKeyShard owner_internal_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as owner.

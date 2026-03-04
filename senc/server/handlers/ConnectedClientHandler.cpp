@@ -77,9 +77,10 @@ namespace senc::server::handlers
 		auto ownersShardsIDs = owners | std::views::transform(getShardID);
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
-		// make private key shards for all members
+		// make private key shards for all members (shard ID for internal shard is external plus max)
 		res.reg_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
-		res.owner_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
+		res.owner_external_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
+		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID + MAX_MEMBERS);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
 		auto ownerLayerOwnersShards = Shamir::make_shards(ownerLayerPoly, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(regLayerPoly, regMembersShardsIDs);

@@ -38,14 +38,16 @@ namespace senc::clientapi::storage
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
 		 * @param regPrivKeyShard Private key shard of non-owner layer (moved).
-		 * @param ownerPrivKeyShard Private key shard of owner layer (moved).
+		 * @param ownerExternalPrivKeyShard External private key shard of owner layer (moved).
+		 * @param ownerInternalPrivKeyShard Internal private key shard of owner layer (moved).
 		 * @return Constructed profile record.
 		 */
 		static Self owner(UserSetID&& usersetID,
 						  PubKey&& regPubKey,
 						  PubKey&& ownerPubKey,
 						  PrivKeyShard&& regPrivKeyShard,
-						  PrivKeyShard&& ownerPrivKeyShard);
+						  PrivKeyShard&& ownerExternalPrivKeyShard,
+						  PrivKeyShard&& ownerInternalPrivKeyShard);
 
 		/**
 		 * @brief Constructs a new non-owner profile record.
@@ -91,19 +93,28 @@ namespace senc::clientapi::storage
 		const PrivKeyShard& reg_priv_key_shard() const noexcept;
 		
 		/**
-		 * @brief Gets private key shard of owner layer.
+		 * @brief Gets external private key shard of owner layer.
 		 * @note Requires the profile record to be an owner profile record.
 		 *		 Calling this method on a non-owner record is considered undefined behaviour.
-		 * @return Private key shard of owner layer.
+		 * @return External private key shard of owner layer.
 		 */
-		const PrivKeyShard& owner_priv_key_shard() const noexcept;
+		const PrivKeyShard& owner_external_priv_key_shard() const noexcept;
+
+		/**
+		 * @brief Gets internal private key shard of owner layer.
+		 * @note Requires the profile record to be an owner profile record.
+		 *		 Calling this method on a non-owner record is considered undefined behaviour.
+		 * @return Internal private key shard of owner layer.
+		 */
+		const PrivKeyShard& owner_internal_priv_key_shard() const noexcept;
 
 	private:
+		struct OwnerPrivKeyShards { PrivKeyShard external, internal; };
 		UserSetID _usersetID;
 		PubKey _regPubKey;
 		PubKey _ownerPubKey;
 		PrivKeyShard _regPrivKeyShard;
-		std::optional<PrivKeyShard> _ownerPrivKeyShard;
+		std::optional<OwnerPrivKeyShards> _ownerPrivKeyShards;
 
 		/**
 		 * @brief Constructs a client profile record from moved fields.
@@ -111,12 +122,12 @@ namespace senc::clientapi::storage
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
 		 * @param regPrivKeyShard Private key shard of non-owner layer (moved).
-		 * @param ownerPrivKeyShard Optional private key shard of owner layer (moved).
+		 * @param ownerPrivKeyShards Optional private key shards of owner layer (moved).
 		 */
 		ProfileRecord(UserSetID&& usersetID,
 					  PubKey&& regPubKey,
 					  PubKey&& ownerPubKey,
 					  PrivKeyShard&& regPrivKeyShard,
-					  std::optional<PrivKeyShard>&& ownerPrivKeyShard);
+					  std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards);
 	};
 }

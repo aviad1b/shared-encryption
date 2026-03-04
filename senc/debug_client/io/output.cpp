@@ -36,9 +36,14 @@ namespace senc::debug_client::io
 		print_priv_key_any_shard("Non-owner", shard);
 	}
 
-	void print_owner_priv_key_shard(const PrivKeyShard& shard)
+	void print_owner_external_priv_key_shard(const PrivKeyShard& shard)
 	{
-		print_priv_key_any_shard("Owner", shard);
+		print_priv_key_any_shard("Owner external", shard);
+	}
+
+	void print_owner_internal_priv_key_shard(const PrivKeyShard& shard)
+	{
+		print_priv_key_any_shard("Owner internal", shard);
 	}
 
 	void print_ciphertext(const Ciphertext& ciphertext)

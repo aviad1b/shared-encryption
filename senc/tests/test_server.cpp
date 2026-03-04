@@ -301,17 +301,19 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	const auto& pubRegLayerKey = ms->reg_pub_key;
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
 	auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	auto& ownerOwnerExternalShard = ms->owner_external_priv_key_shard;
+	auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	EXPECT_NE(ownerRegLayerShard.first, 0);
-	EXPECT_NE(ownerOwnerLayerShard.first, 0);
+	EXPECT_NE(ownerOwnerExternalShard.first, 0);
+	EXPECT_NE(ownerOwnerInternalShard.first, 0);
 
 	std::vector<PrivKeyShardID> regLayerShardsIDs, ownerLayerShardsIDs;
 	std::vector<PrivKeyShard> regLayerShards, ownerLayerShards;
 	regLayerShardsIDs.push_back(ownerRegLayerShard.first);
 	regLayerShards.emplace_back(std::move(ownerRegLayerShard));
-	ownerLayerShardsIDs.push_back(ownerOwnerLayerShard.first);
-	ownerLayerShards.emplace_back(std::move(ownerOwnerLayerShard));
+	ownerLayerShardsIDs.push_back(ownerOwnerInternalShard.first);
+	ownerLayerShards.emplace_back(std::move(ownerOwnerInternalShard));
 
 	for (auto& clientPacketHandler : { std::ref(*client2PacketHandler), std::ref(*client3PacketHandler) })
 	{
@@ -408,7 +410,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
 	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	const auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -502,7 +504,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	);
 	auto ownerOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 		ownerCiphertext,
-		ownerOwnerLayerShard,
+		ownerOwnerInternalShard,
 		finishedOwnerLayerShardsIDs
 	);
 
@@ -550,7 +552,7 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
 	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	const auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -592,8 +594,8 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	const auto& member2Shard = member2SetsAddedTo.front().reg_priv_key_shard;
 
 	// check different shard IDs
-	EXPECT_NE(ownerOwnerLayerShard.first, memberShard.first);
-	EXPECT_NE(ownerOwnerLayerShard.first, member2Shard.first);
+	EXPECT_NE(ownerOwnerInternalShard.first, memberShard.first);
+	EXPECT_NE(ownerOwnerInternalShard.first, member2Shard.first);
 	EXPECT_NE(memberShard.first, member2Shard.first);
 
 	//    members have one operation to participate in, check same as owner's
@@ -690,7 +692,7 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	);
 	auto ownerOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 		ownerCiphertext,
-		ownerOwnerLayerShard,
+		ownerOwnerInternalShard,
 		finishedOwnerLayerShardsIDs
 	);
 
@@ -743,7 +745,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
 	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	const auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -848,7 +850,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	);
 	auto ownerOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 		ownerCiphertext,
-		ownerOwnerLayerShard,
+		ownerOwnerInternalShard,
 		finishedOwnerLayerShardsIDs
 	);
 
@@ -899,7 +901,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
 	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	const auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -938,7 +940,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 	EXPECT_EQ(owner2SetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(owner2SetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(owner2SetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& owner2Shard = owner2SetsAddedTo.front().owner_priv_key_shard;
+	const auto& owner2Shard = owner2SetsAddedTo.front().owner_external_priv_key_shard;
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -1034,7 +1036,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 	);
 	auto ownerOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 		ownerCiphertext,
-		ownerOwnerLayerShard,
+		ownerOwnerInternalShard,
 		finishedOwnerLayerShardsIDs
 	);
 
@@ -1085,7 +1087,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
 	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
-	const auto& ownerOwnerLayerShard = ms->owner_priv_key_shard;
+	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
 	Schema schema;
@@ -1118,13 +1120,13 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	EXPECT_EQ(owner2SetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(owner2SetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(owner2SetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& owner2Shard = owner2SetsAddedTo.front().owner_priv_key_shard;
+	const auto& owner2Shard = owner2SetsAddedTo.front().owner_external_priv_key_shard;
 
 	EXPECT_EQ(owner3SetsAddedTo.size(), 1);
 	EXPECT_EQ(owner3SetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(owner3SetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(owner3SetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& owner3Shard = owner3SetsAddedTo.front().owner_priv_key_shard;
+	const auto& owner3Shard = owner3SetsAddedTo.front().owner_external_priv_key_shard;
 
 	//    members have one operation to participate in, check same as owner's
 	EXPECT_EQ(owner2OnLookup.size(), 1);
@@ -1219,7 +1221,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	);
 	auto ownerOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 		ownerCiphertext,
-		ownerOwnerLayerShard,
+		ownerOwnerInternalShard,
 		finishedOwnerLayerShardsIDs
 	);
 
@@ -1353,7 +1355,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	// vectors to store shards later
 	std::vector<PrivKeyShard> regMemberShards;
 	std::vector<PrivKeyShardID> regMemberShardsIDs;
-	std::vector<PrivKeyShard> ownerRegLayerShards, ownerOwnerLayerShards;
+	std::vector<PrivKeyShard> ownerRegLayerShards, ownerOwnerExternalShards, ownerOwnerInternalShards;
 	std::vector<PrivKeyShardID> ownerRegLayerShardsIDs, ownerOwnerLayerShardsIDs;
 
 	// make userset
@@ -1369,8 +1371,9 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
 	ownerRegLayerShardsIDs.push_back(ms->reg_priv_key_shard.first);
 	ownerRegLayerShards.emplace_back(std::move(ms->reg_priv_key_shard));
-	ownerOwnerLayerShardsIDs.push_back(ms->owner_priv_key_shard.first);
-	ownerOwnerLayerShards.emplace_back(std::move(ms->owner_priv_key_shard));
+	ownerOwnerLayerShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
+	ownerOwnerExternalShards.emplace_back(std::move(ms->owner_external_priv_key_shard));
+	ownerOwnerInternalShards.emplace_back(std::move(ms->owner_internal_priv_key_shard));
 
 	// each involved member should get its own shard(s) and register to use later
 	for (auto& packetHandler : involvedRegMemberPacketHandlers)
@@ -1394,8 +1397,9 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_owner.back().owner_pub_key, pubOwnerLayerKey);
 		ownerRegLayerShardsIDs.push_back(up->added_as_owner.back().reg_priv_key_shard.first);
 		ownerRegLayerShards.emplace_back(std::move(up->added_as_owner.back().reg_priv_key_shard));
-		ownerOwnerLayerShardsIDs.push_back(up->added_as_owner.back().owner_priv_key_shard.first);
-		ownerOwnerLayerShards.emplace_back(std::move(up->added_as_owner.back().owner_priv_key_shard));
+		ownerOwnerLayerShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
+		ownerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));
+		ownerOwnerInternalShards.emplace_back(std::move(up->added_as_owner.back().owner_internal_priv_key_shard));
 	}
 
 	// as for the uninvolved users, they do the same, but we don't care about their shards
@@ -1518,7 +1522,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 		// 5,6) involved memebrs compute decryption part locally and send them back
 		std::vector<DecryptionPart> regLayerParts, ownerLayerParts;
-		for (auto [i, phAndShard] : zip(involvedOwnerPacketHandlers, ownerOwnerLayerShards) | enumerate)
+		for (auto [i, phAndShard] : zip(involvedOwnerPacketHandlers, ownerOwnerExternalShards) | enumerate)
 		{
 			auto& [packetHandler, shard] = phAndShard;
 			if (initiatorIndex == i)
@@ -1575,7 +1579,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		);
 		auto initiatorOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 			ciphertext,
-			ownerOwnerLayerShards[initiatorIndex],
+			ownerOwnerInternalShards[initiatorIndex],
 			finishedOwnerLayerShardsIDs
 		);
 

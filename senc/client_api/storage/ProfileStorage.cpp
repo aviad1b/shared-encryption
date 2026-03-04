@@ -108,14 +108,16 @@ namespace senc::clientapi::storage
 				std::move(regLayerPrivKeyShard)
 			);
 
-		// otherwise, read remaining data (owner shard) then return
-		PrivKeyShard ownerLayerPrivKeyShard{};
-		it = read_priv_key_shard(ownerLayerPrivKeyShard, it, end);
+		// otherwise, read remaining data (owner shards) then return
+		PrivKeyShard ownerExternalPrivKeyShard{}, ownerInternalPrivKeyShard{};
+		it = read_priv_key_shard(ownerExternalPrivKeyShard, it, end);
+		it = read_priv_key_shard(ownerInternalPrivKeyShard, it, end);
 
 		return ProfileRecord::owner(
 			std::move(usersetID),
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
+			std::move(regLayerPrivKeyShard),
+			std::move(ownerExternalPrivKeyShard), std::move(ownerInternalPrivKeyShard)
 		);
 	}
 
@@ -140,8 +142,9 @@ namespace senc::clientapi::storage
 		if (!record.is_owner())
 			return res;
 
-		// else, write remaining data (owner shard)
-		write_priv_key_shard(res, record.owner_priv_key_shard());
+		// else, write remaining data (owner shards)
+		write_priv_key_shard(res, record.owner_external_priv_key_shard());
+		write_priv_key_shard(res, record.owner_internal_priv_key_shard());
 
 		return res;
 	}

@@ -66,7 +66,8 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 		EXPECT_EQ(record.reg_priv_key_shard(), storedRecord.reg_priv_key_shard());
 		if (record.is_owner() && storedRecord.is_owner())
 		{
-			EXPECT_EQ(record.owner_priv_key_shard(), storedRecord.owner_priv_key_shard());
+			EXPECT_EQ(record.owner_external_priv_key_shard(), storedRecord.owner_external_priv_key_shard());
+			EXPECT_EQ(record.owner_internal_priv_key_shard(), storedRecord.owner_internal_priv_key_shard());
 		}
 	}
 
@@ -87,7 +88,8 @@ INSTANTIATE_TEST_SUITE_P(
 					ECGroup::generator().pow(111),
 					ECGroup::generator().pow(222),
 					senc::PrivKeyShard{ 3, 333 },
-					senc::PrivKeyShard{ 13, 131313 }
+					senc::PrivKeyShard{ 13, 131313 },
+					senc::PrivKeyShard{ 14, 131314 }
 				),
 				ProfileRecord::reg(
 					"51657d81-1d4b-41ca-9749-cd6ee61cc325",
@@ -100,7 +102,8 @@ INSTANTIATE_TEST_SUITE_P(
 					ECGroup::generator().pow(444),
 					ECGroup::generator().pow(555),
 					senc::PrivKeyShard{ 4, 666 },
-					senc::PrivKeyShard{ 14, 161616 }
+					senc::PrivKeyShard{ 14, 161616 },
+					senc::PrivKeyShard{ 15, 161617 }
 				)
 			}
 		}
