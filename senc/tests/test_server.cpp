@@ -1247,6 +1247,11 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 {
 	using SockPacketHandlerPair = std::pair<ClientSockPtr, std::unique_ptr<PacketHandler>>;
 
+	constexpr const char* CREATOR_USERNAME = "creator";
+	constexpr const char* OWNER_USERNAME_PREFIX = "owner";
+	constexpr const char* REG_USERNAME_PREFIX = "reg";
+	constexpr const char* FOREIGN_USERNAME_PREFIX = "foreign";
+
 	auto vecToPacketHandlers = []()
 	{
 		return std::views::all |
@@ -1268,6 +1273,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		);
 	};
 
+	auto getOwnerUsername = [](std::size_t i)
+	{
+		return (0 == i) ? CREATOR_USERNAME
+			: OWNER_USERNAME_PREFIX + std::to_string(i - 1);
+	};
+
 	const auto& params = get_cycle_params();
 
 	// users:
@@ -1280,7 +1291,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 	std::vector<std::pair<ClientSockPtr, std::unique_ptr<PacketHandler>>> creatorSocksPacketHandlersVec;
 	creatorSocksPacketHandlersVec.emplace_back(new_client());
-	std::vector<std::string> creatorUsernamesVec = { "creator" };
+	std::vector<std::string> creatorUsernamesVec = { CREATOR_USERNAME };
 
 	auto creatorPacketHandlers = creatorSocksPacketHandlersVec | vecToPacketHandlers();
 	auto creatorUsernames = creatorUsernamesVec | std::views::all;
@@ -1288,14 +1299,18 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	auto& creatorPacketHandler = *creatorSocksPacketHandlersVec.front().second;
 
 	auto [nonCreatorOwnerSocksPacketHandlersVec, nonCreatorOwnerUsernamesVec] = makeusers(
-		params.owners, "owner"
+		params.owners, OWNER_USERNAME_PREFIX
 	);
 	auto nonCreatorOwnerPacketHandlers = nonCreatorOwnerSocksPacketHandlersVec | vecToPacketHandlers();
 	auto nonCreatorOwnerUsernames = nonCreatorOwnerUsernamesVec | std::views::all;
-	auto [regMemberSocksPacketHandlersVec, regMemberUsernamesVec] = makeusers(params.regMembers, "reg");
+	auto [regMemberSocksPacketHandlersVec, regMemberUsernamesVec] = makeusers(
+		params.regMembers, REG_USERNAME_PREFIX
+	);
 	auto regMemberPacketHandlers = regMemberSocksPacketHandlersVec | vecToPacketHandlers();
 	auto regMemberUsernames = regMemberUsernamesVec | std::views::all;
-	auto [nonMemberSocksPacketHandlersVec, nonMemberUsernamesVec] = makeusers(params.nonMembers, "foreign");
+	auto [nonMemberSocksPacketHandlersVec, nonMemberUsernamesVec] = makeusers(
+		params.nonMembers, FOREIGN_USERNAME_PREFIX
+	);
 	auto nonMemberPacketHandlers = nonMemberSocksPacketHandlersVec | vecToPacketHandlers();
 	auto nonMemberUsernames = nonMemberUsernamesVec | std::views::all;
 
@@ -1419,8 +1434,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		const auto initiatorIndex = involvedOwnerDist();
 		auto& initiatorPacketHandler = (0 == initiatorIndex) ? creatorPacketHandler
 			: nonCreatorInvolvedOwnerPacketHandlers[initiatorIndex - 1];
-		const std::string initiatorUsername = (0 == initiatorIndex) ? "creator"
-			: "owner" + std::to_string(initiatorIndex - 1);
+		const std::string initiatorUsername = getOwnerUsername(initiatorIndex);
 
 		// initiator counts as a non-owner for the decryption of layer1
 		regMemberShardsIDs.push_back(ownerRegLayerShardsIDs[initiatorIndex]);
