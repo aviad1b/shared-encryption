@@ -227,7 +227,12 @@ namespace senc::clientapi::storage
 	ProfileStorage::ProfileStorage(std::string&& path,
 								   const std::string& username,
 								   const std::string& password)
-		: _path(std::move(path)), _key(derive_key(username, password)) { }
+		: _username(username), _path(std::move(path)), _key(derive_key(username, password)) { }
+
+	const std::string& ProfileStorage::username() const
+	{
+		return this->_username;
+	}
 
 	ProfileDataRange ProfileStorage::iter_profile_data() const
 	{
