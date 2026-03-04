@@ -51,7 +51,7 @@ namespace senc::server::managers
 							const UserSetID& usersetID,
 							member_count_t requiredOwners,
 							member_count_t requiredRegMembers)
-				: dst_users(dstUsers),
+				: dst_users(std::move(dstUsers)),
 				  requester(requester),
 				  userset_id(usersetID),
 				  required_owners(requiredOwners),
