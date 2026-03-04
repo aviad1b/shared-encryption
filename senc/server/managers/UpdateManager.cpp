@@ -69,7 +69,7 @@ namespace senc::server::managers
 		);
 	}
 
-	void UpdateManager::register_finished_decrpytion(const std::string& username,
+	void UpdateManager::register_finished_decrpytion(const std::string& initiator,
 													 const OperationID& opid,
 													 std::vector<DecryptionPart>&& regLayerParts,
 													 std::vector<DecryptionPart>&& ownerLayerParts,
@@ -77,8 +77,8 @@ namespace senc::server::managers
 													 std::vector<PrivKeyShardID>&& ownerLayerShardsIDs)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		_updates[username].finished_decryptions.emplace_back(
-			opid, username, std::move(regLayerParts), std::move(ownerLayerParts),
+		_updates[initiator].finished_decryptions.emplace_back(
+			opid, initiator, std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
 	}
