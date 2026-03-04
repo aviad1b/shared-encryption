@@ -146,7 +146,11 @@ namespace senc::server::handlers
 													const managers::DecryptionsManager::PrepareRecord& opPrepRecord)
 	{
 		// get shards IDs of all participants (including requester)
-		const auto requesterShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
+
+		// requester uses internal shard, whose ID is external plus max
+		const auto requesterShardID =
+			_storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id) + MAX_MEMBERS;
+
 		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterShardID };
 		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterShardID };
 		for (const auto& owner : opPrepRecord.owners_found)
