@@ -262,7 +262,7 @@ namespace senc::server::handlers
 		try
 		{
 			opid = initiate_decryption(
-				{ _username },
+				std::move(request.dst_users),
 				request.user_set_id,
 				std::move(request.ciphertext)
 			);
