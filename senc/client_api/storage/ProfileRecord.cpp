@@ -11,37 +11,37 @@
 namespace senc::clientapi::storage
 {
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
-											 PubKey&& regLayerPubKey,
-											 PubKey&& ownerLayerPubKey,
-											 PrivKeyShard&& regLayerPrivKeyShard,
-											 PrivKeyShard&& ownerLayerPrivKeyShard)
+											 PubKey&& regPubKey,
+											 PubKey&& ownerPubKey,
+											 PrivKeyShard&& regPrivKeyShard,
+											 PrivKeyShard&& ownerPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
-			std::move(regLayerPubKey),
-			std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard),
-			std::move(ownerLayerPrivKeyShard)
+			std::move(regPubKey),
+			std::move(ownerPubKey),
+			std::move(regPrivKeyShard),
+			std::move(ownerPrivKeyShard)
 		);
 	}
 
 	ProfileRecord::Self ProfileRecord::reg(UserSetID&& usersetID,
-										   PubKey&& regLayerPubKey,
-										   PubKey&& ownerLayerPubKey,
-										   PrivKeyShard&& regLayerPrivKeyShard)
+										   PubKey&& regPubKey,
+										   PubKey&& ownerPubKey,
+										   PrivKeyShard&& regPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
-			std::move(regLayerPubKey),
-			std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard),
+			std::move(regPubKey),
+			std::move(ownerPubKey),
+			std::move(regPrivKeyShard),
 			std::nullopt
 		);
 	}
 
 	bool ProfileRecord::is_owner() const noexcept
 	{
-		return _ownerLayerPrivKeyShard.has_value();
+		return _ownerPrivKeyShard.has_value();
 	}
 
 	const UserSetID& ProfileRecord::userset_id() const noexcept
@@ -49,24 +49,24 @@ namespace senc::clientapi::storage
 		return _usersetID;
 	}
 
-	const PubKey& ProfileRecord::reg_layer_pub_key() const noexcept
+	const PubKey& ProfileRecord::reg_pub_key() const noexcept
 	{
-		return _regLayerPubKey;
+		return _regPubKey;
 	}
 
-	const PubKey& ProfileRecord::owner_layer_pub_key() const noexcept
+	const PubKey& ProfileRecord::owner_pub_key() const noexcept
 	{
-		return _ownerLayerPubKey;
+		return _ownerPubKey;
 	}
 
-	const PrivKeyShard& ProfileRecord::reg_layer_priv_key_shard() const noexcept
+	const PrivKeyShard& ProfileRecord::reg_priv_key_shard() const noexcept
 	{
-		return _regLayerPrivKeyShard;
+		return _regPrivKeyShard;
 	}
 
-	const PrivKeyShard& ProfileRecord::owner_layer_priv_key_shard() const noexcept
+	const PrivKeyShard& ProfileRecord::owner_priv_key_shard() const noexcept
 	{
-		return *_ownerLayerPrivKeyShard;
+		return *_ownerPrivKeyShard;
 	}
 
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
@@ -75,8 +75,8 @@ namespace senc::clientapi::storage
 								 PrivKeyShard&& regLayerPrivKeyShard,
 								 std::optional<PrivKeyShard>&& ownerLayerPrivKeyShard)
 		: _usersetID(std::move(usersetID)),
-		  _regLayerPubKey(std::move(regLayerPubKey)),
-		  _ownerLayerPubKey(std::move(ownerLayerPubKey)),
-		  _regLayerPrivKeyShard(std::move(regLayerPrivKeyShard)),
-		  _ownerLayerPrivKeyShard(std::move(ownerLayerPrivKeyShard)) { }
+		  _regPubKey(std::move(regLayerPubKey)),
+		  _ownerPubKey(std::move(ownerLayerPubKey)),
+		  _regPrivKeyShard(std::move(regLayerPrivKeyShard)),
+		  _ownerPrivKeyShard(std::move(ownerLayerPrivKeyShard)) { }
 }

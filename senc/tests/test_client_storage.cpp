@@ -61,12 +61,12 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 
 		EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
 		EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
-		EXPECT_EQ(record.reg_layer_pub_key(), storedRecord.reg_layer_pub_key());
-		EXPECT_EQ(record.owner_layer_pub_key(), storedRecord.owner_layer_pub_key());
-		EXPECT_EQ(record.reg_layer_priv_key_shard(), storedRecord.reg_layer_priv_key_shard());
+		EXPECT_EQ(record.reg_pub_key(), storedRecord.reg_pub_key());
+		EXPECT_EQ(record.owner_pub_key(), storedRecord.owner_pub_key());
+		EXPECT_EQ(record.reg_priv_key_shard(), storedRecord.reg_priv_key_shard());
 		if (record.is_owner() && storedRecord.is_owner())
 		{
-			EXPECT_EQ(record.owner_layer_priv_key_shard(), storedRecord.owner_layer_priv_key_shard());
+			EXPECT_EQ(record.owner_priv_key_shard(), storedRecord.owner_priv_key_shard());
 		}
 	}
 

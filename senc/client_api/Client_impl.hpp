@@ -154,8 +154,8 @@ namespace senc::clientapi
 
 		return _schema.encrypt(
 			msg,
-			record.reg_layer_pub_key(),
-			record.owner_layer_pub_key()
+			record.reg_pub_key(),
+			record.owner_pub_key()
 		); 
 	}
 
@@ -362,13 +362,13 @@ namespace senc::clientapi
 		std::vector<DecryptionPart> ownerParts = std::move(data.owner_layer_parts);
 		ownerParts.push_back(Shamir::decrypt_get_2l<OWNER_LAYER>(
 			ciphertext,
-			record.owner_layer_priv_key_shard(),
+			record.owner_priv_key_shard(),
 			data.owner_layer_shards_ids
 		));
 		std::vector<DecryptionPart> regParts = std::move(data.reg_layer_parts);
 		regParts.push_back(Shamir::decrypt_get_2l<REG_LAYER>(
 			ciphertext,
-			record.reg_layer_priv_key_shard(),
+			record.reg_priv_key_shard(),
 			data.reg_layer_shards_ids
 		));
 
@@ -412,13 +412,13 @@ namespace senc::clientapi
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
 				ciphertext,
-				record.owner_layer_priv_key_shard(),
+				record.owner_priv_key_shard(),
 				shardsIDs
 			);
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				record.reg_layer_priv_key_shard(),
+				record.reg_priv_key_shard(),
 				shardsIDs
 			);
 

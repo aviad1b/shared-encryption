@@ -131,17 +131,17 @@ namespace senc::clientapi::storage
 
 		utils::write_bytes(res, record.userset_id());
 
-		write_pub_key(res, record.reg_layer_pub_key());
-		write_pub_key(res, record.owner_layer_pub_key());
+		write_pub_key(res, record.reg_pub_key());
+		write_pub_key(res, record.owner_pub_key());
 
-		write_priv_key_shard(res, record.reg_layer_priv_key_shard());
+		write_priv_key_shard(res, record.reg_priv_key_shard());
 
 		// if owner, no more data to write
 		if (!record.is_owner())
 			return res;
 
 		// else, write remaining data (owner shard)
-		write_priv_key_shard(res, record.owner_layer_priv_key_shard());
+		write_priv_key_shard(res, record.owner_priv_key_shard());
 
 		return res;
 	}
