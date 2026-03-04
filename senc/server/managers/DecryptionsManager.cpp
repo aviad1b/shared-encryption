@@ -41,6 +41,7 @@ namespace senc::server::managers
 	{
 		const std::unique_lock<std::mutex> lock(_mtxPrep);
 		_prep.emplace(opid, PrepareRecord{
+			{ requester },
 			requester,
 			usersetID,
 			std::move(ciphertext),
@@ -89,7 +90,7 @@ namespace senc::server::managers
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
-				{ it->second.requester },
+				std::move(it->second.dst_users), // OK to move cus erase right after
 				it->second.requester,
 				it->second.userset_id,
 				it->second.required_owners,

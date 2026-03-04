@@ -65,6 +65,7 @@ namespace senc::server::managers
 		 */
 		struct PrepareRecord
 		{
+			std::vector<std::string> dst_users;
 			std::string requester;
 			UserSetID userset_id;
 			Ciphertext ciphertext;
@@ -73,12 +74,14 @@ namespace senc::server::managers
 			utils::HashSet<std::string> owners_found;
 			utils::HashSet<std::string> reg_members_found;
 
-			PrepareRecord(const std::string& requester,
+			PrepareRecord(std::vector<std::string>&& dstUsers,
+						  const std::string& requester,
 						  const UserSetID& usersetID,
 						  Ciphertext&& ciphertext,
 						  member_count_t requiredOwners,
 						  member_count_t requiredRegMembers)
-				: requester(requester),
+				: dst_users(std::move(dstUsers)),
+				  requester(requester),
 				  userset_id(usersetID),
 				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
