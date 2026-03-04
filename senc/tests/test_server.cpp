@@ -1577,6 +1577,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			ownerRegLayerShards[initiatorIndex],
 			finishedRegLayerShardsIDs
 		);
+		std::cout << ownerOwnerInternalShards[initiatorIndex].first << std::endl;
+		std::cout << finishedOwnerLayerShardsIDs[0] << std::endl;
 		auto initiatorOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 			ciphertext,
 			ownerOwnerInternalShards[initiatorIndex],
