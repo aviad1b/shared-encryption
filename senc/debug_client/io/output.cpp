@@ -31,12 +31,12 @@ namespace senc::debug_client::io
 			 << endl;
 	}
 
-	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard)
+	void print_reg_priv_key_shard(const PrivKeyShard& shard)
 	{
 		print_priv_key_any_shard("Non-owner", shard);
 	}
 
-	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard)
+	void print_owner_priv_key_shard(const PrivKeyShard& shard)
 	{
 		print_priv_key_any_shard("Owner", shard);
 	}

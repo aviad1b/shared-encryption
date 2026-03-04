@@ -23,13 +23,13 @@ namespace senc::debug_client::io
 	 * @brief Prints a private key shard of the non-owner layer.
 	 * @param shard Private key shard to print.
 	 */
-	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard);
+	void print_reg_priv_key_shard(const PrivKeyShard& shard);
 	
 	/**
 	 * @brief Prints a private key shard of the owner layer.
 	 * @param shard Private key shard to print.
 	 */
-	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard);
+	void print_owner_priv_key_shard(const PrivKeyShard& shard);
 
 	/**
 	 * @brief Prints ciphertext.
