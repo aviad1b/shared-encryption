@@ -1569,39 +1569,45 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(sp.has_value());
 		}
 
-		// 7) initiator runs update to get finished decryption parts
-		auto up = post<pkt::UpdateResponse>(initiatorPacketHandler, pkt::UpdateRequest{});
-		EXPECT_TRUE(up.has_value());
-		EXPECT_EQ(up->finished_decryptions.size(), 1);
-		EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
-		EXPECT_EQ(up->finished_decryptions.back().reg_layer_parts, regLayerParts);
-		EXPECT_EQ(up->finished_decryptions.back().owner_layer_parts, ownerLayerParts);
+		for (std::size_t receiverIndex : std::views::iota(0, params.dstCount + 1))
+		{
+			auto& receiverPacketHandler = (0 == receiverIndex) ? creatorPacketHandler
+				: nonCreatorInvolvedOwnerPacketHandlers[receiverIndex - 1];
 
-		// check same shard IDs as involved members
-		auto& finishedRegLayerShardsIDs = up->finished_decryptions.back().reg_layer_shards_ids;
-		auto& finishedOwnerLayerShardsIDs = up->finished_decryptions.back().owner_layer_shards_ids;
-		EXPECT_SAME_ELEMS(up->finished_decryptions.back().reg_layer_shards_ids, regMemberShardsIDs);
-		EXPECT_SAME_ELEMS(up->finished_decryptions.back().owner_layer_shards_ids, ownerOwnerLayerShardsIDs);
+			// 7) receiver runs update to get finished decryption parts
+			auto up = post<pkt::UpdateResponse>(receiverPacketHandler, pkt::UpdateRequest{});
+			EXPECT_TRUE(up.has_value());
+			EXPECT_EQ(up->finished_decryptions.size(), 1);
+			EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
+			EXPECT_EQ(up->finished_decryptions.back().reg_layer_parts, regLayerParts);
+			EXPECT_EQ(up->finished_decryptions.back().owner_layer_parts, ownerLayerParts);
 
-		// 8) initiator computes their own decryption parts
-		auto initiatorRegLayerPart = senc::Shamir::decrypt_get_2l<REG_LAYER>(
-			ciphertext,
-			ownerRegLayerShards[initiatorIndex],
-			finishedRegLayerShardsIDs
-		);
-		auto initiatorOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
-			ciphertext,
-			ownerOwnerInternalShards[initiatorIndex],
-			finishedOwnerLayerShardsIDs
-		);
+			// check same shard IDs as involved members
+			auto& finishedRegLayerShardsIDs = up->finished_decryptions.back().reg_layer_shards_ids;
+			auto& finishedOwnerLayerShardsIDs = up->finished_decryptions.back().owner_layer_shards_ids;
+			EXPECT_SAME_ELEMS(up->finished_decryptions.back().reg_layer_shards_ids, regMemberShardsIDs);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.back().owner_layer_shards_ids, ownerOwnerLayerShardsIDs);
 
-		// 9) initiator combines their parts with received parts
-		regLayerParts.push_back(std::move(initiatorRegLayerPart));
-		ownerLayerParts.push_back(std::move(initiatorOwnerLayerPart));
-		auto decrypted = senc::Shamir::decrypt_join_2l(
-			ciphertext, regLayerParts, ownerLayerParts
-		);
-		EXPECT_EQ(decrypted, msg);
+			// 8) receiver computes their own decryption parts
+			auto receiverRegLayerPart = senc::Shamir::decrypt_get_2l<REG_LAYER>(
+				ciphertext,
+				ownerRegLayerShards[receiverIndex],
+				finishedRegLayerShardsIDs
+			);
+			auto receiverOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
+				ciphertext,
+				ownerOwnerInternalShards[receiverIndex],
+				finishedOwnerLayerShardsIDs
+			);
+
+			// 9) receiver combines their parts with received parts
+			regLayerParts.push_back(std::move(receiverRegLayerPart));
+			ownerLayerParts.push_back(std::move(receiverOwnerLayerPart));
+			auto decrypted = senc::Shamir::decrypt_join_2l(
+				ciphertext, regLayerParts, ownerLayerParts
+			);
+			EXPECT_EQ(decrypted, msg);
+		}
 
 		// end of round
 		regMemberShardsIDs.pop_back(); // remove initiator's shard ID
