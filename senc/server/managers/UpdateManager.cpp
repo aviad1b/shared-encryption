@@ -69,8 +69,8 @@ namespace senc::server::managers
 		);
 	}
 
-	void UpdateManager::register_finished_decrpytion(const std::string& initiator,
-													 const OperationID& opid,
+	void UpdateManager::register_finished_decrpytion(const OperationID& opid,
+													 const std::string& initiator,
 													 std::vector<DecryptionPart>&& regLayerParts,
 													 std::vector<DecryptionPart>&& ownerLayerParts,
 													 std::vector<PrivKeyShardID>&& regLayerShardsIDs,
