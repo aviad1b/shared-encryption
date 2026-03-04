@@ -252,13 +252,24 @@ namespace senc
 		_sock.send_connected_value(packet.CODE);
 
 		_sock.send_connected_value(packet.user_set_id);
+
 		send_ciphertext(packet.ciphertext);
+
+		_sock.send_connected_value(static_cast<member_count_t>(packet.dst_users.size()));
+		for (const auto& dstUser : packet.dst_users)
+			_sock.send_connected_value(dstUser);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
 		_sock.recv_connected_value(out.user_set_id);
+
 		recv_ciphertext(out.ciphertext);
+
+		auto dstUsersCount = _sock.recv_connected_primitive<member_count_t>();
+		out.dst_users.resize(dstUsersCount);
+		for (auto& dstUser : out.dst_users)
+			_sock.recv_connected_value(dstUser);
 	}
 
 	void InlinePacketHandler::send_response(const pkt::DecryptResponse& packet)

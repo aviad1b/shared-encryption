@@ -396,7 +396,12 @@ namespace senc
 		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
+
 		write_ciphertext(data, packet.ciphertext);
+
+		utils::write_bytes(data, static_cast<member_count_t>(packet.dst_users.size()));
+		for (const auto& dstUser : packet.dst_users)
+			utils::write_bytes(data, dstUser);
 
 		send_encrypted_data(data);
 	}
@@ -408,7 +413,14 @@ namespace senc
 		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
+
 		it = read_ciphertext(out.ciphertext, it, end);
+
+		member_count_t dstUsersCount{};
+		it = utils::read_bytes(dstUsersCount, it, end);
+		out.dst_users.resize(dstUsersCount);
+		for (auto& dstUser : out.dst_users)
+			it = utils::read_bytes(dstUser, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::DecryptResponse& packet)
