@@ -1371,7 +1371,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
 	ownerRegLayerShardsIDs.push_back(ms->reg_priv_key_shard.first);
 	ownerRegLayerShards.emplace_back(std::move(ms->reg_priv_key_shard));
-	ownerOwnerLayerShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
+	ownerOwnerLayerShardsIDs.push_back(ms->owner_internal_priv_key_shard.first);
 	ownerOwnerExternalShards.emplace_back(std::move(ms->owner_external_priv_key_shard));
 	ownerOwnerInternalShards.emplace_back(std::move(ms->owner_internal_priv_key_shard));
 
