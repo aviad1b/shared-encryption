@@ -1578,7 +1578,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(sp.has_value());
 		}
 
-		for (std::size_t receiverIndex : std::views::iota(0, params.dstCount + 1))
+		for (std::size_t receiverIndex : std::views::iota(0, static_cast<int>(params.dstCount)))
 		{
 			auto& receiverPacketHandler = (0 == receiverIndex) ? creatorPacketHandler
 				: nonCreatorInvolvedOwnerPacketHandlers[receiverIndex - 1];
