@@ -37,7 +37,8 @@ namespace senc::clientapi::storage
 		 * @param usersetID Userset ID (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
-		 * @param regPrivKeyShard Private key shard of non-owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
+		 * @param regInternalPrivKeyShard Internal private key shard of non-owner layer (moved).
 		 * @param ownerExternalPrivKeyShard External private key shard of owner layer (moved).
 		 * @param ownerInternalPrivKeyShard Internal private key shard of owner layer (moved).
 		 * @return Constructed profile record.
@@ -45,7 +46,8 @@ namespace senc::clientapi::storage
 		static Self owner(UserSetID&& usersetID,
 						  PubKey&& regPubKey,
 						  PubKey&& ownerPubKey,
-						  PrivKeyShard&& regPrivKeyShard,
+						  PrivKeyShard&& regExternalPrivKeyShard,
+						  PrivKeyShard&& regInternalPrivKeyShard,
 						  PrivKeyShard&& ownerExternalPrivKeyShard,
 						  PrivKeyShard&& ownerInternalPrivKeyShard);
 
@@ -54,13 +56,13 @@ namespace senc::clientapi::storage
 		 * @param usersetID Userset ID (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
-		 * @param regPrivKeyShard Private key shard of non-owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
 		 * @return Constructed profile record.
 		 */
 		static Self reg(UserSetID&& usersetID,
 						PubKey&& regPubKey,
 						PubKey&& ownerPubKey,
-						PrivKeyShard&& regPrivKeyShard);
+						PrivKeyShard&& regExternalPrivKeyShard);
 
 		/**
 		 * @brief Checks if this is an owner profile record.
@@ -87,10 +89,18 @@ namespace senc::clientapi::storage
 		const PubKey& owner_pub_key() const noexcept;
 
 		/**
-		 * @brief Gets private key shard of non-owner layer.
+		 * @brief Gets external private key shard of non-owner layer.
 		 * @return Private key shard of non-owner layer.
 		 */
-		const PrivKeyShard& reg_priv_key_shard() const noexcept;
+		const PrivKeyShard& reg_external_priv_key_shard() const noexcept;
+
+		/**
+		 * @brief Gets internal private key shard of non-owner layer.
+		 * @note Requires the profile record to be an owner profile record.
+		 *		 Calling this method on a non-owner record is considered undefined behaviour.
+		 * @return Internal private key shard of owner layer.
+		 */
+		const PrivKeyShard& reg_internal_priv_key_shard() const noexcept;
 		
 		/**
 		 * @brief Gets external private key shard of owner layer.
@@ -109,11 +119,11 @@ namespace senc::clientapi::storage
 		const PrivKeyShard& owner_internal_priv_key_shard() const noexcept;
 
 	private:
-		struct OwnerPrivKeyShards { PrivKeyShard external, internal; };
+		struct OwnerPrivKeyShards { PrivKeyShard regInternal, ownerExternal, ownerInternal; };
 		UserSetID _usersetID;
 		PubKey _regPubKey;
 		PubKey _ownerPubKey;
-		PrivKeyShard _regPrivKeyShard;
+		PrivKeyShard _regExternalPrivKeyShard;
 		std::optional<OwnerPrivKeyShards> _ownerPrivKeyShards;
 
 		/**
@@ -121,13 +131,13 @@ namespace senc::clientapi::storage
 		 * @param usersetID Userset ID (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
-		 * @param regPrivKeyShard Private key shard of non-owner layer (moved).
-		 * @param ownerPrivKeyShards Optional private key shards of owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner (moved).
+		 * @param ownerPrivKeyShards Optional private key shards of owner (moved).
 		 */
 		ProfileRecord(UserSetID&& usersetID,
 					  PubKey&& regPubKey,
 					  PubKey&& ownerPubKey,
-					  PrivKeyShard&& regPrivKeyShard,
+					  PrivKeyShard&& regExternalPrivKeyShard,
 					  std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards);
 	};
 }

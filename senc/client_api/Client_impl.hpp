@@ -118,7 +118,8 @@ namespace senc::clientapi
 			UserSetID(resp.user_set_id),
 			std::move(resp.reg_pub_key),
 			std::move(resp.owner_pub_key),
-			std::move(resp.reg_priv_key_shard),
+			std::move(resp.reg_external_priv_key_shard),
+			std::move(resp.reg_internal_priv_key_shard),
 			std::move(resp.owner_external_priv_key_shard),
 			std::move(resp.owner_internal_priv_key_shard)
 		));
@@ -302,7 +303,7 @@ namespace senc::clientapi
 			std::move(data.user_set_id),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
-			std::move(data.reg_priv_key_shard)
+			std::move(data.reg_external_priv_key_shard)
 		));
 	}
 
@@ -313,7 +314,8 @@ namespace senc::clientapi
 			std::move(data.user_set_id),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
-			std::move(data.reg_priv_key_shard),
+			std::move(data.reg_external_priv_key_shard),
+			std::move(data.reg_internal_priv_key_shard),
 			std::move(data.owner_external_priv_key_shard),
 			std::move(data.owner_internal_priv_key_shard)
 		));
@@ -370,7 +372,7 @@ namespace senc::clientapi
 		std::vector<DecryptionPart> regParts = std::move(data.reg_layer_parts);
 		regParts.push_back(Shamir::decrypt_get_2l<REG_LAYER>(
 			ciphertext,
-			record.reg_priv_key_shard(),
+			record.reg_internal_priv_key_shard(),
 			data.reg_layer_shards_ids
 		));
 
@@ -420,7 +422,7 @@ namespace senc::clientapi
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				record.reg_priv_key_shard(),
+				record.reg_external_priv_key_shard(),
 				shardsIDs
 			);
 

@@ -13,7 +13,8 @@ namespace senc::clientapi::storage
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
 											 PubKey&& regPubKey,
 											 PubKey&& ownerPubKey,
-											 PrivKeyShard&& regPrivKeyShard,
+											 PrivKeyShard&& regExternalPrivKeyShard,
+											 PrivKeyShard&& regInternalPrivKeyShard,
 											 PrivKeyShard&& ownerExternalPrivKeyShard,
 											 PrivKeyShard&& ownerInternalPrivKeyShard)
 	{
@@ -21,8 +22,9 @@ namespace senc::clientapi::storage
 			std::move(usersetID),
 			std::move(regPubKey),
 			std::move(ownerPubKey),
-			std::move(regPrivKeyShard),
+			std::move(regExternalPrivKeyShard),
 			OwnerPrivKeyShards{
+				std::move(regInternalPrivKeyShard),
 				std::move(ownerExternalPrivKeyShard),
 				std::move(ownerInternalPrivKeyShard)
 			}
@@ -63,29 +65,34 @@ namespace senc::clientapi::storage
 		return _ownerPubKey;
 	}
 
-	const PrivKeyShard& ProfileRecord::reg_priv_key_shard() const noexcept
+	const PrivKeyShard& ProfileRecord::reg_external_priv_key_shard() const noexcept
 	{
-		return _regPrivKeyShard;
+		return _regExternalPrivKeyShard;
+	}
+
+	const PrivKeyShard& ProfileRecord::reg_internal_priv_key_shard() const noexcept
+	{
+		return _ownerPrivKeyShards->regInternal;
 	}
 
 	const PrivKeyShard& ProfileRecord::owner_external_priv_key_shard() const noexcept
 	{
-		return _ownerPrivKeyShards->external;
+		return _ownerPrivKeyShards->ownerExternal;
 	}
 
 	const PrivKeyShard& ProfileRecord::owner_internal_priv_key_shard() const noexcept
 	{
-		return _ownerPrivKeyShards->internal;
+		return _ownerPrivKeyShards->ownerInternal;
 	}
 
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
 								 PubKey&& regPubKey,
 								 PubKey&& ownerPubKey,
-								 PrivKeyShard&& regPrivKeyShard,
+								 PrivKeyShard&& regExternalPrivKeyShard,
 								 std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards)
 		: _usersetID(std::move(usersetID)),
 		  _regPubKey(std::move(regPubKey)),
 		  _ownerPubKey(std::move(ownerPubKey)),
-		  _regPrivKeyShard(std::move(regPrivKeyShard)),
+		  _regExternalPrivKeyShard(std::move(regExternalPrivKeyShard)),
 		  _ownerPrivKeyShards(std::move(ownerPrivKeyShards)) { }
 }

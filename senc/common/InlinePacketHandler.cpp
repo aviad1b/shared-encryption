@@ -171,7 +171,8 @@ namespace senc
 		_sock.send_connected_value(packet.user_set_id);
 		send_pub_key(packet.reg_pub_key);
 		send_pub_key(packet.owner_pub_key);
-		send_priv_key_shard(packet.reg_priv_key_shard);
+		send_priv_key_shard(packet.reg_external_priv_key_shard);
+		send_priv_key_shard(packet.reg_internal_priv_key_shard);
 		send_priv_key_shard(packet.owner_external_priv_key_shard);
 		send_priv_key_shard(packet.owner_internal_priv_key_shard);
 	}
@@ -181,7 +182,8 @@ namespace senc
 		_sock.recv_connected_value(out.user_set_id);
 		recv_pub_key(out.reg_pub_key);
 		recv_pub_key(out.owner_pub_key);
-		recv_priv_key_shard(out.reg_priv_key_shard);
+		recv_priv_key_shard(out.reg_external_priv_key_shard);
+		recv_priv_key_shard(out.reg_internal_priv_key_shard);
 		recv_priv_key_shard(out.owner_external_priv_key_shard);
 		recv_priv_key_shard(out.owner_internal_priv_key_shard);
 	}
@@ -495,6 +497,7 @@ namespace senc
 		send_update_record(
 			reinterpret_cast<const pkt::UpdateResponse::AddedAsMemberRecord&>(record)
 		);
+		send_priv_key_shard(record.reg_internal_priv_key_shard);
 		send_priv_key_shard(record.owner_external_priv_key_shard);
 		send_priv_key_shard(record.owner_internal_priv_key_shard);
 	}
@@ -504,6 +507,7 @@ namespace senc
 		recv_update_record(
 			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out)
 		);
+		recv_priv_key_shard(out.reg_internal_priv_key_shard);
 		recv_priv_key_shard(out.owner_external_priv_key_shard);
 		recv_priv_key_shard(out.owner_internal_priv_key_shard);
 	}
@@ -513,7 +517,7 @@ namespace senc
 		_sock.send_connected_value(record.user_set_id);
 		send_pub_key(record.reg_pub_key);
 		send_pub_key(record.owner_pub_key);
-		send_priv_key_shard(record.reg_priv_key_shard);
+		send_priv_key_shard(record.reg_external_priv_key_shard);
 	}
 
 	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out)
@@ -521,7 +525,7 @@ namespace senc
 		_sock.recv_connected_value(out.user_set_id);
 		recv_pub_key(out.reg_pub_key);
 		recv_pub_key(out.owner_pub_key);
-		recv_priv_key_shard(out.reg_priv_key_shard);
+		recv_priv_key_shard(out.reg_external_priv_key_shard);
 	}
 
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::OnLookupRecord& record)

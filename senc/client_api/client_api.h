@@ -256,21 +256,36 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecor
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
- * @brief Gets reg layer private key shard from profile record pointer.
+ * @brief Gets reg layer external private key shard from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing reg layer private key shard, or error if failed.
+ * @return Handle to bytes buffer representing key shard, or error if failed.
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegShard(uintptr_t pRecord) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegExternalShard(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
- * @brief Gets owner layer private key shard from profile record pointer.
+ * @brief Gets reg layer internal private key shard from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing owner layer private key shard,
- *		   or error if not an owner record (or failed).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pRecord) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegInternalShard(uintptr_t pRecord) SENC_NOTHROW;
+
+/**
+ * @brief Gets owner layer external private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerExternalShard(uintptr_t pRecord) SENC_NOTHROW;
+
+/**
+ * @brief Gets owner layer internal private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Creates a new userset.

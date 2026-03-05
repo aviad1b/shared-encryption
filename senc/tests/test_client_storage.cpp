@@ -63,9 +63,10 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 		EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
 		EXPECT_EQ(record.reg_pub_key(), storedRecord.reg_pub_key());
 		EXPECT_EQ(record.owner_pub_key(), storedRecord.owner_pub_key());
-		EXPECT_EQ(record.reg_priv_key_shard(), storedRecord.reg_priv_key_shard());
+		EXPECT_EQ(record.reg_external_priv_key_shard(), storedRecord.reg_external_priv_key_shard());
 		if (record.is_owner() && storedRecord.is_owner())
 		{
+			EXPECT_EQ(record.reg_internal_priv_key_shard(), storedRecord.reg_internal_priv_key_shard());
 			EXPECT_EQ(record.owner_external_priv_key_shard(), storedRecord.owner_external_priv_key_shard());
 			EXPECT_EQ(record.owner_internal_priv_key_shard(), storedRecord.owner_internal_priv_key_shard());
 		}
@@ -88,6 +89,7 @@ INSTANTIATE_TEST_SUITE_P(
 					ECGroup::generator().pow(111),
 					ECGroup::generator().pow(222),
 					senc::PrivKeyShard{ 3, 333 },
+					senc::PrivKeyShard{ 4, 334 },
 					senc::PrivKeyShard{ 13, 131313 },
 					senc::PrivKeyShard{ 14, 131314 }
 				),
@@ -102,6 +104,7 @@ INSTANTIATE_TEST_SUITE_P(
 					ECGroup::generator().pow(444),
 					ECGroup::generator().pow(555),
 					senc::PrivKeyShard{ 4, 666 },
+					senc::PrivKeyShard{ 5, 667 },
 					senc::PrivKeyShard{ 14, 161616 },
 					senc::PrivKeyShard{ 15, 161617 }
 				)

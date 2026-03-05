@@ -390,7 +390,7 @@ namespace senc::debug_client
 		io::print_pub_keys(resp.reg_pub_key, resp.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_priv_key_shard(resp.reg_priv_key_shard);
+		io::print_reg_external_priv_key_shard(resp.reg_external_priv_key_shard);
 		cout << endl;
 		
 		io::print_owner_external_priv_key_shard(resp.owner_external_priv_key_shard);
@@ -657,13 +657,19 @@ namespace senc::debug_client
 		io::print_pub_keys(data.reg_pub_key, data.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_priv_key_shard(data.reg_priv_key_shard);
+		io::print_reg_external_priv_key_shard(data.reg_external_priv_key_shard);
+		cout << endl;
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
+			io::print_reg_internal_priv_key_shard(data.reg_internal_priv_key_shard);
 			cout << endl;
+
 			io::print_owner_external_priv_key_shard(data.owner_external_priv_key_shard);
+			cout << endl;
+
 			io::print_owner_internal_priv_key_shard(data.owner_internal_priv_key_shard);
+			cout << endl;
 		}
 
 		cout << "==============================" << endl << endl << endl;

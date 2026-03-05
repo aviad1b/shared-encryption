@@ -300,7 +300,7 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	const auto& usersetID = ms->user_set_id;
 	const auto& pubRegLayerKey = ms->reg_pub_key;
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
-	auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	auto& ownerOwnerExternalShard = ms->owner_external_priv_key_shard;
 	auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
@@ -322,7 +322,7 @@ TEST_P(ServerTest, MakeSetCheckKey)
 		EXPECT_TRUE(up.has_value());
 		EXPECT_EQ(up->added_as_reg_member.size(), 1);
 		EXPECT_EQ(up->added_as_reg_member.front().user_set_id, usersetID);
-		auto& shard = up->added_as_reg_member.front().reg_priv_key_shard;
+		auto& shard = up->added_as_reg_member.front().reg_external_priv_key_shard;
 
 		// check unique ID and shard
 		EXPECT_EQ(std::find(regLayerShardsIDs.begin(), regLayerShardsIDs.end(), shard.first), regLayerShardsIDs.end());
@@ -409,7 +409,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	const auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
@@ -438,7 +438,7 @@ TEST_P(ServerTest, DecryptFlowSimple)
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(memberSetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(memberSetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& memberShard = memberSetsAddedTo.front().reg_priv_key_shard;
+	const auto& memberShard = memberSetsAddedTo.front().reg_external_priv_key_shard;
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -551,7 +551,7 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	const auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
@@ -585,13 +585,13 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(memberSetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(memberSetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& memberShard = memberSetsAddedTo.front().reg_priv_key_shard;
+	const auto& memberShard = memberSetsAddedTo.front().reg_external_priv_key_shard;
 
 	EXPECT_EQ(member2SetsAddedTo.size(), 1);
 	EXPECT_EQ(member2SetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(member2SetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(member2SetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& member2Shard = member2SetsAddedTo.front().reg_priv_key_shard;
+	const auto& member2Shard = member2SetsAddedTo.front().reg_external_priv_key_shard;
 
 	// check different shard IDs
 	EXPECT_NE(ownerOwnerInternalShard.first, memberShard.first);
@@ -744,7 +744,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	const auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
@@ -773,7 +773,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(memberSetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(memberSetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& memberShard = memberSetsAddedTo.front().reg_priv_key_shard;
+	const auto& memberShard = memberSetsAddedTo.front().reg_external_priv_key_shard;
 
 	//    member has one operation to participate in, check same as owner's
 	EXPECT_EQ(memberOnLookup.size(), 1);
@@ -787,7 +787,7 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 	EXPECT_EQ(extraSetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(extraSetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(extraSetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& extraShard = extraSetsAddedTo.front().reg_priv_key_shard;
+	const auto& extraShard = extraSetsAddedTo.front().reg_external_priv_key_shard;
 	(void)extraShard; // for debugging purposes
 
 	// 3) member tells server that they're willing to participate in operation
@@ -900,7 +900,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	const auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
@@ -934,7 +934,7 @@ TEST_P(ServerTest, DecryptFlow2L)
 	EXPECT_EQ(memberSetsAddedTo.front().user_set_id, ownerUsersetID);
 	EXPECT_EQ(memberSetsAddedTo.front().reg_pub_key, ownerPubRegLayerKey);
 	EXPECT_EQ(memberSetsAddedTo.front().owner_pub_key, ownerPubOwnerLayerKey);
-	const auto& memberShard = memberSetsAddedTo.front().reg_priv_key_shard;
+	const auto& memberShard = memberSetsAddedTo.front().reg_external_priv_key_shard;
 
 	EXPECT_EQ(owner2SetsAddedTo.size(), 1);
 	EXPECT_EQ(owner2SetsAddedTo.front().user_set_id, ownerUsersetID);
@@ -1086,7 +1086,7 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegLayerShard = ms->reg_priv_key_shard;
+	const auto& ownerRegLayerShard = ms->reg_external_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
@@ -1369,8 +1369,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	const auto& usersetID = ms->user_set_id;
 	const auto& pubRegLayerKey = ms->reg_pub_key;
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
-	ownerRegLayerShardsIDs.push_back(ms->reg_priv_key_shard.first);
-	ownerRegLayerShards.emplace_back(std::move(ms->reg_priv_key_shard));
+	ownerRegLayerShardsIDs.push_back(ms->reg_external_priv_key_shard.first);
+	ownerRegLayerShards.emplace_back(std::move(ms->reg_external_priv_key_shard));
 	ownerOwnerExternalShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
 	ownerOwnerInternalShardsIDs.push_back(ms->owner_internal_priv_key_shard.first);
 	ownerOwnerExternalShards.emplace_back(std::move(ms->owner_external_priv_key_shard));
@@ -1385,8 +1385,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_reg_member.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_reg_member.back().owner_pub_key, pubOwnerLayerKey);
-		regMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_priv_key_shard.first);
-		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_priv_key_shard));
+		regMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_external_priv_key_shard.first);
+		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_external_priv_key_shard));
 	}
 	for (auto& packetHandler : nonCreatorInvolvedOwnerPacketHandlers)
 	{
@@ -1396,8 +1396,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_owner.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_owner.back().owner_pub_key, pubOwnerLayerKey);
-		ownerRegLayerShardsIDs.push_back(up->added_as_owner.back().reg_priv_key_shard.first);
-		ownerRegLayerShards.emplace_back(std::move(up->added_as_owner.back().reg_priv_key_shard));
+		ownerRegLayerShardsIDs.push_back(up->added_as_owner.back().reg_external_priv_key_shard.first);
+		ownerRegLayerShards.emplace_back(std::move(up->added_as_owner.back().reg_external_priv_key_shard));
 		ownerOwnerExternalShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
 		ownerOwnerInternalShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
 		ownerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));

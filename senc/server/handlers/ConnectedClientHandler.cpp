@@ -78,7 +78,8 @@ namespace senc::server::handlers
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members (shard ID for internal shard is max plus one)
-		res.reg_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
+		res.reg_external_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
+		res.reg_internal_priv_key_shard = Shamir::make_shard(regLayerPoly, MAX_MEMBERS + 1);
 		res.owner_external_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
 		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, MAX_MEMBERS + 1);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
@@ -148,9 +149,9 @@ namespace senc::server::handlers
 	{
 		// get shards IDs of all participants (including requester)
 
-		const auto requesterRegShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
-		const auto requesterOwnerShardID =  MAX_MEMBERS + 1;
-		// on owners layer, initiator uses internal shard, whose ID is max plus one
+		const auto requesterRegShardID = MAX_MEMBERS + 1;
+		const auto requesterOwnerShardID = MAX_MEMBERS + 1;
+		// initiator uses internal shard, whose ID is max plus one
 
 		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterOwnerShardID };
 		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterRegShardID };
@@ -177,9 +178,9 @@ namespace senc::server::handlers
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
-		const auto requesterRegShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
+		const auto requesterRegShardID = MAX_MEMBERS + 1;
 		const auto requesterOwnerShardID = MAX_MEMBERS + 1;
-		// on owners layer, initiator uses internal shard, whose ID is max plus one
+		// initiator uses internal shard, whose ID is max plus one
 		
 		opCollRecord.reg_layer_shards_ids.push_back(requesterRegShardID);
 		opCollRecord.owner_layer_shards_ids.push_back(requesterOwnerShardID);
