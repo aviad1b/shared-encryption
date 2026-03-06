@@ -154,8 +154,7 @@ void EXPECT_SAME_ELEMS(const std::vector<T>& a, const std::vector<T>& b)
 {
 	senc::utils::HashSet<T> setA(a.begin(), a.end());
 	senc::utils::HashSet<T> setB(b.begin(), b.end());
-	if (setA != setB)
-		EXPECT_EQ(setA, setB);
+	EXPECT_EQ(setA, setB);
 }
 
 template <typename C, typename T>
