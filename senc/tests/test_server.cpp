@@ -1472,7 +1472,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 		// 1) initiator starts decryption
 		auto dc = post<pkt::DecryptResponse>(initiatorPacketHandler, pkt::DecryptRequest{
-			usersetID, ciphertext, { initiatorUsername }
+			usersetID, ciphertext, receivers
 		});
 		EXPECT_TRUE(dc.has_value());
 		const OperationID opid = std::move(dc->op_id);
