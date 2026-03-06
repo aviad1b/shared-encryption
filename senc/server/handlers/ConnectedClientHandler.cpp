@@ -78,10 +78,11 @@ namespace senc::server::handlers
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
 		// make private key shards for all members (shard ID for internal shard is max plus one)
+		auto internalShardID = static_cast<int>(MAX_MEMBERS) + 1;
 		res.reg_external_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
-		res.reg_internal_priv_key_shard = Shamir::make_shard(regLayerPoly, MAX_MEMBERS + 1);
+		res.reg_internal_priv_key_shard = Shamir::make_shard(regLayerPoly, internalShardID);
 		res.owner_external_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
-		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, MAX_MEMBERS + 1);
+		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, internalShardID);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
 		auto ownerLayerOwnersShards = Shamir::make_shards(ownerLayerPoly, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(regLayerPoly, regMembersShardsIDs);
@@ -149,8 +150,8 @@ namespace senc::server::handlers
 	{
 		// get shards IDs of all participants (including requester)
 
-		const auto requesterRegShardID = MAX_MEMBERS + 1;
-		const auto requesterOwnerShardID = MAX_MEMBERS + 1;
+		const auto requesterRegShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		const auto requesterOwnerShardID = static_cast<int>(MAX_MEMBERS) + 1;
 		// initiator uses internal shard, whose ID is max plus one
 
 		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterOwnerShardID };
@@ -178,8 +179,8 @@ namespace senc::server::handlers
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
-		const auto requesterRegShardID = MAX_MEMBERS + 1;
-		const auto requesterOwnerShardID = MAX_MEMBERS + 1;
+		const auto requesterRegShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		const auto requesterOwnerShardID = static_cast<int>(MAX_MEMBERS) + 1;
 		// initiator uses internal shard, whose ID is max plus one
 		
 		opCollRecord.reg_layer_shards_ids.push_back(requesterRegShardID);
