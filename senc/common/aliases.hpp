@@ -117,9 +117,10 @@ namespace senc
 	 */
 	using PrivKeyShardValue = typename Shamir::ShardValue;
 
-	// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
+	// this constant is true as external shard IDs are currently sampled from [1,MAX_MEMBER_COUNT],
+	// and extra ID values are used for internal shards.
 	// TODO: Make shard sampling use a constant from here for range
-	constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
+	constexpr std::size_t SHARD_ID_MAX_SIZE = 2 * sizeof(member_count_t);
 
 	// this constant is true as shard values are always < modulus
 	static const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
