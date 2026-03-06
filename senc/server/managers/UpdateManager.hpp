@@ -53,15 +53,17 @@ namespace senc::server::managers
 		 * @param usersetID ID of userset to which user was added.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
-		 * @param regLayerPrivKeyShard User's private key shard in userset for non-owner layer (moved).
-		 * @param ownerExternalPrivKeyShard User's external priv key shard in userset for owner layer (moved).
-		 * @param ownerInternalPrivKeyShard User's internal priv key shard in userset for owner layer.
+		 * @param regExternalPrivKeyShard User's external key shard in userset for non-owner layer (moved).
+		 * @param regInternalPrivKeyShard User's internal key shard in userset for non-owner layer.
+		 * @param ownerExternalPrivKeyShard User's external key shard in userset for owner layer (moved).
+		 * @param ownerInternalPrivKeyShard User's internal key shard in userset for owner layer.
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
 							const PubKey& regLayerPubKey,
 							const PubKey& ownerLayerPubKey,
-							PrivKeyShard&& regLayerPrivKeyShard,
+							PrivKeyShard&& regExternalPrivKeyShard,
+							const PrivKeyShard& regInternalPrivKeyShard,
 							PrivKeyShard&& ownerExternalPrivKeyShard,
 							const PrivKeyShard& ownerInternalPrivKeyShard);
 

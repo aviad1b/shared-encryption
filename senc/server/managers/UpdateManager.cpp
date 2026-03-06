@@ -37,7 +37,8 @@ namespace senc::server::managers
 									   const UserSetID& usersetID,
 									   const PubKey& regLayerPubKey,
 									   const PubKey& ownerLayerPubKey,
-									   PrivKeyShard&& regLayerPrivKeyShard,
+									   PrivKeyShard&& regExternalPrivKeyShard,
+									   const PrivKeyShard& regInternalPrivKeyShard,
 									   PrivKeyShard&& ownerExternalPrivKeyShard,
 									   const PrivKeyShard& ownerInternalPrivKeyShard)
 	{
@@ -45,7 +46,8 @@ namespace senc::server::managers
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
 			regLayerPubKey, ownerLayerPubKey,
-			std::move(regLayerPrivKeyShard),
+			std::move(regExternalPrivKeyShard),
+			regInternalPrivKeyShard,
 			std::move(ownerExternalPrivKeyShard),
 			ownerInternalPrivKeyShard
 		);
