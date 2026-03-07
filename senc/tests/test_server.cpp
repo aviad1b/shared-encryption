@@ -313,7 +313,7 @@ TEST_P(ServerTest, MakeSetCheckKey)
 	std::vector<PrivKeyShardID> regLayerShardsIDs, ownerLayerShardsIDs;
 	std::vector<PrivKeyShard> regLayerShards, ownerLayerShards;
 	regLayerShardsIDs.push_back(ownerRegInternalShard.first);
-	regLayerShards.emplace_back(std::move(ownerRegExternalShard));
+	regLayerShards.emplace_back(std::move(ownerRegInternalShard));
 	ownerLayerShardsIDs.push_back(ownerOwnerInternalShard.first);
 	ownerLayerShards.emplace_back(std::move(ownerOwnerInternalShard));
 
