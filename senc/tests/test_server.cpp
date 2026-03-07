@@ -1733,6 +1733,16 @@ const auto CYCLE_PARAMS = testing::Values(
 		.dstCount            = 1,
 		.msgSize             = 256,
 		.rounds              = 5
+	},
+	CycleParams{
+		.owners              = 8,
+		.regMembers          = 15,
+		.nonMembers          = 7,
+		.ownersThreshold     = 5,
+		.regMembersThreshold = 10,
+		.dstCount            = 8,
+		.msgSize             = 256,
+		.rounds              = 5
 	}
 );
 
