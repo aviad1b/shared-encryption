@@ -554,7 +554,7 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 	const auto& ownerUsersetID = ms->user_set_id;
 	const auto& ownerPubRegLayerKey = ms->reg_pub_key;
 	const auto& ownerPubOwnerLayerKey = ms->owner_pub_key;
-	const auto& ownerRegInternalShard = ms->reg_external_priv_key_shard;
+	const auto& ownerRegInternalShard = ms->reg_internal_priv_key_shard;
 	const auto& ownerOwnerInternalShard = ms->owner_internal_priv_key_shard;
 
 	// encrypt a message
