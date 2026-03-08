@@ -1580,6 +1580,9 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 
 		for (std::size_t receiverIndex : std::views::iota(0, static_cast<int>(params.dstCount)))
 		{
+			std::vector<DecryptionPart> myRegLayerParts = regLayerParts;
+			std::vector<DecryptionPart> myOwnerLayerParts = ownerLayerParts;
+
 			auto& receiverPacketHandler = (0 == receiverIndex) ? creatorPacketHandler
 				: nonCreatorInvolvedOwnerPacketHandlers[receiverIndex - 1];
 
@@ -1588,8 +1591,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_TRUE(up.has_value());
 			EXPECT_EQ(up->finished_decryptions.size(), 1);
 			EXPECT_TRUE(up->finished_decryptions.back().op_id == opid);
-			EXPECT_EQ(up->finished_decryptions.back().reg_layer_parts, regLayerParts);
-			EXPECT_EQ(up->finished_decryptions.back().owner_layer_parts, ownerLayerParts);
+			EXPECT_EQ(up->finished_decryptions.back().reg_layer_parts, myRegLayerParts);
+			EXPECT_EQ(up->finished_decryptions.back().owner_layer_parts, myOwnerLayerParts);
 
 			// check same shard IDs as involved members
 			auto& finishedRegLayerShardsIDs = up->finished_decryptions.back().reg_layer_shards_ids;
@@ -1610,10 +1613,10 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			);
 
 			// 9) receiver combines their parts with received parts
-			regLayerParts.push_back(std::move(receiverRegLayerPart));
-			ownerLayerParts.push_back(std::move(receiverOwnerLayerPart));
+			myRegLayerParts.push_back(std::move(receiverRegLayerPart));
+			myOwnerLayerParts.push_back(std::move(receiverOwnerLayerPart));
 			auto decrypted = senc::Shamir::decrypt_join_2l(
-				ciphertext, regLayerParts, ownerLayerParts
+				ciphertext, myRegLayerParts, myOwnerLayerParts
 			);
 			EXPECT_EQ(decrypted, msg);
 		}
