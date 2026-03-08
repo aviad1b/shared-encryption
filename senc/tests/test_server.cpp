@@ -1584,7 +1584,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			std::vector<DecryptionPart> myOwnerLayerParts = ownerLayerParts;
 
 			auto& receiverPacketHandler = (0 == receiverIndex) ? creatorPacketHandler
-				: nonCreatorInvolvedOwnerPacketHandlers[receiverIndex - 1];
+				: nonCreatorOwnerPacketHandlers[receiverIndex - 1];
 
 			// 7) receiver runs update to get finished decryption parts
 			auto up = post<pkt::UpdateResponse>(receiverPacketHandler, pkt::UpdateRequest{});
