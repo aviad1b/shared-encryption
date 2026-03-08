@@ -362,6 +362,7 @@ namespace senc
 				_onQueueEmpty(*_underlying);
 			}
 		}
+		std::unique_lock lock(_sync.mtxQueue);
 		_sync.cvQueue.notify_all(); // wake up all remaining threads
 	}
 
