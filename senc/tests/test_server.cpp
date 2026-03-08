@@ -1356,12 +1356,18 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	}
 
 	// vectors to store shards later
-	std::vector<PrivKeyShard> regMemberShards;
-	std::vector<PrivKeyShardID> regMemberShardsIDs;
-	std::vector<PrivKeyShard> ownerRegExternalShards, ownerRegInternalShards,
-		ownerOwnerExternalShards, ownerOwnerInternalShards;
-	std::vector<PrivKeyShardID> ownerRegExternalShardsIDs, ownerRegInternalShardsIDs,
-		ownerOwnerExternalShardsIDs, ownerOwnerInternalShardsIDs;
+	std::vector<PrivKeyShard> involvedRegMemberShards;
+	std::vector<PrivKeyShardID> involvedRegMemberShardsIDs;
+	std::vector<PrivKeyShard> allRegMemberShards;
+	std::vector<PrivKeyShardID> allRegMemberShardsIDs;
+	std::vector<PrivKeyShard> involvedOwnerRegExternalShards, involvedOwnerRegInternalShards,
+		involvedOwnerOwnerExternalShards, involvedOwnerOwnerInternalShards;
+	std::vector<PrivKeyShardID> involvedOwnerRegExternalShardsIDs, involvedOwnerRegInternalShardsIDs,
+		involvedOwnerOwnerExternalShardsIDs, involvedOwnerOwnerInternalShardsIDs;
+	std::vector<PrivKeyShard> allOwnerRegExternalShards, allOwnerRegInternalShards,
+		allOwnerOwnerExternalShards, allOwnerOwnerInternalShards;
+	std::vector<PrivKeyShardID> allOwnerRegExternalShardsIDs, allOwnerRegInternalShardsIDs,
+		allOwnerOwnerExternalShardsIDs, allOwnerOwnerInternalShardsIDs;
 
 	// make userset
 	auto ms = post<pkt::MakeUserSetResponse>(creatorPacketHandler, pkt::MakeUserSetRequest{
@@ -1374,14 +1380,22 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 	const auto& usersetID = ms->user_set_id;
 	const auto& pubRegLayerKey = ms->reg_pub_key;
 	const auto& pubOwnerLayerKey = ms->owner_pub_key;
-	ownerRegExternalShardsIDs.push_back(ms->reg_external_priv_key_shard.first);
-	ownerRegInternalShardsIDs.push_back(ms->reg_internal_priv_key_shard.first);
-	ownerRegExternalShards.emplace_back(std::move(ms->reg_external_priv_key_shard));
-	ownerRegInternalShards.emplace_back(std::move(ms->reg_internal_priv_key_shard));
-	ownerOwnerExternalShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
-	ownerOwnerInternalShardsIDs.push_back(ms->owner_internal_priv_key_shard.first);
-	ownerOwnerExternalShards.emplace_back(std::move(ms->owner_external_priv_key_shard));
-	ownerOwnerInternalShards.emplace_back(std::move(ms->owner_internal_priv_key_shard));
+	involvedOwnerRegExternalShardsIDs.push_back(ms->reg_external_priv_key_shard.first);
+	allOwnerRegExternalShardsIDs.push_back(ms->reg_external_priv_key_shard.first);
+	involvedOwnerRegInternalShardsIDs.push_back(ms->reg_internal_priv_key_shard.first);
+	allOwnerRegInternalShardsIDs.push_back(ms->reg_internal_priv_key_shard.first);
+	involvedOwnerRegExternalShards.emplace_back(ms->reg_external_priv_key_shard);
+	allOwnerRegExternalShards.emplace_back(std::move(ms->reg_external_priv_key_shard));
+	involvedOwnerRegInternalShards.emplace_back(ms->reg_internal_priv_key_shard);
+	allOwnerRegInternalShards.emplace_back(std::move(ms->reg_internal_priv_key_shard));
+	involvedOwnerOwnerExternalShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
+	allOwnerOwnerExternalShardsIDs.push_back(ms->owner_external_priv_key_shard.first);
+	involvedOwnerOwnerInternalShardsIDs.push_back(ms->owner_internal_priv_key_shard.first);
+	allOwnerOwnerInternalShardsIDs.push_back(ms->owner_internal_priv_key_shard.first);
+	involvedOwnerOwnerExternalShards.emplace_back(ms->owner_external_priv_key_shard);
+	allOwnerOwnerExternalShards.emplace_back(std::move(ms->owner_external_priv_key_shard));
+	involvedOwnerOwnerInternalShards.emplace_back(ms->owner_internal_priv_key_shard);
+	allOwnerOwnerInternalShards.emplace_back(std::move(ms->owner_internal_priv_key_shard));
 
 	// each involved member should get its own shard(s) and register to use later
 	for (auto& packetHandler : involvedRegMemberPacketHandlers)
@@ -1392,8 +1406,10 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_reg_member.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_reg_member.back().owner_pub_key, pubOwnerLayerKey);
-		regMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_external_priv_key_shard.first);
-		regMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_external_priv_key_shard));
+		involvedRegMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_external_priv_key_shard.first);
+		allRegMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_external_priv_key_shard.first);
+		involvedRegMemberShards.emplace_back(up->added_as_reg_member.back().reg_external_priv_key_shard);
+		allRegMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_external_priv_key_shard));
 	}
 	for (auto& packetHandler : nonCreatorInvolvedOwnerPacketHandlers)
 	{
@@ -1403,17 +1419,25 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_owner.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_owner.back().owner_pub_key, pubOwnerLayerKey);
-		ownerRegExternalShardsIDs.push_back(up->added_as_owner.back().reg_external_priv_key_shard.first);
-		ownerRegInternalShardsIDs.push_back(up->added_as_owner.back().reg_internal_priv_key_shard.first);
-		ownerRegExternalShards.emplace_back(std::move(up->added_as_owner.back().reg_external_priv_key_shard));
-		ownerRegInternalShards.emplace_back(std::move(up->added_as_owner.back().reg_internal_priv_key_shard));
-		ownerOwnerExternalShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
-		ownerOwnerInternalShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
-		ownerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));
-		ownerOwnerInternalShards.emplace_back(std::move(up->added_as_owner.back().owner_internal_priv_key_shard));
+		involvedOwnerRegExternalShardsIDs.push_back(up->added_as_owner.back().reg_external_priv_key_shard.first);
+		allOwnerRegExternalShardsIDs.push_back(up->added_as_owner.back().reg_external_priv_key_shard.first);
+		involvedOwnerRegInternalShardsIDs.push_back(up->added_as_owner.back().reg_internal_priv_key_shard.first);
+		allOwnerRegInternalShardsIDs.push_back(up->added_as_owner.back().reg_internal_priv_key_shard.first);
+		involvedOwnerRegExternalShards.emplace_back(up->added_as_owner.back().reg_external_priv_key_shard);
+		allOwnerRegExternalShards.emplace_back(std::move(up->added_as_owner.back().reg_external_priv_key_shard));
+		involvedOwnerRegInternalShards.emplace_back(up->added_as_owner.back().reg_internal_priv_key_shard);
+		allOwnerRegInternalShards.emplace_back(std::move(up->added_as_owner.back().reg_internal_priv_key_shard));
+		involvedOwnerOwnerExternalShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
+		allOwnerOwnerExternalShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
+		involvedOwnerOwnerInternalShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
+		allOwnerOwnerInternalShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
+		involvedOwnerOwnerExternalShards.emplace_back(up->added_as_owner.back().owner_external_priv_key_shard);
+		allOwnerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));
+		involvedOwnerOwnerInternalShards.emplace_back(up->added_as_owner.back().owner_internal_priv_key_shard);
+		allOwnerOwnerInternalShards.emplace_back(std::move(up->added_as_owner.back().owner_internal_priv_key_shard));
 	}
 
-	// as for the uninvolved users, they do the same, but we don't care about their shards
+	// same thing for uninvolved users
 	for (auto& packetHandler : uninvolvedRegMemberPacketHandlers)
 	{
 		auto up = post<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
@@ -1422,6 +1446,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_reg_member.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_reg_member.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_reg_member.back().owner_pub_key, pubOwnerLayerKey);
+		allRegMemberShardsIDs.push_back(up->added_as_reg_member.back().reg_external_priv_key_shard.first);	
+		allRegMemberShards.emplace_back(std::move(up->added_as_reg_member.back().reg_external_priv_key_shard));
 	}
 	for (auto& packetHandler : uninvolvedOwnerPacketHandlers)
 	{
@@ -1431,6 +1457,14 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		EXPECT_EQ(up->added_as_owner.back().user_set_id, usersetID);
 		EXPECT_EQ(up->added_as_owner.back().reg_pub_key, pubRegLayerKey);
 		EXPECT_EQ(up->added_as_owner.back().owner_pub_key, pubOwnerLayerKey);
+		allOwnerRegExternalShardsIDs.push_back(up->added_as_owner.back().reg_external_priv_key_shard.first);
+		allOwnerRegInternalShardsIDs.push_back(up->added_as_owner.back().reg_internal_priv_key_shard.first);
+		allOwnerRegExternalShards.emplace_back(std::move(up->added_as_owner.back().reg_external_priv_key_shard));
+		allOwnerRegInternalShards.emplace_back(std::move(up->added_as_owner.back().reg_internal_priv_key_shard));
+		allOwnerOwnerExternalShardsIDs.push_back(up->added_as_owner.back().owner_external_priv_key_shard.first);
+		allOwnerOwnerInternalShardsIDs.push_back(up->added_as_owner.back().owner_internal_priv_key_shard.first);
+		allOwnerOwnerExternalShards.emplace_back(std::move(up->added_as_owner.back().owner_external_priv_key_shard));
+		allOwnerOwnerInternalShards.emplace_back(std::move(up->added_as_owner.back().owner_internal_priv_key_shard));
 	}
 
 	// encryption-decryption rounds loop
@@ -1453,16 +1487,16 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		const std::string initiatorUsername = getOwnerUsername(initiatorIndex);
 
 		// initiator counts as a non-owner for the decryption of layer1
-		regMemberShardsIDs.push_back(ownerRegInternalShardsIDs[initiatorIndex]);
+		involvedRegMemberShardsIDs.push_back(involvedOwnerRegInternalShardsIDs[initiatorIndex]);
 
 		// initiator uses internal shard, everyone else uses external
 		std::vector<PrivKeyShardID> ownerOwnerLayerShardsIDs;
-		for (std::size_t i = 0; i < ownerOwnerExternalShardsIDs.size(); ++i)
+		for (std::size_t i = 0; i < involvedOwnerOwnerExternalShardsIDs.size(); ++i)
 		{
 			if (i == initiatorIndex)
-				ownerOwnerLayerShardsIDs.push_back(ownerOwnerInternalShardsIDs[i]);
+				ownerOwnerLayerShardsIDs.push_back(involvedOwnerOwnerInternalShardsIDs[i]);
 			else
-				ownerOwnerLayerShardsIDs.push_back(ownerOwnerExternalShardsIDs[i]);
+				ownerOwnerLayerShardsIDs.push_back(involvedOwnerOwnerExternalShardsIDs[i]);
 		}
 
 		// generate vector of receiver usernames
@@ -1538,12 +1572,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			EXPECT_EQ(up->to_decrypt.size(), 1);
 			EXPECT_EQ(up->to_decrypt.back().ciphertext, ciphertext);
 			EXPECT_EQ(up->to_decrypt.back().op_id, opid);
-			EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, regMemberShardsIDs);
+			EXPECT_SAME_ELEMS(up->to_decrypt.back().shards_ids, involvedRegMemberShardsIDs);
 		}
 
 		// 5,6) involved memebrs compute decryption part locally and send them back
 		std::vector<DecryptionPart> regLayerParts, ownerLayerParts;
-		for (auto [i, phAndShard] : zip(involvedOwnerPacketHandlers, ownerOwnerExternalShards) | enumerate)
+		for (auto [i, phAndShard] : zip(involvedOwnerPacketHandlers, involvedOwnerOwnerExternalShards) | enumerate)
 		{
 			auto& [packetHandler, shard] = phAndShard;
 			if (initiatorIndex == i)
@@ -1562,12 +1596,12 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			});
 			EXPECT_TRUE(sp.has_value());
 		}
-		for (auto [packetHandler, shard] : zip(involvedRegMemberPacketHandlers, regMemberShards))
+		for (auto [packetHandler, shard] : zip(involvedRegMemberPacketHandlers, involvedRegMemberShards))
 		{
 			auto part = senc::Shamir::decrypt_get_2l<REG_LAYER>( // non-owner knows it's layer1
 				ciphertext,
 				shard,
-				regMemberShardsIDs
+				involvedRegMemberShardsIDs
 			);
 			regLayerParts.push_back(part);
 
@@ -1597,18 +1631,18 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 			// check same shard IDs as involved members
 			auto& finishedRegLayerShardsIDs = up->finished_decryptions.back().reg_layer_shards_ids;
 			auto& finishedOwnerLayerShardsIDs = up->finished_decryptions.back().owner_layer_shards_ids;
-			EXPECT_SAME_ELEMS(up->finished_decryptions.back().reg_layer_shards_ids, regMemberShardsIDs);
+			EXPECT_SAME_ELEMS(up->finished_decryptions.back().reg_layer_shards_ids, involvedRegMemberShardsIDs);
 			EXPECT_SAME_ELEMS(up->finished_decryptions.back().owner_layer_shards_ids, ownerOwnerLayerShardsIDs);
 
 			// 8) receiver computes their own decryption parts
 			auto receiverRegLayerPart = senc::Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				ownerRegInternalShards[receiverIndex],
+				allOwnerRegInternalShards[receiverIndex],
 				finishedRegLayerShardsIDs
 			);
 			auto receiverOwnerLayerPart = senc::Shamir::decrypt_get_2l<OWNER_LAYER>(
 				ciphertext,
-				ownerOwnerInternalShards[receiverIndex],
+				allOwnerOwnerInternalShards[receiverIndex],
 				finishedOwnerLayerShardsIDs
 			);
 
@@ -1622,7 +1656,7 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		}
 
 		// end of round
-		regMemberShardsIDs.pop_back(); // remove initiator's shard ID
+		involvedRegMemberShardsIDs.pop_back(); // remove initiator's shard ID
 	}
 
 	// logout
