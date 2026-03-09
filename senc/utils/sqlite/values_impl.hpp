@@ -149,12 +149,16 @@ namespace senc::utils::sqlite
 	template <Value T>
 	inline std::string Nullable<T>::as_sqlite() const
 	{
-		return _value.value_or(Null{}).as_sqlite();
+		if (_value.has_value())
+			return _value->as_sqlite();
+		return Null{}.as_sqlite();
 	}
 
 	template <Value T>
 	inline void Nullable<T>::bind(sqlite3_stmt* stmt, int index) const
 	{
-		_value.value_or(Null{}).bind(stmt, index);
+		if (_value.has_value())
+			return _value->bind(stmt, index);
+		return Null{}.bind(stmt, index);
 	}
 }
