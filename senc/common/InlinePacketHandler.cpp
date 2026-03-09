@@ -144,6 +144,7 @@ namespace senc
 			_sock.send_connected_value(owner);
 		for (const auto& regMember : packet.reg_members)
 			_sock.send_connected_value(regMember);
+		_sock.send_connected_value(packet.name);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
@@ -162,6 +163,8 @@ namespace senc
 
 		for (auto& regMember : out.reg_members)
 			_sock.recv_connected_value(regMember);
+
+		_sock.recv_connected_value(out.name);
 	}
 
 	void InlinePacketHandler::send_response(const pkt::MakeUserSetResponse& packet)

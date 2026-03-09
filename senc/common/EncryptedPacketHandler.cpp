@@ -242,6 +242,7 @@ namespace senc
 			utils::write_bytes(data, owner);
 		for (const auto& regMember : packet.reg_members)
 			utils::write_bytes(data, regMember);
+		utils::write_bytes(data, packet.name);
 
 		send_encrypted_data(data);
 	}
@@ -268,6 +269,8 @@ namespace senc
 
 		for (auto& regMember : out.reg_members)
 			it = utils::read_bytes(regMember, it, end);
+
+		it = utils::read_bytes(out.name, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
