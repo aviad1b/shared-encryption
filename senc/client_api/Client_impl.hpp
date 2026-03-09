@@ -105,13 +105,15 @@ namespace senc::clientapi
 	inline UserSetID Client<IP>::make_userset(utils::ranges::StringViewRange&& owners,
 											  utils::ranges::StringViewRange&& regMembers,
 											  member_count_t ownersThreshold,
-											  member_count_t regMembersThreshold)
+											  member_count_t regMembersThreshold,
+											  std::string&& name)
 	{
 		pkt::MakeUserSetResponse resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
 			.reg_members = utils::to_vector<std::string>(regMembers),
 			.owners = utils::to_vector<std::string>(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(

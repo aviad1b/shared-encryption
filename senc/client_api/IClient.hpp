@@ -56,12 +56,14 @@ namespace senc::clientapi
 		 * @param regMembers Usernames of userset's non-owner members.
 		 * @param ownersThreshold Minimum amount of owners required for decryption.
 		 * @param regMembersThreshold Minimum amount of non-owners required for decryption.
+		 * @param name Userset name (moved).
 		 * @return Userset's ID.
 		 */
 		virtual UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 									   utils::ranges::StringViewRange&& regMembers,
 									   member_count_t ownersThreshold,
-									   member_count_t regMembersThreshold) = 0;
+									   member_count_t regMembersThreshold,
+									   std::string&& name) = 0;
 
 		/**
 		 * @brief Gets all usersets owned by user.

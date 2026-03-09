@@ -226,6 +226,9 @@ namespace senc::pkt
 
 		/// Threshold for number of owners required for decryption.
 		member_count_t owners_threshold;
+
+		/// Name for userset (for display).
+		std::string name;
 	};
 
 	/**

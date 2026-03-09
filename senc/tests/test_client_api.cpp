@@ -186,7 +186,8 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		hClient1,
 		owners.size(), regs.size(),
 		owners.data(), regs.data(),
-		1, 1
+		1, 1,
+		"some_name"
 	);
 	ASSERT_NO_ERROR(hUserSetID);
 	const char* usersetID = SENC_GetStringValue(hUserSetID);

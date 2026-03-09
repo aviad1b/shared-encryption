@@ -170,7 +170,8 @@ static void make_user_set_cycle(PacketsTest& test)
 		{ "a", "b", "c" },
 		{ "o1", "o2", },
 		2,
-		1
+		1,
+		"some_name"
 	};
 
 	pkt::MakeUserSetResponse resp{

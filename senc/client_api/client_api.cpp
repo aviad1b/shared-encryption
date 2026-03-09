@@ -293,11 +293,13 @@ uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) noexcept
 
 uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t regMembersCount,
 						   const char** owners, const char** regMembers,
-						   uint64_t ownersThreshold, uint64_t regMembersThreshold) noexcept
+						   uint64_t ownersThreshold, uint64_t regMembersThreshold,
+						   const char* name) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Value<std::string>::ret_new(
-		[&client, ownersCount, regMembersCount, owners, regMembers, ownersThreshold, regMembersThreshold]()
+		[&client, ownersCount, regMembersCount, owners, regMembers,
+		 ownersThreshold, regMembersThreshold, name]()
 		{
 			if (ownersCount + regMembersCount > senc::MAX_MEMBERS)
 				throw api::ClientException(
@@ -320,7 +322,8 @@ uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t reg
 				utils::ranges::strings(ownersSpan),
 				utils::ranges::strings(regMembersSpan),
 				static_cast<senc::member_count_t>(ownersThreshold),
-				static_cast<senc::member_count_t>(regMembersThreshold)
+				static_cast<senc::member_count_t>(regMembersThreshold),
+				name
 			).to_string();
 		}
 	)->as_nint();

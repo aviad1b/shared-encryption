@@ -363,6 +363,9 @@ namespace senc::debug_client
 
 	ConnStatus make_userset(PacketHandler& packetHandler)
 	{
+		std::string name = io::input("Enter userset name: ");
+		cout << endl;
+
 		vector<string> owners = io::input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
@@ -380,7 +383,8 @@ namespace senc::debug_client
 			.reg_members = std::move(regMembers),
 			.owners = std::move(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
 		cout << "Userset created successfully:" << endl << endl;
