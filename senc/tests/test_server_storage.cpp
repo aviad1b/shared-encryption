@@ -169,8 +169,8 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 	auto aviSets = storage->get_usersets("avi");
 
 	EXPECT_EQ(aviSets.size(), 2);
-	EXPECT_CONTAINS(aviSets, id1);
-	EXPECT_CONTAINS(aviSets, id2);
+	EXPECT_CONTAINS(aviSets, std::make_pair(id1, id1.to_string()));
+	EXPECT_CONTAINS(aviSets, std::make_pair(id2, id2.to_string()));
 }
 
 TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMember)
@@ -323,7 +323,7 @@ TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations
 
 	// verify get_usersets
 	auto aviSets = storage->get_usersets("avi");
-	EXPECT_CONTAINS(aviSets, usersetID);
+	EXPECT_CONTAINS(aviSets, std::make_pair(usersetID, usersetID.to_string()));
 
 	// get shard IDs
 	PrivKeyShardID aviShard = storage->get_shard_id("avi", usersetID);

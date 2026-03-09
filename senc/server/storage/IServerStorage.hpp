@@ -191,10 +191,10 @@ namespace senc::server::storage
 		/**
 		 * @brief Gets all usersets owned by a specific user.
 		 * @param owner Username of user to get usersets owned by it.
-		 * @return Set of IDs of usersets where `owner` is an owner.
+		 * @return Set of IDs and names of usersets where `owner` is an owner.
 		 * @throw ServerStorageException In case of error.
 		 */
-		virtual std::vector<UserSetID> get_usersets(const std::string& owner) = 0;
+		virtual std::vector<std::pair<UserSetID, std::string>> get_usersets(const std::string& owner) = 0;
 
 		/**
 		 * @brief Checks if a given user owns a given userset.

@@ -110,15 +110,18 @@ namespace senc::server::storage
 		return setID;
 	}
 
-	std::vector<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
+	std::vector<std::pair<UserSetID, std::string>>
+		ShortTermServerStorage::get_usersets(const std::string& owner)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(owner);
 		if (it == _users.end())
 			throw UserNotFoundException(owner);
-		return std::vector<UserSetID>(
-			it->second.usersets.begin(),
-			it->second.usersets.end()
+		return utils::to_vector<std::pair<UserSetID, std::string>>(
+			it->second.usersets | std::views::transform([](const UserSetID& id)
+			{
+				return std::make_pair(id, id.to_string());
+			})
 		);
 	}
 

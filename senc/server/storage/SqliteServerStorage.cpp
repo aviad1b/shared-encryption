@@ -164,23 +164,27 @@ namespace senc::server::storage
 		return setID;
 	}
 
-	std::vector<UserSetID> SqliteServerStorage::get_usersets(const std::string& owner)
+	std::vector<std::pair<UserSetID, std::string>> SqliteServerStorage::get_usersets(const std::string& owner)
 	{
-		std::vector<UserSetID> res;
+		std::vector<std::pair<UserSetID, std::string>> res;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
 		try
 		{
-			this->_db.select<"Members", sql::SelectArg<"userset_id">>()
-				.where("username = " + sql::TextView(owner).as_sqlite())
-				.where("is_owner != 0")
-				>> [&res](sql::BlobView usersetIDBytes)
+			this->_db.join<"Members", "userset_id", "UserSets", "id">()
+				.select<sql::SelectArgWithOwner<"Members", "userset_id">, sql::SelectArg<"name">>()
+				.where("Members.username = " + sql::TextView(owner).as_sqlite())
+				.where("Members.is_owner != 0")
+				>> [&res](sql::BlobView usersetIDBytes, sql::NullableView<sql::Text> storedUsersetName)
 				{
-					res.emplace_back();
+					UserSetID id{};
 					std::memcpy(
-						res.back().data(),
+						id.data(),
 						usersetIDBytes.get().data(),
-						std::min(res.back().size(), usersetIDBytes.get().size())
+						std::min(id.size(), id.size())
 					);
+					std::string name = storedUsersetName.has_value() ? std::string(storedUsersetName->get())
+						: id.to_string();
+					res.emplace_back(std::move(id), std::move(name));
 				};
 		}
 		catch (utils::sqlite::SQLiteException& e)

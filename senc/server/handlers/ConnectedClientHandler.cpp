@@ -232,7 +232,15 @@ namespace senc::server::handlers
 		(void)request;
 
 		std::vector<UserSetID> usersets;
-		try { usersets = _storage.get_usersets(_username); }
+		try
+		{
+			usersets = utils::to_vector<UserSetID>(
+				_storage.get_usersets(_username) | std::views::transform([](auto&& p)
+				{
+					return p.first;
+				})
+			);
+		}
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{
