@@ -52,7 +52,8 @@ namespace senc::server::storage
 			utils::to_ordered_set<std::string>(owners),
 			utils::to_ordered_set<std::string>(regMembers),
 			ownersThreshold,
-			regMembersThreshold
+			regMembersThreshold,
+			std::nullopt
 		};
 
 		// we want to be able to move `info` into a map and then still use it;
@@ -144,7 +145,8 @@ namespace senc::server::storage
 			.owners = std::vector<std::string>(it->second.owners.begin(), it->second.owners.end()),
 			.reg_members = std::vector<std::string>(it->second.reg_members.begin(), it->second.reg_members.end()),
 			.owners_threshold = it->second.owners_threshold,
-			.reg_members_threshold = it->second.reg_members_threshold
+			.reg_members_threshold = it->second.reg_members_threshold,
+			.name = it->second.name.value_or(userset.to_string())
 		};
 	}
 

@@ -52,6 +52,7 @@ namespace senc::server::storage
 			std::set<std::string> reg_members;
 			member_count_t owners_threshold;
 			member_count_t reg_members_threshold;
+			std::optional<std::string> name;
 		};
 
 		utils::Distribution<PrivKeyShardID> _shardsDist;

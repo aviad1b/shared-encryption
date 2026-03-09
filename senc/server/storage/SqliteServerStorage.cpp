@@ -226,18 +226,23 @@ namespace senc::server::storage
 
 		// read thresholds from DB
 		{
-			std::tuple<sql::Int, sql::Int> thresholds;
 			const std::lock_guard<std::mutex> lock(_mtxDB);
 			try
 			{
 				this->_db.select<"UserSets",
 					sql::SelectArg<"owners_threshold">,
-					sql::SelectArg<"reg_members_threshold">>()
+					sql::SelectArg<"reg_members_threshold">,
+					sql::SelectArg<"name">>()
 					.where("id = " + usersetBlob.as_sqlite())
-					>> thresholds;
-				auto [ownersThreshold, regMembersThreshold] = thresholds;
-				res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
-				res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+					>> [&res, &userset](sql::Int ownersThreshold,
+							  sql::Int regMembersThreshold,
+							  sql::NullableView<sql::Text> name)
+					{
+						res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
+						res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+						res.name = name.has_value() ? std::string(name->get())
+							: userset.to_string();
+					};
 			}
 			catch (utils::sqlite::SQLiteException& e)
 			{

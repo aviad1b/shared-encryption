@@ -136,6 +136,7 @@ namespace senc::server::storage
 		std::vector<std::string> reg_members;
 		member_count_t owners_threshold;
 		member_count_t reg_members_threshold;
+		std::string name;
 	};
 
 	/**
