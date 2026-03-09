@@ -57,7 +57,8 @@ namespace senc::server::handlers
 		res.user_set_id = _storage.new_userset(
 			utils::ranges::strings(allOwners),
 			utils::ranges::strings(regMembers),
-			ownersThreshold, regMembersThreshold
+			ownersThreshold, regMembersThreshold,
+			std::nullopt
 		);
 
 		// generate keys, and shards for each member

@@ -98,7 +98,8 @@ namespace senc::server::storage
 	UserSetID SqliteServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
 											   utils::ranges::StringViewRange&& regMembers,
 											   member_count_t ownersThreshold,
-											   member_count_t regMembersThreshold)
+											   member_count_t regMembersThreshold,
+											   std::optional<std::string>&& name)
 	{
 		// read owners and reg members into ordered sets for consistency
 		auto readOwners = utils::to_ordered_set<std::string>(owners);
@@ -119,7 +120,8 @@ namespace senc::server::storage
 				setIDBlobView,
 				sql::Int(ownersThreshold),
 				sql::Int(regMembersThreshold),
-				sql::Null{}
+				name.has_value() ? sql::Nullable<sql::Text>(std::move(*name))
+					: sql::Nullable<sql::Text>(std::nullopt)
 			);
 		}
 		catch (utils::sqlite::SQLiteException& e)

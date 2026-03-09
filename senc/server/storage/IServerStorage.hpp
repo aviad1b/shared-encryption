@@ -181,13 +181,15 @@ namespace senc::server::storage
 		 * @param regMembers Usernames of userset's non-owner members.
 		 * @param ownersThreshold Decryption threshold for owners layer.
 		 * @param regMembersThreshold Decryption threshold for non-owners layer.
+		 * @param name Userset name (nullopt for string representation of ID).
 		 * @return ID of userset.
 		 * @throw ServerStorageException In case of error.
 		 */
 		virtual UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 									  utils::ranges::StringViewRange&& regMembers,
 									  member_count_t ownersThreshold,
-									  member_count_t regMembersThreshold) = 0;
+									  member_count_t regMembersThreshold,
+									  std::optional<std::string>&& name) = 0;
 
 		/**
 		 * @brief Gets all usersets owned by a specific user.

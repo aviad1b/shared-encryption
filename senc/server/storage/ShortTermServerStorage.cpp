@@ -46,14 +46,15 @@ namespace senc::server::storage
 	UserSetID ShortTermServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
 												  utils::ranges::StringViewRange&& regMembers,
 												  member_count_t ownersThreshold,
-												  member_count_t regMembersThreshold)
+												  member_count_t regMembersThreshold,
+												  std::optional<std::string>&& name)
 	{
 		StoredUserSetInfo info{
 			utils::to_ordered_set<std::string>(owners),
 			utils::to_ordered_set<std::string>(regMembers),
 			ownersThreshold,
 			regMembersThreshold,
-			std::nullopt
+			std::move(name)
 		};
 
 		// we want to be able to move `info` into a map and then still use it;

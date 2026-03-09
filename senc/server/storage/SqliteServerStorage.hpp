@@ -39,7 +39,8 @@ namespace senc::server::storage
 		UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 							  utils::ranges::StringViewRange&& regMembers,
 							  member_count_t ownersThreshold,
-							  member_count_t regMembersThreshold) override;
+							  member_count_t regMembersThreshold,
+							  std::optional<std::string>&& name) override;
 
 		std::vector<std::pair<UserSetID, std::string>> get_usersets(const std::string& owner) override;
 

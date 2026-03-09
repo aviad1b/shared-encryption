@@ -87,7 +87,7 @@ TEST_P(ServerStorageTest, NewUserset_ReturnsValidUserSetID)
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
 
-	storage->new_userset(strings(owners), strings(regMembers), 2, 0);
+	storage->new_userset(strings(owners), strings(regMembers), 2, 0, std::nullopt);
 }
 
 TEST_P(ServerStorageTest, NewUserset_WithRegularMembers)
@@ -100,7 +100,7 @@ TEST_P(ServerStorageTest, NewUserset_WithRegularMembers)
 	auto owners = { "avi", "batya" };
 	auto regMembers = { "gal", "dani" };
 
-	storage->new_userset(strings(owners), strings(regMembers), 2, 1);
+	storage->new_userset(strings(owners), strings(regMembers), 2, 1, std::nullopt);
 }
 
 TEST_P(ServerStorageTest, NewUserset_MultipleSetsReturnDifferentIDs)
@@ -112,8 +112,8 @@ TEST_P(ServerStorageTest, NewUserset_MultipleSetsReturnDifferentIDs)
 	auto owners2 = { "batya" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID id1 = storage->new_userset(strings(owners1), strings(regMembers), 1, 0);
-	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 1, 0);
+	UserSetID id1 = storage->new_userset(strings(owners1), strings(regMembers), 1, 0, std::nullopt);
+	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 1, 0, std::nullopt);
 
 	EXPECT_NE(id1, id2);
 }
@@ -131,7 +131,8 @@ TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 
 	UserSetID usersetID = storage->new_userset(
 		strings(owners), strings(regMembers),
-		ownersThreshold, regThreshold
+		ownersThreshold, regThreshold,
+		std::nullopt
 	);
 
 	UserSetInfo info = storage->get_userset_info(usersetID);
@@ -163,8 +164,8 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 	auto owners2 = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID id1 = storage->new_userset(strings(owners1), strings(regMembers), 1, 0);
-	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 2, 0);
+	UserSetID id1 = storage->new_userset(strings(owners1), strings(regMembers), 1, 0, std::nullopt);
+	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 2, 0, std::nullopt);
 
 	auto aviSets = storage->get_usersets("avi");
 
@@ -181,7 +182,7 @@ TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMem
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
 
-	storage->new_userset(strings(owners), strings(regMembers), 1, 1);
+	storage->new_userset(strings(owners), strings(regMembers), 1, 1, std::nullopt);
 
 	auto batyaSets = storage->get_usersets("batya");
 
@@ -196,7 +197,7 @@ TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsTrueForOwner)
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 0, std::nullopt);
 
 	EXPECT_TRUE(storage->user_owns_userset("avi", usersetID));
 	EXPECT_TRUE(storage->user_owns_userset("batya", usersetID));
@@ -210,7 +211,7 @@ TEST_P(ServerStorageTest, UserOwnsUserset_ReturnsFalseForNonOwner)
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 1);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 1, std::nullopt);
 
 	EXPECT_TRUE(storage->user_owns_userset("avi", usersetID));
 	EXPECT_FALSE(storage->user_owns_userset("batya", usersetID));
@@ -234,7 +235,7 @@ TEST_P(ServerStorageTest, GetShardId_ReturnsValidShardID)
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0, std::nullopt);
 
 	PrivKeyShardID shardID = storage->get_shard_id("avi", usersetID);
 
@@ -249,7 +250,7 @@ TEST_P(ServerStorageTest, GetShardId_DifferentUsersGetDifferentShards)
 	auto owners = { "avi", "batya" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 0, std::nullopt);
 
 	PrivKeyShardID shard1 = storage->get_shard_id("avi", usersetID);
 	PrivKeyShardID shard2 = storage->get_shard_id("batya", usersetID);
@@ -264,7 +265,7 @@ TEST_P(ServerStorageTest, GetShardId_SameUserGetsSameShardForSameUserset)
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0, std::nullopt);
 
 	PrivKeyShardID shard1 = storage->get_shard_id("avi", usersetID);
 	PrivKeyShardID shard2 = storage->get_shard_id("avi", usersetID);
@@ -280,7 +281,7 @@ TEST_P(ServerStorageTest, GetShardId_RegularMembersGetShardIDs)
 	auto owners = { "avi" };
 	auto regMembers = { "batya" };
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 1);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 1, std::nullopt);
 
 	PrivKeyShardID ownerShard = storage->get_shard_id("avi", usersetID);
 	PrivKeyShardID memberShard = storage->get_shard_id("batya", usersetID);
@@ -307,7 +308,7 @@ TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations
 	auto owners = { "avi", "batya" };
 	auto regMembers = { "gal" };
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 1);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 2, 1, std::nullopt);
 
 	// verify userset configuration
 	UserSetInfo info = storage->get_userset_info(usersetID);
@@ -342,7 +343,7 @@ TEST_P(ServerStorageTest, EdgeCase_EmptyRegularMembersList)
 	auto owners = { "avi" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 1, 0, std::nullopt);
 
 	UserSetInfo info = storage->get_userset_info(usersetID);
 	EXPECT_EQ(info.owners.size(), 1);
@@ -358,7 +359,7 @@ TEST_P(ServerStorageTest, EdgeCase_ThresholdEqualsGroupSize)
 	auto owners = { "avi", "batya", "gal" };
 	std::initializer_list<std::string> regMembers = {};
 
-	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 3, 0);
+	UserSetID usersetID = storage->new_userset(strings(owners), strings(regMembers), 3, 0, std::nullopt);
 
 	UserSetInfo info = storage->get_userset_info(usersetID);
 	EXPECT_EQ(info.owners_threshold, 3);
