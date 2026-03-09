@@ -53,15 +53,19 @@ namespace senc::server::managers
 		 * @param usersetID ID of userset to which user was added.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
-		 * @param regLayerPrivKeyShard User's private key shard in userset for non-owner layer (moved).
-		 * @param ownerLayerPrivKeyShard User's private key shard in userset for owner layer (moved).
+		 * @param regExternalPrivKeyShard User's external key shard in userset for non-owner layer (moved).
+		 * @param regInternalPrivKeyShard User's internal key shard in userset for non-owner layer.
+		 * @param ownerExternalPrivKeyShard User's external key shard in userset for owner layer (moved).
+		 * @param ownerInternalPrivKeyShard User's internal key shard in userset for owner layer.
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
 							const PubKey& regLayerPubKey,
 							const PubKey& ownerLayerPubKey,
-							PrivKeyShard&& regLayerPrivKeyShard,
-							PrivKeyShard&& ownerLayerPrivKeyShard);
+							PrivKeyShard&& regExternalPrivKeyShard,
+							const PrivKeyShard& regInternalPrivKeyShard,
+							PrivKeyShard&& ownerExternalPrivKeyShard,
+							const PrivKeyShard& ownerInternalPrivKeyShard);
 
 		/**
 		 * @brief Registers user to look for in order to perform a decryption operation.
@@ -85,15 +89,17 @@ namespace senc::server::managers
 
 		/**
 		 * @brief Registers a finished decryption operation.
-		 * @param username Username of user who initiated the operation.
+		 * @param dstUsers Usernames of users that should get decryption parts.
 		 * @param opid Operation ID.
+		 * @param initiator Username of user who initiated the operation.
 		 * @param regLayerParts Decryption parts for non-owner layer (moved).
 		 * @param ownerLayerParts Decryption parts for owner layer (moved).
 		 * @param regLayerShardsIDs Shards IDs used in non-owner layer (moved).
 		 * @param ownerLayerShardsIDs Shards IDs used in owner layer (moved).
 		 */
-		void register_finished_decrpytion(const std::string& username,
+		void register_finished_decrpytion(const std::vector<std::string>& dstUsers,
 										  const OperationID& opid,
+										  const std::string& initiator,
 										  std::vector<DecryptionPart>&& regLayerParts,
 										  std::vector<DecryptionPart>&& ownerLayerParts,
 										  std::vector<PrivKeyShardID>&& regLayerShardsIDs,

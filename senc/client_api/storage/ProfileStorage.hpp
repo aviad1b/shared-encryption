@@ -298,6 +298,12 @@ namespace senc::clientapi::storage
 		ProfileStorage(std::string&& path, const std::string& username, const std::string& password);
 
 		/**
+		 * @brief Gets profile's username.
+		 * @return Profile's username.
+		 */
+		const std::string& username() const;
+
+		/**
 		 * @brief Gets a range iterating over profile's data.
 		 */
 		ProfileDataRange iter_profile_data() const;
@@ -308,6 +314,7 @@ namespace senc::clientapi::storage
 		void add_profile_data(const ProfileRecord& record);
 
 	private:
+		std::string _username;
 		std::string _path;
 		ProfileEncKey _key;
 

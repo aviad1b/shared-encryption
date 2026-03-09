@@ -387,13 +387,16 @@ namespace senc::debug_client
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		io::print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
+		io::print_pub_keys(resp.reg_pub_key, resp.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
+		io::print_reg_external_priv_key_shard(resp.reg_external_priv_key_shard);
 		cout << endl;
 		
-		io::print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
+		io::print_owner_external_priv_key_shard(resp.owner_external_priv_key_shard);
+		cout << endl;
+
+		io::print_owner_internal_priv_key_shard(resp.owner_internal_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -479,10 +482,15 @@ namespace senc::debug_client
 		cout << endl;
 
 		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
+		cout << endl;
+
+		std::vector<std::string> usernames = io::input_usernames(
+			"Enter usernames to send decryption to (including yourself, if so you wish):\n"
+		);
 		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(packetHandler, pkt::DecryptRequest{
-			usersetID, std::move(ciphertext)
+			usersetID, std::move(ciphertext), std::move(usernames)
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
@@ -646,15 +654,22 @@ namespace senc::debug_client
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		io::print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
+		io::print_pub_keys(data.reg_pub_key, data.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
+		io::print_reg_external_priv_key_shard(data.reg_external_priv_key_shard);
+		cout << endl;
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
+			io::print_reg_internal_priv_key_shard(data.reg_internal_priv_key_shard);
 			cout << endl;
-			io::print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
+
+			io::print_owner_external_priv_key_shard(data.owner_external_priv_key_shard);
+			cout << endl;
+
+			io::print_owner_internal_priv_key_shard(data.owner_internal_priv_key_shard);
+			cout << endl;
 		}
 
 		cout << "==============================" << endl << endl << endl;

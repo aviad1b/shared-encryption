@@ -178,7 +178,9 @@ static void make_user_set_cycle(PacketsTest& test)
 		ECGroup::generator().pow(435),
 		ECGroup::generator().pow(256),
 		senc::PrivKeyShard{ 1, 435 },
-		senc::PrivKeyShard{ 2, 256 }
+		senc::PrivKeyShard{ 2, 256 },
+		senc::PrivKeyShard{ 3, 257 },
+		senc::PrivKeyShard{ 4, 258 }
 	};
 
 	test.cycle_flow(req, resp);
@@ -233,7 +235,8 @@ static void decrypt_cycle(PacketsTest& test)
 				CryptoPP::SecByteBlock{},
 				{ 5, 6, 7, 8, 9 }
 			}
-		}
+		},
+		{ "user1", "user2", "user3" }
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	test.cycle_flow(req, resp);
@@ -268,14 +271,18 @@ static void update_cycle(PacketsTest& test)
 				ECGroup::generator().pow(111),
 				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
-				senc::PrivKeyShard{ 13, 131313 }
+				senc::PrivKeyShard{ 4, 334 },
+				senc::PrivKeyShard{ 13, 131313 },
+				senc::PrivKeyShard{ 14, 131314 }
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
 				ECGroup::generator().pow(444),
 				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },
-				senc::PrivKeyShard{ 14, 161616 }
+				senc::PrivKeyShard{ 5, 667 },
+				senc::PrivKeyShard{ 14, 161616 },
+				senc::PrivKeyShard{ 15, 161617 }
 			}
 		},
 		{
@@ -317,6 +324,7 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
+				"user1",
 				{ ECGroup::generator().pow(3), ECGroup::generator().pow(4) },
 				{ ECGroup::generator().pow(5), ECGroup::generator().pow(6) },
 				{ 1, 2, 100 },
@@ -324,6 +332,7 @@ static void update_cycle(PacketsTest& test)
 			},
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
+				"user2",
 				{ ECGroup::generator().pow(8) },
 				{ },
 				{ 5, 100 },

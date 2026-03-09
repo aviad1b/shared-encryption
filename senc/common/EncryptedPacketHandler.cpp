@@ -276,10 +276,12 @@ namespace senc
 		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
-		write_pub_key(data, packet.reg_layer_pub_key);
-		write_pub_key(data, packet.owner_layer_pub_key);
-		write_priv_key_shard(data, packet.reg_layer_priv_key_shard);
-		write_priv_key_shard(data, packet.owner_layer_priv_key_shard);
+		write_pub_key(data, packet.reg_pub_key);
+		write_pub_key(data, packet.owner_pub_key);
+		write_priv_key_shard(data, packet.reg_external_priv_key_shard);
+		write_priv_key_shard(data, packet.reg_internal_priv_key_shard);
+		write_priv_key_shard(data, packet.owner_external_priv_key_shard);
+		write_priv_key_shard(data, packet.owner_internal_priv_key_shard);
 
 		send_encrypted_data(data);
 	}
@@ -291,10 +293,12 @@ namespace senc
 		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
-		it = read_pub_key(out.reg_layer_pub_key, it, end);
-		it = read_pub_key(out.owner_layer_pub_key, it, end);
-		it = read_priv_key_shard(out.reg_layer_priv_key_shard, it, end);
-		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
+		it = read_pub_key(out.reg_pub_key, it, end);
+		it = read_pub_key(out.owner_pub_key, it, end);
+		it = read_priv_key_shard(out.reg_external_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.reg_internal_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.owner_external_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.owner_internal_priv_key_shard, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
@@ -396,7 +400,12 @@ namespace senc
 		utils::write_bytes(data, packet.CODE);
 
 		utils::write_bytes(data, packet.user_set_id);
+
 		write_ciphertext(data, packet.ciphertext);
+
+		utils::write_bytes(data, static_cast<member_count_t>(packet.dst_users.size()));
+		for (const auto& dstUser : packet.dst_users)
+			utils::write_bytes(data, dstUser);
 
 		send_encrypted_data(data);
 	}
@@ -408,7 +417,14 @@ namespace senc
 		auto it = _buffView.begin();
 
 		it = utils::read_bytes(out.user_set_id, it, end);
+
 		it = read_ciphertext(out.ciphertext, it, end);
+
+		member_count_t dstUsersCount{};
+		it = utils::read_bytes(dstUsersCount, it, end);
+		out.dst_users.resize(dstUsersCount);
+		for (auto& dstUser : out.dst_users)
+			it = utils::read_bytes(dstUser, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::DecryptResponse& packet)
@@ -799,7 +815,9 @@ namespace senc
 			out,
 			reinterpret_cast<const pkt::UpdateResponse::AddedAsMemberRecord&>(record)
 		);
-		write_priv_key_shard(out, record.owner_layer_priv_key_shard);
+		write_priv_key_shard(out, record.reg_internal_priv_key_shard);
+		write_priv_key_shard(out, record.owner_external_priv_key_shard);
+		write_priv_key_shard(out, record.owner_internal_priv_key_shard);
 	}
 
 	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
@@ -810,7 +828,9 @@ namespace senc
 			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out),
 			it, end
 		);
-		it = read_priv_key_shard(out.owner_layer_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.reg_internal_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.owner_external_priv_key_shard, it, end);
+		it = read_priv_key_shard(out.owner_internal_priv_key_shard, it, end);
 
 		return it;
 	}
@@ -818,9 +838,9 @@ namespace senc
 	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		utils::write_bytes(out, record.user_set_id);
-		write_pub_key(out, record.reg_layer_pub_key);
-		write_pub_key(out, record.owner_layer_pub_key);
-		write_priv_key_shard(out, record.reg_layer_priv_key_shard);
+		write_pub_key(out, record.reg_pub_key);
+		write_pub_key(out, record.owner_pub_key);
+		write_priv_key_shard(out, record.reg_external_priv_key_shard);
 	}
 
 	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
@@ -828,9 +848,9 @@ namespace senc
 		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.user_set_id, it, end);
-		it = read_pub_key(out.reg_layer_pub_key, it, end);
-		it = read_pub_key(out.owner_layer_pub_key, it, end);
-		it = read_priv_key_shard(out.reg_layer_priv_key_shard, it, end);
+		it = read_pub_key(out.reg_pub_key, it, end);
+		it = read_pub_key(out.owner_pub_key, it, end);
+		it = read_priv_key_shard(out.reg_external_priv_key_shard, it, end);
 		return it;
 	}
 
@@ -881,6 +901,7 @@ namespace senc
 		utils::write_bytes(out, static_cast<member_count_t>(record.reg_layer_parts.size()));
 		utils::write_bytes(out, static_cast<member_count_t>(record.owner_layer_parts.size()));
 		utils::write_bytes(out, record.op_id);
+		utils::write_bytes(out, record.initiator);
 		for (const auto& part : record.reg_layer_parts)
 			write_decryption_part(out, part);
 		for (const auto& part : record.owner_layer_parts)
@@ -902,6 +923,7 @@ namespace senc
 		it = utils::read_bytes(regLayerPartsCount, it, end);
 		it = utils::read_bytes(ownerLayerPartsCount, it, end);
 		it = utils::read_bytes(out.op_id, it, end);
+		it = utils::read_bytes(out.initiator, it, end);
 
 		// read parts
 		out.reg_layer_parts.resize(regLayerPartsCount);

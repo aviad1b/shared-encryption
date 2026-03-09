@@ -116,10 +116,12 @@ namespace senc::clientapi
 
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
-			std::move(resp.reg_layer_pub_key),
-			std::move(resp.owner_layer_pub_key),
-			std::move(resp.reg_layer_priv_key_shard),
-			std::move(resp.owner_layer_priv_key_shard)
+			std::move(resp.reg_pub_key),
+			std::move(resp.owner_pub_key),
+			std::move(resp.reg_external_priv_key_shard),
+			std::move(resp.reg_internal_priv_key_shard),
+			std::move(resp.owner_external_priv_key_shard),
+			std::move(resp.owner_internal_priv_key_shard)
 		));
 
 		return resp.user_set_id;
@@ -154,16 +156,19 @@ namespace senc::clientapi
 
 		return _schema.encrypt(
 			msg,
-			record.reg_layer_pub_key(),
-			record.owner_layer_pub_key()
+			record.reg_pub_key(),
+			record.owner_pub_key()
 		); 
 	}
 
 	template <utils::IPType IP>
 	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
 	{
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
-			usersetID, ciphertext
+			usersetID, ciphertext, { _storage->username() }
 		});
 		_pendingDecryptions.insert(std::make_pair(
 			resp.op_id,
@@ -296,9 +301,9 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::reg(
 			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard)
+			std::move(data.reg_pub_key),
+			std::move(data.owner_pub_key),
+			std::move(data.reg_external_priv_key_shard)
 		));
 	}
 
@@ -307,10 +312,12 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::owner(
 			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard),
-			std::move(data.owner_layer_priv_key_shard)
+			std::move(data.reg_pub_key),
+			std::move(data.owner_pub_key),
+			std::move(data.reg_external_priv_key_shard),
+			std::move(data.reg_internal_priv_key_shard),
+			std::move(data.owner_external_priv_key_shard),
+			std::move(data.owner_internal_priv_key_shard)
 		));
 	}
 
@@ -359,13 +366,13 @@ namespace senc::clientapi
 		std::vector<DecryptionPart> ownerParts = std::move(data.owner_layer_parts);
 		ownerParts.push_back(Shamir::decrypt_get_2l<OWNER_LAYER>(
 			ciphertext,
-			record.owner_layer_priv_key_shard(),
+			record.owner_internal_priv_key_shard(),
 			data.owner_layer_shards_ids
 		));
 		std::vector<DecryptionPart> regParts = std::move(data.reg_layer_parts);
 		regParts.push_back(Shamir::decrypt_get_2l<REG_LAYER>(
 			ciphertext,
-			record.reg_layer_priv_key_shard(),
+			record.reg_internal_priv_key_shard(),
 			data.reg_layer_shards_ids
 		));
 
@@ -409,13 +416,13 @@ namespace senc::clientapi
 		if (isOwner)
 			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
 				ciphertext,
-				record.owner_layer_priv_key_shard(),
+				record.owner_external_priv_key_shard(),
 				shardsIDs
 			);
 		else
 			part = Shamir::decrypt_get_2l<REG_LAYER>(
 				ciphertext,
-				record.reg_layer_priv_key_shard(),
+				record.reg_external_priv_key_shard(),
 				shardsIDs
 			);
 

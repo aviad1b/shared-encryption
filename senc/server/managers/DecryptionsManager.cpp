@@ -32,7 +32,8 @@ namespace senc::server::managers
 		return opid;
 	}
 
-	void DecryptionsManager::prepare_operation(const OperationID& opid,
+	void DecryptionsManager::prepare_operation(std::vector<std::string>&& dstUsers,
+											   const OperationID& opid,
 											   const std::string& requester,
 											   const UserSetID& usersetID,
 											   Ciphertext&& ciphertext,
@@ -41,6 +42,7 @@ namespace senc::server::managers
 	{
 		const std::unique_lock<std::mutex> lock(_mtxPrep);
 		_prep.emplace(opid, PrepareRecord{
+			std::move(dstUsers),
 			requester,
 			usersetID,
 			std::move(ciphertext),
@@ -89,6 +91,7 @@ namespace senc::server::managers
 		{
 			const std::unique_lock<std::mutex> lockColl(_mtxCollected);
 			_collected.emplace(opid, CollectedRecord{
+				std::move(it->second.dst_users), // OK to move cus erase right after
 				it->second.requester,
 				it->second.userset_id,
 				it->second.required_owners,

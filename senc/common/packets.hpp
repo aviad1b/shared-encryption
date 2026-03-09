@@ -241,16 +241,22 @@ namespace senc::pkt
 		UserSetID user_set_id;
 
 		/// Public key for encryption on non-owner layer.
-		PubKey reg_layer_pub_key;
+		PubKey reg_pub_key;
 
 		/// Public key for encryption on owner layer.
-		PubKey owner_layer_pub_key;
+		PubKey owner_pub_key;
 
-		/// Private key shard for non-owner layer.
-		PrivKeyShard reg_layer_priv_key_shard;
+		/// Private key shard for non-owner layer for external use (decryptions for others).
+		PrivKeyShard reg_external_priv_key_shard;
 
-		/// Private key shard for owner layer.
-		PrivKeyShard owner_layer_priv_key_shard;
+		/// Private key shard for non-owner layer for internal use (decryptions for self).
+		PrivKeyShard reg_internal_priv_key_shard;
+
+		/// Private key shard for owner layer for external use (decryptions for others).
+		PrivKeyShard owner_external_priv_key_shard;
+
+		/// Private key shard for owner layer for internal use (decryptions for self).
+		PrivKeyShard owner_internal_priv_key_shard;
 	};
 
 
@@ -344,16 +350,15 @@ namespace senc::pkt
 		/// Ciphertext to decrypt.
 		Ciphertext ciphertext;
 
-		DecryptRequest() : user_set_id(), ciphertext() { }
-		DecryptRequest(const UserSetID& userSetID, const Ciphertext& ciphertext)
-			: user_set_id(userSetID), ciphertext(ciphertext) { }
-		DecryptRequest(const UserSetID& userSetID, Ciphertext&& ciphertext)
-			: user_set_id(userSetID), ciphertext(std::move(ciphertext)) { }
-		DecryptRequest(UserSetID&& userSetID, const Ciphertext& ciphertext)
-			: user_set_id(std::move(userSetID)), ciphertext(ciphertext) { }
-		DecryptRequest(UserSetID&& userSetID, Ciphertext&& ciphertext)
+		/// Usernames of users that should get decryption parts.
+		std::vector<std::string> dst_users;
+
+		DecryptRequest() : user_set_id(), ciphertext(), dst_users() { }
+
+		DecryptRequest(UserSetID userSetID, Ciphertext ciphertext, std::vector<std::string> dstUsers)
 			: user_set_id(std::move(userSetID)),
-			  ciphertext(std::move(ciphertext)) { }
+			  ciphertext(std::move(ciphertext)),
+			  dst_users(std::move(dstUsers)) { }
 	};
 
 	/**
@@ -408,13 +413,13 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
 			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			PrivKeyShard reg_external_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as non-owner.
@@ -433,16 +438,22 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
-			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			/// Private key shard for non-owner layer for external use (decryption for others).
+			PrivKeyShard reg_external_priv_key_shard;
 
-			/// Private key shard for owner layer decryption.
-			PrivKeyShard owner_layer_priv_key_shard;
+			/// Private key shard for non-owner layer for internal use (decryption for self).
+			PrivKeyShard reg_internal_priv_key_shard;
+
+			/// Private key shard for owner layer for external use (decryptions for others).
+			PrivKeyShard owner_external_priv_key_shard;
+
+			/// Private key shard for owner layer for internal use (decryptions for self).
+			PrivKeyShard owner_internal_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as owner.
@@ -499,6 +510,9 @@ namespace senc::pkt
 
 			/// Decryption operation ID.
 			OperationID op_id;
+
+			/// User who initiated decryption.
+			std::string initiator;
 
 			/// Decryption parts for non-owner layer.
 			std::vector<DecryptionPart> reg_layer_parts;

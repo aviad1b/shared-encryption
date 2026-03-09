@@ -236,7 +236,7 @@ uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecord) noexcept
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-		return senc::pub_key_to_bytes(rpRecord->reg_layer_pub_key());
+		return senc::pub_key_to_bytes(rpRecord->reg_pub_key());
 	})->as_nint();
 }
 
@@ -245,27 +245,49 @@ uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRecord) noexcept
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-		return senc::pub_key_to_bytes(rpRecord->owner_layer_pub_key());
+		return senc::pub_key_to_bytes(rpRecord->owner_pub_key());
 	})->as_nint();
 }
 
-uintptr_t SENC_GetProfileRecordRegShard(uintptr_t pRecord) noexcept
+uintptr_t SENC_GetProfileRecordRegExternalShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-			return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+		return senc::priv_key_shard_to_bytes(rpRecord->reg_external_priv_key_shard());
 	})->as_nint();
 }
 
-uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
+uintptr_t SENC_GetProfileRecordRegInternalShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
 		if (!rpRecord->is_owner())
-			throw api::ClientException("Non-owner record has no owner-layer shard");
-		return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+			throw api::ClientException("Non-owner record has no external reg-layer shard");
+		return senc::priv_key_shard_to_bytes(rpRecord->reg_internal_priv_key_shard());
+	})->as_nint();
+}
+
+uintptr_t SENC_GetProfileRecordOwnerExternalShard(uintptr_t pRecord) noexcept
+{
+	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		if (!rpRecord->is_owner())
+			throw api::ClientException("Non-owner record has no owner-layer shards");
+		return senc::priv_key_shard_to_bytes(rpRecord->owner_external_priv_key_shard());
+	})->as_nint();
+}
+
+uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) noexcept
+{
+	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		if (!rpRecord->is_owner())
+			throw api::ClientException("Non-owner record has no owner-layer shards");
+		return senc::priv_key_shard_to_bytes(rpRecord->owner_internal_priv_key_shard());
 	})->as_nint();
 }
 
