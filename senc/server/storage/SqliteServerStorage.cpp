@@ -118,7 +118,8 @@ namespace senc::server::storage
 			this->_db.insert<"UserSets">(
 				setIDBlobView,
 				sql::Int(ownersThreshold),
-				sql::Int(regMembersThreshold)
+				sql::Int(regMembersThreshold),
+				sql::Null{}
 			);
 		}
 		catch (utils::sqlite::SQLiteException& e)

@@ -61,9 +61,10 @@ namespace senc::server::storage
 				utils::sqlite::schemas::Col       <"pwd_hash", utils::sqlite::Blob>
 			>,
 			utils::sqlite::schemas::Table<"UserSets",
-				utils::sqlite::schemas::PrimaryKey<"id"                   , utils::sqlite::Blob>,
-				utils::sqlite::schemas::Col       <"owners_threshold"     , utils::sqlite::Int >,
-				utils::sqlite::schemas::Col       <"reg_members_threshold", utils::sqlite::Int >
+				utils::sqlite::schemas::PrimaryKey         <"id"                   , utils::sqlite::Blob>,
+				utils::sqlite::schemas::Col                <"owners_threshold"     , utils::sqlite::Int >,
+				utils::sqlite::schemas::Col                <"reg_members_threshold", utils::sqlite::Int >,
+				utils::sqlite::schemas::BackwardsCompatible<"name"                 , utils::sqlite::Text>
 			>,
 			utils::sqlite::schemas::Table<"Members",
 				utils::sqlite::schemas::ForeignKey<"username"  , utils::sqlite::Text, "Users"         >,
