@@ -47,7 +47,9 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::signup(const std::string& username, const std::string& password)
+	inline void Client<IP>::signup(const std::string& username,
+								   const std::string& password,
+								   const std::string& profileBaseDir)
 	{
 		ensure_connected();
 
@@ -60,11 +62,14 @@ namespace senc::clientapi
 		if (resp.status != pkt::SignupResponse::Status::Success)
 			throw ClientException("Signup failed", "Unknown error");
 
+		(void)profileBaseDir;
 		this->load_profile(username, password);
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::login(const std::string& username, const std::string& password)
+	inline void Client<IP>::login(const std::string& username,
+								  const std::string& password,
+								  const std::string& profileBaseDir)
 	{
 		ensure_connected();
 
@@ -77,6 +82,7 @@ namespace senc::clientapi
 		if (resp.status != pkt::LoginResponse::Status::Success)
 			throw ClientException("Login failed", "Unknown error");
 
+		(void)profileBaseDir;
 		this->load_profile(username, password);
 	}
 

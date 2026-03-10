@@ -177,21 +177,23 @@ void SENC_Disconnect(uintptr_t hClient) noexcept
 	spClient.reset();
 }
 
-uintptr_t SENC_SignUp(uintptr_t hClient, const char* username, const char* password) noexcept
+uintptr_t SENC_SignUp(uintptr_t hClient, const char* profileBaseDir,
+					  const char* username, const char* password) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, username, password]()
+	return api::Error::ret_null_or_err([&client, profileBaseDir, username, password]()
 	{
-		client.signup(username, password);
+		client.signup(username, password, profileBaseDir);
 	})->as_nint();
 }
 
-uintptr_t SENC_LogIn(uintptr_t hClient, const char* username, const char* password) noexcept
+uintptr_t SENC_LogIn(uintptr_t hClient, const char* profileBaseDir,
+					 const char* username, const char* password) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, username, password]()
+	return api::Error::ret_null_or_err([&client, profileBaseDir, username, password]()
 	{
-		client.login(username, password);
+		client.login(username, password, profileBaseDir);
 	})->as_nint();
 }
 

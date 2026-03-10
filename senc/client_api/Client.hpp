@@ -53,9 +53,13 @@ namespace senc::clientapi
 		 */
 		~Client();
 
-		void signup(const std::string& username, const std::string& password) override;
+		void signup(const std::string& username,
+					const std::string& password,
+					const std::string& profileBaseDir) override;
 
-		void login(const std::string& username, const std::string& password) override;
+		void login(const std::string& username,
+				   const std::string& password,
+				   const std::string& profileBaseDir) override;
 
 		void logout() override;
 

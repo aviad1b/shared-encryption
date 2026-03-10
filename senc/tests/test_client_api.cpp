@@ -38,10 +38,12 @@ protected:
 	DecryptionsManager decryptionsManager;
 	std::unique_ptr<IServerStorage> serverStorage;
 	std::unique_ptr<IServer> server;
+	std::string profileBaseDir;
 	const char* ip;
 
 	void SetUp() override
 	{
+		profileBaseDir = ".";
 		serverStorage = std::make_unique<ShortTermServerStorage>();
 		server = new_server<IPv4>(
 			serverSchema,
@@ -148,11 +150,11 @@ TEST_F(ClientApiTest, SignupLoginLogout)
 	const char* username = "user";
 	const char* password = "pass123";
 
-	ASSERT_NO_ERROR(SENC_SignUp(hClient, username, password));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient, profileBaseDir.c_str(), username, password));
 
 	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
-	ASSERT_NO_ERROR(SENC_LogIn(hClient, username, password));
+	ASSERT_NO_ERROR(SENC_LogIn(hClient, profileBaseDir.c_str(), username, password));
 
 	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
@@ -174,10 +176,10 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	SENC_Handle hClient4 = SENC_Connect(ip, port, nullptr, 0);
 
 	// signup 4 users
-	ASSERT_NO_ERROR(SENC_SignUp(hClient1, "aaa", "AAA"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient2, "bbb", "BBB"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient3, "ccc", "CCC"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient4, "ddd", "DDD"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient1, profileBaseDir.c_str(), "aaa", "AAA"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient2, profileBaseDir.c_str(), "bbb", "BBB"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient3, profileBaseDir.c_str(), "ccc", "CCC"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient4, profileBaseDir.c_str(), "ddd", "DDD"));
 
 	// create userset where aaa,bbb are owners and ccc,ddd are non-owners
 	std::vector<const char*> owners{ "bbb" };
