@@ -100,7 +100,7 @@ TEST_P(ServerStorageTest, NewUserset_WithRegularMembers)
 	auto owners = { "avi", "batya" };
 	auto regMembers = { "gal", "dani" };
 
-	storage->new_userset(strings(owners), strings(regMembers), 2, 1, std::nullopt);
+	storage->new_userset(strings(owners), strings(regMembers), 2, 1, "some name");
 }
 
 TEST_P(ServerStorageTest, NewUserset_MultipleSetsReturnDifferentIDs)
@@ -132,7 +132,7 @@ TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 	UserSetID usersetID = storage->new_userset(
 		strings(owners), strings(regMembers),
 		ownersThreshold, regThreshold,
-		std::nullopt
+		"cool"
 	);
 
 	UserSetInfo info = storage->get_userset_info(usersetID);
@@ -144,6 +144,28 @@ TEST_P(ServerStorageTest, GetUsersetInfo_ReturnsCorrectConfiguration)
 	EXPECT_CONTAINS(info.reg_members, "gal");
 	EXPECT_EQ(info.owners_threshold, ownersThreshold);
 	EXPECT_EQ(info.reg_members_threshold, regThreshold);
+	EXPECT_EQ(info.name, "cool");
+}
+
+TEST_P(ServerStorageTest, GetUsersetInfo_NoNameGivesID)
+{
+	storage->new_user("avi", "pass123");
+	storage->new_user("batya", "pass123");
+	storage->new_user("gal", "pass123");
+
+	auto owners = { "avi", "batya" };
+	auto regMembers = { "gal" };
+	member_count_t ownersThreshold = 2;
+	member_count_t regThreshold = 1;
+
+	UserSetID usersetID = storage->new_userset(
+		strings(owners), strings(regMembers),
+		ownersThreshold, regThreshold,
+		std::nullopt
+	);
+
+	UserSetInfo info = storage->get_userset_info(usersetID);
+	EXPECT_EQ(info.name, usersetID.to_string());
 }
 
 TEST_P(ServerStorageTest, GetUsersets_ReturnsEmptyForNewUser)
@@ -165,13 +187,13 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 	std::initializer_list<std::string> regMembers = {};
 
 	UserSetID id1 = storage->new_userset(strings(owners1), strings(regMembers), 1, 0, std::nullopt);
-	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 2, 0, std::nullopt);
+	UserSetID id2 = storage->new_userset(strings(owners2), strings(regMembers), 2, 0, "my awesome userset");
 
 	auto aviSets = storage->get_usersets("avi");
 
 	EXPECT_EQ(aviSets.size(), 2);
 	EXPECT_CONTAINS(aviSets, std::make_pair(id1, id1.to_string()));
-	EXPECT_CONTAINS(aviSets, std::make_pair(id2, id2.to_string()));
+	EXPECT_CONTAINS(aviSets, std::make_pair(id2, "my awesome userset"));
 }
 
 TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMember)
