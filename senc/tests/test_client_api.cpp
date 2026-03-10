@@ -43,7 +43,7 @@ protected:
 
 	void SetUp() override
 	{
-		profileBaseDir = ".";
+		profileBaseDir = temp_dir_path();
 		serverStorage = std::make_unique<ShortTermServerStorage>();
 		server = new_server<IPv4>(
 			serverSchema,
