@@ -626,6 +626,55 @@ namespace senc
 		(void)out;
 	}
 
+	void EncryptedPacketHandler::send_request(const pkt::UserSearchRequest& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		utils::write_bytes(data, packet.query);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(pkt::UserSearchRequest& out)
+	{
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
+
+		it = utils::read_bytes(out.query, it, end);
+	}
+
+	void EncryptedPacketHandler::send_response(const pkt::UserSearchResponse& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		const auto count = static_cast<search_result_count_t>(
+			std::min(packet.users.size(), MAX_SEARCH_RESULT_COUNT)
+		);
+		utils::write_bytes(data, count);
+
+		for (const auto& username : packet.users | std::views::take(count))
+			utils::write_bytes(data, username);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(pkt::UserSearchResponse& out)
+	{
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
+
+		search_result_count_t count{};
+		it = utils::read_bytes(count, it, end);
+		out.users.resize(count);
+
+		for (auto& username : out.users)
+			it = utils::read_bytes(username, it, end);
+	}
+
 	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
 		: Base(sock) { }
 

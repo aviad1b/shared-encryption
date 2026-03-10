@@ -327,6 +327,32 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
+	void QueuedPacketHandler::send_request(const pkt::UserSearchRequest& packet)
+	{
+		wait_queue();
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->send_request(packet);
+	}
+
+	void QueuedPacketHandler::recv_request_data(pkt::UserSearchRequest& out)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->recv_request_data(out);
+	}
+
+	void QueuedPacketHandler::send_response(const pkt::UserSearchResponse& packet)
+	{
+		wait_queue();
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->send_response(packet);
+	}
+
+	void QueuedPacketHandler::recv_response_data(pkt::UserSearchResponse& out)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->recv_response_data(out);
+	}
+
 	QueuedPacketHandler::QueuedPacketHandler(
 		utils::Socket& sock,
 		std::unique_ptr<PacketHandler>&& underlying,

@@ -105,6 +105,12 @@ namespace senc
 		void send_response(const pkt::SendDecryptionPartResponse& packet) override;
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
+		virtual void send_request(const pkt::UserSearchRequest& packet) override;
+		virtual void recv_request_data(pkt::UserSearchRequest& out) override;
+
+		virtual void send_response(const pkt::UserSearchResponse& packet) override;
+		virtual void recv_response_data(pkt::UserSearchResponse& out) override;
+
 	private:
 		PlainPacketHandlerSyncData _syncData;
 
