@@ -22,8 +22,10 @@ namespace senc::clientapi
 		/**
 		 * @brief Locates user's profile file path based on username.
 		 * @param username Username.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 * @return User profile file path.
 		 */
-		static std::string locate_user_profile_file(const std::string& username);
+		static std::string locate_user_profile_file(const std::string& username,
+													const std::string& profileBaseDir);
 	};
 }

@@ -63,7 +63,7 @@ namespace senc::clientapi
 			throw ClientException("Signup failed", "Unknown error");
 
 		(void)profileBaseDir;
-		this->load_profile(username, password);
+		this->load_profile(username, password, profileBaseDir);
 	}
 
 	template <utils::IPType IP>
@@ -83,7 +83,7 @@ namespace senc::clientapi
 			throw ClientException("Login failed", "Unknown error");
 
 		(void)profileBaseDir;
-		this->load_profile(username, password);
+		this->load_profile(username, password, profileBaseDir);
 	}
 
 	template <utils::IPType IP>
@@ -216,10 +216,12 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::load_profile(const std::string& username, const std::string& password)
+	inline void Client<IP>::load_profile(const std::string& username,
+										 const std::string& password,
+										 const std::string& profileBaseDir)
 	{
 		_storage.emplace(
-			ClientUtils::locate_user_profile_file(username),
+			ClientUtils::locate_user_profile_file(username, profileBaseDir),
 			username, password
 		);
 	}
