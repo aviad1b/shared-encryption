@@ -60,7 +60,10 @@ namespace senc::pkt
 		DecryptParticipateResponse,
 
 		SendDecryptionPartRequest,
-		SendDecryptionPartResponse
+		SendDecryptionPartResponse,
+
+		UserSearchRequest,
+		UserSearchResponse
 	};
 
 
@@ -615,5 +618,38 @@ namespace senc::pkt
 	{
 		static constexpr auto CODE = Code::SendDecryptionPartResponse;
 		bool operator==(const SendDecryptionPartResponse&) const = default;
+	};
+
+
+	// =================================================================
+	// UserSearch cycle
+	// Client sends a search query (part of username).
+	// Server responds with list of usernames containing username part.
+	// =================================================================
+
+	/**
+	 * @struct UserSearchRequest
+	 * @brief Request containing a username search query.
+	 */
+	struct UserSearchRequest
+	{
+		static constexpr auto CODE = Code::UserSearchRequest;
+		bool operator==(const UserSearchRequest&) const = default;
+
+		/// Search query (username part to use for search).
+		std::string query;
+	};
+
+	/**
+	 * @struct UserSearchResponse
+	 * @brief Response containing list of usernames matching search.
+	 */
+	struct UserSearchResponse
+	{
+		static constexpr auto CODE = Code::UserSearchResponse;
+		bool operator==(const UserSearchResponse&) const = default;
+
+		/// List of usernames matching search.
+		std::vector<std::string> users;
 	};
 }
