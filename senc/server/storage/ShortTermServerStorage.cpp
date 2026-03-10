@@ -120,8 +120,12 @@ namespace senc::server::storage
 		if (it == _users.end())
 			throw UserNotFoundException(owner);
 		return utils::to_vector<std::pair<UserSetID, std::string>>(
-			it->second.usersets | std::views::transform([](const UserSetID& id)
+			it->second.usersets | std::views::transform([this](const UserSetID& id)
 			{
+				const std::lock_guard<std::mutex> lock(this->_mtxUsersets);
+				const auto usersetsIt = this->_usersets.find(id);
+				if (usersetsIt != this->_usersets.end() && usersetsIt->second.name.has_value())
+					return std::make_pair(id, *usersetsIt->second.name);
 				return std::make_pair(id, id.to_string());
 			})
 		);
