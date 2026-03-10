@@ -363,6 +363,9 @@ namespace senc::debug_client
 
 	ConnStatus make_userset(PacketHandler& packetHandler)
 	{
+		std::string name = io::input("Enter userset name: ");
+		cout << endl;
+
 		vector<string> owners = io::input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
@@ -380,7 +383,8 @@ namespace senc::debug_client
 			.reg_members = std::move(regMembers),
 			.owners = std::move(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
 		cout << "Userset created successfully:" << endl << endl;
@@ -406,13 +410,16 @@ namespace senc::debug_client
 	{
 		auto resp = post<pkt::GetUserSetsResponse>(packetHandler, pkt::GetUserSetsRequest{});
 
-		if (resp.user_sets_ids.empty())
+		if (resp.user_sets.empty())
 			cout << "You do not own any usersets." << endl;
 		else
 		{
 			cout << "IDs of owned usersets:" << endl;
-			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
-				cout << (i + 1) << ".\t" << id << endl;
+			for (const auto& [i, idAndName] : resp.user_sets | utils::views::enumerate)
+			{
+				const auto& [id, name] = idAndName;
+				cout << (i + 1) << ".\t" << id << "\t(" << name << ")" << endl;
+			}
 		}
 		cout << endl;
 

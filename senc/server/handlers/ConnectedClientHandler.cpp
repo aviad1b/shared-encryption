@@ -57,7 +57,8 @@ namespace senc::server::handlers
 		res.user_set_id = _storage.new_userset(
 			utils::ranges::strings(allOwners),
 			utils::ranges::strings(regMembers),
-			ownersThreshold, regMembersThreshold
+			ownersThreshold, regMembersThreshold,
+			std::nullopt
 		);
 
 		// generate keys, and shards for each member
@@ -231,8 +232,11 @@ namespace senc::server::handlers
 	{
 		(void)request;
 
-		std::vector<UserSetID> usersets;
-		try { usersets = _storage.get_usersets(_username); }
+		std::vector<std::pair<UserSetID, std::string>> usersets;
+		try
+		{
+			usersets = utils::to_vector<std::pair<UserSetID, std::string>>(_storage.get_usersets(_username));
+		}
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{

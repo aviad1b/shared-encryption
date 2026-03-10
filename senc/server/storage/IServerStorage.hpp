@@ -136,6 +136,7 @@ namespace senc::server::storage
 		std::vector<std::string> reg_members;
 		member_count_t owners_threshold;
 		member_count_t reg_members_threshold;
+		std::string name;
 	};
 
 	/**
@@ -180,21 +181,23 @@ namespace senc::server::storage
 		 * @param regMembers Usernames of userset's non-owner members.
 		 * @param ownersThreshold Decryption threshold for owners layer.
 		 * @param regMembersThreshold Decryption threshold for non-owners layer.
+		 * @param name Userset name (nullopt for string representation of ID).
 		 * @return ID of userset.
 		 * @throw ServerStorageException In case of error.
 		 */
 		virtual UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 									  utils::ranges::StringViewRange&& regMembers,
 									  member_count_t ownersThreshold,
-									  member_count_t regMembersThreshold) = 0;
+									  member_count_t regMembersThreshold,
+									  std::optional<std::string>&& name) = 0;
 
 		/**
 		 * @brief Gets all usersets owned by a specific user.
 		 * @param owner Username of user to get usersets owned by it.
-		 * @return Set of IDs of usersets where `owner` is an owner.
+		 * @return Set of IDs and names of usersets where `owner` is an owner.
 		 * @throw ServerStorageException In case of error.
 		 */
-		virtual std::vector<UserSetID> get_usersets(const std::string& owner) = 0;
+		virtual std::vector<std::pair<UserSetID, std::string>> get_usersets(const std::string& owner) = 0;
 
 		/**
 		 * @brief Checks if a given user owns a given userset.

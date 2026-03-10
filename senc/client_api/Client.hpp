@@ -64,9 +64,10 @@ namespace senc::clientapi
 		UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 							   utils::ranges::StringViewRange&& regMembers,
 							   member_count_t ownersThreshold,
-							   member_count_t regMembersThreshold) override;
+							   member_count_t regMembersThreshold,
+							   std::string&& name) override;
 
-		void get_usersets(std::function<void(const UserSetID&)> callback) override;
+		void get_usersets(std::function<void(const UserSetID&, const std::string&)> callback) override;
 
 		void get_userset_members(const UserSetID& usersetID,
 								 std::function<void(const std::string&)> ownersCallback,

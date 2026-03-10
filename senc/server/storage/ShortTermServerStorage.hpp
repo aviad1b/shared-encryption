@@ -35,9 +35,10 @@ namespace senc::server::storage
 		UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 							  utils::ranges::StringViewRange&& regMembers,
 							  member_count_t ownersThreshold,
-							  member_count_t regMembersThreshold) override;
+							  member_count_t regMembersThreshold,
+							  std::optional<std::string>&& name) override;
 
-		std::vector<UserSetID> get_usersets(const std::string& owner) override;
+		std::vector<std::pair<UserSetID, std::string>> get_usersets(const std::string& owner) override;
 
 		bool user_owns_userset(const std::string& user, const UserSetID& userset) override;
 
@@ -52,6 +53,7 @@ namespace senc::server::storage
 			std::set<std::string> reg_members;
 			member_count_t owners_threshold;
 			member_count_t reg_members_threshold;
+			std::optional<std::string> name;
 		};
 
 		utils::Distribution<PrivKeyShardID> _shardsDist;

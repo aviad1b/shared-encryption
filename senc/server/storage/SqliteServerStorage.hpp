@@ -39,9 +39,10 @@ namespace senc::server::storage
 		UserSetID new_userset(utils::ranges::StringViewRange&& owners,
 							  utils::ranges::StringViewRange&& regMembers,
 							  member_count_t ownersThreshold,
-							  member_count_t regMembersThreshold) override;
+							  member_count_t regMembersThreshold,
+							  std::optional<std::string>&& name) override;
 
-		std::vector<UserSetID> get_usersets(const std::string& owner) override;
+		std::vector<std::pair<UserSetID, std::string>> get_usersets(const std::string& owner) override;
 
 		bool user_owns_userset(const std::string& user, const UserSetID& userset) override;
 
@@ -61,9 +62,10 @@ namespace senc::server::storage
 				utils::sqlite::schemas::Col       <"pwd_hash", utils::sqlite::Blob>
 			>,
 			utils::sqlite::schemas::Table<"UserSets",
-				utils::sqlite::schemas::PrimaryKey<"id"                   , utils::sqlite::Blob>,
-				utils::sqlite::schemas::Col       <"owners_threshold"     , utils::sqlite::Int >,
-				utils::sqlite::schemas::Col       <"reg_members_threshold", utils::sqlite::Int >
+				utils::sqlite::schemas::PrimaryKey         <"id"                   , utils::sqlite::Blob>,
+				utils::sqlite::schemas::Col                <"owners_threshold"     , utils::sqlite::Int >,
+				utils::sqlite::schemas::Col                <"reg_members_threshold", utils::sqlite::Int >,
+				utils::sqlite::schemas::BackwardsCompatible<"name"                 , utils::sqlite::Text>
 			>,
 			utils::sqlite::schemas::Table<"Members",
 				utils::sqlite::schemas::ForeignKey<"username"  , utils::sqlite::Text, "Users"         >,

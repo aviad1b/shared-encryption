@@ -46,13 +46,15 @@ namespace senc::server::storage
 	UserSetID ShortTermServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
 												  utils::ranges::StringViewRange&& regMembers,
 												  member_count_t ownersThreshold,
-												  member_count_t regMembersThreshold)
+												  member_count_t regMembersThreshold,
+												  std::optional<std::string>&& name)
 	{
 		StoredUserSetInfo info{
 			utils::to_ordered_set<std::string>(owners),
 			utils::to_ordered_set<std::string>(regMembers),
 			ownersThreshold,
-			regMembersThreshold
+			regMembersThreshold,
+			std::move(name)
 		};
 
 		// we want to be able to move `info` into a map and then still use it;
@@ -110,15 +112,22 @@ namespace senc::server::storage
 		return setID;
 	}
 
-	std::vector<UserSetID> ShortTermServerStorage::get_usersets(const std::string& owner)
+	std::vector<std::pair<UserSetID, std::string>>
+		ShortTermServerStorage::get_usersets(const std::string& owner)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUsers);
 		const auto it = _users.find(owner);
 		if (it == _users.end())
 			throw UserNotFoundException(owner);
-		return std::vector<UserSetID>(
-			it->second.usersets.begin(),
-			it->second.usersets.end()
+		return utils::to_vector<std::pair<UserSetID, std::string>>(
+			it->second.usersets | std::views::transform([this](const UserSetID& id)
+			{
+				const std::lock_guard<std::mutex> lock(this->_mtxUsersets);
+				const auto usersetsIt = this->_usersets.find(id);
+				if (usersetsIt != this->_usersets.end() && usersetsIt->second.name.has_value())
+					return std::make_pair(id, *usersetsIt->second.name);
+				return std::make_pair(id, id.to_string());
+			})
 		);
 	}
 
@@ -141,7 +150,8 @@ namespace senc::server::storage
 			.owners = std::vector<std::string>(it->second.owners.begin(), it->second.owners.end()),
 			.reg_members = std::vector<std::string>(it->second.reg_members.begin(), it->second.reg_members.end()),
 			.owners_threshold = it->second.owners_threshold,
-			.reg_members_threshold = it->second.reg_members_threshold
+			.reg_members_threshold = it->second.reg_members_threshold,
+			.name = it->second.name.value_or(userset.to_string())
 		};
 	}
 

@@ -170,7 +170,8 @@ static void make_user_set_cycle(PacketsTest& test)
 		{ "a", "b", "c" },
 		{ "o1", "o2", },
 		2,
-		1
+		1,
+		"some_name"
 	};
 
 	pkt::MakeUserSetResponse resp{
@@ -196,9 +197,9 @@ static void get_user_sets_cycle(PacketsTest& test)
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
 		{
-			"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-			"c7379469-4294-40b4-850c-fe665717d1ba",
-			"57641e16-e02a-473b-8204-a809a9c435df"
+			{ "51657d81-1d4b-41ca-9749-cd6ee61cc325", "some name" },
+			{ "c7379469-4294-40b4-850c-fe665717d1ba", "another name" },
+			{ "57641e16-e02a-473b-8204-a809a9c435df", "and another" }
 		}
 	};
 	test.cycle_flow(req, resp);

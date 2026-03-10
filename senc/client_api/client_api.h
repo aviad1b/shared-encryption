@@ -295,6 +295,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr
  * @param regMembers Usernames of userset's non-owner members.
  * @param ownersThreshold Minimum amount of owners required for decryption.
  * @param regMembersThreshold Minimum amount of non-owners required for decryption.
+ * @param name Userset name (for display).
  * @return Userset's ID (string handle), or error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
@@ -304,19 +305,21 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_MakeUserSet(uintptr_t hClient,
 												  const char** owners,
 												  const char** regMembers,
 												  uint64_t ownersThreshold,
-												  uint64_t regMembersThreshold) SENC_NOTHROW;
+												  uint64_t regMembersThreshold,
+												  const char* name) SENC_NOTHROW;
 
 /**
  * @brief Gets all usersets owned by user.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
- * @param callback Callback function accepting ID of each userset owned by user (string chars) and context.
+ * @param callback Callback function accepting ID and name of each userset owned by user (string chars) and
+ *                 context.
  * @param context Context to pass `callback`.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetUserSets(uintptr_t hClient,
-												  void(*callback)(const char*, uintptr_t),
+												  void(*callback)(const char*, const char*, uintptr_t),
 												  uintptr_t context) SENC_NOTHROW;
 
 /**

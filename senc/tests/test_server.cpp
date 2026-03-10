@@ -234,7 +234,8 @@ TEST_P(ServerTest, MakeSetGetMembers)
 		.reg_members = { u2 },
 		.owners = { u3 },
 		.reg_members_threshold = 1,
-		.owners_threshold = 1
+		.owners_threshold = 1,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& usersetID = ms->user_set_id;
@@ -247,7 +248,10 @@ TEST_P(ServerTest, MakeSetGetMembers)
 		EXPECT_TRUE(gs.has_value());
 
 		// check that `usersetID` is in sets
-		EXPECT_CONTAINS(gs->user_sets_ids, usersetID);
+		EXPECT_CONTAINS(
+			gs->user_sets | std::views::transform([](auto&& p) { return p.first; }),
+			usersetID
+		);
 
 		// get members
 		auto gm = post<pkt::GetMembersResponse>(clientPacketHandler, pkt::GetMembersRequest{ usersetID });
@@ -294,7 +298,8 @@ TEST_P(ServerTest, MakeSetCheckKey)
 		.reg_members = { u2, u3 },
 		.owners = { },
 		.reg_members_threshold = 2,
-		.owners_threshold = 0
+		.owners_threshold = 0,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& usersetID = ms->user_set_id;
@@ -405,7 +410,8 @@ TEST_P(ServerTest, DecryptFlowSimple)
 		.reg_members = { "member" },
 		.owners = { },
 		.reg_members_threshold = 1,
-		.owners_threshold = 0
+		.owners_threshold = 0,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
@@ -548,7 +554,8 @@ TEST_P(ServerTest, DecryptFlowTwoMembers)
 		.reg_members = { "member", "member2" },
 		.owners = { },
 		.reg_members_threshold = 2,
-		.owners_threshold = 0
+		.owners_threshold = 0,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
@@ -741,7 +748,8 @@ TEST_P(ServerTest, DecryptFlowExtraMember)
 		.reg_members = { "member", "extra" },
 		.owners = { },
 		.reg_members_threshold = 1,
-		.owners_threshold = 0
+		.owners_threshold = 0,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
@@ -897,7 +905,8 @@ TEST_P(ServerTest, DecryptFlow2L)
 		.reg_members = { "member" },
 		.owners = { "owner2" },
 		.reg_members_threshold = 1,
-		.owners_threshold = 1
+		.owners_threshold = 1,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
@@ -1083,7 +1092,8 @@ TEST_P(ServerTest, DecryptFlowOwnersOnly)
 		.reg_members = { },
 		.owners = { "owner2", "owner3" },
 		.reg_members_threshold = 0,
-		.owners_threshold = 2
+		.owners_threshold = 2,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& ownerUsersetID = ms->user_set_id;
@@ -1374,7 +1384,8 @@ TEST_P(MultiCycleServerTest, MultiCycleDecryptFlow2L)
 		.reg_members = regMemberUsernamesVec,
 		.owners = nonCreatorOwnerUsernamesVec,
 		.reg_members_threshold = params.regMembersThreshold,
-		.owners_threshold = params.ownersThreshold
+		.owners_threshold = params.ownersThreshold,
+		.name = "some name"
 	});
 	EXPECT_TRUE(ms.has_value());
 	const auto& usersetID = ms->user_set_id;

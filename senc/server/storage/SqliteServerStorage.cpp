@@ -98,7 +98,8 @@ namespace senc::server::storage
 	UserSetID SqliteServerStorage::new_userset(utils::ranges::StringViewRange&& owners,
 											   utils::ranges::StringViewRange&& regMembers,
 											   member_count_t ownersThreshold,
-											   member_count_t regMembersThreshold)
+											   member_count_t regMembersThreshold,
+											   std::optional<std::string>&& name)
 	{
 		// read owners and reg members into ordered sets for consistency
 		auto readOwners = utils::to_ordered_set<std::string>(owners);
@@ -118,7 +119,9 @@ namespace senc::server::storage
 			this->_db.insert<"UserSets">(
 				setIDBlobView,
 				sql::Int(ownersThreshold),
-				sql::Int(regMembersThreshold)
+				sql::Int(regMembersThreshold),
+				name.has_value() ? sql::Nullable<sql::Text>(std::move(*name))
+					: sql::Nullable<sql::Text>(std::nullopt)
 			);
 		}
 		catch (utils::sqlite::SQLiteException& e)
@@ -163,23 +166,27 @@ namespace senc::server::storage
 		return setID;
 	}
 
-	std::vector<UserSetID> SqliteServerStorage::get_usersets(const std::string& owner)
+	std::vector<std::pair<UserSetID, std::string>> SqliteServerStorage::get_usersets(const std::string& owner)
 	{
-		std::vector<UserSetID> res;
+		std::vector<std::pair<UserSetID, std::string>> res;
 		const std::lock_guard<std::mutex> lock(_mtxDB);
 		try
 		{
-			this->_db.select<"Members", sql::SelectArg<"userset_id">>()
-				.where("username = " + sql::TextView(owner).as_sqlite())
-				.where("is_owner != 0")
-				>> [&res](sql::BlobView usersetIDBytes)
+			this->_db.join<"Members", "userset_id", "UserSets", "id">()
+				.select<sql::SelectArgWithOwner<"Members", "userset_id">, sql::SelectArg<"name">>()
+				.where("Members.username = " + sql::TextView(owner).as_sqlite())
+				.where("Members.is_owner != 0")
+				>> [&res](sql::BlobView usersetIDBytes, sql::NullableView<sql::Text> storedUsersetName)
 				{
-					res.emplace_back();
+					UserSetID id{};
 					std::memcpy(
-						res.back().data(),
+						id.data(),
 						usersetIDBytes.get().data(),
-						std::min(res.back().size(), usersetIDBytes.get().size())
+						std::min(id.size(), id.size())
 					);
+					std::string name = storedUsersetName.has_value() ? std::string(storedUsersetName->get())
+						: id.to_string();
+					res.emplace_back(std::move(id), std::move(name));
 				};
 		}
 		catch (utils::sqlite::SQLiteException& e)
@@ -221,18 +228,23 @@ namespace senc::server::storage
 
 		// read thresholds from DB
 		{
-			std::tuple<sql::Int, sql::Int> thresholds;
 			const std::lock_guard<std::mutex> lock(_mtxDB);
 			try
 			{
 				this->_db.select<"UserSets",
 					sql::SelectArg<"owners_threshold">,
-					sql::SelectArg<"reg_members_threshold">>()
+					sql::SelectArg<"reg_members_threshold">,
+					sql::SelectArg<"name">>()
 					.where("id = " + usersetBlob.as_sqlite())
-					>> thresholds;
-				auto [ownersThreshold, regMembersThreshold] = thresholds;
-				res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
-				res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+					>> [&res, &userset](sql::Int ownersThreshold,
+							  sql::Int regMembersThreshold,
+							  sql::NullableView<sql::Text> name)
+					{
+						res.owners_threshold = static_cast<member_count_t>(ownersThreshold);
+						res.reg_members_threshold = static_cast<member_count_t>(regMembersThreshold);
+						res.name = name.has_value() ? std::string(name->get())
+							: userset.to_string();
+					};
 			}
 			catch (utils::sqlite::SQLiteException& e)
 			{

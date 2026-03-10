@@ -242,6 +242,7 @@ namespace senc
 			utils::write_bytes(data, owner);
 		for (const auto& regMember : packet.reg_members)
 			utils::write_bytes(data, regMember);
+		utils::write_bytes(data, packet.name);
 
 		send_encrypted_data(data);
 	}
@@ -268,6 +269,8 @@ namespace senc
 
 		for (auto& regMember : out.reg_members)
 			it = utils::read_bytes(regMember, it, end);
+
+		it = utils::read_bytes(out.name, it, end);
 	}
 
 	void EncryptedPacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
@@ -319,9 +322,12 @@ namespace senc
 		utils::Buffer data{};
 		utils::write_bytes(data, packet.CODE);
 
-		utils::write_bytes(data, static_cast<userset_count_t>(packet.user_sets_ids.size()));
-		for (const auto& userSetID : packet.user_sets_ids)
-			utils::write_bytes(data, userSetID);
+		utils::write_bytes(data, static_cast<userset_count_t>(packet.user_sets.size()));
+		for (const auto& [usersetID, usersetName] : packet.user_sets)
+		{
+			utils::write_bytes(data, usersetID);
+			utils::write_bytes(data, usersetName);
+		}
 
 		send_encrypted_data(data);
 	}
@@ -334,9 +340,12 @@ namespace senc
 
 		userset_count_t usersetsCount{};
 		it = utils::read_bytes(usersetsCount, it, end);
-		out.user_sets_ids.resize(usersetsCount);
-		for (auto& userSetID : out.user_sets_ids)
-			it = utils::read_bytes(userSetID, it, end);
+		out.user_sets.resize(usersetsCount);
+		for (auto& [usersetID, usersetName] : out.user_sets)
+		{
+			it = utils::read_bytes(usersetID, it, end);
+			it = utils::read_bytes(usersetName, it, end);
+		}
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::GetMembersRequest& packet)

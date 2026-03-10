@@ -84,10 +84,11 @@ static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, ui
 	pDecsMap->map[opid].emplace_back(bytes, bytes + len);
 }
 
-static void test_ctx_streq(const char* str, uintptr_t context)
+static void test_userset_id_eq(const char* id, const char* name, uintptr_t context)
 {
-	const char* other = reinterpret_cast<const char*>(context);
-	ASSERT_EQ(std::strcmp(str, other), 0);
+	(void)name;
+	const char* otherID = reinterpret_cast<const char*>(context);
+	ASSERT_EQ(std::strcmp(id, otherID), 0);
 }
 
 struct test_userset_members_param_t
@@ -186,14 +187,15 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		hClient1,
 		owners.size(), regs.size(),
 		owners.data(), regs.data(),
-		1, 1
+		1, 1,
+		"some_name"
 	);
 	ASSERT_NO_ERROR(hUserSetID);
 	const char* usersetID = SENC_GetStringValue(hUserSetID);
 
 	// try getting usersets and check only have this new userset
-	ASSERT_NO_ERROR(SENC_GetUserSets(hClient1, test_ctx_streq, reinterpret_cast<uintptr_t>(usersetID)));
-	ASSERT_NO_ERROR(SENC_GetUserSets(hClient2, test_ctx_streq, reinterpret_cast<uintptr_t>(usersetID)));
+	ASSERT_NO_ERROR(SENC_GetUserSets(hClient1, test_userset_id_eq, reinterpret_cast<uintptr_t>(usersetID)));
+	ASSERT_NO_ERROR(SENC_GetUserSets(hClient2, test_userset_id_eq, reinterpret_cast<uintptr_t>(usersetID)));
 
 	// try getting userset members and check equals
 	test_userset_members_param_t testMembersParam(allOwners, regs);

@@ -293,11 +293,13 @@ uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) noexcept
 
 uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t regMembersCount,
 						   const char** owners, const char** regMembers,
-						   uint64_t ownersThreshold, uint64_t regMembersThreshold) noexcept
+						   uint64_t ownersThreshold, uint64_t regMembersThreshold,
+						   const char* name) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Value<std::string>::ret_new(
-		[&client, ownersCount, regMembersCount, owners, regMembers, ownersThreshold, regMembersThreshold]()
+		[&client, ownersCount, regMembersCount, owners, regMembers,
+		 ownersThreshold, regMembersThreshold, name]()
 		{
 			if (ownersCount + regMembersCount > senc::MAX_MEMBERS)
 				throw api::ClientException(
@@ -320,28 +322,29 @@ uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t reg
 				utils::ranges::strings(ownersSpan),
 				utils::ranges::strings(regMembersSpan),
 				static_cast<senc::member_count_t>(ownersThreshold),
-				static_cast<senc::member_count_t>(regMembersThreshold)
+				static_cast<senc::member_count_t>(regMembersThreshold),
+				name
 			).to_string();
 		}
 	)->as_nint();
 }
 
 uintptr_t SENC_GetUserSets(uintptr_t hClient,
-						   void(*callback)(const char*, uintptr_t),
+						   void(*callback)(const char*, const char*, uintptr_t),
 						   uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
 		// if `callback` isn't null, wrap it for logic; otherwise, use empty lambda
-		std::function<void(const senc::UserSetID&)> outerCallback;
+		std::function<void(const senc::UserSetID&, const std::string&)> outerCallback;
 		if (callback)
-			outerCallback = [callback, context](const senc::UserSetID& usersetID)
+			outerCallback = [callback, context](const senc::UserSetID& id, const std::string& name)
 			{
-				callback(usersetID.to_string().c_str(), context);
+				callback(id.to_string().c_str(), name.c_str(), context);
 			};
 		else
-			outerCallback = [](const senc::UserSetID&) { };
+			outerCallback = [](const senc::UserSetID&, const std::string&) { };
 
 		client.get_usersets(outerCallback);
 	})->as_nint();

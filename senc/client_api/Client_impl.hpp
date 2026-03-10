@@ -105,13 +105,15 @@ namespace senc::clientapi
 	inline UserSetID Client<IP>::make_userset(utils::ranges::StringViewRange&& owners,
 											  utils::ranges::StringViewRange&& regMembers,
 											  member_count_t ownersThreshold,
-											  member_count_t regMembersThreshold)
+											  member_count_t regMembersThreshold,
+											  std::string&& name)
 	{
 		pkt::MakeUserSetResponse resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
 			.reg_members = utils::to_vector<std::string>(regMembers),
 			.owners = utils::to_vector<std::string>(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
@@ -128,11 +130,11 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&)> callback)
+	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&, const std::string&)> callback)
 	{
 		pkt::GetUserSetsResponse resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
-		for (const UserSetID& id : resp.user_sets_ids)
-			callback(id);
+		for (const auto& [id, name] : resp.user_sets)
+			callback(id, name);
 	}
 
 	template <utils::IPType IP>
