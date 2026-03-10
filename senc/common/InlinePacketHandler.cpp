@@ -205,17 +205,23 @@ namespace senc
 	{
 		_sock.send_connected_value(packet.CODE);
 
-		_sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
-		for (const auto& userSetID : packet.user_sets_ids)
-			_sock.send_connected_value(userSetID);
+		_sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets.size()));
+		for (const auto& [usersetID, usersetName] : packet.user_sets)
+		{
+			_sock.send_connected_value(usersetID);
+			(void)usersetName;
+		}
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
 		auto usersetsCount = _sock.recv_connected_primitive<userset_count_t>();
-		out.user_sets_ids.resize(usersetsCount);
-		for (auto& userSetID : out.user_sets_ids)
-			_sock.recv_connected_value(userSetID);
+		out.user_sets.resize(usersetsCount);
+		for (auto& [usersetID, usersetName] : out.user_sets)
+		{
+			_sock.recv_connected_value(usersetID);
+			(void)usersetName;
+		}
 	}
 
 	void InlinePacketHandler::send_request(const pkt::GetMembersRequest& packet)

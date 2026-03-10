@@ -248,7 +248,10 @@ TEST_P(ServerTest, MakeSetGetMembers)
 		EXPECT_TRUE(gs.has_value());
 
 		// check that `usersetID` is in sets
-		EXPECT_CONTAINS(gs->user_sets_ids, usersetID);
+		EXPECT_CONTAINS(
+			gs->user_sets | std::views::transform([](auto&& p) { return p.first; }),
+			usersetID
+		);
 
 		// get members
 		auto gm = post<pkt::GetMembersResponse>(clientPacketHandler, pkt::GetMembersRequest{ usersetID });

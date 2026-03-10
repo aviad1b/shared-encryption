@@ -288,8 +288,8 @@ namespace senc::pkt
 		static constexpr auto CODE = Code::GetUserSetsResponse;
 		bool operator==(const GetUserSetsResponse&) const = default;
 
-		/// IDs of user sets the requester owns.
-		std::vector<UserSetID> user_sets_ids;
+		/// IDs and names of user sets the requester owns.
+		std::vector<std::pair<UserSetID, std::string>> user_sets;
 	};
 
 

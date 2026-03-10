@@ -410,13 +410,16 @@ namespace senc::debug_client
 	{
 		auto resp = post<pkt::GetUserSetsResponse>(packetHandler, pkt::GetUserSetsRequest{});
 
-		if (resp.user_sets_ids.empty())
+		if (resp.user_sets.empty())
 			cout << "You do not own any usersets." << endl;
 		else
 		{
 			cout << "IDs of owned usersets:" << endl;
-			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
-				cout << (i + 1) << ".\t" << id << endl;
+			for (const auto& [i, idAndName] : resp.user_sets | utils::views::enumerate)
+			{
+				const auto& [id, name] = idAndName;
+				cout << (i + 1) << ".\t" << id << "\t(" << name << ")" << endl;
+			}
 		}
 		cout << endl;
 
