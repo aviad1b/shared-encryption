@@ -313,6 +313,26 @@ TEST_P(ServerStorageTest, GetShardId_RegularMembersGetShardIDs)
 	EXPECT_NE(ownerShard, memberShard);
 }
 
+TEST_P(ServerStorageTest, UserSearch)
+{
+	storage->new_user("aviad", "pass123");
+	storage->new_user("batya", "sadfg");
+	storage->new_user("avihay", "hdgsfa");
+	storage->new_user("gal", "2134");
+	storage->new_user("aviel123", "ASKDFHU6*$");
+	storage->new_user("dan", "ads");
+	storage->new_user("miavi", "gfsa");
+	storage->new_user("miavi2serethahemshech", "hdgs");
+
+	auto searchRes = storage->user_search("avi");
+	EXPECT_EQ(searchRes.size(), 5);
+	EXPECT_CONTAINS(searchRes, "aviad");
+	EXPECT_CONTAINS(searchRes, "avihay");
+	EXPECT_CONTAINS(searchRes, "aviel123");
+	EXPECT_CONTAINS(searchRes, "miavi");
+	EXPECT_CONTAINS(searchRes, "miavi2serethahemshech");
+}
+
 // ----- Integration Tests -----
 
 TEST_P(ServerStorageTest, CompleteWorkflow_CreateUsersUsersetAndVerifyOperations)
