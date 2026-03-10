@@ -209,7 +209,7 @@ namespace senc
 		for (const auto& [usersetID, usersetName] : packet.user_sets)
 		{
 			_sock.send_connected_value(usersetID);
-			(void)usersetName;
+			_sock.send_connected_value(usersetName);
 		}
 	}
 
@@ -220,7 +220,7 @@ namespace senc
 		for (auto& [usersetID, usersetName] : out.user_sets)
 		{
 			_sock.recv_connected_value(usersetID);
-			(void)usersetName;
+			_sock.recv_connected_value(usersetName);
 		}
 	}
 

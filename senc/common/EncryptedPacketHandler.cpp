@@ -326,7 +326,7 @@ namespace senc
 		for (const auto& [usersetID, usersetName] : packet.user_sets)
 		{
 			utils::write_bytes(data, usersetID);
-			(void)usersetName;
+			utils::write_bytes(data, usersetName);
 		}
 
 		send_encrypted_data(data);
@@ -344,7 +344,7 @@ namespace senc
 		for (auto& [usersetID, usersetName] : out.user_sets)
 		{
 			it = utils::read_bytes(usersetID, it, end);
-			(void)usersetName;
+			it = utils::read_bytes(usersetName, it, end);
 		}
 	}
 
