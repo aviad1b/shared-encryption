@@ -330,7 +330,7 @@ uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t reg
 }
 
 uintptr_t SENC_GetUserSets(uintptr_t hClient,
-						   void(*callback)(const char*, uintptr_t),
+						   void(*callback)(const char*, const char*, uintptr_t),
 						   uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
@@ -341,8 +341,7 @@ uintptr_t SENC_GetUserSets(uintptr_t hClient,
 		if (callback)
 			outerCallback = [callback, context](const senc::UserSetID& id, const std::string& name)
 			{
-				(void)name;
-				callback(id.to_string().c_str(), context);
+				callback(id.to_string().c_str(), name.c_str(), context);
 			};
 		else
 			outerCallback = [](const senc::UserSetID&, const std::string&) { };
