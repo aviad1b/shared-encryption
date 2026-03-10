@@ -249,7 +249,7 @@ namespace senc::clientapi
 			for (auto& record : resp.finished_decryptions)
 				this->handle_finished_decryption(std::move(record));
 		}
-		catch (const ClientException&)
+		catch (const std::exception&)
 		{
 			// silently ignore background update errors for now
 		}
