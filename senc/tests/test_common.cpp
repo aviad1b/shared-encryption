@@ -376,6 +376,22 @@ TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 	send_decryption_part_cycle(*this);
 }
 
+static void user_search_cycle(PacketsTest& test)
+{
+	pkt::UserSearchRequest req{
+		"435"
+	};
+	pkt::UserSearchResponse resp{
+		{ "abc435", "def435", "a435z" }
+	};
+	test.cycle_flow(req, resp);
+}
+
+TEST_P(PacketsTest, UserSearchCycleTest)
+{
+	user_search_cycle(*this);
+}
+
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
 	error_cycle(*this);
