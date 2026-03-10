@@ -29,6 +29,12 @@
 std::string temp_file_path(const std::string& name);
 
 /**
+ * @brief Creates a temporary directory path.
+ * @return Temporary directory path.
+ */
+std::string temp_dir_path();
+
+/**
  * @brief Writes raw bytes to a file for test.
  * @param path File path to write to.
  * @param data Data to write.

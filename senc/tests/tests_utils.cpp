@@ -13,6 +13,11 @@ std::string temp_file_path(const std::string& name)
 	return (std::filesystem::temp_directory_path() / name).string();
 }
 
+std::string temp_dir_path()
+{
+	return std::filesystem::temp_directory_path().string();
+}
+
 void write_raw(const std::string& path, const std::vector<senc::utils::byte>& data)
 {
 	std::FILE* f = std::fopen(path.c_str(), "wb");

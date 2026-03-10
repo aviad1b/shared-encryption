@@ -27,15 +27,21 @@ namespace senc::clientapi
 		 * @brief Signs up as a new username (and stays logged in).
 		 * @param username Username to signup with.
 		 * @param password Password to signup with.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		virtual void signup(const std::string& username, const std::string& password) = 0;
+		virtual void signup(const std::string& username,
+							const std::string& password,
+							const std::string& profileBaseDir) = 0;
 
 		/**
 		 * @brief Logs in to server (and stays logged in).
 		 * @param username Username to login with.
 		 * @param password Password to login with.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		virtual void login(const std::string& username, const std::string& password) = 0;
+		virtual void login(const std::string& username,
+						   const std::string& password,
+						   const std::string& profileBaseDir) = 0;
 
 		/**
 		 * @brief Logs out of server.

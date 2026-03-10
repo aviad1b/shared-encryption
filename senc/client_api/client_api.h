@@ -189,23 +189,28 @@ SENC_CLIENT_API_PUBLIC void SENC_Disconnect(uintptr_t hClient) SENC_NOTHROW;
 /**
  * @brief Signs up as a new username (and stays logged in).
  * @param hClient Client handle.
+ * @param profileBaseDir Base directory where local profile data should be stored.
  * @param username Username to signup with.
  * @param password Password to signup with.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_SignUp(uintptr_t hClient,
+											 const char* profileBaseDir,
 											 const char* username,
 											 const char* password) SENC_NOTHROW;
 
 /**
  * @brief Logs in to server (and stays logged in).
+ * @param hClient Client handle.
+ * @param profileBaseDir Base directory where local profile data should be stored.
  * @param username Username to login with.
  * @param password Password to login with.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_LogIn(uintptr_t hClient,
+											const char* profileBaseDir,
 											const char* username,
 											const char* password) SENC_NOTHROW;
 

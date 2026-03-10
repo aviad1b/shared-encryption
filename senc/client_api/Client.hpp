@@ -53,9 +53,13 @@ namespace senc::clientapi
 		 */
 		~Client();
 
-		void signup(const std::string& username, const std::string& password) override;
+		void signup(const std::string& username,
+					const std::string& password,
+					const std::string& profileBaseDir) override;
 
-		void login(const std::string& username, const std::string& password) override;
+		void login(const std::string& username,
+				   const std::string& password,
+				   const std::string& profileBaseDir) override;
 
 		void logout() override;
 
@@ -109,8 +113,11 @@ namespace senc::clientapi
 		 * @brief Loads user's profile from memory.
 		 * @param username Username of user to load its profile.
 		 * @param password Password of user to load its profile.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		void load_profile(const std::string& username, const std::string& password);
+		void load_profile(const std::string& username,
+						  const std::string& password,
+						  const std::string& profileBaseDir);
 
 		/**
 		 * @brief Unloads loaded user's profile.
