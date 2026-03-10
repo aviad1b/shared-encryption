@@ -194,6 +194,16 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::user_search(const std::string& query, std::function<void(const std::string&)> callback)
+	{
+		pkt::UserSearchResponse resp = this->post<pkt::UserSearchResponse>(pkt::UserSearchRequest{
+			query
+		});
+		for (const auto& username : resp.users)
+			callback(username);
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)

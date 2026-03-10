@@ -412,3 +412,23 @@ uintptr_t SENC_ForceUpdate(uintptr_t hClient) noexcept
 		client.force_update();
 	})->as_nint();
 }
+
+uintptr_t SENC_UserSearch(uintptr_t hClient,
+						  const char* query,
+						  void(*callback)(const char*, uintptr_t),
+						  uintptr_t context) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, query, callback, context]
+	{
+		std::function<void(const std::string&)> outerCallback;
+		if (callback)
+			outerCallback = [callback, context](const std::string& username)
+			{
+				callback(username.c_str(), context);
+			};
+		else
+			outerCallback = [](const std::string&) { };
+		return client.user_search(query, outerCallback);
+	})->as_nint();
+}

@@ -83,6 +83,9 @@ namespace senc::clientapi
 
 		void force_update() override;
 
+		void user_search(const std::string& query,
+						 std::function<void(const std::string&)> callback) override;
+
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;
