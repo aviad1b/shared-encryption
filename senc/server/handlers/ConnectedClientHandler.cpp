@@ -30,7 +30,8 @@ namespace senc::server::handlers
 			pkt::DecryptRequest,
 			pkt::UpdateRequest,
 			pkt::DecryptParticipateRequest,
-			pkt::SendDecryptionPartRequest
+			pkt::SendDecryptionPartRequest,
+			pkt::UserSearchRequest
 		>();
 
 		if (req.has_value())
@@ -398,6 +399,28 @@ namespace senc::server::handlers
 
 		// finally, send ack
 		_packetHandler.send_response(pkt::SendDecryptionPartResponse{});
+
+		return Status::Connected;
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UserSearchRequest& request)
+	{
+		std::vector<std::string> users;
+		try
+		{
+			users = _storage.user_search(request.query);
+		}
+		catch (const ServerException& e)
+		{
+			_packetHandler.send_response(pkt::ErrorResponse{
+				std::string("Failed to fetch users: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		_packetHandler.send_response(pkt::UserSearchResponse{
+			std::move(users)
+		});
 
 		return Status::Connected;
 	}

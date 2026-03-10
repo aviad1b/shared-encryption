@@ -119,5 +119,7 @@ namespace senc::server::handlers
 		Status handle_request(pkt::DecryptParticipateRequest& request);
 
 		Status handle_request(pkt::SendDecryptionPartRequest& request);
+
+		Status handle_request(pkt::UserSearchRequest& request);
 	};
 }
