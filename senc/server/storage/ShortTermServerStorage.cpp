@@ -160,4 +160,17 @@ namespace senc::server::storage
 		const std::lock_guard<std::mutex> lock(_mtxShardIDs);
 		return _shardIDs.at(std::make_tuple(user, userset));
 	}
+
+	std::vector<std::string> ShortTermServerStorage::user_search(const std::string& query)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUsers);
+		return utils::to_vector<std::string>(
+			_users |
+			std::views::transform([](auto&& p) { return p.first; }) |
+			std::views::filter([&query](const std::string& username)
+			{
+				return (std::string::npos != username.find(query));
+			})
+		);
+	}
 }

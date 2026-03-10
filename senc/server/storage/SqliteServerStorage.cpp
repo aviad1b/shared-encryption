@@ -305,6 +305,29 @@ namespace senc::server::storage
 		return res;
 	}
 
+	std::vector<std::string> SqliteServerStorage::user_search(const std::string& query)
+	{
+		std::vector<std::string> res;
+		const std::lock_guard<std::mutex> lock(_mtxDB);
+		try
+		{
+			this->_db.select<"Users", sql::SelectArg<"username">>()
+				.where("username LIKE " + sql::Text("%" + query + "%").as_sqlite())
+				>> [&res](sql::TextView username)
+				{
+					res.emplace_back(username.get());
+				};
+		}
+		catch (utils::sqlite::SQLiteException& e)
+		{
+			throw ServerStorageException(
+				"Failed to search user in database",
+				e.what()
+			);
+		}
+		return res;
+	}
+
 	bool SqliteServerStorage::userset_exists(const UserSetID& usersetID)
 	{
 		bool found = false;

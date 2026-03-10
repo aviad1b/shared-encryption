@@ -224,5 +224,12 @@ namespace senc::server::storage
 		 * @throw ServerStorageException In case of error.
 		 */
 		virtual PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) = 0;
+
+		/**
+		 * @brief Searches for a user.
+		 * @param query Search query (part of username).
+		 * @return All users matching `query`.
+		 */
+		virtual std::vector<std::string> user_search(const std::string& query) = 0;
 	};
 }
