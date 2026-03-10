@@ -130,14 +130,11 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&)> callback)
+	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&, const std::string&)> callback)
 	{
 		pkt::GetUserSetsResponse resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
 		for (const auto& [id, name] : resp.user_sets)
-		{
-			callback(id);
-			(void)name;
-		}
+			callback(id, name);
 	}
 
 	template <utils::IPType IP>

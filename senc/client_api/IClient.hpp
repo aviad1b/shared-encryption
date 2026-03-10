@@ -68,9 +68,9 @@ namespace senc::clientapi
 		/**
 		 * @brief Gets all usersets owned by user.
 		 * @note Requires user to be logged in.
-		 * @param callback Callback function to call on the ID of each userset owned by user.
+		 * @param callback Callback function to call on ID and name of each userset owned by user.
 		 */
-		virtual void get_usersets(std::function<void(const UserSetID&)> callback) = 0;
+		virtual void get_usersets(std::function<void(const UserSetID&, const std::string&)> callback) = 0;
 
 		/**
 		 * @brief Gets all members of a specific userset.

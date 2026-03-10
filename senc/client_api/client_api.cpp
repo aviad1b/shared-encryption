@@ -337,14 +337,15 @@ uintptr_t SENC_GetUserSets(uintptr_t hClient,
 	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
 		// if `callback` isn't null, wrap it for logic; otherwise, use empty lambda
-		std::function<void(const senc::UserSetID&)> outerCallback;
+		std::function<void(const senc::UserSetID&, const std::string&)> outerCallback;
 		if (callback)
-			outerCallback = [callback, context](const senc::UserSetID& usersetID)
+			outerCallback = [callback, context](const senc::UserSetID& id, const std::string& name)
 			{
-				callback(usersetID.to_string().c_str(), context);
+				(void)name;
+				callback(id.to_string().c_str(), context);
 			};
 		else
-			outerCallback = [](const senc::UserSetID&) { };
+			outerCallback = [](const senc::UserSetID&, const std::string&) { };
 
 		client.get_usersets(outerCallback);
 	})->as_nint();
