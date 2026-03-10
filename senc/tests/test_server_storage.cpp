@@ -193,7 +193,7 @@ TEST_P(ServerStorageTest, GetUsersets_ReturnsUserSetsForOwner)
 
 	EXPECT_EQ(aviSets.size(), 2);
 	EXPECT_CONTAINS(aviSets, std::make_pair(id1, id1.to_string()));
-	EXPECT_CONTAINS(aviSets, std::make_pair(id2, "my awesome userset"));
+	EXPECT_CONTAINS(aviSets, std::make_pair(id2, std::string("my awesome userset")));
 }
 
 TEST_P(ServerStorageTest, GetUsersets_DoesNotReturnSetsWhereUserIsOnlyRegularMember)
