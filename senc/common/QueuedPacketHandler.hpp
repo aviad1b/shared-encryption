@@ -134,6 +134,12 @@ namespace senc
 		void send_response(const pkt::SendDecryptionPartResponse& packet) override;
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
 
+		void send_request(const pkt::UserSearchRequest& packet) override;
+		void recv_request_data(pkt::UserSearchRequest& out) override;
+
+		void send_response(const pkt::UserSearchResponse& packet) override;
+		void recv_response_data(pkt::UserSearchResponse& out) override;
+
 	private:
 		/**
 		 * @struct senc::QueuedPacketHandler::Sync

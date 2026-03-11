@@ -46,6 +46,8 @@ namespace senc::server::storage
 
 		PrivKeyShardID get_shard_id(const std::string& user, const UserSetID& userset) override;
 
+		std::vector<std::string> user_search(const std::string& query) override;
+
 	private:
 		struct StoredUserSetInfo
 		{

@@ -79,4 +79,15 @@ namespace senc
 	 * @brief Maximum buffer size that can be sent in a packet (the size itself).
 	 */
 	constexpr std::size_t MAX_BUFFER_SIZE = std::numeric_limits<buffer_size_t>::max();
+
+	/**
+	 * @typedef senc::search_result_count_t
+	 * @brief Fundamental used for sending/recving search results.
+	 */
+	using search_result_count_t = std::uint64_t;
+
+	/**
+	 * @brief Maximum search results that can be send in a packet.
+	 */
+	constexpr std::size_t MAX_SEARCH_RESULT_COUNT = std::numeric_limits<search_result_count_t>::max();
 }

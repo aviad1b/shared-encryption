@@ -140,6 +140,12 @@ namespace senc
 		virtual void send_response(const pkt::SendDecryptionPartResponse& packet) = 0;
 		virtual void recv_response_data(pkt::SendDecryptionPartResponse& out) = 0;
 
+		virtual void send_request(const pkt::UserSearchRequest& packet) = 0;
+		virtual void recv_request_data(pkt::UserSearchRequest& out) = 0;
+
+		virtual void send_response(const pkt::UserSearchResponse& packet) = 0;
+		virtual void recv_response_data(pkt::UserSearchResponse& out) = 0;
+
 	protected:
 		utils::Socket& _sock;
 

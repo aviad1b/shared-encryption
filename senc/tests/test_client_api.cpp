@@ -23,6 +23,7 @@ using senc::EncryptedPacketHandler;
 using senc::server::IServer;
 using senc::server::Server;
 using senc::utils::HashMap;
+using senc::utils::HashSet;
 using senc::utils::Buffer;
 using senc::utils::Port;
 using senc::utils::IPv4;
@@ -84,6 +85,12 @@ static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, ui
 	auto* pDecsMap = reinterpret_cast<DecsMap*>(context);
 	const std::lock_guard<std::mutex> lock(pDecsMap->mtx);
 	pDecsMap->map[opid].emplace_back(bytes, bytes + len);
+}
+
+static void add_str_to_hash_set(const char* str, uintptr_t context)
+{
+	auto* hashSet = reinterpret_cast<HashSet<std::string>*>(context);
+	hashSet->insert(str);
 }
 
 static void test_userset_id_eq(const char* id, const char* name, uintptr_t context)
@@ -159,6 +166,55 @@ TEST_F(ClientApiTest, SignupLoginLogout)
 	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
 	SENC_Disconnect(hClient);
+}
+
+TEST_F(ClientApiTest, UserSearch)
+{
+	std::vector<std::pair<std::string, std::string>> users = {
+		{ "aviad", "pass123" },
+		{ "batya", "sadfg" },
+		{ "avihay", "hdgsfa" },
+		{ "gal", "2134" },
+		{ "aviel123", "ASKDFHU6*$" },
+		{ "dan", "ads" },
+		{ "miavi", "gfsa" },
+		{ "miavi2serethahemshech", "hdgs" }
+	};
+
+	// connect & signup each user
+	std::vector<SENC_Handle> hClients;
+	for (const auto& [username, password] : users)
+	{
+		hClients.emplace_back(SENC_Connect(ip, port, nullptr, 0));
+		ASSERT_NO_ERROR(hClients.back());
+		ASSERT_NO_ERROR(SENC_SignUp(
+			hClients.back(), profileBaseDir.c_str(),
+			username.c_str(), password.c_str()
+		));
+	}
+
+	// try search as each user
+	for (auto& hClient : hClients)
+	{
+		HashSet<std::string> usersFound;
+		SENC_UserSearch(
+			hClient, "avi", add_str_to_hash_set,
+			reinterpret_cast<uintptr_t>(&usersFound)
+		);
+		EXPECT_EQ(usersFound.size(), 5);
+		EXPECT_TRUE(usersFound.contains("aviad"));
+		EXPECT_TRUE(usersFound.contains("avihay"));
+		EXPECT_TRUE(usersFound.contains("aviel123"));
+		EXPECT_TRUE(usersFound.contains("miavi"));
+		EXPECT_TRUE(usersFound.contains("miavi2serethahemshech"));
+	}
+
+	// logout and disconnect all users
+	for (auto& hClient : hClients)
+	{
+		ASSERT_NO_ERROR(SENC_LogOut(hClient));
+		SENC_Disconnect(hClient);
+	}
 }
 
 TEST_F(ClientApiTest, RoundTripFlow)

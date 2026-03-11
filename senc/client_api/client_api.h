@@ -380,6 +380,21 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
 
+/**
+ * @brief Searches for a user.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param query Search query (part of username).
+ * @param callback Callback to call on each username found.
+ * @param conetxt Context to pass `callback`.
+ * @return Null on success, error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_UserSearch(uintptr_t hClient,
+												 const char* query,
+												 void(*callback)(const char*, uintptr_t),
+												 uintptr_t context) SENC_NOTHROW;
+
 
 #ifdef __cplusplus
 #include <utility>

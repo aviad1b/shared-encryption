@@ -111,5 +111,13 @@ namespace senc::clientapi
 		 * @brief Forces client update.
 		 */
 		virtual void force_update() = 0;
+
+		/**
+		 * @brief Searches for a user.
+		 * @param query Search query (part of username).
+		 * @param callback Callback to call on each username found.
+		 */
+		virtual void user_search(const std::string& query,
+								 std::function<void(const std::string&)> callback) = 0;
 	};
 }

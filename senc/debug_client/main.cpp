@@ -48,6 +48,7 @@ namespace senc::debug_client
 		CompPart,
 		SendPart,
 		JoinParts,
+		UserSearch,
 		Exit
 	};
 
@@ -79,6 +80,7 @@ namespace senc::debug_client
 	ConnStatus comp_part(PacketHandler& packetHandler);
 	ConnStatus send_part(PacketHandler& packetHandler);
 	ConnStatus join_parts(PacketHandler& packetHandler);
+	ConnStatus user_search(PacketHandler& packetHandler);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
@@ -103,6 +105,7 @@ namespace senc::debug_client
 		{ MainMenuOption::CompPart   , { "Compute part for decryption", comp_part    } },
 		{ MainMenuOption::SendPart   , { "Send part for decryption"   , send_part    } },
 		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
+		{ MainMenuOption::UserSearch , { "User search"                , user_search  } },
 		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
 	};
 
@@ -647,6 +650,28 @@ namespace senc::debug_client
 			msg = utils::bytes_to_base64(decrypted);
 
 		cout << "Decrypted message:" << endl << msg << endl << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus user_search(PacketHandler& packetHandler)
+	{
+		std::string query = io::input("Enter part of username: ");
+		cout << endl;
+
+		auto resp = post<pkt::UserSearchResponse>(packetHandler, pkt::UserSearchRequest{
+			query
+		});
+
+		if (resp.users.empty())
+			cout << "No users found." << endl;
+		else
+		{
+			cout << "Found " << resp.users.size() << " users:" << endl;
+			for (const auto& [i, username] : resp.users | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << username << endl;
+		}
+		cout << endl;
 
 		return ConnStatus::Connected;
 	}

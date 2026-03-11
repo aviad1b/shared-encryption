@@ -422,6 +422,40 @@ namespace senc
 		(void)out;
 	}
 
+	void InlinePacketHandler::send_request(const pkt::UserSearchRequest& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		_sock.send_connected_value(packet.query);
+	}
+
+	void InlinePacketHandler::recv_request_data(pkt::UserSearchRequest& out)
+	{
+		_sock.recv_connected_value(out.query);
+	}
+
+	void InlinePacketHandler::send_response(const pkt::UserSearchResponse& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		const auto count = static_cast<search_result_count_t>(
+			std::min(packet.users.size(), MAX_SEARCH_RESULT_COUNT)
+		);
+		_sock.send_connected_value(count);
+
+		for (const auto& username : packet.users | std::views::take(count))
+			_sock.send_connected_value(username);
+	}
+
+	void InlinePacketHandler::recv_response_data(pkt::UserSearchResponse& out)
+	{
+		auto count = _sock.recv_connected_primitive<search_result_count_t>();
+		out.users.resize(count);
+
+		for (auto& username : out.users)
+			_sock.recv_connected_value(username);
+	}
+
 	InlinePacketHandler::InlinePacketHandler(utils::Socket& sock)
 		: Base(sock) { }
 
