@@ -669,7 +669,7 @@ namespace senc::debug_client
 		{
 			cout << "Found " << resp.users.size() << " users:" << endl;
 			for (const auto& [i, username] : resp.users | utils::views::enumerate)
-				cout << i << ".\t" << username << endl;
+				cout << (i + 1) << ".\t" << username << endl;
 		}
 		cout << endl;
 
