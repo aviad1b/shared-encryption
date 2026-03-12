@@ -56,6 +56,7 @@
 	"pwd/general.hpp"
 	"pwd/PBKDF2.hpp"
 	"pwd/PBKDF2_impl.hpp"
+	"pseudo_random.hpp"
 	"sqlite/SQLiteException.hpp"
 	"sqlite/values.hpp"
 	"sqlite/values.cpp"
