@@ -145,6 +145,9 @@ namespace senc
 
 		void send_update_record(const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
 		void recv_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out);
+
+		void send_update_record(const pkt::UpdateResponse::ToEvolveRecord& record);
+		void recv_update_record(pkt::UpdateResponse::ToEvolveRecord& out);
 	};
 
 	static_assert(PacketHandlerImpl<InlinePacketHandler>);

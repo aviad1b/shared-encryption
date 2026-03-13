@@ -203,6 +203,10 @@ namespace senc
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
 		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out,
 			utils::BytesView::iterator it, utils::BytesView::iterator end);
+
+		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToEvolveRecord& record);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::ToEvolveRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 	};
 
 	static_assert(PacketHandlerImpl<EncryptedPacketHandler>);

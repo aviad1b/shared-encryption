@@ -317,6 +317,7 @@ namespace senc
 		_sock.send_connected_value(static_cast<lookup_count_t>(packet.on_lookup.size()));
 		_sock.send_connected_value(static_cast<pending_count_t>(packet.to_decrypt.size()));
 		_sock.send_connected_value(static_cast<res_count_t>(packet.finished_decryptions.size()));
+		_sock.send_connected_value(static_cast<evolve_count_t>(packet.to_evolve.size()));
 
 		// send added_as_owner records
 		for (const auto& record : packet.added_as_owner)
@@ -337,6 +338,10 @@ namespace senc
 		// send finished_decryptions records
 		for (const auto& record : packet.finished_decryptions)
 			send_update_record(record);
+
+		// send to_evolve records
+		for (const auto& record : packet.to_evolve)
+			send_update_record(record);
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::UpdateResponse& out)
@@ -347,6 +352,7 @@ namespace senc
 		auto onLookupCount = _sock.recv_connected_primitive<lookup_count_t>();
 		auto toDecryptCount = _sock.recv_connected_primitive<pending_count_t>();
 		auto finishedDecryptionsCount = _sock.recv_connected_primitive<res_count_t>();
+		auto toEvolveCount = _sock.recv_connected_primitive<evolve_count_t>();
 
 		// recv added_as_owner records
 		out.added_as_owner.resize(addedAsOwnerCount);
@@ -371,6 +377,11 @@ namespace senc
 		// recv finished_decryptions records
 		out.finished_decryptions.resize(finishedDecryptionsCount);
 		for (auto& record : out.finished_decryptions)
+			recv_update_record(record);
+
+		// recv to_evolve records
+		out.to_evolve.resize(toEvolveCount);
+		for (auto& record : out.to_evolve)
 			recv_update_record(record);
 	}
 
@@ -645,5 +656,15 @@ namespace senc
 		out.owner_layer_shards_ids.resize(ownerLayerPartsCount + 1);
 		for (auto& shardID : out.owner_layer_shards_ids)
 			recv_priv_key_shard_id(shardID);
+	}
+
+	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::ToEvolveRecord& record)
+	{
+		_sock.send_connected_value(record.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::ToEvolveRecord& out)
+	{
+		_sock.recv_connected_value(out.user_set_id);
 	}
 }
