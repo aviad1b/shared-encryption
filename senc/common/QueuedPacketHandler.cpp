@@ -353,6 +353,30 @@ namespace senc
 		this->_underlying->recv_response_data(out);
 	}
 
+	void QueuedPacketHandler::send_request(const pkt::EvolveRequest& packet)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->send_request(packet);
+	}
+
+	void QueuedPacketHandler::recv_request_data(pkt::EvolveRequest& out)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->recv_request_data(out);
+	}
+
+	void QueuedPacketHandler::send_response(const pkt::EvolveResponse& packet)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->send_response(packet);
+	}
+
+	void QueuedPacketHandler::recv_response_data(pkt::EvolveResponse& out)
+	{
+		const std::lock_guard<std::mutex> lock(_sync.mtxUnderlying);
+		this->_underlying->recv_response_data(out);
+	}
+
 	QueuedPacketHandler::QueuedPacketHandler(
 		utils::Socket& sock,
 		std::unique_ptr<PacketHandler>&& underlying,

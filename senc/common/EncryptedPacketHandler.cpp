@@ -688,6 +688,38 @@ namespace senc
 			it = utils::read_bytes(username, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request(const pkt::EvolveRequest& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		utils::write_bytes(data, packet.user_set_id);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(pkt::EvolveRequest& out)
+	{
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
+
+		it = utils::read_bytes(out.user_set_id, it, end);
+	}
+
+	void EncryptedPacketHandler::send_response(const pkt::EvolveResponse& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(pkt::EvolveResponse& out)
+	{
+		(void)out;
+	}
+
 	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
 		: Base(sock) {
 	}

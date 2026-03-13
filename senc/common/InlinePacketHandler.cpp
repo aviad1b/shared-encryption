@@ -467,6 +467,28 @@ namespace senc
 			_sock.recv_connected_value(username);
 	}
 
+	void InlinePacketHandler::send_request(const pkt::EvolveRequest& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		_sock.send_connected_value(packet.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_request_data(pkt::EvolveRequest& out)
+	{
+		_sock.recv_connected_value(out.user_set_id);
+	}
+
+	void InlinePacketHandler::send_response(const pkt::EvolveResponse& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+	}
+
+	void InlinePacketHandler::recv_response_data(pkt::EvolveResponse& out)
+	{
+		(void)out;
+	}
+
 	InlinePacketHandler::InlinePacketHandler(utils::Socket& sock)
 		: Base(sock) { }
 
