@@ -542,6 +542,8 @@ namespace senc::pkt
 		 */
 		struct ToEvolveRecord
 		{
+			bool operator==(const ToEvolveRecord&) const = default;
+
 			/// ID of userset to evolve its keys.
 			UserSetID user_set_id;
 		};
