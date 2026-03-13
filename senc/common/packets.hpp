@@ -535,6 +535,19 @@ namespace senc::pkt
 
 		/// Finished decryptions requested by this client.
 		std::vector<FinishedDecryptionsRecord> finished_decryptions;
+
+		/**
+		 * @struct ToEvolveRecord
+		 * @brief Record for usersets to evolve their keys.
+		 */
+		struct ToEvolveRecord
+		{
+			/// ID of userset to evolve its keys.
+			UserSetID user_set_id;
+		};
+
+		/// Usersets to evolve their keys (may have duplicates to evolve multiple times).
+		std::vector<ToEvolveRecord> to_evolve;
 	};
 
 

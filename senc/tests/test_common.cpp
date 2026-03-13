@@ -339,6 +339,10 @@ static void update_cycle(PacketsTest& test)
 				{ 5, 100 },
 				{ 100 }
 			}
+		},
+		{
+			{ "d26af60a-0971-4916-898d-54cb02097333" },
+			{ "07c039b6-5a7c-4a3c-9a7a-85ff31710f2f" }
 		}
 	};
 	test.cycle_flow(req, resp);
