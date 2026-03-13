@@ -63,7 +63,10 @@ namespace senc::pkt
 		SendDecryptionPartResponse,
 
 		UserSearchRequest,
-		UserSearchResponse
+		UserSearchResponse,
+
+		EvolveRequest,
+		EvolveResponse
 	};
 
 
@@ -666,5 +669,35 @@ namespace senc::pkt
 
 		/// List of usernames matching search.
 		std::vector<std::string> users;
+	};
+
+
+	// =================================================================
+	// Evolve cycle
+	// Client requests to evolve keys of a userset with given ID.
+	// Server responds.
+	// =================================================================
+
+	/**
+	 * @struct EvolveRequest
+	 * @brief Request containing ID of userset to evolve its keys.
+	 */
+	struct EvolveRequest
+	{
+		static constexpr auto CODE = Code::EvolveRequest;
+		bool operator==(const EvolveRequest&) const = default;
+
+		/// ID of userset to evolve its keys.
+		UserSetID user_set_id;
+	};
+
+	/**
+	 * @struct EvolveResponse
+	 * @brief Acknowledgement of key evolution.
+	 */
+	struct EvolveResponse
+	{
+		static constexpr auto CODE = Code::EvolveResponse;
+		bool operator==(const EvolveResponse&) const = default;
 	};
 }
