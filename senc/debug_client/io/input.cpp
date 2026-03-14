@@ -188,17 +188,6 @@ namespace senc::debug_client::io
 		return input_priv_key_shard_ids();
 	}
 
-	PrivKeyShard input_priv_key_shard()
-	{
-		return priv_key_shard_from_bytes(utils::bytes_from_base64(input()));
-	}
-
-	PrivKeyShard input_priv_key_shard(const std::string& msg)
-	{
-		std::cout << msg;
-		return input_priv_key_shard();
-	}
-
 	Ciphertext input_ciphertext()
 	{
 		auto c1 = utils::from_bytes<std::tuple_element_t<0, Ciphertext>>(utils::bytes_from_base64(input()));

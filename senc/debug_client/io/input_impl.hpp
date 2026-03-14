@@ -108,6 +108,25 @@ namespace senc::debug_client::io
 	}
 
 	template <bool allowEmpty>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard()
+	{
+		auto strInput = input();
+		if constexpr (allowEmpty)
+			if (strInput.empty())
+				return std::nullopt;
+		return priv_key_shard_from_bytes(utils::bytes_from_base64(strInput));
+	}
+
+	template <bool allowEmpty>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_priv_key_shard<allowEmpty>();
+	}
+
+	template <bool allowEmpty>
 	std::conditional_t<allowEmpty, std::optional<DecryptionPart>, DecryptionPart> input_decryption_part()
 	{
 		std::string str = input();

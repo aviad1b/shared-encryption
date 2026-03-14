@@ -336,16 +336,21 @@ namespace senc::debug_client::io
 
 	/**
 	 * @brief Gets private key shard input.
+	 * @tparam allowEmpty Whether or not should allow empty input.
 	 * @return Private key shard input.
 	 */
-	PrivKeyShard input_priv_key_shard();
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard();
 
 	/**
 	 * @brief Gets private key shard input.
 	 * @param msg Message to print before input.
 	 * @return Private key shard input.
 	 */
-	PrivKeyShard input_priv_key_shard(const std::string& msg);
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard(const std::string& msg);
 
 	/**
 	 * @brief Gets ciphertext input.
