@@ -396,6 +396,20 @@ TEST_P(PacketsTest, UserSearchCycleTest)
 	user_search_cycle(*this);
 }
 
+static void evolve_cycle(PacketsTest& test)
+{
+	pkt::EvolveRequest req{
+		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34"
+	};
+	pkt::EvolveResponse resp{};
+	test.cycle_flow(req, resp);
+}
+
+TEST_P(PacketsTest, EvolveCycleTest)
+{
+	evolve_cycle(*this);
+}
+
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)
 {
 	error_cycle(*this);
