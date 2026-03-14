@@ -59,6 +59,25 @@ namespace senc
 			(apply_offset(args), ...);
 			advance_offset();
 		}
+		
+		/**
+		 * @brief Evolves public keys.
+		 * @param pks Vector of public keys to evolve.
+		 */
+		void operator()(std::vector<PubKey>& pks);
+
+		/**
+		 * @brief Evovles private key shards.
+		 * @param shards Vector of private key shards to evolve.
+		 */
+		void operator()(std::vector<PrivKeyShard>& shards);
+
+		/**
+		 * @brief Evolves public keys and private key shards.
+		 * @param pks Vector of public keys to evolve.
+		 * @param shards Vector of private key shards to evolve.
+		 */
+		void operator()(std::vector<PubKey>& pks, std::vector<PrivKeyShard>& shards);
 
 	private:
 		// next offset for polynomial, computed pseudo-randomly each iteration

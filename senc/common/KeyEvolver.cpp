@@ -15,6 +15,29 @@ namespace senc
 {
 	KeyEvolver::KeyEvolver(Seed&& seed) : _offset(std::move(seed)) { }
 
+	void KeyEvolver::operator()(std::vector<PubKey>& pks)
+	{
+		for (auto& pk : pks)
+			apply_offset(pk);
+		advance_offset();
+	}
+
+	void KeyEvolver::operator()(std::vector<PrivKeyShard>& shards)
+	{
+		for (auto& shard : shards)
+			apply_offset(shard);
+		advance_offset();
+	}
+
+	void KeyEvolver::operator()(std::vector<PubKey>& pks, std::vector<PrivKeyShard>& shards)
+	{
+		for (auto& pk : pks)
+			apply_offset(pk);
+		for (auto& shard : shards)
+			apply_offset(shard);
+		advance_offset();
+	}
+
 	void KeyEvolver::advance_offset()
 	{
 		this->_offset = utils::pseudo_random(_offset, PubKey::order().MinEncodedSize());
