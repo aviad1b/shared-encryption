@@ -188,6 +188,11 @@ namespace senc
 	Seed sample_seed();
 
 	/**
+	 * @brief Gets size of encoded seed (in bytes).
+	 */
+	std::size_t get_seed_encoded_size();
+
+	/**
 	 * @brief Reads an evolution seed from bytes.
 	 * @param out Variable to store read seedto.
 	 * @param it Iterator to read from.

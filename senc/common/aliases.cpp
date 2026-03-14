@@ -88,6 +88,11 @@ namespace senc
 		return dist();
 	}
 
+	std::size_t get_seed_encoded_size()
+	{
+		return PubKey::order().MinEncodedSize();
+	}
+
 	utils::BytesView::iterator read_seed(Seed& out,
 										 utils::BytesView::iterator it,
 										 utils::BytesView::iterator end)
