@@ -390,6 +390,19 @@ namespace senc::debug_client::io
 	 * @return Decryption part inputs vector.
 	 */
 	std::vector<DecryptionPart> input_decryption_parts(const std::string& msg);
+
+	/**
+	 * @brief Gets offset input (for evolution.
+	 * @return Offset input.
+	 */
+	utils::BigInt input_offset();
+
+	/**
+	 * @brief Gets offset input (for evolution.
+	 * @param msg Message to print before input.
+	 * @return Offset input.
+	 */
+	utils::BigInt input_offset(const std::string& msg);
 }
 
 #include "input_impl.hpp"
