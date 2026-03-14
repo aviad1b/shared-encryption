@@ -13,14 +13,6 @@
 
 namespace senc
 {
-	Seed KeyEvolver::sample_seed()
-	{
-		static thread_local auto dist =
-			utils::Random<utils::BigInt>::get_dist_below(PubKey::order());
-
-		return dist();
-	}
-
 	KeyEvolver::KeyEvolver(Seed&& seed) : _offset(std::move(seed)) { }
 
 	void KeyEvolver::advance_offset()

@@ -79,4 +79,12 @@ namespace senc
 		write_priv_key_shard(res, shard);
 		return res;
 	}
+
+	Seed sample_seed()
+	{
+		static thread_local auto dist =
+			utils::Random<utils::BigInt>::get_dist_below(PubKey::order());
+
+		return dist();
+	}
 }

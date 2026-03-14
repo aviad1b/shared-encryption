@@ -180,4 +180,10 @@ namespace senc
 	 * @brief Type of seed used for key evolution.
 	 */
 	using Seed = utils::BigInt;
+
+	/**
+	 * @brief Samples seed for key evolver.
+	 * @return Sampled seed.
+	 */
+	Seed sample_seed();
 }
