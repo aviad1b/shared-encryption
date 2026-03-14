@@ -557,6 +557,14 @@ namespace senc::debug_client
 				print_finished_data(i, data);
 		}
 
+		if (!resp.to_evolve.empty())
+		{
+			hadUpdates = true;
+			cout << "Usersets to evolve their keys:" << endl;
+			for (const auto& [i, data] : resp.to_evolve | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << data.user_set_id << endl;
+		}
+
 		if (!hadUpdates)
 			cout << "No updates to show." << endl;
 		cout << endl;
