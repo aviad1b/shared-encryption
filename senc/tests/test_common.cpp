@@ -256,12 +256,14 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+				435,
 				ECGroup::generator().pow(435),
 				ECGroup::generator().pow(256),
 				senc::PrivKeyShard{ 1, 435 }
 			},
 			{
 				"c7379469-4294-40b4-850c-fe665717d1ba",
+				333,
 				ECGroup::generator().pow(534),
 				ECGroup::generator().pow(652),
 				senc::PrivKeyShard{ 2, 256 }
@@ -270,6 +272,7 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"57641e16-e02a-473b-8204-a809a9c435df",
+				123456,
 				ECGroup::generator().pow(111),
 				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
@@ -279,6 +282,7 @@ static void update_cycle(PacketsTest& test)
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
+				43544,
 				ECGroup::generator().pow(444),
 				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },

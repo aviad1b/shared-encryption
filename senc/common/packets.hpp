@@ -424,6 +424,9 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
+			/// Seed (for evolution).
+			utils::BigInt seed;
+
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;
 
@@ -448,6 +451,9 @@ namespace senc::pkt
 
 			/// User set ID.
 			UserSetID user_set_id;
+
+			/// Seed (for evolution).
+			utils::BigInt seed;
 
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;

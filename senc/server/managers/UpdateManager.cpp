@@ -28,6 +28,7 @@ namespace senc::server::managers
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_reg_member.emplace_back(
 			usersetID,
+			utils::BigInt(),
 			regLayerPubKey, ownerLayerPubKey,
 			std::move(privKeyShard)
 		);
@@ -45,6 +46,7 @@ namespace senc::server::managers
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
+			utils::BigInt(),
 			regLayerPubKey, ownerLayerPubKey,
 			std::move(regExternalPrivKeyShard),
 			regInternalPrivKeyShard,
