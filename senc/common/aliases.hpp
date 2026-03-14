@@ -186,4 +186,36 @@ namespace senc
 	 * @return Sampled seed.
 	 */
 	Seed sample_seed();
+
+	/**
+	 * @brief Reads an evolution seed from bytes.
+	 * @param out Variable to store read seedto.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::BytesView::iterator read_seed(Seed& out,
+										 utils::BytesView::iterator it,
+										 utils::BytesView::iterator end);
+
+	/**
+	 * @brief Reads an evolution seed from a buffer of bytes.
+	 * @param bytes Bytes to read seed from.
+	 * @return Read seed.
+	 */
+	Seed seed_from_bytes(utils::BytesView bytes);
+
+	/**
+	 * @brief Writes an evolution seed into a buffer.
+	 * @param out Buffer to write seed into.
+	 * @param seed Seed value to write.
+	 */
+	void write_seed(utils::Buffer& out, const Seed& seed);
+
+	/**
+	 * @brief Serializes an evolution seed into bytes.
+	 * @param seed Seed value serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer seed_to_bytes(const Seed& seed);
 }

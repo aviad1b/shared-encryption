@@ -87,4 +87,39 @@ namespace senc
 
 		return dist();
 	}
+
+	utils::BytesView::iterator read_seed(Seed& out,
+										 utils::BytesView::iterator it,
+										 utils::BytesView::iterator end)
+	{
+		const auto size = std::min(
+			PubKey::order().MinEncodedSize(),
+			static_cast<std::size_t>(end - it)
+		);
+
+		out.Decode(std::to_address(it), size);
+		return it + size;
+	}
+
+	Seed seed_from_bytes(utils::BytesView bytes)
+	{
+		Seed res{};
+		read_seed(res, bytes.begin(), bytes.end());
+		return res;
+	}
+
+	void write_seed(utils::Buffer& out, const Seed& seed)
+	{
+		const auto oldOutSize = out.size();
+		const auto seedSize = PubKey::order().MinEncodedSize();
+		out.resize(out.size() + seedSize);
+		seed.Encode(out.data() + oldOutSize, seedSize);
+	}
+
+	utils::Buffer seed_to_bytes(const Seed& seed)
+	{
+		utils::Buffer res{};
+		write_seed(res, seed);
+		return res;
+	}
 }
