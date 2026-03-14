@@ -31,7 +31,8 @@ namespace senc::server::handlers
 			pkt::UpdateRequest,
 			pkt::DecryptParticipateRequest,
 			pkt::SendDecryptionPartRequest,
-			pkt::UserSearchRequest
+			pkt::UserSearchRequest,
+			pkt::EvolveRequest
 		>();
 
 		if (req.has_value())
@@ -421,6 +422,17 @@ namespace senc::server::handlers
 		_packetHandler.send_response(pkt::UserSearchResponse{
 			std::move(users)
 		});
+
+		return Status::Connected;
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::EvolveRequest& request)
+	{
+		const auto info = _storage.get_userset_info(request.user_set_id);
+		for (const auto& user : utils::views::join(info.owners, info.reg_members))
+			_updateManager.register_key_evolution(user, request.user_set_id);
+
+		_packetHandler.send_response(pkt::EvolveResponse{});
 
 		return Status::Connected;
 	}
