@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include "../common/EncryptedPacketHandler.hpp"
+#include "../common/KeyEvolver.hpp"
 #include "../utils/Socket.hpp"
 #include "io/output.hpp"
 #include "io/input.hpp"
@@ -50,6 +51,8 @@ namespace senc::debug_client
 		JoinParts,
 		UserSearch,
 		RequestEvolve,
+		EvolvePubKey,
+		EvolveShards,
 		Exit
 	};
 
@@ -83,6 +86,8 @@ namespace senc::debug_client
 	ConnStatus join_parts(PacketHandler& packetHandler);
 	ConnStatus user_search(PacketHandler& packetHandler);
 	ConnStatus request_evolve(PacketHandler& packetHandler);
+	ConnStatus evolve_pub_key(PacketHandler& packetHandler);
+	ConnStatus evolve_shards(PacketHandler& packetHandler);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
@@ -97,19 +102,21 @@ namespace senc::debug_client
 
 	// maps main menu option to description and function
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
-		{ MainMenuOption::MakeUserSet  , { "Create a new userset"       , make_userset   } },
-		{ MainMenuOption::GetUserSets  , { "Show my usersets"           , get_usersets   } },
-		{ MainMenuOption::GetMembers   , { "Show userset's members"     , get_members    } },
-		{ MainMenuOption::Encrypt      , { "Encrypt a message"          , encrypt        } },
-		{ MainMenuOption::Decrypt      , { "Decrypt a message"          , decrypt        } },
-		{ MainMenuOption::Update       , { "Run an update cycle"        , update         } },
-		{ MainMenuOption::Participate  , { "Participate in decryption"  , participate    } },
-		{ MainMenuOption::CompPart     , { "Compute part for decryption", comp_part      } },
-		{ MainMenuOption::SendPart     , { "Send part for decryption"   , send_part      } },
-		{ MainMenuOption::JoinParts    , { "Join decryption parts"      , join_parts     } },
-		{ MainMenuOption::UserSearch   , { "User search"                , user_search    } },
-		{ MainMenuOption::RequestEvolve, { "Request key evolution"      , request_evolve } },
-		{ MainMenuOption::Exit         , { "Exit"                       , logout         } },
+		{ MainMenuOption::MakeUserSet  , { "Create a new userset"           , make_userset   } },
+		{ MainMenuOption::GetUserSets  , { "Show my usersets"               , get_usersets   } },
+		{ MainMenuOption::GetMembers   , { "Show userset's members"         , get_members    } },
+		{ MainMenuOption::Encrypt      , { "Encrypt a message"              , encrypt        } },
+		{ MainMenuOption::Decrypt      , { "Decrypt a message"              , decrypt        } },
+		{ MainMenuOption::Update       , { "Run an update cycle"            , update         } },
+		{ MainMenuOption::Participate  , { "Participate in decryption"      , participate    } },
+		{ MainMenuOption::CompPart     , { "Compute part for decryption"    , comp_part      } },
+		{ MainMenuOption::SendPart     , { "Send part for decryption"       , send_part      } },
+		{ MainMenuOption::JoinParts    , { "Join decryption parts"          , join_parts     } },
+		{ MainMenuOption::UserSearch   , { "User search"                    , user_search    } },
+		{ MainMenuOption::RequestEvolve, { "Request key evolution"          , request_evolve } },
+		{ MainMenuOption::EvolvePubKey , { "Evolve encryption key (locally)", evolve_pub_key } },
+		{ MainMenuOption::EvolveShards  , { "Evolve key shards (locally)"   , evolve_shards  } },
+		{ MainMenuOption::Exit         , { "Exit"                           , logout         } },
 	};
 
 	int main(int argc, char** argv)
@@ -697,6 +704,55 @@ namespace senc::debug_client
 		});
 
 		cout << "Key evolution successfully requested for userset " << usersetID << endl << endl;
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus evolve_pub_key(PacketHandler& packetHandler)
+	{
+		(void)packetHandler;
+
+		auto [pkReg, pkOwner] = io::input_pub_keys("Enter encryption key: ");
+		cout << endl;
+
+		auto offset = io::input_offset("Enter evolution offset (userset seed for first evolution): ");
+		cout << endl;
+
+		KeyEvolver evolve(std::move(offset));
+
+		evolve(pkReg, pkOwner);
+
+		cout << "New encryption key:";
+		io::print_pub_keys(pkReg, pkOwner);
+		cout << endl;
+
+		cout << "Offset for next evolution of this key: " << evolve.offset() << endl << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus evolve_shards(PacketHandler& packetHandler)
+	{
+		(void)packetHandler;
+
+		auto shards = io::input_priv_key_shards("Enter key shards (each in new line): ");
+		cout << endl;
+
+		auto offset = io::input_offset("Enter evolution offset (userset seed for first evolution): ");
+		cout << endl;
+
+		KeyEvolver evolve(std::move(offset));
+		evolve(shards);
+
+		cout << "Evolved shards: ";
+		for (const auto& shard : shards)
+		{
+			io::print_priv_key_shard(shard);
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "Offset for next evolution of these shards: " << evolve.offset() << endl << endl;
+
 		return ConnStatus::Connected;
 	}
 
