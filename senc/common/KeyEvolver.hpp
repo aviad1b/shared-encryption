@@ -50,6 +50,12 @@ namespace senc
 		Self& operator=(Self&&) = default;
 
 		/**
+		 * @brief Gets evolver's current offset.
+		 * @return Evolver's current offset.
+		 */
+		const utils::BigInt& offset() const;
+
+		/**
 		 * @brief Evolves public keys and private key shards.
 		 * @param args Public key and private key shard arguments (by ref).
 		 */
