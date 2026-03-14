@@ -127,4 +127,26 @@ namespace senc
 		write_seed(res, seed);
 		return res;
 	}
+
+	utils::BytesView::iterator read_evolution_offset(utils::BigInt& out,
+		utils::BytesView::iterator it,
+		utils::BytesView::iterator end)
+	{
+		return read_seed(out, it, end);
+	}
+
+	utils::BigInt evolution_offset_from_bytes(utils::BytesView bytes)
+	{
+		return seed_from_bytes(bytes);
+	}
+
+	void write_evolution_offset(utils::Buffer& out, const utils::BigInt& offset)
+	{
+		return write_seed(out, offset);
+	}
+
+	utils::Buffer evolution_offset_to_bytes(const utils::BigInt& offset)
+	{
+		return seed_to_bytes(offset);
+	}
 }

@@ -223,4 +223,36 @@ namespace senc
 	 * @return Buffer of bytes.
 	 */
 	utils::Buffer seed_to_bytes(const Seed& seed);
+
+	/**
+	 * @brief Reads an evolution offset from bytes.
+	 * @param out Variable to store read evolution offset to.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::BytesView::iterator read_evolution_offset(utils::BigInt& out,
+		utils::BytesView::iterator it,
+		utils::BytesView::iterator end);
+
+	/**
+	 * @brief Reads an evolution offset from a buffer of bytes.
+	 * @param bytes Bytes to read evolution offset from.
+	 * @return Read evolution offset.
+	 */
+	utils::BigInt evolution_offset_from_bytes(utils::BytesView bytes);
+
+	/**
+	 * @brief Writes an evolution offset into a buffer.
+	 * @param out Buffer to write evolution offset into.
+	 * @param offset Evolution offset to write.
+	 */
+	void write_evolution_offset(utils::Buffer& out, const utils::BigInt& offset);
+
+	/**
+	 * @brief Serializes an evolution offset into bytes.
+	 * @param offset Evolution offset to serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer evolution_offset_to_bytes(const utils::BigInt& offset);
 }
