@@ -97,4 +97,10 @@ namespace senc::server::managers
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
 	}
+
+	void UpdateManager::register_key_evolution(const std::string& user, const UserSetID& usersetID)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUpdates);
+		_updates[user].to_evolve.push_back({ usersetID });
+	}
 }

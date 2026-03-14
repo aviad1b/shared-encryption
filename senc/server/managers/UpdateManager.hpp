@@ -105,6 +105,13 @@ namespace senc::server::managers
 										  std::vector<PrivKeyShardID>&& regLayerShardsIDs,
 										  std::vector<PrivKeyShardID>&& ownerLayerShardsIDs);
 
+		/**
+		 * @brief Registers key evolution update for a specific user.
+		 * @param user Username of user to register key evolution update for.
+		 * @param usersetID ID of userset to evolve its keys.
+		 */
+		void register_key_evolution(const std::string& user, const UserSetID& usersetID);
+
 	private:
 		// maps username to updates prepared so far
 		utils::HashMap<std::string, pkt::UpdateResponse> _updates;
