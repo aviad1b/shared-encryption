@@ -178,6 +178,8 @@ namespace senc
 		send_priv_key_shard(packet.reg_internal_priv_key_shard);
 		send_priv_key_shard(packet.owner_external_priv_key_shard);
 		send_priv_key_shard(packet.owner_internal_priv_key_shard);
+		
+		_sock.send_connected(seed_to_bytes(packet.seed));
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
@@ -189,6 +191,8 @@ namespace senc
 		recv_priv_key_shard(out.reg_internal_priv_key_shard);
 		recv_priv_key_shard(out.owner_external_priv_key_shard);
 		recv_priv_key_shard(out.owner_internal_priv_key_shard);
+		
+		out.seed = seed_from_bytes(_sock.recv_connected_exact(get_seed_encoded_size()));
 	}
 
 	void InlinePacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
@@ -591,6 +595,9 @@ namespace senc
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		_sock.send_connected_value(record.user_set_id);
+
+		_sock.send_connected(seed_to_bytes(record.seed));
+
 		send_pub_key(record.reg_pub_key);
 		send_pub_key(record.owner_pub_key);
 		send_priv_key_shard(record.reg_external_priv_key_shard);
@@ -599,6 +606,9 @@ namespace senc
 	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out)
 	{
 		_sock.recv_connected_value(out.user_set_id);
+
+		out.seed = seed_from_bytes(_sock.recv_connected_exact(get_seed_encoded_size()));
+
 		recv_pub_key(out.reg_pub_key);
 		recv_pub_key(out.owner_pub_key);
 		recv_priv_key_shard(out.reg_external_priv_key_shard);

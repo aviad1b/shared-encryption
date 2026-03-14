@@ -285,6 +285,7 @@ namespace senc
 		write_priv_key_shard(data, packet.reg_internal_priv_key_shard);
 		write_priv_key_shard(data, packet.owner_external_priv_key_shard);
 		write_priv_key_shard(data, packet.owner_internal_priv_key_shard);
+		write_seed(data, packet.seed);
 
 		send_encrypted_data(data);
 	}
@@ -302,6 +303,7 @@ namespace senc
 		it = read_priv_key_shard(out.reg_internal_priv_key_shard, it, end);
 		it = read_priv_key_shard(out.owner_external_priv_key_shard, it, end);
 		it = read_priv_key_shard(out.owner_internal_priv_key_shard, it, end);
+		it = read_seed(out.seed, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
@@ -942,6 +944,7 @@ namespace senc
 	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		utils::write_bytes(out, record.user_set_id);
+		write_seed(out, record.seed);
 		write_pub_key(out, record.reg_pub_key);
 		write_pub_key(out, record.owner_pub_key);
 		write_priv_key_shard(out, record.reg_external_priv_key_shard);
@@ -952,6 +955,7 @@ namespace senc
 		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.user_set_id, it, end);
+		it = read_seed(out.seed, it, end);
 		it = read_pub_key(out.reg_pub_key, it, end);
 		it = read_pub_key(out.owner_pub_key, it, end);
 		it = read_priv_key_shard(out.reg_external_priv_key_shard, it, end);
