@@ -49,6 +49,7 @@ namespace senc::debug_client
 		SendPart,
 		JoinParts,
 		UserSearch,
+		RequestEvolve,
 		Exit
 	};
 
@@ -81,6 +82,7 @@ namespace senc::debug_client
 	ConnStatus send_part(PacketHandler& packetHandler);
 	ConnStatus join_parts(PacketHandler& packetHandler);
 	ConnStatus user_search(PacketHandler& packetHandler);
+	ConnStatus request_evolve(PacketHandler& packetHandler);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
@@ -95,18 +97,19 @@ namespace senc::debug_client
 
 	// maps main menu option to description and function
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
-		{ MainMenuOption::MakeUserSet, { "Create a new userset"       , make_userset } },
-		{ MainMenuOption::GetUserSets, { "Show my usersets"           , get_usersets } },
-		{ MainMenuOption::GetMembers , { "Show userset's members"     , get_members  } },
-		{ MainMenuOption::Encrypt    , { "Encrypt a message"          , encrypt      } },
-		{ MainMenuOption::Decrypt    , { "Decrypt a message"          , decrypt      } },
-		{ MainMenuOption::Update     , { "Run an update cycle"        , update       } },
-		{ MainMenuOption::Participate, { "Participate in decryption"  , participate  } },
-		{ MainMenuOption::CompPart   , { "Compute part for decryption", comp_part    } },
-		{ MainMenuOption::SendPart   , { "Send part for decryption"   , send_part    } },
-		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
-		{ MainMenuOption::UserSearch , { "User search"                , user_search  } },
-		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
+		{ MainMenuOption::MakeUserSet  , { "Create a new userset"       , make_userset   } },
+		{ MainMenuOption::GetUserSets  , { "Show my usersets"           , get_usersets   } },
+		{ MainMenuOption::GetMembers   , { "Show userset's members"     , get_members    } },
+		{ MainMenuOption::Encrypt      , { "Encrypt a message"          , encrypt        } },
+		{ MainMenuOption::Decrypt      , { "Decrypt a message"          , decrypt        } },
+		{ MainMenuOption::Update       , { "Run an update cycle"        , update         } },
+		{ MainMenuOption::Participate  , { "Participate in decryption"  , participate    } },
+		{ MainMenuOption::CompPart     , { "Compute part for decryption", comp_part      } },
+		{ MainMenuOption::SendPart     , { "Send part for decryption"   , send_part      } },
+		{ MainMenuOption::JoinParts    , { "Join decryption parts"      , join_parts     } },
+		{ MainMenuOption::UserSearch   , { "User search"                , user_search    } },
+		{ MainMenuOption::RequestEvolve, { "Request key evolution"      , request_evolve } },
+		{ MainMenuOption::Exit         , { "Exit"                       , logout         } },
 	};
 
 	int main(int argc, char** argv)
@@ -673,6 +676,19 @@ namespace senc::debug_client
 		}
 		cout << endl;
 
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus request_evolve(PacketHandler& packetHandler)
+	{
+		auto usersetID = io::input_userset_id("Enter ID of userset to request evolution for: ");
+		cout << endl;
+
+		post<pkt::EvolveResponse>(packetHandler, pkt::EvolveRequest{
+			std::move(usersetID)
+		});
+
+		cout << "Key evolution successfully requested for userset " << usersetID << endl << endl;
 		return ConnStatus::Connected;
 	}
 
