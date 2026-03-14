@@ -23,12 +23,16 @@ namespace senc::debug_client::io
 			 << utils::bytes_to_base64(pub_key_to_bytes(ownerLayerPubKey)) << endl;
 	}
 
+	void print_priv_key_shard(const PrivKeyShard& shard)
+	{
+		cout << utils::bytes_to_base64(priv_key_shard_to_bytes(shard)) << endl;
+	}
+
 	// helper function, not accessed by main
 	static void print_priv_key_any_shard(const char* label, const PrivKeyShard& shard)
 	{
-		cout << label << " decryption key shard: "
-			 << utils::bytes_to_base64(priv_key_shard_to_bytes(shard))
-			 << endl;
+		cout << label << " decryption key shard: ";
+		print_priv_key_shard(shard);
 	}
 
 	void print_reg_external_priv_key_shard(const PrivKeyShard& shard)
