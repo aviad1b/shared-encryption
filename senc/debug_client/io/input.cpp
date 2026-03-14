@@ -188,6 +188,17 @@ namespace senc::debug_client::io
 		return input_priv_key_shard_ids();
 	}
 
+	std::vector<PrivKeyShard> input_priv_key_shards()
+	{
+		return input_vec<PrivKeyShard, input_priv_key_shard<true>>();
+	}
+
+	std::vector<PrivKeyShard> input_priv_key_shards(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_priv_key_shards();
+	}
+
 	Ciphertext input_ciphertext()
 	{
 		auto c1 = utils::from_bytes<std::tuple_element_t<0, Ciphertext>>(utils::bytes_from_base64(input()));

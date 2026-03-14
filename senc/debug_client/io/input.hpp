@@ -353,6 +353,19 @@ namespace senc::debug_client::io
 		input_priv_key_shard(const std::string& msg);
 
 	/**
+	 * @brief Gets multiple private key shard inputs (until empty input).
+	 * @return Private key shard inputs.
+	 */
+	std::vector<PrivKeyShard> input_priv_key_shards();
+
+	/**
+	 * @brief Gets multiple private key shard inputs (until empty input).
+	 * @param msg Message to print before input.
+	 * @return Private key shard inputs.
+	 */
+	std::vector<PrivKeyShard> input_priv_key_shards(const std::string& msg);
+
+	/**
 	 * @brief Gets ciphertext input.
 	 * @return Ciphertext input.
 	 */
