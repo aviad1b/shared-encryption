@@ -268,7 +268,7 @@ namespace senc::pkt
 		PrivKeyShard owner_internal_priv_key_shard;
 
 		/// Userset seed (for evolution).
-		utils::BigInt seed;
+		Seed seed;
 	};
 
 
@@ -425,7 +425,7 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Seed (for evolution).
-			utils::BigInt seed;
+			Seed seed;
 
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;
@@ -453,7 +453,7 @@ namespace senc::pkt
 			UserSetID user_set_id;
 
 			/// Seed (for evolution).
-			utils::BigInt seed;
+			Seed seed;
 
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;

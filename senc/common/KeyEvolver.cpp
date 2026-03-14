@@ -13,7 +13,7 @@
 
 namespace senc
 {
-	utils::BigInt KeyEvolver::sample_seed()
+	Seed KeyEvolver::sample_seed()
 	{
 		static thread_local auto dist =
 			utils::Random<utils::BigInt>::get_dist_below(PubKey::order());
@@ -21,7 +21,7 @@ namespace senc
 		return dist();
 	}
 
-	KeyEvolver::KeyEvolver(utils::BigInt&& seed) : _offset(std::move(seed)) { }
+	KeyEvolver::KeyEvolver(Seed&& seed) : _offset(std::move(seed)) { }
 
 	void KeyEvolver::advance_offset()
 	{

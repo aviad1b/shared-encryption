@@ -27,13 +27,13 @@ namespace senc
 		 * @brief Samples seed for key evolver.
 		 * @return Sampled seed.
 		 */
-		static utils::BigInt sample_seed();
+		static Seed sample_seed();
 
 		/**
 		 * @brief Constructs a new key evolver instance.
 		 * @param seed Initial seed used for key evolution.
 		 */
-		KeyEvolver(utils::BigInt&& seed);
+		KeyEvolver(Seed&& seed);
 
 		/**
 		 * @brief Copy constructor of key evolver.

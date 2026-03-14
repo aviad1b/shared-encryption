@@ -174,4 +174,10 @@ namespace senc
 	 * @brief ID of decryption operation.
 	 */
 	using OperationID = utils::UUID;
+
+	/**
+	 * @typedef senc::Seed
+	 * @brief Type of seed used for key evolution.
+	 */
+	using Seed = utils::BigInt;
 }
