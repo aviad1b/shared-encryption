@@ -94,7 +94,7 @@ namespace senc::server::handlers
 		// (note that the zip view provides all elements by reference wrapper)
 		for (auto [owner, regExternalShard, ownerExternalShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
 			_updateManager.register_owner(
-				owner, res.user_set_id,
+				owner, res.user_set_id, Seed(),
 				res.reg_pub_key, res.owner_pub_key,
 				std::move(regExternalShard),
 				res.reg_internal_priv_key_shard, // same internal shard as creator
@@ -103,7 +103,7 @@ namespace senc::server::handlers
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
-				regMember, res.user_set_id,
+				regMember, res.user_set_id, Seed(),
 				res.reg_pub_key, res.owner_pub_key,
 				std::move(shard)
 			);

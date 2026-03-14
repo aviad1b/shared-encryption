@@ -37,12 +37,14 @@ namespace senc::server::managers
 		 * @brief Registers that a user was added to a userset as non-owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
+		 * @param seed Userset evolution seed.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
 		 * @param privKeyShard User's private key shard in userset.
 		 */
 		void register_reg_member(const std::string& username,
 								 const UserSetID& usersetID,
+								 const Seed& seed,
 								 const PubKey& regLayerPubKey,
 								 const PubKey& ownerLayerPubKey,
 								 PrivKeyShard&& privKeyShard);
@@ -51,6 +53,7 @@ namespace senc::server::managers
 		 * @brief Registers that a user was added to a userset as owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
+		 * @param seed Userset evolution seed.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
 		 * @param regExternalPrivKeyShard User's external key shard in userset for non-owner layer (moved).
@@ -60,6 +63,7 @@ namespace senc::server::managers
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
+							const Seed& seed,
 							const PubKey& regLayerPubKey,
 							const PubKey& ownerLayerPubKey,
 							PrivKeyShard&& regExternalPrivKeyShard,
