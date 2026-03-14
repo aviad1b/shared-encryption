@@ -35,6 +35,7 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Constructs a new owner profile record.
 		 * @param usersetID Userset ID (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
 		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
@@ -44,6 +45,7 @@ namespace senc::clientapi::storage
 		 * @return Constructed profile record.
 		 */
 		static Self owner(UserSetID&& usersetID,
+						  utils::BigInt&& nextEvolutionOffset,
 						  PubKey&& regPubKey,
 						  PubKey&& ownerPubKey,
 						  PrivKeyShard&& regExternalPrivKeyShard,
@@ -54,12 +56,14 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Constructs a new non-owner profile record.
 		 * @param usersetID Userset ID (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
 		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
 		 * @return Constructed profile record.
 		 */
 		static Self reg(UserSetID&& usersetID,
+						utils::BigInt&& nextEvolutionOffset,
 						PubKey&& regPubKey,
 						PubKey&& ownerPubKey,
 						PrivKeyShard&& regExternalPrivKeyShard);
@@ -75,6 +79,12 @@ namespace senc::clientapi::storage
 		 * @return Userset ID.
 		 */
 		const UserSetID& userset_id() const noexcept;
+
+		/**
+		 * @brief Gets offset for next key evolution.
+		 * @return Offset for next key evolution.
+		 */
+		const utils::BigInt& next_evolution_offset() const noexcept;
 
 		/**
 		 * @brief Gets public key of non-owner layer.
@@ -121,6 +131,7 @@ namespace senc::clientapi::storage
 	private:
 		struct OwnerPrivKeyShards { PrivKeyShard regInternal, ownerExternal, ownerInternal; };
 		UserSetID _usersetID;
+		utils::BigInt _nextEvolutionOffset;
 		PubKey _regPubKey;
 		PubKey _ownerPubKey;
 		PrivKeyShard _regExternalPrivKeyShard;
@@ -129,12 +140,14 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Constructs a client profile record from moved fields.
 		 * @param usersetID Userset ID (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
 		 * @param regPubKey Public key of non-owner layer (moved).
 		 * @param ownerPubKey Public key of owner layer (moved).
 		 * @param regExternalPrivKeyShard External private key shard of non-owner (moved).
 		 * @param ownerPrivKeyShards Optional private key shards of owner (moved).
 		 */
 		ProfileRecord(UserSetID&& usersetID,
+					  utils::BigInt&& nextEvolutionOffset,
 					  PubKey&& regPubKey,
 					  PubKey&& ownerPubKey,
 					  PrivKeyShard&& regExternalPrivKeyShard,

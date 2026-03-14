@@ -11,6 +11,7 @@
 namespace senc::clientapi::storage
 {
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
+											 utils::BigInt&& nextEvolutionOffset,
 											 PubKey&& regPubKey,
 											 PubKey&& ownerPubKey,
 											 PrivKeyShard&& regExternalPrivKeyShard,
@@ -20,6 +21,7 @@ namespace senc::clientapi::storage
 	{
 		return Self(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regPubKey),
 			std::move(ownerPubKey),
 			std::move(regExternalPrivKeyShard),
@@ -32,12 +34,14 @@ namespace senc::clientapi::storage
 	}
 
 	ProfileRecord::Self ProfileRecord::reg(UserSetID&& usersetID,
+										   utils::BigInt&& nextEvolutionOffset,
 										   PubKey&& regPubKey,
 										   PubKey&& ownerPubKey,
 										   PrivKeyShard&& regPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regPubKey),
 			std::move(ownerPubKey),
 			std::move(regPrivKeyShard),
@@ -53,6 +57,11 @@ namespace senc::clientapi::storage
 	const UserSetID& ProfileRecord::userset_id() const noexcept
 	{
 		return _usersetID;
+	}
+
+	const utils::BigInt& ProfileRecord::next_evolution_offset() const noexcept
+	{
+		return _nextEvolutionOffset;
 	}
 
 	const PubKey& ProfileRecord::reg_pub_key() const noexcept
@@ -86,11 +95,13 @@ namespace senc::clientapi::storage
 	}
 
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
+								 utils::BigInt&& nextEvolutionOffset,
 								 PubKey&& regPubKey,
 								 PubKey&& ownerPubKey,
 								 PrivKeyShard&& regExternalPrivKeyShard,
 								 std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards)
 		: _usersetID(std::move(usersetID)),
+		  _nextEvolutionOffset(nextEvolutionOffset),
 		  _regPubKey(std::move(regPubKey)),
 		  _ownerPubKey(std::move(ownerPubKey)),
 		  _regExternalPrivKeyShard(std::move(regExternalPrivKeyShard)),

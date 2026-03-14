@@ -93,6 +93,9 @@ namespace senc::clientapi::storage
 		UserSetID usersetID{};
 		it = utils::read_bytes(usersetID, it, end);
 
+		utils::BigInt nextEvolutionOffset{};
+		it = read_evolution_offset(nextEvolutionOffset, it, end);
+
 		PubKey regLayerPubKey{}, ownerLayerPubKey{};
 		it = read_pub_key(regLayerPubKey, it, end);
 		it = read_pub_key(ownerLayerPubKey, it, end);
@@ -104,6 +107,7 @@ namespace senc::clientapi::storage
 		if (!flags.is_owner)
 			return ProfileRecord::reg(
 				std::move(usersetID),
+				std::move(nextEvolutionOffset),
 				std::move(regLayerPubKey), std::move(ownerLayerPubKey),
 				std::move(regExternalPrivKeyShard)
 			);
@@ -116,6 +120,7 @@ namespace senc::clientapi::storage
 
 		return ProfileRecord::owner(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
 			std::move(regExternalPrivKeyShard), std::move(regInternalPrivKeyShard),
 			std::move(ownerExternalPrivKeyShard), std::move(ownerInternalPrivKeyShard)

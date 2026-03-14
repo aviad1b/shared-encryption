@@ -124,6 +124,7 @@ namespace senc::clientapi
 
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
+			std::move(resp.seed),
 			std::move(resp.reg_pub_key),
 			std::move(resp.owner_pub_key),
 			std::move(resp.reg_external_priv_key_shard),
@@ -321,6 +322,7 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::reg(
 			std::move(data.user_set_id),
+			std::move(data.seed),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
 			std::move(data.reg_external_priv_key_shard)
@@ -332,6 +334,7 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::owner(
 			std::move(data.user_set_id),
+			std::move(data.seed),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
 			std::move(data.reg_external_priv_key_shard),

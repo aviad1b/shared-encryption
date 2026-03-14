@@ -86,6 +86,7 @@ INSTANTIATE_TEST_SUITE_P(
 			.records = {
 				ProfileRecord::owner(
 					"57641e16-e02a-473b-8204-a809a9c435df",
+					435,
 					ECGroup::generator().pow(111),
 					ECGroup::generator().pow(222),
 					senc::PrivKeyShard{ 3, 333 },
@@ -95,12 +96,14 @@ INSTANTIATE_TEST_SUITE_P(
 				),
 				ProfileRecord::reg(
 					"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+					111,
 					ECGroup::generator().pow(435),
 					ECGroup::generator().pow(256),
 					senc::PrivKeyShard{ 1, 435 }
 				),
 				ProfileRecord::owner(
 					"55b27150-1668-446f-aa50-35d9358eac19",
+					283746,
 					ECGroup::generator().pow(444),
 					ECGroup::generator().pow(555),
 					senc::PrivKeyShard{ 4, 666 },
