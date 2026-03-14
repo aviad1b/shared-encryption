@@ -266,6 +266,9 @@ namespace senc::pkt
 
 		/// Private key shard for owner layer for internal use (decryptions for self).
 		PrivKeyShard owner_internal_priv_key_shard;
+
+		/// Userset seed (for evolution).
+		utils::BigInt seed;
 	};
 
 

@@ -181,7 +181,8 @@ static void make_user_set_cycle(PacketsTest& test)
 		senc::PrivKeyShard{ 1, 435 },
 		senc::PrivKeyShard{ 2, 256 },
 		senc::PrivKeyShard{ 3, 257 },
-		senc::PrivKeyShard{ 4, 258 }
+		senc::PrivKeyShard{ 4, 258 },
+		435
 	};
 
 	test.cycle_flow(req, resp);
