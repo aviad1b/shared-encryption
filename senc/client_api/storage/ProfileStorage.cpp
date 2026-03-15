@@ -49,12 +49,16 @@ namespace senc::clientapi::storage
 		return parse_profile_record(profileBytes);
 	}
 
-	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
-														   const ProfileEncKey& key,
-														   const ProfileRecord& record)
+	ProfileEncCiphertext ProfileUtils::encrypt_profile_record(const ProfileRecord& record,
+															  const ProfileEncKey& key)
 	{
 		auto profileBytes = serialize_profile_record(record);
-		const auto enc = schema().encrypt(profileBytes, key);
+		return schema().encrypt(profileBytes, key);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														   const ProfileEncCiphertext& enc)
+	{
 		auto sizes = [&enc]<std::size_t... is>(std::index_sequence<is...>) -> profile_record_enc_sizes_t
 		{
 			return profile_record_enc_sizes_t(
@@ -72,6 +76,16 @@ namespace senc::clientapi::storage
 		{
 			(file.append(parts.data(), parts.size()), ...);
 		}, enc);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														   const ProfileEncKey& key,
+														   const ProfileRecord& record)
+	{
+		write_profile_record_with_enc_sizes(
+			file,
+			encrypt_profile_record(record, key)
+		);
 	}
 
 	ProfileEncSchema& ProfileUtils::schema()

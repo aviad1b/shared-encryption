@@ -106,6 +106,18 @@ namespace senc::clientapi::storage
 																profile_record_enc_sizes_t sizes);
 
 		/**
+		 * @brief Gets encrypted version of profile record.
+		 */
+		static ProfileEncCiphertext encrypt_profile_record(const ProfileRecord& record,
+														   const ProfileEncKey& key);
+
+		/**
+		 * @brief Writes (encrypted) profile record (including encryption sizes).
+		 */
+		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														const ProfileEncCiphertext& enc);
+
+		/**
 		 * @brief Writes (encrypted) profile record (including encryption sizes).
 		 */
 		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
