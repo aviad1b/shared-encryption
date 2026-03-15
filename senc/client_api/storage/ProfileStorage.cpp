@@ -173,8 +173,10 @@ namespace senc::clientapi::storage
 	ProfileHolder::ProfileHolder(const ProfileEncKey& key,
 								 ProfileInputFile& file,
 								 utils::file_pos_t pos,
+								 profile_record_enc_sizes_t& recordEncSizes,
 								 ProfileRecord& record)
-		: _key(key), _file(file), _pos(pos), _record(record) { }
+		: _key(key), _file(file), _pos(pos), _recordEncSizes(recordEncSizes),
+		  _record(record) { }
 
 	ProfileHolder::operator const ProfileRecord&() const noexcept
 	{
@@ -221,7 +223,7 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::reference ProfileDataIterator::operator*()
 	{
-		return { _key, _file, _pos, *_record };
+		return { _key, _file, _pos, _recordEncSizes, *_record };
 	}
 
 	ProfileDataIterator::pointer ProfileDataIterator::operator->()

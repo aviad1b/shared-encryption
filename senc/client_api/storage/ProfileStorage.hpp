@@ -165,11 +165,13 @@ namespace senc::clientapi::storage
 		 * @param key Encryption key (by ref).
 		 * @param file Client storage file (by ref).
 		 * @param pos Starting position of profile in file.
+		 * @param recordEncSizes Sizes tuple of record ciphertext (by ref).
 		 * @param record Read record (moved).
 		 */
 		ProfileHolder(const ProfileEncKey& key,
 					  ProfileInputFile& file,
 					  utils::file_pos_t pos,
+					  profile_record_enc_sizes_t& recordEncSizes,
 					  ProfileRecord& record);
 
 		/**
@@ -194,6 +196,7 @@ namespace senc::clientapi::storage
 		const ProfileEncKey& _key;
 		ProfileInputFile& _file;
 		utils::file_pos_t _pos;
+		profile_record_enc_sizes_t& _recordEncSizes;
 		ProfileRecord& _record;
 	};
 
