@@ -8,6 +8,7 @@
 
 #include "ProfileStorage.hpp"
 
+#include "../ClientException.hpp"
 #include "../../utils/swap.hpp"
 
 namespace senc::clientapi::storage
@@ -78,12 +79,43 @@ namespace senc::clientapi::storage
 		}, enc);
 	}
 
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileInputFile& file, utils::file_pos_t pos, const ProfileEncCiphertext& enc)
+	{
+		auto sizes = [&enc]<std::size_t... is>(std::index_sequence<is...>) -> profile_record_enc_sizes_t
+		{
+			return profile_record_enc_sizes_t(
+				static_cast<std::tuple_element_t<is, profile_record_enc_sizes_t>>(
+					std::get<is>(enc).size()
+					)...
+			);
+		}(std::make_index_sequence<std::tuple_size_v<profile_record_enc_sizes_t>>{});
+
+		file.set_pos(pos);
+
+		// write sizes to file
+		file.write(sizes);
+
+		// append enc parts to file
+		std::apply([&file](const auto&... parts)
+		{
+			(file.append(parts.data(), parts.size()), ...);
+		}, enc);
+	}
+
 	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
 														   const ProfileEncKey& key,
 														   const ProfileRecord& record)
 	{
 		write_profile_record_with_enc_sizes(
 			file,
+			encrypt_profile_record(record, key)
+		);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileInputFile& file, utils::file_pos_t pos, const ProfileEncKey& key, const ProfileRecord& record)
+	{
+		write_profile_record_with_enc_sizes(
+			file, pos,
 			encrypt_profile_record(record, key)
 		);
 	}
@@ -190,7 +222,20 @@ namespace senc::clientapi::storage
 
 	ProfileHolder::Self& ProfileHolder::operator=(ProfileRecord record)
 	{
+		// encrypt new record and check for same size
+		// (for now, changing size is not supported)
+		auto sum = [](auto&&... args) { return (args + ...); };
+		auto sizeSum = [](auto&&... args) { return (args.size() + ...); };
+		const auto enc = ProfileUtils::encrypt_profile_record(record, _key);
+		const auto oldTotalSize = static_cast<std::size_t>(std::apply(sum, _recordEncSizes));
+		const auto newTotalSize = static_cast<std::size_t>(std::apply(sizeSum, enc));
+		if (newTotalSize != oldTotalSize)
+			throw ClientException("Client storage attempted to change size - not supported yet");
+
+		// re-write profile to file and assign locally
+		ProfileUtils::write_profile_record_with_enc_sizes(_file, _pos, enc);
 		this->_record = std::move(record);
+
 		return *this;
 	}
 
