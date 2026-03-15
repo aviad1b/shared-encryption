@@ -162,11 +162,13 @@ namespace senc::clientapi::storage
 
 		/**
 		 * @brief Constructor of profile holder.
+		 * @param key Encryption key (by ref).
 		 * @param file Client storage file (by ref).
 		 * @param pos Starting position of profile in file.
 		 * @param record Read record (moved).
 		 */
-		ProfileHolder(ProfileInputFile& file,
+		ProfileHolder(const ProfileEncKey& key,
+					  ProfileInputFile& file,
 					  utils::file_pos_t pos,
 					  ProfileRecord& record);
 
@@ -189,6 +191,7 @@ namespace senc::clientapi::storage
 		Self& operator=(ProfileRecord record);
 
 	private:
+		const ProfileEncKey& _key;
 		ProfileInputFile& _file;
 		utils::file_pos_t _pos;
 		ProfileRecord& _record;
