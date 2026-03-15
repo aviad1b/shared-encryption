@@ -75,6 +75,54 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 	EXPECT_EQ(i, records.size());
 }
 
+TEST_P(ClientStorageTest, WriteUpdateRead)
+{
+	const auto& records = GetParam().records;
+
+	for (const auto& record : records)
+		storage->add_profile_data(record);
+
+	{
+		auto recordsRange = storage->iter_profile_data();
+		auto secondIt = recordsRange.begin();
+		auto firstIt = secondIt++;
+
+		ProfileRecord profile1 = *firstIt, profile2 = *secondIt;
+
+		// swap profile1 and profile2 using operator*
+		*firstIt = profile2;
+		*secondIt = profile1;
+	}
+	
+	// test correct values
+	{
+		std::vector<ProfileRecord> records = GetParam().records;
+		std::swap(records[0], records[1]);
+
+		auto recordsRange = storage->iter_profile_data();
+		std::size_t i = 0;
+		for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
+		{
+			const ProfileRecord& record = records[i];
+			const ProfileRecord& storedRecord = *it;
+
+			EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
+			EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
+			EXPECT_EQ(record.reg_pub_key(), storedRecord.reg_pub_key());
+			EXPECT_EQ(record.owner_pub_key(), storedRecord.owner_pub_key());
+			EXPECT_EQ(record.reg_external_priv_key_shard(), storedRecord.reg_external_priv_key_shard());
+			if (record.is_owner() && storedRecord.is_owner())
+			{
+				EXPECT_EQ(record.reg_internal_priv_key_shard(), storedRecord.reg_internal_priv_key_shard());
+				EXPECT_EQ(record.owner_external_priv_key_shard(), storedRecord.owner_external_priv_key_shard());
+				EXPECT_EQ(record.owner_internal_priv_key_shard(), storedRecord.owner_internal_priv_key_shard());
+			}
+		}
+
+		EXPECT_EQ(i, records.size());
+	}
+}
+
 INSTANTIATE_TEST_SUITE_P(
 	ClientStorageTests,
 	ClientStorageTest,
