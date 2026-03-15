@@ -47,7 +47,7 @@ namespace senc::clientapi::storage
 	 * @typedef senc::clientapi::storage::ProfileInputFile
 	 * @brief File used for profile input.
 	 */
-	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read>;
+	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read | utils::AccessFlags::Edit>;
 
 	/**
 	 * @typedef senc::clientapi::storage::ProfileOutputFile
@@ -134,6 +134,55 @@ namespace senc::clientapi::storage
 	};
 
 	/**
+	 * @class senc::clientapi::storage::ProfileHolder
+	 * @brief Encapsulates logic of setting iterator's profile.
+	 */
+	class ProfileHolder
+	{
+	public:
+		using Self = ProfileHolder;
+
+		ProfileHolder() = delete;
+		ProfileHolder(const Self&) = delete;
+		ProfileHolder(Self&&) = delete;
+		Self& operator=(const Self&) = delete;
+		Self& operator=(Self&&) = delete;
+
+		/**
+		 * @brief Constructor of profile holder.
+		 * @param file Client storage file (by ref).
+		 * @param pos Starting position of profile in file.
+		 * @param record Read record (moved).
+		 */
+		ProfileHolder(ProfileInputFile& file,
+					  utils::file_pos_t pos,
+					  ProfileRecord& record);
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record reference.
+		 */
+		operator const ProfileRecord&() const noexcept;
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record pointer.
+		 */
+		const ProfileRecord* operator&() const noexcept;
+
+		/**
+		 * @brief Sets profile record (writes to storage as well).
+		 * @param record New record value (either copied or moved).
+		 */
+		Self& operator=(ProfileRecord record);
+
+	private:
+		ProfileInputFile& _file;
+		utils::file_pos_t _pos;
+		ProfileRecord& _record;
+	};
+
+	/**
 	 * @class senc::clientapi::storage::ProfileStorageIterator
 	 * @brief Used for iteration over profile storage.
 	 */
@@ -141,8 +190,8 @@ namespace senc::clientapi::storage
 	{
 	public:
 		using Self = ProfileDataIterator;
-		using value_type = const ProfileRecord;
-		using reference = const ProfileRecord&;
+		using value_type = ProfileRecord;
+		using reference = ProfileHolder;
 		using pointer = const ProfileRecord*;
 		using difference_type = std::ptrdiff_t;
 		using iterator_category = std::input_iterator_tag;
@@ -192,13 +241,13 @@ namespace senc::clientapi::storage
 		 * @brief Gets read profile data record.
 		 * @return Read data record.
 		 */
-		reference operator*() const;
+		reference operator*();
 
 		/**
 		 * @brief Gets read profile data record.
 		 * @return Read data record.
 		 */
-		pointer operator->() const;
+		pointer operator->();
 
 	private:
 		std::reference_wrapper<const ProfileEncKey> _key;

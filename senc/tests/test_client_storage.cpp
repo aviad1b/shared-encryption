@@ -56,8 +56,8 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 	std::size_t i = 0;
 	for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
 	{
-		const auto& record = records[i];
-		const auto& storedRecord = *it;
+		const ProfileRecord& record = records[i];
+		const ProfileRecord& storedRecord = *it;
 
 		EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
 		EXPECT_EQ(record.userset_id(), storedRecord.userset_id());

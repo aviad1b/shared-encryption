@@ -156,9 +156,28 @@ namespace senc::clientapi::storage
 		return res;
 	}
 
+	ProfileHolder::ProfileHolder(ProfileInputFile& file, utils::file_pos_t pos, ProfileRecord& record)
+		: _file(file), _pos(pos), _record(record) { }
+
+	ProfileHolder::operator const ProfileRecord&() const noexcept
+	{
+		return _record;
+	}
+
+	const ProfileRecord* ProfileHolder::operator&() const noexcept
+	{
+		return &_record;
+	}
+
+	ProfileHolder::Self& ProfileHolder::operator=(ProfileRecord record)
+	{
+		this->_record = std::move(record);
+		return *this;
+	}
+
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
-											 ProfileInputFile& file,
-											 utils::file_pos_t pos)
+		ProfileInputFile& file,
+		utils::file_pos_t pos)
 		: _key(key), _file(file), _pos(pos),
 		  _recordEncSizes(ProfileUtils::read_profile_record_enc_sizes(_file)),
 		  _record(ProfileUtils::read_profile_record(_file, _key, _recordEncSizes)) { }
@@ -174,6 +193,7 @@ namespace senc::clientapi::storage
 		this->_file.get().set_pos(this->_pos);
 		this->_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
 		this->_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSizes);
+
 		return *this;
 	}
 
@@ -182,14 +202,14 @@ namespace senc::clientapi::storage
 		return Self(_key, _file, next_pos());
 	}
 
-	ProfileDataIterator::reference ProfileDataIterator::operator*() const
+	ProfileDataIterator::reference ProfileDataIterator::operator*()
 	{
-		return *_record;
+		return { _file, _pos, *_record };
 	}
 
-	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
+	ProfileDataIterator::pointer ProfileDataIterator::operator->()
 	{
-		return std::to_address(_record);
+		return &(**this);
 	}
 
 	utils::file_pos_t ProfileDataIterator::next_pos() const

@@ -272,7 +272,7 @@ namespace senc::clientapi
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
+		auto it = std::find_if(
 			profileData.begin(), profileData.end(),
 			[&usersetID](const storage::ProfileRecord& record)
 			{
