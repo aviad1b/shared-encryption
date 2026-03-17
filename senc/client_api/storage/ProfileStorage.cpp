@@ -217,6 +217,11 @@ namespace senc::clientapi::storage
 		return _record;
 	}
 
+	ProfileRecord* ProfileHolder::operator&() noexcept
+	{
+		return &_record;
+	}
+
 	const ProfileRecord* ProfileHolder::operator&() const noexcept
 	{
 		return &_record;

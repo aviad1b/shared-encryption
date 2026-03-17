@@ -199,6 +199,12 @@ namespace senc::clientapi::storage
 		 * @brief Converts holder to profile record.
 		 * @return Profile record pointer.
 		 */
+		ProfileRecord* operator&() noexcept;
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record pointer.
+		 */
 		const ProfileRecord* operator&() const noexcept;
 
 		/**
@@ -225,7 +231,7 @@ namespace senc::clientapi::storage
 		using Self = ProfileDataIterator;
 		using value_type = ProfileRecord;
 		using reference = ProfileHolder;
-		using pointer = const ProfileRecord*;
+		using pointer = ProfileRecord*;
 		using difference_type = std::ptrdiff_t;
 		using iterator_category = std::input_iterator_tag;
 		using iterator_concept = std::input_iterator_tag;
