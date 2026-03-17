@@ -432,3 +432,12 @@ uintptr_t SENC_UserSearch(uintptr_t hClient,
 		return client.user_search(query, outerCallback);
 	})->as_nint();
 }
+
+uintptr_t SENC_EvolveUserSet(uintptr_t hClient, const char* usersetID) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, usersetID]()
+	{
+		return client.evolve_userset(usersetID);
+	})->as_nint();
+}

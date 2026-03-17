@@ -395,6 +395,16 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_UserSearch(uintptr_t hClient,
 												 void(*callback)(const char*, uintptr_t),
 												 uintptr_t context) SENC_NOTHROW;
 
+/**
+ * @brief Requests key evolution for a specific userset.
+ * @note Requires user to be logged in.
+ * @param usersetID ID of userset to request evolution for.
+ * @return Null on success, error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_EvolveUserSet(uintptr_t hClient,
+													const char* usersetID) SENC_NOTHROW;
+
 
 #ifdef __cplusplus
 #include <utility>
