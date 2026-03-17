@@ -143,6 +143,16 @@ namespace senc::clientapi
 		storage::ProfileRecord find_profile_record_by_userset_id(const UserSetID& usersetID);
 
 		/**
+		 * @brief Locates a profile record from userset ID.
+		 * @param usersetID Userset ID.
+		 * @param range Profile data range.
+		 * @return Iterator to located profile record.
+		 * @throw ClientException If not found or user not logged in.
+		 */
+		typename storage::ProfileDataRange::iterator find_profile_record_by_userset_id(
+			const UserSetID& usersetID, storage::ProfileDataRange& range);
+
+		/**
 		 * @brief Adds profile record to user storage.
 		 * @param record Record to add.
 		 */

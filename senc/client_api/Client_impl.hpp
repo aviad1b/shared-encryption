@@ -272,19 +272,26 @@ namespace senc::clientapi
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
+		auto it = find_profile_record_by_userset_id(usersetID, profileData);
+		return *it;
+	}
+
+	template <utils::IPType IP>
+	inline typename storage::ProfileDataRange::iterator Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID, storage::ProfileDataRange& range)
+	{
 		auto it = std::find_if(
-			profileData.begin(), profileData.end(),
+			range.begin(), range.end(),
 			[&usersetID](const storage::ProfileRecord& record)
 			{
 				return record.userset_id() == usersetID;
 			}
 		);
-		if (it == profileData.end())
+		if (it == range.end())
 			throw ClientException(
 				"Local storage error",
 				"Failed to locate userset " + usersetID.to_string()
 			);
-		return *it;
+		return it;
 	}
 
 	template <utils::IPType IP>
