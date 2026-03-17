@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../../common/KeyEvolver.hpp"
 #include "../../common/aliases.hpp"
 #include <optional>
 
@@ -136,6 +137,13 @@ namespace senc::clientapi::storage
 		 * @return New profile record instance.
 		 */
 		Self transform_next_evolution_offset(utils::BigInt&& offset);
+
+		/**
+		 * @brief Applies key evolution on profile record and moves into new instance.
+		 * @param evolve Key evolver to use for evolution.
+		 * @return New profile record instance.
+		 */
+		Self transform_evolve(KeyEvolver& evolve);
 
 	private:
 		struct OwnerPrivKeyShards { PrivKeyShard regInternal, ownerExternal, ownerInternal; };

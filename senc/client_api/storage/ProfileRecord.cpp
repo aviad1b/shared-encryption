@@ -101,6 +101,22 @@ namespace senc::clientapi::storage
 		return res;
 	}
 
+	ProfileRecord::Self ProfileRecord::transform_evolve(KeyEvolver& evolve)
+	{
+		Self res = std::move(*this);
+		if (res.is_owner())
+			evolve(
+				res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard,
+				res._ownerPrivKeyShards->regInternal,
+				res._ownerPrivKeyShards->ownerExternal,
+				res._ownerPrivKeyShards->ownerInternal
+			);
+		else
+			evolve(res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard);
+		res._nextEvolutionOffset = evolve.offset();
+		return res;
+	}
+
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
 								 utils::BigInt&& nextEvolutionOffset,
 								 PubKey&& regPubKey,
