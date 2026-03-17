@@ -16,6 +16,8 @@ namespace senc::clientapi::storage
 	/**
 	 * @class senc::clientapi::storage::ProfileRecord
 	 * @brief Represents a stored client record (info about a userset).
+	 * @note For compatibility with storage reference wrappers, should not
+	 *       implement any setters (these are replaced with transformation methods).
 	 */
 	class ProfileRecord
 	{
