@@ -206,6 +206,14 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::evolve_userset(const UserSetID& usersetID)
+	{
+		this->post<pkt::EvolveResponse>(pkt::EvolveRequest{
+			usersetID
+		});
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)

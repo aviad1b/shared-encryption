@@ -119,5 +119,11 @@ namespace senc::clientapi
 		 */
 		virtual void user_search(const std::string& query,
 								 std::function<void(const std::string&)> callback) = 0;
+
+		/**
+		 * @brief Requests key evolution for a specific userset.
+		 * @param usersetID ID of userset to request evolution for.
+		 */
+		virtual void evolve_userset(const UserSetID& usersetID) = 0;
 	};
 }

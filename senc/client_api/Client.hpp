@@ -86,6 +86,8 @@ namespace senc::clientapi
 		void user_search(const std::string& query,
 						 std::function<void(const std::string&)> callback) override;
 
+		void evolve_userset(const UserSetID& usersetID) override;
+
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;
