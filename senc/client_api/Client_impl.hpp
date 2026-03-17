@@ -8,6 +8,7 @@
 
 #include "Client.hpp"
 
+#include "../common/KeyEvolver.hpp"
 #include "ClientException.hpp"
 #include "ClientUtils.hpp"
 #include <algorithm>
@@ -259,6 +260,8 @@ namespace senc::clientapi
 				this->handle_to_decrypt(std::move(record));
 			for (auto& record : resp.finished_decryptions)
 				this->handle_finished_decryption(std::move(record));
+			for (auto& record : resp.to_evolve)
+				this->handle_to_evolve(std::move(record));
 		}
 		catch (const std::exception&)
 		{
@@ -411,6 +414,20 @@ namespace senc::clientapi
 
 		// call callback on decrypted message
 		_decryptFinishedCallback(data.op_id, decrypted);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data)
+	{
+		// locate fitting record in local storage
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		auto profileData = _storage->iter_profile_data();
+		auto it = find_profile_record_by_userset_id(data.user_set_id, profileData);
+
+		// apply evolution on located record
+		KeyEvolver evolve(it->next_evolution_offset());
+		*it = it->transform_evolve(evolve);
 	}
 
 	template <utils::IPType IP>

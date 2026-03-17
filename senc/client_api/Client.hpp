@@ -212,6 +212,12 @@ namespace senc::clientapi
 		void handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data);
 
 		/**
+		 * @brief Handles "to evolve" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data);
+
+		/**
 		 * @brief Attemps to participate in decryption operation.
 		 * @param opid Operation ID (moved).
 		 * @param usersetID ID of userset under which operation is being perfomed (moved).
