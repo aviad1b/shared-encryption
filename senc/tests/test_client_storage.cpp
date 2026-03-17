@@ -75,29 +75,25 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 	EXPECT_EQ(i, records.size());
 }
 
-TEST_P(ClientStorageTest, WriteUpdateRead)
+TEST_P(ClientStorageTest, WriteUpdateOffsetRead)
 {
 	const auto& records = GetParam().records;
 
 	for (const auto& record : records)
 		storage->add_profile_data(record);
 
+	// update all offsets to 12345
 	{
 		auto recordsRange = storage->iter_profile_data();
-		auto secondIt = recordsRange.begin();
-		auto firstIt = secondIt++;
-
-		ProfileRecord profile1 = *firstIt, profile2 = *secondIt;
-
-		// swap profile1 and profile2 using operator*
-		*firstIt = profile2;
-		*secondIt = profile1;
+		for (auto it = recordsRange.begin(); it != recordsRange.end(); ++it)
+			*it = it->transform_next_evolution_offset(12345);
 	}
 	
 	// test correct values
 	{
 		std::vector<ProfileRecord> records = GetParam().records;
-		std::swap(records[0], records[1]);
+		for (auto& record : records)
+			record = record.transform_next_evolution_offset(12345);
 
 		auto recordsRange = storage->iter_profile_data();
 		std::size_t i = 0;
