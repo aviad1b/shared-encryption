@@ -15,6 +15,8 @@ namespace senc
 {
 	KeyEvolver::KeyEvolver(Seed&& seed) : _offset(std::move(seed)) { }
 
+	KeyEvolver::KeyEvolver(const Seed& seed) : _offset(seed) { }
+
 	const utils::BigInt& KeyEvolver::offset() const
 	{
 		return this->_offset;

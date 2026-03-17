@@ -25,9 +25,15 @@ namespace senc
 
 		/**
 		 * @brief Constructs a new key evolver instance.
-		 * @param seed Initial seed used for key evolution.
+		 * @param seed Initial seed used for key evolution (moved).
 		 */
 		KeyEvolver(Seed&& seed);
+
+		/**
+		 * @brief Constructs a new key evolver instance.
+		 * @param seed Initial seed used for key evolution (moved).
+		 */
+		KeyEvolver(const Seed& seed);
 
 		/**
 		 * @brief Copy constructor of key evolver.
