@@ -185,6 +185,8 @@ namespace senc::clientapi::storage
 
 		utils::write_bytes(res, record.userset_id());
 
+		write_evolution_offset(res, record.next_evolution_offset());
+
 		write_pub_key(res, record.reg_pub_key());
 		write_pub_key(res, record.owner_pub_key());
 
