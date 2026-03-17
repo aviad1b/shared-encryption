@@ -64,13 +64,6 @@ namespace senc::clientapi::storage
 		return _nextEvolutionOffset;
 	}
 
-	ProfileRecord::Self ProfileRecord::transform_next_evolution_offset(utils::BigInt&& offset)
-	{
-		Self res = std::move(*this);
-		res._nextEvolutionOffset = std::move(offset);
-		return res;
-	}
-
 	const PubKey& ProfileRecord::reg_pub_key() const noexcept
 	{
 		return _regPubKey;
@@ -99,6 +92,13 @@ namespace senc::clientapi::storage
 	const PrivKeyShard& ProfileRecord::owner_internal_priv_key_shard() const noexcept
 	{
 		return _ownerPrivKeyShards->ownerInternal;
+	}
+
+	ProfileRecord::Self ProfileRecord::transform_next_evolution_offset(utils::BigInt&& offset)
+	{
+		Self res = std::move(*this);
+		res._nextEvolutionOffset = std::move(offset);
+		return res;
 	}
 
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,

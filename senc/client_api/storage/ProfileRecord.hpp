@@ -89,13 +89,6 @@ namespace senc::clientapi::storage
 		const utils::BigInt& next_evolution_offset() const noexcept;
 
 		/**
-		 * @brief Moves profile record into new instance with different next evolution offset.
-		 * @param offset New offset value (moved).
-		 * @return New profile record instance.
-		 */
-		Self transform_next_evolution_offset(utils::BigInt&& offset);
-
-		/**
 		 * @brief Gets public key of non-owner layer.
 		 * @return Public key of non-owner layer.
 		 */
@@ -136,6 +129,13 @@ namespace senc::clientapi::storage
 		 * @return Internal private key shard of owner layer.
 		 */
 		const PrivKeyShard& owner_internal_priv_key_shard() const noexcept;
+
+		/**
+		 * @brief Moves profile record into new instance with different next evolution offset.
+		 * @param offset New offset value (moved).
+		 * @return New profile record instance.
+		 */
+		Self transform_next_evolution_offset(utils::BigInt&& offset);
 
 	private:
 		struct OwnerPrivKeyShards { PrivKeyShard regInternal, ownerExternal, ownerInternal; };
