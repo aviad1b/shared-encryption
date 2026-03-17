@@ -98,7 +98,7 @@ namespace senc::clientapi::storage
 		// append enc parts to file
 		std::apply([&file](const auto&... parts)
 		{
-			(file.append(parts.data(), parts.size()), ...);
+			(file.write(parts.data(), parts.size()), ...);
 		}, enc);
 	}
 
