@@ -264,11 +264,11 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	testMembersParam.test();
 
 	// encrypt message
-	const std::string msg = "hello there";
+	const Buffer msg = senc::utils::random_bytes(256);
 	SENC_Handle hCiphertext = SENC_Encrypt(
 		hClient1, usersetID,
-		reinterpret_cast<const uint8_t*>(msg.c_str()),
-		msg.length()
+		reinterpret_cast<const uint8_t*>(msg.data()),
+		msg.size()
 	);
 	ASSERT_NO_ERROR(hCiphertext);
 
@@ -289,7 +289,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		EXPECT_EQ(decsVec.size(), 1);
 		auto& result = decsVec.front();
 
-		EXPECT_EQ(std::string(result.begin(), result.end()), msg);
+		EXPECT_EQ(result, msg);
 	}
 
 	// logout all users
