@@ -87,6 +87,7 @@ TEST_P(ClientStorageTest, WriteUpdateOffsetRead)
 		auto recordsRange = storage->iter_profile_data();
 		for (auto it = recordsRange.begin(); it != recordsRange.end(); ++it)
 			*it = it->transform_next_evolution_offset(12345);
+		// this COULD be done with for-each but would require an intermidiate variable
 	}
 	
 	// test correct values
