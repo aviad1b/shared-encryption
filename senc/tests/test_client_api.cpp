@@ -289,7 +289,9 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		{
 			const std::lock_guard<std::mutex> lock(decs.mtx);
 			EXPECT_EQ(decs.map.size(), 1);
-			auto& decsVec = decs.map.at(opid);
+			auto it = decs.map.find(opid);
+			ASSERT_NE(it, decs.map.end());
+			auto& decsVec = it->second;
 			EXPECT_EQ(decsVec.size(), 1);
 			auto& result = decsVec.front();
 
