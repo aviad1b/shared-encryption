@@ -147,7 +147,8 @@ static void test_ctx_regs(const char* username, uintptr_t context)
 
 void ASSERT_NO_ERROR(const SENC_Handle& handle)
 {
-	ASSERT_FALSE(SENC_HasError(handle));
+	if (SENC_HasError(handle))
+		throw std::runtime_error(SENC_GetError(handle));
 }
 
 TEST_F(ClientApiTest, SignupLoginLogout)
