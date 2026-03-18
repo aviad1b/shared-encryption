@@ -263,33 +263,41 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	));
 	testMembersParam.test();
 
-	// encrypt message
-	const Buffer msg = senc::utils::random_bytes(256);
-	SENC_Handle hCiphertext = SENC_Encrypt(
-		hClient1, usersetID,
-		reinterpret_cast<const uint8_t*>(msg.data()),
-		msg.size()
-	);
-	ASSERT_NO_ERROR(hCiphertext);
-
-	// queue message decrypt
-	SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
-	ASSERT_NO_ERROR(hOPID);
-	OperationID opid = SENC_GetStringValue(hOPID);
-
-	// wait until decryption was added to decs
-	while (decs.empty())
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	// check got decryption which is same as `msg`
+	// do ten iterations of round trip, evolve key after every second iteration
+	for (std::size_t i = 0; i < 10; ++i)
 	{
-		const std::lock_guard<std::mutex> lock(decs.mtx);
-		EXPECT_EQ(decs.map.size(), 1);
-		auto& decsVec = decs.map.at(opid);
-		EXPECT_EQ(decsVec.size(), 1);
-		auto& result = decsVec.front();
+		// encrypt message
+		const Buffer msg = senc::utils::random_bytes(256);
+		SENC_Handle hCiphertext = SENC_Encrypt(
+			hClient1, usersetID,
+			reinterpret_cast<const uint8_t*>(msg.data()),
+			msg.size()
+		);
+		ASSERT_NO_ERROR(hCiphertext);
 
-		EXPECT_EQ(result, msg);
+		// queue message decrypt
+		SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
+		ASSERT_NO_ERROR(hOPID);
+		OperationID opid = SENC_GetStringValue(hOPID);
+
+		// wait until decryption was added to decs
+		while (decs.empty())
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		// check got decryption which is same as `msg`
+		{
+			const std::lock_guard<std::mutex> lock(decs.mtx);
+			EXPECT_EQ(decs.map.size(), 1);
+			auto& decsVec = decs.map.at(opid);
+			EXPECT_EQ(decsVec.size(), 1);
+			auto& result = decsVec.front();
+
+			EXPECT_EQ(result, msg);
+		}
+
+		// if iteration is odd, evolve key
+		if (i % 2)
+			ASSERT_NO_ERROR(SENC_EvolveUserSet(hClient2, usersetID));
 	}
 
 	// logout all users
