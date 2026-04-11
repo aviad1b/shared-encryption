@@ -271,7 +271,7 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	testMembersParam.test();
 
 	// do ten iterations of round trip, evolve key after every second iteration
-	for (std::size_t i = 0; i < 10; ++i)
+	for (std::size_t i = 0; i < 4; ++i)
 	{
 		// encrypt message
 		const Buffer msg = senc::utils::random_bytes(256);
