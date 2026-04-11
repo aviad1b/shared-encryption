@@ -78,6 +78,12 @@ struct DecsMap
 		const std::lock_guard<std::mutex> lock(mtx);
 		return map.empty();
 	}
+
+	void clear()
+	{
+		const std::lock_guard<std::mutex> lock(mtx);
+		map.clear();
+	}
 };
 
 static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, uintptr_t context)
@@ -301,6 +307,9 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		// if iteration is odd, evolve key
 		if (i % 2)
 			ASSERT_NO_ERROR(SENC_EvolveUserSet(hClient2, usersetID));
+
+		// clear map for next iteration
+		decs.clear();
 	}
 
 	// logout all users
