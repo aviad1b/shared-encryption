@@ -409,7 +409,8 @@ namespace senc
 			{
 				const std::lock_guard l1(_sync.mtxOnQueueEmpty);
 				const std::lock_guard l2(_sync.mtxUnderlying);
-				_onQueueEmpty(*_underlying);
+				if (_onQueueEmpty)
+					_onQueueEmpty(*_underlying);
 			}
 		}
 		std::unique_lock lock(_sync.mtxQueue); // to prevent race condition on _stop
