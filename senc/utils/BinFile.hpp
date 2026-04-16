@@ -89,6 +89,13 @@ namespace senc::utils
 
 		/**
 		 * @brief Opens file.
+		 * @param path File path (moved).
+		 * @throw FileException If failed.
+		 */
+		BinFile(std::string&& path);
+
+		/**
+		 * @brief Opens file.
 		 * @param path File path.
 		 * @throw FileException If failed.
 		 */

@@ -13,15 +13,19 @@
 namespace senc::utils
 {
 	template <AccessFlags accessFlags, std::endian endianess>
-	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
+	inline BinFile<accessFlags, endianess>::BinFile(std::string&& path)
 		: _file(std::fopen(path.c_str(), access_flags_to_binary_mode<accessFlags>().c_str())),
 		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None),
-		  _path(path)
+		  _path(std::move(path))
 	{
 		if (!_file)
 			throw FileException("Failed to open file");
 		update_internal_pos_and_size();
 	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
+		: Self(std::string(path)) { }
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::~BinFile()
