@@ -247,6 +247,7 @@ namespace senc::utils
 		std::FILE* _file;
 		file_pos_t _pos, _size;
 		UnderlyingOperation _prevUnderlyingOperation;
+		std::string _path;
 
 		/**
 		 * @brief Refreshes file cursor (re-sets to same position).

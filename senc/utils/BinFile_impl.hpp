@@ -15,7 +15,8 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
 		: _file(std::fopen(path.c_str(), access_flags_to_binary_mode<accessFlags>().c_str())),
-		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None)
+		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None),
+		  _path(path)
 	{
 		if (!_file)
 			throw FileException("Failed to open file");
@@ -35,7 +36,8 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::BinFile(Self&& other) noexcept
 		: _file(other._file), _pos(other._pos), _size(other._size),
-		  _prevUnderlyingOperation(other._prevUnderlyingOperation)
+		  _prevUnderlyingOperation(other._prevUnderlyingOperation),
+		  _path(std::move(other._path))
 	{
 		other._file = nullptr;
 		other._pos = 0;
