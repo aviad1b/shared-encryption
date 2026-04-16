@@ -328,7 +328,11 @@ namespace senc::clientapi::storage
 	ProfileStorage::ProfileStorage(std::string&& path,
 								   const std::string& username,
 								   const std::string& password)
-		: _username(username), _path(std::move(path)), _key(derive_key(username, password)) { }
+		: _username(username), _path(std::move(path)), _key(derive_key(username, password))
+	{
+		// create file if doesn't exist
+		utils::BinFile<utils::AccessFlags::Read | utils::AccessFlags::Append> f(_path);
+	}
 
 	const std::string& ProfileStorage::username() const
 	{
