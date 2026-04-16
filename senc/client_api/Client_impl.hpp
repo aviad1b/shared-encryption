@@ -100,6 +100,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::iter_profile(std::function<bool(const storage::ProfileRecord&)> callback)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
@@ -123,6 +124,7 @@ namespace senc::clientapi
 			.name = std::move(name)
 		});
 
+		const std::lock_guard lock(_mtxStorage);
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
 			std::move(resp.seed),
@@ -174,6 +176,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 
@@ -240,6 +243,7 @@ namespace senc::clientapi
 										 const std::string& password,
 										 const std::string& profileBaseDir)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.emplace(
 			ClientUtils::locate_user_profile_file(username, profileBaseDir),
 			username, password
@@ -249,6 +253,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::unload_profile()
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.reset();
 	}
 
@@ -282,6 +287,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline storage::ProfileRecord Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
@@ -310,6 +316,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::add_profile_record(const storage::ProfileRecord& record)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		_storage->add_profile_data(record);
@@ -429,6 +436,8 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data)
 	{
+		const std::lock_guard lock(_mtxStorage);
+
 		// locate fitting record in local storage
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");

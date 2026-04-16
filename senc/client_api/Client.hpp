@@ -15,6 +15,7 @@
 #include "../utils/hash.hpp"
 #include "IClient.hpp"
 #include <optional>
+#include <mutex>
 
 namespace senc::clientapi
 {
@@ -94,6 +95,7 @@ namespace senc::clientapi
 		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
+		std::mutex _mtxStorage;
 		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
