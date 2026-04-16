@@ -85,7 +85,7 @@ namespace senc::utils
 	class BinFile
 	{
 	public:
-		using Self = BinFile<accessFlags>;
+		using Self = BinFile<accessFlags, endianess>;
 
 		/**
 		 * @brief Opens file.
