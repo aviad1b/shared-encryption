@@ -67,6 +67,12 @@ namespace senc::utils
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
+	inline bool BinFile<accessFlags, endianess>::empty() const
+	{
+		return (0 == this->size());
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
 	inline file_pos_t BinFile<accessFlags, endianess>::size() const
 	{
 		return _size;

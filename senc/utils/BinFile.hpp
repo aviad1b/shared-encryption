@@ -127,6 +127,12 @@ namespace senc::utils
 		void swap(Self& other);
 
 		/**
+		 * @brief Checks if file is empty.
+		 * @return `true` if file is empty, otherwise `false`.
+		 */
+		bool empty() const;
+
+		/**
 		 * @brief Gets the file's size.
 		 * @return File's current size.
 		 */
