@@ -206,11 +206,12 @@ namespace senc::clientapi::storage
 
 	ProfileHolder::ProfileHolder(const ProfileEncKey& key,
 								 ProfileInputFile& file,
+								 std::mutex& mtxFile,
 								 utils::file_pos_t pos,
 								 profile_record_enc_sizes_t& recordEncSizes,
 								 ProfileRecord& record)
-		: _key(key), _file(file), _pos(pos), _recordEncSizes(recordEncSizes),
-		  _record(record) { }
+		: _key(key), _file(file), _mtxFile(mtxFile), _pos(pos),
+		  _recordEncSizes(recordEncSizes), _record(record) { }
 
 	ProfileHolder::operator const ProfileRecord&() const noexcept
 	{
@@ -240,6 +241,7 @@ namespace senc::clientapi::storage
 			throw ClientException("Client storage attempted to change size - not supported yet");
 
 		// re-write profile to file and assign locally
+		const std::lock_guard lock(_mtxFile);
 		ProfileUtils::write_profile_record_with_enc_sizes(_file, _pos, enc);
 		this->_record = std::move(record);
 
@@ -248,10 +250,14 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
 		ProfileInputFile& file,
+		std::mutex& mtxFile,
 		utils::file_pos_t pos)
-		: _key(key), _file(file), _pos(pos),
-		  _recordEncSizes(ProfileUtils::read_profile_record_enc_sizes(_file)),
-		  _record(ProfileUtils::read_profile_record(_file, _key, _recordEncSizes)) { }
+		: _key(key), _file(file), _mtxFile(mtxFile), _pos(pos)
+	{
+		const std::lock_guard lock(_mtxFile.get());
+		_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
+		_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSizes);
+	}
 
 	bool ProfileDataIterator::operator==(const Self& other) const
 	{
@@ -260,6 +266,7 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::Self& ProfileDataIterator::operator++()
 	{
+		const std::lock_guard lock(_mtxFile.get());
 		this->_pos = next_pos();
 		this->_file.get().set_pos(this->_pos);
 		this->_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
@@ -270,12 +277,12 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
 	{
-		return Self(_key, _file, next_pos());
+		return Self(_key, _file, _mtxFile, next_pos());
 	}
 
 	ProfileDataIterator::reference ProfileDataIterator::operator*()
 	{
-		return { _key, _file, _pos, _recordEncSizes, *_record };
+		return { _key, _file, _mtxFile, _pos, _recordEncSizes, *_record };
 	}
 
 	ProfileDataIterator::pointer ProfileDataIterator::operator->()
@@ -312,12 +319,12 @@ namespace senc::clientapi::storage
 
 	ProfileDataRange::iterator ProfileDataRange::begin()
 	{
-		return iterator(_key, _file);
+		return iterator(_key, _file, _mtxFile);
 	}
 
 	ProfileDataRange::iterator ProfileDataRange::end()
 	{
-		return iterator(_key, _file, _file.size());
+		return iterator(_key, _file, _mtxFile, _file.size());
 	}
 
 	ProfileStorage::ProfileStorage(const std::string& path,

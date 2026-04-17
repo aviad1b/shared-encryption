@@ -13,6 +13,7 @@
 #include "../../utils/BinFile.hpp"
 #include "../../common/sizes.hpp"
 #include "ProfileRecord.hpp"
+#include <mutex>
 
 namespace senc::clientapi::storage
 {
@@ -179,12 +180,14 @@ namespace senc::clientapi::storage
 		 * @brief Constructor of profile holder.
 		 * @param key Encryption key (by ref).
 		 * @param file Client storage file (by ref).
+		 * @param mtxFile File mutex (by ref).
 		 * @param pos Starting position of profile in file.
 		 * @param recordEncSizes Sizes tuple of record ciphertext (by ref).
 		 * @param record Read record (moved).
 		 */
 		ProfileHolder(const ProfileEncKey& key,
 					  ProfileInputFile& file,
+					  std::mutex& mtxFile,
 					  utils::file_pos_t pos,
 					  profile_record_enc_sizes_t& recordEncSizes,
 					  ProfileRecord& record);
@@ -216,6 +219,7 @@ namespace senc::clientapi::storage
 	private:
 		const ProfileEncKey& _key;
 		ProfileInputFile& _file;
+		std::mutex& _mtxFile;
 		utils::file_pos_t _pos;
 		profile_record_enc_sizes_t& _recordEncSizes;
 		ProfileRecord& _record;
@@ -240,10 +244,12 @@ namespace senc::clientapi::storage
 		 * @brief Constructs a profile data iterator.
 		 * @param key Reference to key used for decrypting read data.
 		 * @param file Reference to file from which data is read.
+		 * @param mtxFile Reference to file mutex.
 		 * @param pos Reading position in file, defaults to `0` (file start).
 		 */
 		ProfileDataIterator(const ProfileEncKey& key,
 							ProfileInputFile& file,
+							std::mutex& mtxFile,
 							utils::file_pos_t pos = 0);
 
 		/**
@@ -291,6 +297,7 @@ namespace senc::clientapi::storage
 	private:
 		std::reference_wrapper<const ProfileEncKey> _key;
 		std::reference_wrapper<ProfileInputFile> _file;
+		std::reference_wrapper<std::mutex> _mtxFile;
 		utils::file_pos_t _pos;
 		profile_record_enc_sizes_t _recordEncSizes;
 		std::optional<ProfileRecord> _record;
@@ -355,6 +362,7 @@ namespace senc::clientapi::storage
 
 	private:
 		ProfileInputFile _file;
+		std::mutex _mtxFile;
 		std::reference_wrapper<const ProfileEncKey> _key;
 	};
 
