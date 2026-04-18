@@ -241,9 +241,9 @@ namespace senc::clientapi::storage
 			throw ClientException("Client storage attempted to change size - not supported yet");
 
 		// re-write profile to file and assign locally
+		this->_record = std::move(record);
 		const std::lock_guard lock(_mtxFile);
 		ProfileUtils::write_profile_record_with_enc_sizes(_file, _pos, enc);
-		this->_record = std::move(record);
 
 		return *this;
 	}
