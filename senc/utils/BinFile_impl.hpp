@@ -239,7 +239,14 @@ namespace senc::utils
 			refresh_cursor();
 
 		if (0 == std::fread(buffer, sizeof(T), count, _file))
-			throw FileException("Failed to read from file", this->_path);
+		{
+			if (feof(_file))
+				throw FileException("Failed to read from file " + this->_path, "EOF");
+			else if (ferror(_file))
+				throw FileException("Failed to read from file " + this->_path, strerror(errno));
+			else
+				throw FileException("Failed to read from file " + this->_path);
+		}
 
 		// reverse endianess if needs to
 		if constexpr (std::endian::native != endianess && sizeof(T) > 1)
