@@ -323,8 +323,11 @@ namespace senc::clientapi::storage
 		 * @brief Constructs a profile data range.
 		 * @param path Path of file from which profile data is read.
 		 * @param key Reference to key used for decrypting read data.
+		 * @param mtxFile Mutex protecting file (by ref).
 		 */
-		ProfileDataRange(const std::string& path, const ProfileEncKey& key);
+		ProfileDataRange(const std::string& path,
+						 const ProfileEncKey& key,
+						 std::mutex& mtxFile);
 
 		ProfileDataRange(const Self&) = delete;
 		Self& operator=(const Self&) = delete;
@@ -362,8 +365,8 @@ namespace senc::clientapi::storage
 
 	private:
 		ProfileInputFile _file;
-		std::mutex _mtxFile;
 		std::reference_wrapper<const ProfileEncKey> _key;
+		std::reference_wrapper<std::mutex> _mtxFile;
 	};
 
 	/**
@@ -402,7 +405,7 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Gets a range iterating over profile's data.
 		 */
-		ProfileDataRange iter_profile_data() const;
+		ProfileDataRange iter_profile_data();
 
 		/**
 		 * @brief Adds profile record to profile storage.
@@ -413,6 +416,7 @@ namespace senc::clientapi::storage
 		std::string _username;
 		std::string _path;
 		ProfileEncKey _key;
+		std::mutex _mtxFile;
 
 		/**
 		 * @brief Derives key for profile access from username and password.

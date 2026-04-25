@@ -299,11 +299,13 @@ namespace senc::clientapi::storage
 			std::apply([](auto&&... args) { return (args + ...); }, _recordEncSizes);
 	}
 
-	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key)
-		: _file(path), _key(key) { }
+	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key, std::mutex& mtxFile)
+		: _file(path), _key(key), _mtxFile(mtxFile) { }
 
 	ProfileDataRange::ProfileDataRange(Self&& other) noexcept
-		: _file(std::move(other._file)), _key(std::move(other._key)) { }
+		: _file(std::move(other._file)),
+		  _key(std::move(other._key)),
+		  _mtxFile(std::move(other._mtxFile)) { }
 
 	ProfileDataRange::Self& ProfileDataRange::operator=(Self other)
 	{
@@ -346,13 +348,15 @@ namespace senc::clientapi::storage
 		return this->_username;
 	}
 
-	ProfileDataRange ProfileStorage::iter_profile_data() const
+	ProfileDataRange ProfileStorage::iter_profile_data()
 	{
-		return ProfileDataRange(_path, _key);
+		const std::lock_guard lock(_mtxFile);
+		return ProfileDataRange(_path, _key, _mtxFile);
 	}
 
 	void ProfileStorage::add_profile_data(const ProfileRecord& record)
 	{
+		const std::lock_guard lock(_mtxFile);
 		ProfileOutputFile file(_path);
 		ProfileUtils::write_profile_record_with_enc_sizes(file, _key, record);
 	}
