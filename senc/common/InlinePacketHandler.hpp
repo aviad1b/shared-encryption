@@ -111,6 +111,12 @@ namespace senc
 		virtual void send_response(const pkt::UserSearchResponse& packet) override;
 		virtual void recv_response_data(pkt::UserSearchResponse& out) override;
 
+		void send_request(const pkt::EvolveRequest& packet) override;
+		void recv_request_data(pkt::EvolveRequest& out) override;
+
+		void send_response(const pkt::EvolveResponse& packet) override;
+		void recv_response_data(pkt::EvolveResponse& out) override;
+
 	private:
 		PlainPacketHandlerSyncData _syncData;
 
@@ -145,6 +151,9 @@ namespace senc
 
 		void send_update_record(const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
 		void recv_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out);
+
+		void send_update_record(const pkt::UpdateResponse::ToEvolveRecord& record);
+		void recv_update_record(pkt::UpdateResponse::ToEvolveRecord& out);
 	};
 
 	static_assert(PacketHandlerImpl<InlinePacketHandler>);

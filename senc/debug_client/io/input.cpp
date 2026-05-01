@@ -188,15 +188,15 @@ namespace senc::debug_client::io
 		return input_priv_key_shard_ids();
 	}
 
-	PrivKeyShard input_priv_key_shard()
+	std::vector<PrivKeyShard> input_priv_key_shards()
 	{
-		return priv_key_shard_from_bytes(utils::bytes_from_base64(input()));
+		return input_vec<PrivKeyShard, input_priv_key_shard<true>>();
 	}
 
-	PrivKeyShard input_priv_key_shard(const std::string& msg)
+	std::vector<PrivKeyShard> input_priv_key_shards(const std::string& msg)
 	{
 		std::cout << msg;
-		return input_priv_key_shard();
+		return input_priv_key_shards();
 	}
 
 	Ciphertext input_ciphertext()
@@ -227,5 +227,17 @@ namespace senc::debug_client::io
 	{
 		std::cout << msg;
 		return input_decryption_parts();
+	}
+
+	utils::BigInt input_offset()
+	{
+		const auto strInput = input();
+		return utils::BigInt(strInput.c_str());
+	}
+
+	utils::BigInt input_offset(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_offset();
 	}
 }

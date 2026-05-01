@@ -11,6 +11,7 @@
 namespace senc::clientapi::storage
 {
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
+											 utils::BigInt&& nextEvolutionOffset,
 											 PubKey&& regPubKey,
 											 PubKey&& ownerPubKey,
 											 PrivKeyShard&& regExternalPrivKeyShard,
@@ -20,6 +21,7 @@ namespace senc::clientapi::storage
 	{
 		return Self(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regPubKey),
 			std::move(ownerPubKey),
 			std::move(regExternalPrivKeyShard),
@@ -32,12 +34,14 @@ namespace senc::clientapi::storage
 	}
 
 	ProfileRecord::Self ProfileRecord::reg(UserSetID&& usersetID,
+										   utils::BigInt&& nextEvolutionOffset,
 										   PubKey&& regPubKey,
 										   PubKey&& ownerPubKey,
 										   PrivKeyShard&& regPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regPubKey),
 			std::move(ownerPubKey),
 			std::move(regPrivKeyShard),
@@ -53,6 +57,11 @@ namespace senc::clientapi::storage
 	const UserSetID& ProfileRecord::userset_id() const noexcept
 	{
 		return _usersetID;
+	}
+
+	const utils::BigInt& ProfileRecord::next_evolution_offset() const noexcept
+	{
+		return _nextEvolutionOffset;
 	}
 
 	const PubKey& ProfileRecord::reg_pub_key() const noexcept
@@ -85,12 +94,37 @@ namespace senc::clientapi::storage
 		return _ownerPrivKeyShards->ownerInternal;
 	}
 
+	ProfileRecord::Self ProfileRecord::transform_next_evolution_offset(utils::BigInt&& offset)
+	{
+		Self res = std::move(*this);
+		res._nextEvolutionOffset = std::move(offset);
+		return res;
+	}
+
+	ProfileRecord::Self ProfileRecord::transform_evolve(KeyEvolver& evolve)
+	{
+		Self res = std::move(*this);
+		if (res.is_owner())
+			evolve(
+				res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard,
+				res._ownerPrivKeyShards->regInternal,
+				res._ownerPrivKeyShards->ownerExternal,
+				res._ownerPrivKeyShards->ownerInternal
+			);
+		else
+			evolve(res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard);
+		res._nextEvolutionOffset = evolve.offset();
+		return res;
+	}
+
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
+								 utils::BigInt&& nextEvolutionOffset,
 								 PubKey&& regPubKey,
 								 PubKey&& ownerPubKey,
 								 PrivKeyShard&& regExternalPrivKeyShard,
 								 std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards)
 		: _usersetID(std::move(usersetID)),
+		  _nextEvolutionOffset(nextEvolutionOffset),
 		  _regPubKey(std::move(regPubKey)),
 		  _ownerPubKey(std::move(ownerPubKey)),
 		  _regExternalPrivKeyShard(std::move(regExternalPrivKeyShard)),

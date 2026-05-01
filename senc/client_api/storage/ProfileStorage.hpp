@@ -13,6 +13,7 @@
 #include "../../utils/BinFile.hpp"
 #include "../../common/sizes.hpp"
 #include "ProfileRecord.hpp"
+#include <mutex>
 
 namespace senc::clientapi::storage
 {
@@ -47,7 +48,7 @@ namespace senc::clientapi::storage
 	 * @typedef senc::clientapi::storage::ProfileInputFile
 	 * @brief File used for profile input.
 	 */
-	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read>;
+	using ProfileInputFile = utils::BinFile<utils::AccessFlags::Read | utils::AccessFlags::Edit>;
 
 	/**
 	 * @typedef senc::clientapi::storage::ProfileOutputFile
@@ -106,9 +107,36 @@ namespace senc::clientapi::storage
 																profile_record_enc_sizes_t sizes);
 
 		/**
+		 * @brief Gets encrypted version of profile record.
+		 */
+		static ProfileEncCiphertext encrypt_profile_record(const ProfileRecord& record,
+														   const ProfileEncKey& key);
+
+		/**
 		 * @brief Writes (encrypted) profile record (including encryption sizes).
 		 */
 		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														const ProfileEncCiphertext& enc);
+
+		/**
+		 * @brief Writes (encrypted) profile record (including encryption sizes).
+		 */
+		static void write_profile_record_with_enc_sizes(ProfileInputFile& file,
+														utils::file_pos_t pos,
+														const ProfileEncCiphertext& enc);
+
+		/**
+		 * @brief Writes (encrypted) profile record (including encryption sizes).
+		 */
+		static void write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														const ProfileEncKey& key,
+														const ProfileRecord& record);
+
+		/**
+		 * @brief Writes (encrypted) profile record (including encryption sizes).
+		 */
+		static void write_profile_record_with_enc_sizes(ProfileInputFile& file,
+														utils::file_pos_t pos,
 														const ProfileEncKey& key,
 														const ProfileRecord& record);
 
@@ -134,6 +162,70 @@ namespace senc::clientapi::storage
 	};
 
 	/**
+	 * @class senc::clientapi::storage::ProfileHolder
+	 * @brief Encapsulates logic of setting iterator's profile.
+	 */
+	class ProfileHolder
+	{
+	public:
+		using Self = ProfileHolder;
+
+		ProfileHolder() = delete;
+		ProfileHolder(const Self&) = delete;
+		ProfileHolder(Self&&) = delete;
+		Self& operator=(const Self&) = delete;
+		Self& operator=(Self&&) = delete;
+
+		/**
+		 * @brief Constructor of profile holder.
+		 * @param key Encryption key (by ref).
+		 * @param file Client storage file (by ref).
+		 * @param mtxFile File mutex (by ref).
+		 * @param pos Starting position of profile in file.
+		 * @param recordEncSizes Sizes tuple of record ciphertext (by ref).
+		 * @param record Read record (moved).
+		 */
+		ProfileHolder(const ProfileEncKey& key,
+					  ProfileInputFile& file,
+					  std::mutex& mtxFile,
+					  utils::file_pos_t pos,
+					  profile_record_enc_sizes_t& recordEncSizes,
+					  ProfileRecord& record);
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record reference.
+		 */
+		operator const ProfileRecord&() const noexcept;
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record pointer.
+		 */
+		ProfileRecord* operator&() noexcept;
+
+		/**
+		 * @brief Converts holder to profile record.
+		 * @return Profile record pointer.
+		 */
+		const ProfileRecord* operator&() const noexcept;
+
+		/**
+		 * @brief Sets profile record (writes to storage as well).
+		 * @param record New record value (either copied or moved).
+		 */
+		Self& operator=(ProfileRecord record);
+
+	private:
+		const ProfileEncKey& _key;
+		ProfileInputFile& _file;
+		std::mutex& _mtxFile;
+		utils::file_pos_t _pos;
+		profile_record_enc_sizes_t& _recordEncSizes;
+		ProfileRecord& _record;
+	};
+
+	/**
 	 * @class senc::clientapi::storage::ProfileStorageIterator
 	 * @brief Used for iteration over profile storage.
 	 */
@@ -141,9 +233,9 @@ namespace senc::clientapi::storage
 	{
 	public:
 		using Self = ProfileDataIterator;
-		using value_type = const ProfileRecord;
-		using reference = const ProfileRecord&;
-		using pointer = const ProfileRecord*;
+		using value_type = ProfileRecord;
+		using reference = ProfileHolder;
+		using pointer = ProfileRecord*;
 		using difference_type = std::ptrdiff_t;
 		using iterator_category = std::input_iterator_tag;
 		using iterator_concept = std::input_iterator_tag;
@@ -152,10 +244,12 @@ namespace senc::clientapi::storage
 		 * @brief Constructs a profile data iterator.
 		 * @param key Reference to key used for decrypting read data.
 		 * @param file Reference to file from which data is read.
+		 * @param mtxFile Reference to file mutex.
 		 * @param pos Reading position in file, defaults to `0` (file start).
 		 */
 		ProfileDataIterator(const ProfileEncKey& key,
 							ProfileInputFile& file,
+							std::mutex& mtxFile,
 							utils::file_pos_t pos = 0);
 
 		/**
@@ -192,17 +286,18 @@ namespace senc::clientapi::storage
 		 * @brief Gets read profile data record.
 		 * @return Read data record.
 		 */
-		reference operator*() const;
+		reference operator*();
 
 		/**
 		 * @brief Gets read profile data record.
 		 * @return Read data record.
 		 */
-		pointer operator->() const;
+		pointer operator->();
 
 	private:
 		std::reference_wrapper<const ProfileEncKey> _key;
 		std::reference_wrapper<ProfileInputFile> _file;
+		std::reference_wrapper<std::mutex> _mtxFile;
 		utils::file_pos_t _pos;
 		profile_record_enc_sizes_t _recordEncSizes;
 		std::optional<ProfileRecord> _record;
@@ -228,8 +323,11 @@ namespace senc::clientapi::storage
 		 * @brief Constructs a profile data range.
 		 * @param path Path of file from which profile data is read.
 		 * @param key Reference to key used for decrypting read data.
+		 * @param mtxFile Mutex protecting file (by ref).
 		 */
-		ProfileDataRange(const std::string& path, const ProfileEncKey& key);
+		ProfileDataRange(const std::string& path,
+						 const ProfileEncKey& key,
+						 std::mutex& mtxFile);
 
 		ProfileDataRange(const Self&) = delete;
 		Self& operator=(const Self&) = delete;
@@ -268,6 +366,7 @@ namespace senc::clientapi::storage
 	private:
 		ProfileInputFile _file;
 		std::reference_wrapper<const ProfileEncKey> _key;
+		std::reference_wrapper<std::mutex> _mtxFile;
 	};
 
 	/**
@@ -306,7 +405,7 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Gets a range iterating over profile's data.
 		 */
-		ProfileDataRange iter_profile_data() const;
+		ProfileDataRange iter_profile_data();
 
 		/**
 		 * @brief Adds profile record to profile storage.
@@ -317,6 +416,7 @@ namespace senc::clientapi::storage
 		std::string _username;
 		std::string _path;
 		ProfileEncKey _key;
+		std::mutex _mtxFile;
 
 		/**
 		 * @brief Derives key for profile access from username and password.

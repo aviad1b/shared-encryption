@@ -56,8 +56,8 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 	std::size_t i = 0;
 	for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
 	{
-		const auto& record = records[i];
-		const auto& storedRecord = *it;
+		const ProfileRecord& record = records[i];
+		const ProfileRecord& storedRecord = *it;
 
 		EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
 		EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
@@ -75,6 +75,51 @@ TEST_P(ClientStorageTest, WriteReadRoundTrip)
 	EXPECT_EQ(i, records.size());
 }
 
+TEST_P(ClientStorageTest, WriteUpdateOffsetRead)
+{
+	const auto& records = GetParam().records;
+
+	for (const auto& record : records)
+		storage->add_profile_data(record);
+
+	// update all offsets to 12345
+	{
+		auto recordsRange = storage->iter_profile_data();
+		for (auto it = recordsRange.begin(); it != recordsRange.end(); ++it)
+			*it = it->transform_next_evolution_offset(12345);
+		// this COULD be done with for-each but would require an intermidiate variable
+	}
+	
+	// test correct values
+	{
+		std::vector<ProfileRecord> records = GetParam().records;
+		for (auto& record : records)
+			record = record.transform_next_evolution_offset(12345);
+
+		auto recordsRange = storage->iter_profile_data();
+		std::size_t i = 0;
+		for (auto it = recordsRange.begin(); it != recordsRange.end() && i < records.size(); ++it, ++i)
+		{
+			const ProfileRecord& record = records[i];
+			const ProfileRecord& storedRecord = *it;
+
+			EXPECT_EQ(record.is_owner(), storedRecord.is_owner());
+			EXPECT_EQ(record.userset_id(), storedRecord.userset_id());
+			EXPECT_EQ(record.reg_pub_key(), storedRecord.reg_pub_key());
+			EXPECT_EQ(record.owner_pub_key(), storedRecord.owner_pub_key());
+			EXPECT_EQ(record.reg_external_priv_key_shard(), storedRecord.reg_external_priv_key_shard());
+			if (record.is_owner() && storedRecord.is_owner())
+			{
+				EXPECT_EQ(record.reg_internal_priv_key_shard(), storedRecord.reg_internal_priv_key_shard());
+				EXPECT_EQ(record.owner_external_priv_key_shard(), storedRecord.owner_external_priv_key_shard());
+				EXPECT_EQ(record.owner_internal_priv_key_shard(), storedRecord.owner_internal_priv_key_shard());
+			}
+		}
+
+		EXPECT_EQ(i, records.size());
+	}
+}
+
 INSTANTIATE_TEST_SUITE_P(
 	ClientStorageTests,
 	ClientStorageTest,
@@ -86,6 +131,7 @@ INSTANTIATE_TEST_SUITE_P(
 			.records = {
 				ProfileRecord::owner(
 					"57641e16-e02a-473b-8204-a809a9c435df",
+					435,
 					ECGroup::generator().pow(111),
 					ECGroup::generator().pow(222),
 					senc::PrivKeyShard{ 3, 333 },
@@ -95,12 +141,14 @@ INSTANTIATE_TEST_SUITE_P(
 				),
 				ProfileRecord::reg(
 					"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+					111,
 					ECGroup::generator().pow(435),
 					ECGroup::generator().pow(256),
 					senc::PrivKeyShard{ 1, 435 }
 				),
 				ProfileRecord::owner(
 					"55b27150-1668-446f-aa50-35d9358eac19",
+					283746,
 					ECGroup::generator().pow(444),
 					ECGroup::generator().pow(555),
 					senc::PrivKeyShard{ 4, 666 },

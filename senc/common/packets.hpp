@@ -63,7 +63,10 @@ namespace senc::pkt
 		SendDecryptionPartResponse,
 
 		UserSearchRequest,
-		UserSearchResponse
+		UserSearchResponse,
+
+		EvolveRequest,
+		EvolveResponse
 	};
 
 
@@ -263,6 +266,9 @@ namespace senc::pkt
 
 		/// Private key shard for owner layer for internal use (decryptions for self).
 		PrivKeyShard owner_internal_priv_key_shard;
+
+		/// Userset seed (for evolution).
+		Seed seed;
 	};
 
 
@@ -418,6 +424,9 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
+			/// Seed (for evolution).
+			Seed seed;
+
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;
 
@@ -442,6 +451,9 @@ namespace senc::pkt
 
 			/// User set ID.
 			UserSetID user_set_id;
+
+			/// Seed (for evolution).
+			Seed seed;
 
 			/// Public key of the set for non-owner layer encryption.
 			PubKey reg_pub_key;
@@ -535,6 +547,21 @@ namespace senc::pkt
 
 		/// Finished decryptions requested by this client.
 		std::vector<FinishedDecryptionsRecord> finished_decryptions;
+
+		/**
+		 * @struct ToEvolveRecord
+		 * @brief Record for usersets to evolve their keys.
+		 */
+		struct ToEvolveRecord
+		{
+			bool operator==(const ToEvolveRecord&) const = default;
+
+			/// ID of userset to evolve its keys.
+			UserSetID user_set_id;
+		};
+
+		/// Usersets to evolve their keys (may have duplicates to evolve multiple times).
+		std::vector<ToEvolveRecord> to_evolve;
 	};
 
 
@@ -651,5 +678,35 @@ namespace senc::pkt
 
 		/// List of usernames matching search.
 		std::vector<std::string> users;
+	};
+
+
+	// =================================================================
+	// Evolve cycle
+	// Client requests to evolve keys of a userset with given ID.
+	// Server responds.
+	// =================================================================
+
+	/**
+	 * @struct EvolveRequest
+	 * @brief Request containing ID of userset to evolve its keys.
+	 */
+	struct EvolveRequest
+	{
+		static constexpr auto CODE = Code::EvolveRequest;
+		bool operator==(const EvolveRequest&) const = default;
+
+		/// ID of userset to evolve its keys.
+		UserSetID user_set_id;
+	};
+
+	/**
+	 * @struct EvolveResponse
+	 * @brief Acknowledgement of key evolution.
+	 */
+	struct EvolveResponse
+	{
+		static constexpr auto CODE = Code::EvolveResponse;
+		bool operator==(const EvolveResponse&) const = default;
 	};
 }

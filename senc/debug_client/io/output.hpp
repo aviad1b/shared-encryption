@@ -20,6 +20,12 @@ namespace senc::debug_client::io
 	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey);
 
 	/**
+	 * @brief Prints (any) private key shard.
+	 * @param shard Private key shard to print.
+	 */
+	void print_priv_key_shard(const PrivKeyShard& shard);
+
+	/**
 	 * @brief Prints an external private key shard of the non-owner layer.
 	 * @param shard Private key shard to print.
 	 */

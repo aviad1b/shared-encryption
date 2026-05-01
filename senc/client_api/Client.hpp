@@ -15,6 +15,7 @@
 #include "../utils/hash.hpp"
 #include "IClient.hpp"
 #include <optional>
+#include <mutex>
 
 namespace senc::clientapi
 {
@@ -86,12 +87,15 @@ namespace senc::clientapi
 		void user_search(const std::string& query,
 						 std::function<void(const std::string&)> callback) override;
 
+		void evolve_userset(const UserSetID& usersetID) override;
+
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;
 		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
+		std::mutex _mtxStorage;
 		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
@@ -141,6 +145,16 @@ namespace senc::clientapi
 		 * @throw ClientException If not found or user not logged in.
 		 */
 		storage::ProfileRecord find_profile_record_by_userset_id(const UserSetID& usersetID);
+
+		/**
+		 * @brief Locates a profile record from userset ID.
+		 * @param usersetID Userset ID.
+		 * @param range Profile data range.
+		 * @return Iterator to located profile record.
+		 * @throw ClientException If not found or user not logged in.
+		 */
+		typename storage::ProfileDataRange::iterator find_profile_record_by_userset_id(
+			const UserSetID& usersetID, storage::ProfileDataRange& range);
 
 		/**
 		 * @brief Adds profile record to user storage.
@@ -200,6 +214,12 @@ namespace senc::clientapi
 		 * @param data Update data (moved).
 		 */
 		void handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data);
+
+		/**
+		 * @brief Handles "to evolve" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data);
 
 		/**
 		 * @brief Attemps to participate in decryption operation.

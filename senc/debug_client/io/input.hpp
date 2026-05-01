@@ -336,16 +336,34 @@ namespace senc::debug_client::io
 
 	/**
 	 * @brief Gets private key shard input.
+	 * @tparam allowEmpty Whether or not should allow empty input.
 	 * @return Private key shard input.
 	 */
-	PrivKeyShard input_priv_key_shard();
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard();
 
 	/**
 	 * @brief Gets private key shard input.
 	 * @param msg Message to print before input.
 	 * @return Private key shard input.
 	 */
-	PrivKeyShard input_priv_key_shard(const std::string& msg);
+	template <bool allowEmpty = false>
+	std::conditional_t<allowEmpty, std::optional<PrivKeyShard>, PrivKeyShard>
+		input_priv_key_shard(const std::string& msg);
+
+	/**
+	 * @brief Gets multiple private key shard inputs (until empty input).
+	 * @return Private key shard inputs.
+	 */
+	std::vector<PrivKeyShard> input_priv_key_shards();
+
+	/**
+	 * @brief Gets multiple private key shard inputs (until empty input).
+	 * @param msg Message to print before input.
+	 * @return Private key shard inputs.
+	 */
+	std::vector<PrivKeyShard> input_priv_key_shards(const std::string& msg);
 
 	/**
 	 * @brief Gets ciphertext input.
@@ -390,6 +408,19 @@ namespace senc::debug_client::io
 	 * @return Decryption part inputs vector.
 	 */
 	std::vector<DecryptionPart> input_decryption_parts(const std::string& msg);
+
+	/**
+	 * @brief Gets offset input (for evolution.
+	 * @return Offset input.
+	 */
+	utils::BigInt input_offset();
+
+	/**
+	 * @brief Gets offset input (for evolution.
+	 * @param msg Message to print before input.
+	 * @return Offset input.
+	 */
+	utils::BigInt input_offset(const std::string& msg);
 }
 
 #include "input_impl.hpp"

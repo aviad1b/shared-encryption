@@ -8,6 +8,7 @@
 
 #include "Client.hpp"
 
+#include "../common/KeyEvolver.hpp"
 #include "ClientException.hpp"
 #include "ClientUtils.hpp"
 #include <algorithm>
@@ -99,6 +100,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::iter_profile(std::function<bool(const storage::ProfileRecord&)> callback)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
@@ -122,8 +124,10 @@ namespace senc::clientapi
 			.name = std::move(name)
 		});
 
+		const std::lock_guard lock(_mtxStorage);
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
+			std::move(resp.seed),
 			std::move(resp.reg_pub_key),
 			std::move(resp.owner_pub_key),
 			std::move(resp.reg_external_priv_key_shard),
@@ -172,6 +176,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 
@@ -204,6 +209,14 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline void Client<IP>::evolve_userset(const UserSetID& usersetID)
+	{
+		this->post<pkt::EvolveResponse>(pkt::EvolveRequest{
+			usersetID
+		});
+	}
+
+	template <utils::IPType IP>
 	inline void senc::clientapi::Client<IP>::ensure_connected()
 	{
 		if (this->_packetHandler) // if connected (packet handler not null)
@@ -230,6 +243,7 @@ namespace senc::clientapi
 										 const std::string& password,
 										 const std::string& profileBaseDir)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.emplace(
 			ClientUtils::locate_user_profile_file(username, profileBaseDir),
 			username, password
@@ -239,6 +253,7 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::unload_profile()
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.reset();
 	}
 
@@ -248,6 +263,10 @@ namespace senc::clientapi
 		try
 		{
 			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
+			// TODO: Moving evolution to be first is a temporary solution.
+			//       What should probably be done is re-attempting failed decryptions after each evolution.
+			for (auto& record : resp.to_evolve)
+				this->handle_to_evolve(std::move(record));
 			for (auto& record : resp.added_as_reg_member)
 				this->handle_added_as_reg_member(std::move(record));
 			for (auto& record : resp.added_as_owner)
@@ -268,27 +287,36 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline storage::ProfileRecord Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
-			profileData.begin(), profileData.end(),
+		auto it = find_profile_record_by_userset_id(usersetID, profileData);
+		return *it;
+	}
+
+	template <utils::IPType IP>
+	inline typename storage::ProfileDataRange::iterator Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID, storage::ProfileDataRange& range)
+	{
+		auto it = std::find_if(
+			range.begin(), range.end(),
 			[&usersetID](const storage::ProfileRecord& record)
 			{
 				return record.userset_id() == usersetID;
 			}
 		);
-		if (it == profileData.end())
+		if (it == range.end())
 			throw ClientException(
 				"Local storage error",
 				"Failed to locate userset " + usersetID.to_string()
 			);
-		return *it;
+		return it;
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::add_profile_record(const storage::ProfileRecord& record)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		_storage->add_profile_data(record);
@@ -321,6 +349,7 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::reg(
 			std::move(data.user_set_id),
+			std::move(data.seed),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
 			std::move(data.reg_external_priv_key_shard)
@@ -332,6 +361,7 @@ namespace senc::clientapi
 	{
 		add_profile_record(storage::ProfileRecord::owner(
 			std::move(data.user_set_id),
+			std::move(data.seed),
 			std::move(data.reg_pub_key),
 			std::move(data.owner_pub_key),
 			std::move(data.reg_external_priv_key_shard),
@@ -401,6 +431,22 @@ namespace senc::clientapi
 
 		// call callback on decrypted message
 		_decryptFinishedCallback(data.op_id, decrypted);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data)
+	{
+		const std::lock_guard lock(_mtxStorage);
+
+		// locate fitting record in local storage
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		auto profileData = _storage->iter_profile_data();
+		auto it = find_profile_record_by_userset_id(data.user_set_id, profileData);
+
+		// apply evolution on located record
+		KeyEvolver evolve(it->next_evolution_offset());
+		*it = it->transform_evolve(evolve);
 	}
 
 	template <utils::IPType IP>

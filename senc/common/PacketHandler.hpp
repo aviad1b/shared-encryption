@@ -146,6 +146,12 @@ namespace senc
 		virtual void send_response(const pkt::UserSearchResponse& packet) = 0;
 		virtual void recv_response_data(pkt::UserSearchResponse& out) = 0;
 
+		virtual void send_request(const pkt::EvolveRequest& packet) = 0;
+		virtual void recv_request_data(pkt::EvolveRequest& out) = 0;
+
+		virtual void send_response(const pkt::EvolveResponse& packet) = 0;
+		virtual void recv_response_data(pkt::EvolveResponse& out) = 0;
+
 	protected:
 		utils::Socket& _sock;
 

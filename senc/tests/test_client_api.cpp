@@ -78,6 +78,12 @@ struct DecsMap
 		const std::lock_guard<std::mutex> lock(mtx);
 		return map.empty();
 	}
+
+	void clear()
+	{
+		const std::lock_guard<std::mutex> lock(mtx);
+		map.clear();
+	}
 };
 
 static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, uintptr_t context)
@@ -147,7 +153,8 @@ static void test_ctx_regs(const char* username, uintptr_t context)
 
 void ASSERT_NO_ERROR(const SENC_Handle& handle)
 {
-	ASSERT_FALSE(SENC_HasError(handle));
+	if (SENC_HasError(handle))
+		throw std::runtime_error(SENC_GetError(handle));
 }
 
 TEST_F(ClientApiTest, SignupLoginLogout)
@@ -263,33 +270,46 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	));
 	testMembersParam.test();
 
-	// encrypt message
-	const std::string msg = "hello there";
-	SENC_Handle hCiphertext = SENC_Encrypt(
-		hClient1, usersetID,
-		reinterpret_cast<const uint8_t*>(msg.c_str()),
-		msg.length()
-	);
-	ASSERT_NO_ERROR(hCiphertext);
-
-	// queue message decrypt
-	SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
-	ASSERT_NO_ERROR(hOPID);
-	OperationID opid = SENC_GetStringValue(hOPID);
-
-	// wait until decryption was added to decs
-	while (decs.empty())
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	// check got decryption which is same as `msg`
+	// do ten iterations of round trip, evolve key after every second iteration
+	for (std::size_t i = 0; i < 4; ++i)
 	{
-		const std::lock_guard<std::mutex> lock(decs.mtx);
-		EXPECT_EQ(decs.map.size(), 1);
-		auto& decsVec = decs.map.at(opid);
-		EXPECT_EQ(decsVec.size(), 1);
-		auto& result = decsVec.front();
+		// encrypt message
+		const Buffer msg = senc::utils::random_bytes(256);
+		SENC_Handle hCiphertext = SENC_Encrypt(
+			hClient1, usersetID,
+			reinterpret_cast<const uint8_t*>(msg.data()),
+			msg.size()
+		);
+		ASSERT_NO_ERROR(hCiphertext);
 
-		EXPECT_EQ(std::string(result.begin(), result.end()), msg);
+		// queue message decrypt
+		SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
+		ASSERT_NO_ERROR(hOPID);
+		OperationID opid = SENC_GetStringValue(hOPID);
+
+		// wait until decryption was added to decs
+		while (decs.empty())
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		// check got decryption which is same as `msg`
+		{
+			const std::lock_guard<std::mutex> lock(decs.mtx);
+			EXPECT_EQ(decs.map.size(), 1);
+			auto it = decs.map.find(opid);
+			ASSERT_NE(it, decs.map.end());
+			auto& decsVec = it->second;
+			EXPECT_EQ(decsVec.size(), 1);
+			auto& result = decsVec.front();
+
+			EXPECT_EQ(result, msg);
+		}
+
+		// if iteration is odd, evolve key
+		if (i % 2)
+			ASSERT_NO_ERROR(SENC_EvolveUserSet(hClient2, usersetID));
+
+		// clear map for next iteration
+		decs.clear();
 	}
 
 	// logout all users

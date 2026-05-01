@@ -79,4 +79,74 @@ namespace senc
 		write_priv_key_shard(res, shard);
 		return res;
 	}
+
+	Seed sample_seed()
+	{
+		static thread_local auto dist =
+			utils::Random<utils::BigInt>::get_dist_below(PubKey::order());
+
+		return dist();
+	}
+
+	std::size_t get_seed_encoded_size()
+	{
+		return PubKey::order().MinEncodedSize();
+	}
+
+	utils::BytesView::iterator read_seed(Seed& out,
+										 utils::BytesView::iterator it,
+										 utils::BytesView::iterator end)
+	{
+		const auto size = std::min(
+			PubKey::order().MinEncodedSize(),
+			static_cast<std::size_t>(end - it)
+		);
+
+		out.Decode(std::to_address(it), size);
+		return it + size;
+	}
+
+	Seed seed_from_bytes(utils::BytesView bytes)
+	{
+		Seed res{};
+		read_seed(res, bytes.begin(), bytes.end());
+		return res;
+	}
+
+	void write_seed(utils::Buffer& out, const Seed& seed)
+	{
+		const auto oldOutSize = out.size();
+		const auto seedSize = PubKey::order().MinEncodedSize();
+		out.resize(out.size() + seedSize);
+		seed.Encode(out.data() + oldOutSize, seedSize);
+	}
+
+	utils::Buffer seed_to_bytes(const Seed& seed)
+	{
+		utils::Buffer res{};
+		write_seed(res, seed);
+		return res;
+	}
+
+	utils::BytesView::iterator read_evolution_offset(utils::BigInt& out,
+		utils::BytesView::iterator it,
+		utils::BytesView::iterator end)
+	{
+		return read_seed(out, it, end);
+	}
+
+	utils::BigInt evolution_offset_from_bytes(utils::BytesView bytes)
+	{
+		return seed_from_bytes(bytes);
+	}
+
+	void write_evolution_offset(utils::Buffer& out, const utils::BigInt& offset)
+	{
+		return write_seed(out, offset);
+	}
+
+	utils::Buffer evolution_offset_to_bytes(const utils::BigInt& offset)
+	{
+		return seed_to_bytes(offset);
+	}
 }

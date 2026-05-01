@@ -181,7 +181,8 @@ static void make_user_set_cycle(PacketsTest& test)
 		senc::PrivKeyShard{ 1, 435 },
 		senc::PrivKeyShard{ 2, 256 },
 		senc::PrivKeyShard{ 3, 257 },
-		senc::PrivKeyShard{ 4, 258 }
+		senc::PrivKeyShard{ 4, 258 },
+		435
 	};
 
 	test.cycle_flow(req, resp);
@@ -255,12 +256,14 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+				435,
 				ECGroup::generator().pow(435),
 				ECGroup::generator().pow(256),
 				senc::PrivKeyShard{ 1, 435 }
 			},
 			{
 				"c7379469-4294-40b4-850c-fe665717d1ba",
+				333,
 				ECGroup::generator().pow(534),
 				ECGroup::generator().pow(652),
 				senc::PrivKeyShard{ 2, 256 }
@@ -269,6 +272,7 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"57641e16-e02a-473b-8204-a809a9c435df",
+				123456,
 				ECGroup::generator().pow(111),
 				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
@@ -278,6 +282,7 @@ static void update_cycle(PacketsTest& test)
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
+				43544,
 				ECGroup::generator().pow(444),
 				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },
@@ -339,6 +344,10 @@ static void update_cycle(PacketsTest& test)
 				{ 5, 100 },
 				{ 100 }
 			}
+		},
+		{
+			{ "d26af60a-0971-4916-898d-54cb02097333" },
+			{ "07c039b6-5a7c-4a3c-9a7a-85ff31710f2f" }
 		}
 	};
 	test.cycle_flow(req, resp);
@@ -390,6 +399,20 @@ static void user_search_cycle(PacketsTest& test)
 TEST_P(PacketsTest, UserSearchCycleTest)
 {
 	user_search_cycle(*this);
+}
+
+static void evolve_cycle(PacketsTest& test)
+{
+	pkt::EvolveRequest req{
+		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34"
+	};
+	pkt::EvolveResponse resp{};
+	test.cycle_flow(req, resp);
+}
+
+TEST_P(PacketsTest, EvolveCycleTest)
+{
+	evolve_cycle(*this);
 }
 
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)

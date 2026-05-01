@@ -121,5 +121,7 @@ namespace senc::server::handlers
 		Status handle_request(pkt::SendDecryptionPartRequest& request);
 
 		Status handle_request(pkt::UserSearchRequest& request);
+
+		Status handle_request(pkt::EvolveRequest& request);
 	};
 }

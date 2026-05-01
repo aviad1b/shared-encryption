@@ -285,6 +285,7 @@ namespace senc
 		write_priv_key_shard(data, packet.reg_internal_priv_key_shard);
 		write_priv_key_shard(data, packet.owner_external_priv_key_shard);
 		write_priv_key_shard(data, packet.owner_internal_priv_key_shard);
+		write_seed(data, packet.seed);
 
 		send_encrypted_data(data);
 	}
@@ -302,6 +303,7 @@ namespace senc
 		it = read_priv_key_shard(out.reg_internal_priv_key_shard, it, end);
 		it = read_priv_key_shard(out.owner_external_priv_key_shard, it, end);
 		it = read_priv_key_shard(out.owner_internal_priv_key_shard, it, end);
+		it = read_seed(out.seed, it, end);
 	}
 
 	void EncryptedPacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
@@ -479,6 +481,7 @@ namespace senc
 		utils::write_bytes(data, static_cast<lookup_count_t>(packet.on_lookup.size()));
 		utils::write_bytes(data, static_cast<pending_count_t>(packet.to_decrypt.size()));
 		utils::write_bytes(data, static_cast<res_count_t>(packet.finished_decryptions.size()));
+		utils::write_bytes(data, static_cast<evolve_count_t>(packet.to_evolve.size()));
 
 		// write added_as_owner records
 		for (const auto& record : packet.added_as_owner)
@@ -487,7 +490,7 @@ namespace senc
 		// write added_as_reg_member records
 		for (const auto& record : packet.added_as_reg_member)
 			write_update_record(data, record);
-		
+
 		// write on_lookup records
 		for (const auto& record : packet.on_lookup)
 			write_update_record(data, record);
@@ -498,6 +501,10 @@ namespace senc
 
 		// send finished_decryptions records
 		for (const auto& record : packet.finished_decryptions)
+			write_update_record(data, record);
+
+		// write to_evolve records
+		for (const auto& record : packet.to_evolve)
 			write_update_record(data, record);
 
 		send_encrypted_data(data);
@@ -526,6 +533,9 @@ namespace senc
 		res_count_t finishedDecryptionsCount{};
 		it = utils::read_bytes(finishedDecryptionsCount, it, end);
 
+		evolve_count_t toEvolveCount{};
+		it = utils::read_bytes(toEvolveCount, it, end);
+
 		// end read vector lengths
 
 		// read added_as_owner records
@@ -551,6 +561,11 @@ namespace senc
 		// read finished_decryptions records
 		out.finished_decryptions.resize(finishedDecryptionsCount);
 		for (auto& record : out.finished_decryptions)
+			it = read_update_record(record, it, end);
+
+		// read to_evolve records
+		out.to_evolve.resize(toEvolveCount);
+		for (auto& record : out.to_evolve)
 			it = read_update_record(record, it, end);
 	}
 
@@ -652,7 +667,7 @@ namespace senc
 
 		const auto count = static_cast<search_result_count_t>(
 			std::min(packet.users.size(), MAX_SEARCH_RESULT_COUNT)
-		);
+			);
 		utils::write_bytes(data, count);
 
 		for (const auto& username : packet.users | std::views::take(count))
@@ -675,8 +690,41 @@ namespace senc
 			it = utils::read_bytes(username, it, end);
 	}
 
+	void EncryptedPacketHandler::send_request(const pkt::EvolveRequest& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		utils::write_bytes(data, packet.user_set_id);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_request_data(pkt::EvolveRequest& out)
+	{
+		// assumes encrypted data already received by recv_code
+		const auto end = _buffView.end();
+		auto it = _buffView.begin();
+
+		it = utils::read_bytes(out.user_set_id, it, end);
+	}
+
+	void EncryptedPacketHandler::send_response(const pkt::EvolveResponse& packet)
+	{
+		utils::Buffer data{};
+		utils::write_bytes(data, packet.CODE);
+
+		send_encrypted_data(data);
+	}
+
+	void EncryptedPacketHandler::recv_response_data(pkt::EvolveResponse& out)
+	{
+		(void)out;
+	}
+
 	EncryptedPacketHandler::EncryptedPacketHandler(utils::Socket& sock)
-		: Base(sock) { }
+		: Base(sock) {
+	}
 
 	void EncryptedPacketHandler::send_encrypted_data(const utils::Buffer& data)
 	{
@@ -896,6 +944,7 @@ namespace senc
 	void EncryptedPacketHandler::write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		utils::write_bytes(out, record.user_set_id);
+		write_seed(out, record.seed);
 		write_pub_key(out, record.reg_pub_key);
 		write_pub_key(out, record.owner_pub_key);
 		write_priv_key_shard(out, record.reg_external_priv_key_shard);
@@ -906,6 +955,7 @@ namespace senc
 		utils::BytesView::iterator it, utils::BytesView::iterator end)
 	{
 		it = utils::read_bytes(out.user_set_id, it, end);
+		it = read_seed(out.seed, it, end);
 		it = read_pub_key(out.reg_pub_key, it, end);
 		it = read_pub_key(out.owner_pub_key, it, end);
 		it = read_priv_key_shard(out.reg_external_priv_key_shard, it, end);
@@ -945,7 +995,7 @@ namespace senc
 
 		member_count_t shardsIDsCount{};
 		it = utils::read_bytes(shardsIDsCount, it, end);
-		
+
 		out.shards_ids.resize(shardsIDsCount);
 		for (auto& shardID : out.shards_ids)
 			it = read_priv_key_shard_id(shardID, it, end);
@@ -1000,5 +1050,18 @@ namespace senc
 			it = read_priv_key_shard_id(shardID, it, end);
 
 		return it;
+	}
+
+	void EncryptedPacketHandler::write_update_record(utils::Buffer& out,
+		const pkt::UpdateResponse::ToEvolveRecord& record)
+	{
+		utils::write_bytes(out, record.user_set_id);
+	}
+
+	utils::BytesView::iterator EncryptedPacketHandler::read_update_record(
+		pkt::UpdateResponse::ToEvolveRecord& out,
+		utils::BytesView::iterator it, utils::BytesView::iterator end)
+	{
+		return utils::read_bytes(out.user_set_id, it, end);
 	}
 }

@@ -31,7 +31,8 @@ namespace senc::server::handlers
 			pkt::UpdateRequest,
 			pkt::DecryptParticipateRequest,
 			pkt::SendDecryptionPartRequest,
-			pkt::UserSearchRequest
+			pkt::UserSearchRequest,
+			pkt::EvolveRequest
 		>();
 
 		if (req.has_value())
@@ -61,6 +62,9 @@ namespace senc::server::handlers
 			ownersThreshold, regMembersThreshold,
 			std::nullopt
 		);
+
+		// sample seed for future evolutions
+		res.seed = sample_seed();
 
 		// generate keys, and shards for each member
 		PrivKey regLayerPrivKey{}, ownerLayerPrivKey{};
@@ -93,7 +97,7 @@ namespace senc::server::handlers
 		// (note that the zip view provides all elements by reference wrapper)
 		for (auto [owner, regExternalShard, ownerExternalShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
 			_updateManager.register_owner(
-				owner, res.user_set_id,
+				owner, res.user_set_id, res.seed,
 				res.reg_pub_key, res.owner_pub_key,
 				std::move(regExternalShard),
 				res.reg_internal_priv_key_shard, // same internal shard as creator
@@ -102,7 +106,7 @@ namespace senc::server::handlers
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
-				regMember, res.user_set_id,
+				regMember, res.user_set_id, res.seed,
 				res.reg_pub_key, res.owner_pub_key,
 				std::move(shard)
 			);
@@ -421,6 +425,17 @@ namespace senc::server::handlers
 		_packetHandler.send_response(pkt::UserSearchResponse{
 			std::move(users)
 		});
+
+		return Status::Connected;
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::EvolveRequest& request)
+	{
+		const auto info = _storage.get_userset_info(request.user_set_id);
+		for (const auto& user : utils::views::join(info.owners, info.reg_members))
+			_updateManager.register_key_evolution(user, request.user_set_id);
+
+		_packetHandler.send_response(pkt::EvolveResponse{});
 
 		return Status::Connected;
 	}
