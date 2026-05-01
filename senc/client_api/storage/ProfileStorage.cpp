@@ -255,6 +255,7 @@ namespace senc::clientapi::storage
 		: _key(key), _file(file), _mtxFile(mtxFile), _pos(pos)
 	{
 		const std::lock_guard lock(_mtxFile.get());
+		_file.get().set_pos(pos);
 		_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
 		_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSizes);
 	}
