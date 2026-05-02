@@ -306,7 +306,12 @@ TEST_F(ClientApiTest, RoundTripFlow)
 
 		// if iteration is odd, evolve key
 		if (i % 2)
+		{
 			ASSERT_NO_ERROR(SENC_EvolveUserSet(hClient2, usersetID));
+
+			// give server enough time to refresh key
+			std::this_thread::sleep_for(std::chrono::seconds(3));
+		}
 
 		// clear map for next iteration
 		decs.clear();
