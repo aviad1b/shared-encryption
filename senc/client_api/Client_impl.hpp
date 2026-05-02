@@ -263,8 +263,6 @@ namespace senc::clientapi
 		try
 		{
 			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-			// TODO: Moving evolution to be first is a temporary solution.
-			//       What should probably be done is re-attempting failed decryptions after each evolution.
 			for (auto& record : resp.to_evolve)
 				this->handle_to_evolve(std::move(record));
 			for (auto& record : resp.added_as_reg_member)
