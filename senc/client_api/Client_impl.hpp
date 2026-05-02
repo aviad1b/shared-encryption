@@ -263,8 +263,6 @@ namespace senc::clientapi
 		try
 		{
 			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-			for (auto& record : resp.to_evolve)
-				this->handle_to_evolve(std::move(record));
 			for (auto& record : resp.added_as_reg_member)
 				this->handle_added_as_reg_member(std::move(record));
 			for (auto& record : resp.added_as_owner)
@@ -275,6 +273,8 @@ namespace senc::clientapi
 				this->handle_to_decrypt(std::move(record));
 			for (auto& record : resp.finished_decryptions)
 				this->handle_finished_decryption(std::move(record));
+			for (auto& record : resp.to_evolve)
+				this->handle_to_evolve(std::move(record));
 		}
 		catch (const std::exception&)
 		{
