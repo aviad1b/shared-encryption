@@ -13,6 +13,8 @@ namespace senc::cli_client
 
 	constexpr uint16_t DEFAULT_LISTEN_PORT = 4435;
 
+	constexpr const char* profileBaseDir = ".";
+
 	enum class LoginMenuOption
 	{
 		Signup = 1,
