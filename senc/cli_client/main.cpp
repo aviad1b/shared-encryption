@@ -5,6 +5,7 @@
 
 namespace senc::cli_client
 {
+	using std::vector;
 	using std::string;
 	using std::endl;
 	using std::cout;
@@ -42,6 +43,14 @@ namespace senc::cli_client
 		PacketHandlerFunc func;
 	};
 
+	struct FinishedDec
+	{
+		string opid;
+		vector<uint8_t> msg;
+	};
+
+	vector<FinishedDec> finishedDecs;
+
 	string input();
 	string input(const string& msg);
 	template <std::integral T> T input_num();
@@ -50,6 +59,7 @@ namespace senc::cli_client
 	void run_client(const SENC_Handle& hClient);
 	bool login_menu(const SENC_Handle& hClient);
 	void main_menu(const SENC_Handle& hClient);
+	void finished_dec_callback(const char* opid, const uint8_t* msg, uint64_t msgLen, uintptr_t ctx);
 	ConnStatus signup(const SENC_Handle& hClient);
 	ConnStatus login(const SENC_Handle& hClient);
 	ConnStatus logout(const SENC_Handle& hClient);
@@ -136,7 +146,10 @@ namespace senc::cli_client
 	 */
 	int start_client(const std::string& ip, uint16_t port)
 	{
-		SENC_Handle hClient = SENC_Connect(ip.c_str(), port, nullptr, 0);
+		SENC_Handle hClient = SENC_Connect(
+			ip.c_str(), port,
+			finished_dec_callback, 0
+		);
 		run_client(hClient);
 
 		return 0;
@@ -237,6 +250,20 @@ namespace senc::cli_client
 
 			cout << endl;
 		} while (ConnStatus::Disconnected != status);
+	}
+
+	/**
+	 * @brief Callback function for finished decryptions.
+	 * @details Adds finished decryption to vector.
+	 * @param opid Operation ID.
+	 * @param msg Decrypted message.
+	 * @param msgLen Length of decrypted message.
+	 * @param cts Context arg (unused).
+	 */
+	void finished_dec_callback(const char* opid, const uint8_t* msg, uint64_t msgLen, uintptr_t ctx)
+	{
+		(void)ctx;
+		finishedDecs.emplace_back(opid, std::vector<uint8_t>(msg, msg + msgLen));
 	}
 
 	ConnStatus signup(const SENC_Handle& hClient)
