@@ -81,6 +81,10 @@ namespace senc::clientapi
 		Ciphertext encrypt(const UserSetID& usersetID, const utils::Buffer& msg) override;
 
 		OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) override;
+		
+		OperationID decrypt_send(const UserSetID& usersetID,
+								 const Ciphertext& ciphertext,
+								 utils::ranges::StringViewRange&& dstUsers) override;
 
 		void force_update() override;
 

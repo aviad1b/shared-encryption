@@ -191,6 +191,25 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
+	inline OperationID Client<IP>::decrypt_send(const UserSetID& usersetID,
+												const Ciphertext& ciphertext,
+												utils::ranges::StringViewRange&& dstUsers)
+	{
+		const std::lock_guard lock(_mtxStorage);
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+
+		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
+			usersetID, ciphertext, utils::to_vector<std::string>(dstUsers)
+		});
+		_pendingDecryptions.insert(std::make_pair(
+			resp.op_id,
+			std::make_pair(usersetID, std::move(ciphertext))
+		));
+		return resp.op_id;
+	}
+
+	template <utils::IPType IP>
 	inline void Client<IP>::force_update()
 	{
 		if (!_packetHandler)
