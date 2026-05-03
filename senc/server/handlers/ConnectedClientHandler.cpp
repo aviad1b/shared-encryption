@@ -47,6 +47,7 @@ namespace senc::server::handlers
 	}
 
 	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
+		const std::string& name,
 		const std::string& creator,
 		const std::vector<std::string>& owners,
 		const std::vector<std::string>& regMembers,
@@ -60,7 +61,7 @@ namespace senc::server::handlers
 			utils::ranges::strings(allOwners),
 			utils::ranges::strings(regMembers),
 			ownersThreshold, regMembersThreshold,
-			std::nullopt
+			name
 		);
 
 		// sample seed for future evolutions
@@ -216,7 +217,7 @@ namespace senc::server::handlers
 		try
 		{
 			response = make_userset(
-				_username,
+				request.name, _username,
 				request.owners, request.reg_members,
 				request.owners_threshold, request.reg_members_threshold
 			);

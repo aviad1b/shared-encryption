@@ -60,6 +60,7 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Creates a new userset.
+		 * @param name Name for userset.
 		 * @param creator Creator's username.
 		 * @param owners Usernames of userset's owners (besides `creator`).
 		 * @param regMembers Usernames of userset's non-owner members.
@@ -68,7 +69,8 @@ namespace senc::server::handlers
 		 * @return MakeUsersetResponse containing information about created userset (to return to creator).
 		 * @throw ServerException In case of error.
 		 */
-		pkt::MakeUserSetResponse make_userset(const std::string& creator,
+		pkt::MakeUserSetResponse make_userset(const std::string& name,
+											  const std::string& creator,
 											  const std::vector<std::string>& owners,
 											  const std::vector<std::string>& regMembers,
 											  member_count_t ownersThreshold,
