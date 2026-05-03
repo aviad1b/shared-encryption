@@ -633,7 +633,16 @@ namespace senc::cli_client
 			usernames.emplace_back(std::move(curInput));
 		cout << endl << endl;
 
-		SENC_Handle hOPID = SENC_Decrypt(hClient, usersetID.c_str(), hCiphertext);
+		auto usernamesPtrs = utils::to_vector<const char*>(
+			usernames | std::views::transform(&std::string::c_str)
+		);
+		SENC_Handle hOPID = SENC_DecryptSend(
+			hClient,
+			usersetID.c_str(),
+			hCiphertext,
+			static_cast<uint64_t>(usernames.size()),
+			usernamesPtrs.data()
+		);
 		if (SENC_HasError(hOPID))
 			throw std::runtime_error(SENC_GetError(hOPID));
 
