@@ -385,8 +385,12 @@ namespace senc::cli_client
 
 	ConnStatus logout(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		SENC_Handle hRes = SENC_LogOut(hClient);
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
+
+		cout << "Goodbye!" << endl;
+		return ConnStatus::Disconnected;
 	}
 
 	ConnStatus make_userset(const SENC_Handle& hClient)
