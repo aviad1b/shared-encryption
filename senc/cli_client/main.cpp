@@ -604,8 +604,38 @@ namespace senc::cli_client
 
 	ConnStatus decrypt(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		string usersetID = input("Enter ID of userset to decrypt under: ");
+		cout << endl;
+
+		cout << "Enter ciphertext: ";
+		auto c1 = bytes_from_base64(input());
+		auto c2 = bytes_from_base64(input());
+		auto c3a = bytes_from_base64(input());
+		auto c3b = bytes_from_base64(input());
+		cout << endl;
+
+		SENC_Handle hCiphertext = SENC_NewCiphertext(
+			c1.data(), static_cast<uint64_t>(c1.size()),
+			c2.data(), static_cast<uint64_t>(c2.size()),
+			c3a.data(), static_cast<uint64_t>(c3a.size()),
+			c3b.data(), static_cast<uint64_t>(c3b.size())
+		);
+
+		vector<string> usernames;
+		string curInput;
+		cout << "Enter usernames to send decryption to (including yourself, if so you wish): " << endl;
+		while (!(curInput = input()).empty())
+			usernames.emplace_back(std::move(curInput));
+		cout << endl << endl;
+
+		SENC_Handle hOPID = SENC_Decrypt(hClient, usersetID.c_str(), hCiphertext);
+		if (SENC_HasError(hOPID))
+			throw std::runtime_error(SENC_GetError(hOPID));
+
+		cout << "Decryption request submitted successfully." << endl;
+		cout << "Operation ID: " << SENC_GetStringValue(hOPID) << endl << endl;
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus show_updates(const SENC_Handle& hClient)
