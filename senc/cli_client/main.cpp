@@ -527,6 +527,7 @@ namespace senc::cli_client
 		if (!i)
 			cout << endl << "Owners:" << endl;
 		cout << username << endl;
+		i++;
 	}
 
 	static void get_members_reg_callback(const char* username, uintptr_t ctx)
@@ -535,6 +536,7 @@ namespace senc::cli_client
 		if (!j)
 			cout << endl << "Non-owners:" << endl;
 		cout << username << endl;
+		j++;
 	}
 
 	ConnStatus get_members(const SENC_Handle& hClient)
@@ -676,6 +678,7 @@ namespace senc::cli_client
 		if (!i)
 			cout << "Search results:" << endl;
 		cout << username << endl;
+		i++;
 	}
 
 	ConnStatus user_search(const SENC_Handle& hClient)
