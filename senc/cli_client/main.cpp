@@ -699,8 +699,15 @@ namespace senc::cli_client
 
 	ConnStatus request_evolve(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		string usid = input("Enter ID of userset to evolve: ");
+		cout << endl;
+
+		SENC_Handle hRes = SENC_EvolveUserSet(hClient, usid.c_str());
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
+
+		cout << "Key evolution successfully requested for userset " << usid << endl << endl;
+		return ConnStatus::Connected;
 	}
 }
 
