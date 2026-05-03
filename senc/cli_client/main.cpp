@@ -513,10 +513,38 @@ namespace senc::cli_client
 		return ConnStatus::Connected;
 	}
 
+	static void get_members_owners_callback(const char* username, uintptr_t ctx)
+	{
+		auto& i = reinterpret_cast<std::pair<std::size_t, std::size_t>*>(ctx)->first;
+		if (!i)
+			cout << endl << "Owners:" << endl;
+		cout << username << endl;
+	}
+
+	static void get_members_reg_callback(const char* username, uintptr_t ctx)
+	{
+		auto& j = reinterpret_cast<std::pair<std::size_t, std::size_t>*>(ctx)->second;
+		if (!j)
+			cout << endl << "Non-owners:" << endl;
+		cout << username << endl;
+	}
+
 	ConnStatus get_members(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		string usid = input("Enter userset ID: ");
+
+		std::pair<std::size_t, std::size_t > ij{ 0, 0 };
+		SENC_Handle hRes = SENC_GetUserSetMembers(
+			hClient,
+			usid.c_str(),
+			get_members_owners_callback,
+			get_members_reg_callback,
+			reinterpret_cast<uintptr_t>(&ij)
+		);
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus encrypt(const SENC_Handle& hClient)
