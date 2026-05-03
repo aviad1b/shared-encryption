@@ -1,5 +1,6 @@
 #include <functional>
 #include <iostream>
+#include <mutex>
 #include <map>
 #include "../client_api/client_api.h"
 #include "../utils/ranges.hpp"
@@ -66,6 +67,7 @@ namespace senc::cli_client
 	};
 
 	vector<FinishedDec> finishedDecs;
+	std::mutex mtxFinishedDecs;
 
 	string input();
 	string input(const string& msg);
@@ -384,6 +386,7 @@ namespace senc::cli_client
 	void finished_dec_callback(const char* opid, const uint8_t* msg, uint64_t msgLen, uintptr_t ctx)
 	{
 		(void)ctx;
+		const std::lock_guard lock(mtxFinishedDecs);
 		finishedDecs.emplace_back(opid, std::vector<uint8_t>(msg, msg + msgLen));
 	}
 
