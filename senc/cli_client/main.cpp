@@ -644,7 +644,30 @@ namespace senc::cli_client
 	ConnStatus show_updates(const SENC_Handle& hClient)
 	{
 		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+
+		const std::lock_guard lock(mtxFinishedDecs);
+		
+		if (finishedDecs.empty())
+		{
+			cout << "No updates to show." << endl << endl;
+			return ConnStatus::Connected;
+		}
+
+		for (const auto& finishedDec : finishedDecs)
+		{
+			cout << "Finished decryption " << finishedDec.opid << ":";
+			string ynIn = input("Show as text? (y/n): ");
+			if ("y" == ynIn || "Y" == ynIn)
+				cout << std::string(finishedDec.msg.begin(), finishedDec.msg.end()) << endl;
+			else
+				cout << bytes_to_base64(finishedDec.msg) << endl;
+			cout << endl;
+		}
+		cout << endl;
+
+		finishedDecs.clear();
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus user_search(const SENC_Handle& hClient)
