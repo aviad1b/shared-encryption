@@ -489,10 +489,28 @@ namespace senc::cli_client
 		return ConnStatus::Connected;
 	}
 
+	static void get_usersets_callback(const char* id, const char* name, uintptr_t ctx)
+	{
+		auto& i = *reinterpret_cast<std::size_t*>(ctx);
+		cout << (i + 1) << ".\t" << id << "\t(" << name << ")" << endl;
+		i++;
+	}
+
 	ConnStatus get_usersets(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		std::size_t i = 0;
+		SENC_Handle hRes = SENC_GetUserSets(
+			hClient,
+			get_usersets_callback,
+			reinterpret_cast<uintptr_t>(&i)
+		);
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
+
+		if (!i)
+			cout << "You do not own any usersets." << endl;
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus get_members(const SENC_Handle& hClient)
