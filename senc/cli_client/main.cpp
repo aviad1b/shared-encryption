@@ -3,6 +3,14 @@
 #include <map>
 #include "../client_api/client_api.h"
 
+#include "../utils/env.hpp"
+#ifdef SENC_WINDOWS
+#include "../utils/winapi_patch.hpp"
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
 namespace senc::cli_client
 {
 	using std::vector;
@@ -55,6 +63,8 @@ namespace senc::cli_client
 
 	string input();
 	string input(const string& msg);
+	string input_password();
+	string input_password(const string& msg);
 	template <std::integral T> T input_num();
 	template <std::integral T> T input_num(const string& msg);
 	int start_client(const std::string& ip, uint16_t port);
@@ -138,6 +148,66 @@ namespace senc::cli_client
 	{
 		cout << msg;
 		return input();
+	}
+
+	#ifdef SENC_WINDOWS
+	/**
+	 * @brief Gets user password input.
+	 * @return User password input.
+	 */
+	string input_password()
+	{
+		// set console input mode to no echo
+		HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+		DWORD oldMode = 0; // to restore console mode after
+		GetConsoleMode(hStdin, &oldMode);
+		SetConsoleMode(hStdin, oldMode & (~ENABLE_ECHO_INPUT)); // disable echo input
+
+		std::string res = input();
+
+		// reset console mode
+		SetConsoleMode(hStdin, oldMode);
+
+		// manual newline since it was disabled with echoing
+		std::cout << std::endl;
+
+		return res;
+	}
+#else
+	/**
+	 * @brief Gets user password input.
+	 * @return User password input.
+	 */
+	std::string input_password()
+	{
+		// set console input attributes to no echo
+		termios oldAttrs{};
+		tcgetattr(STDIN_FILENO, &oldAttrs); // to restore attributes later
+		termios newAttrs = oldAttrs;
+		newAttrs.c_lflag &= ~ECHO; // disable echo input
+		tcsetattr(STDIN_FILENO, TCSANOW, &newAttrs);
+
+		std::string res = input();
+
+		// reset console mode
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldAttrs);
+
+		// manual newline since it was disabled with echoing
+		std::cout << std::endl;
+
+		return res;
+	}
+#endif
+
+	/**
+	 * @brief Gets user password input.
+	 * @param msg Message to show before input.
+	 * @return User password input.
+	 */
+	std::string input_password(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_password();
 	}
 
 	/**
