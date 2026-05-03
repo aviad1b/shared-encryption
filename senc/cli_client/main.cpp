@@ -362,6 +362,7 @@ namespace senc::cli_client
 		if (SENC_HasError(hRes))
 			throw std::runtime_error(SENC_GetError(hRes));
 
+		cout << "Signed up successfully as \"" << username << "\"." << endl;
 		return ConnStatus::Connected;
 	}
 
@@ -380,6 +381,7 @@ namespace senc::cli_client
 		if (SENC_HasError(hRes))
 			throw std::runtime_error(SENC_GetError(hRes));
 
+		cout << "Logged in successfully as \"" << username << "\"." << endl;
 		return ConnStatus::Connected;
 	}
 
