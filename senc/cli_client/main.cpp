@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include "../client_api/client_api.h"
+#include "../utils/ranges.hpp"
 
 #include "../utils/env.hpp"
 #ifdef SENC_WINDOWS
@@ -440,8 +441,52 @@ namespace senc::cli_client
 
 	ConnStatus make_userset(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		vector<string> owners, regMembers;
+		string curInput;
+
+		string name = input("Enter userset name: ");
+		cout << endl;
+
+		cout << "Enter owner usernames (end with newline): ";
+		while (!(curInput = input()).empty())
+			owners.emplace_back(std::move(curInput));
+		cout << endl;
+
+		cout << "Enter non-owner usernames (end with newline): ";
+		while (!(curInput = input()).empty())
+			regMembers.emplace_back(std::move(curInput));
+		cout << endl;
+
+		auto ownersThreshold = input_num<uint16_t>("Enter owners threshold: ");
+		cout << endl;
+
+		auto regMembersThreshold = input_num<uint16_t>("Enter non-owners threshold: ");
+		cout << endl;
+
+		auto ownersPtrs = utils::to_vector<const char*>(
+			owners | std::views::transform(&std::string::c_str)
+		);
+		auto regMembersPtrs = utils::to_vector<const char*>(
+			regMembers | std::views::transform(&std::string::c_str)
+		);
+		SENC_Handle hUSID = SENC_MakeUserSet(
+			hClient,
+			static_cast<uint64_t>(owners.size()),
+			static_cast<uint64_t>(regMembers.size()),
+			ownersPtrs.data(),
+			regMembersPtrs.data(),
+			ownersThreshold,
+			regMembersThreshold,
+			name.c_str()
+		);
+
+		if (SENC_HasError(hUSID))
+			throw std::runtime_error(SENC_GetError(hUSID));
+
+		cout << "Userset created successfully." << endl;
+		cout << "ID: " << SENC_GetStringValue(hUSID) << endl << endl;
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus get_usersets(const SENC_Handle& hClient)
