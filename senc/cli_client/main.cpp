@@ -359,6 +359,8 @@ namespace senc::cli_client
 			hClient, PROFILE_BASE_DIR,
 			username.c_str(), password.c_str()
 		);
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
 
 		return ConnStatus::Connected;
 	}
@@ -375,6 +377,8 @@ namespace senc::cli_client
 			hClient, PROFILE_BASE_DIR,
 			username.c_str(), password.c_str()
 		);
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
 
 		return ConnStatus::Connected;
 	}
