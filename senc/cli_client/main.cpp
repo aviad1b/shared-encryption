@@ -63,7 +63,7 @@ namespace senc::cli_client
 	struct FinishedDec
 	{
 		string opid;
-		vector<uint8_t> msg;
+		Buffer msg;
 	};
 
 	vector<FinishedDec> finishedDecs;
@@ -387,7 +387,7 @@ namespace senc::cli_client
 	{
 		(void)ctx;
 		const std::lock_guard lock(mtxFinishedDecs);
-		finishedDecs.emplace_back(opid, std::vector<uint8_t>(msg, msg + msgLen));
+		finishedDecs.emplace_back(opid, Buffer(msg, msg + msgLen));
 	}
 
 	ConnStatus signup(const SENC_Handle& hClient)
