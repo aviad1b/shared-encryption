@@ -670,10 +670,31 @@ namespace senc::cli_client
 		return ConnStatus::Connected;
 	}
 
+	static void user_search_callback(const char* username, uintptr_t ctx)
+	{
+		auto& i = *reinterpret_cast<std::size_t*>(ctx);
+		if (!i)
+			cout << "Search results:" << endl;
+		cout << username << endl;
+	}
+
 	ConnStatus user_search(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		std::string query = input("Enter part of username: ");
+		cout << endl;
+
+		std::size_t i = 0;
+		SENC_Handle hRes = SENC_UserSearch(
+			hClient, query.c_str(),
+			user_search_callback,
+			reinterpret_cast<uintptr_t>(&i)
+		);
+		cout << endl;
+
+		if (SENC_HasError(hRes))
+			throw std::runtime_error(SENC_GetError(hRes));
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus request_evolve(const SENC_Handle& hClient)
