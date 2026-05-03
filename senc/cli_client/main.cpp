@@ -63,10 +63,10 @@ namespace senc::cli_client
 
 	string input();
 	string input(const string& msg);
-	string input_password();
-	string input_password(const string& msg);
 	template <std::integral T> T input_num();
 	template <std::integral T> T input_num(const string& msg);
+	string input_password();
+	string input_password(const string& msg);
 	int start_client(const std::string& ip, uint16_t port);
 	void run_client(const SENC_Handle& hClient);
 	bool login_menu(const SENC_Handle& hClient);
@@ -148,6 +148,49 @@ namespace senc::cli_client
 	{
 		cout << msg;
 		return input();
+	}
+
+	/**
+	 * @brief Gets numeric user input.
+	 * @tparam T Input type.
+	 * @return User input.
+	 */
+	template<std::integral T>
+	T input_num()
+	{
+		constexpr auto MIN = std::numeric_limits<T>::min();
+		constexpr auto MAX = std::numeric_limits<T>::max();
+		bool invalid = false;
+		long long num = 0;
+
+		do
+		{
+			invalid = false;
+			string str = input();
+
+			try { num = std::stoll(str); }
+			catch (const std::exception&)
+			{
+				std::cout << "Bad input (should be number in range " << MIN << ".." << MAX << ")." << std::endl;
+				std::cout << "Try again: ";
+				invalid = true;
+			}
+		} while (invalid);
+
+		return static_cast<T>(num);
+	}
+
+	/**
+	 * @brief Gets numeric user input.
+	 * @tparam T Input type.
+	 * @param msg Message to show before input.
+	 * @return User input.
+	 */
+	template<std::integral T>
+	T input_num(const string& msg)
+	{
+		cout << msg;
+		return input_num<T>();
 	}
 
 	#ifdef SENC_WINDOWS
