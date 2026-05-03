@@ -180,14 +180,8 @@ namespace senc::clientapi
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 
-		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
-			usersetID, ciphertext, { _storage->username() }
-		});
-		_pendingDecryptions.insert(std::make_pair(
-			resp.op_id,
-			std::make_pair(usersetID, std::move(ciphertext))
-		));
-		return resp.op_id;
+		auto rng = std::ranges::single_view(_storage->username());
+		return decrypt_send(usersetID, ciphertext, utils::ranges::strings(rng));
 	}
 
 	template <utils::IPType IP>
