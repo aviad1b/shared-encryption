@@ -365,8 +365,18 @@ namespace senc::cli_client
 
 	ConnStatus login(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		string username = input("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
+		cout << endl;
+
+		SENC_Handle hRes = SENC_LogIn(
+			hClient, PROFILE_BASE_DIR,
+			username.c_str(), password.c_str()
+		);
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus logout(const SENC_Handle& hClient)
