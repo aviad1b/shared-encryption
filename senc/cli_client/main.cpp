@@ -3,6 +3,7 @@
 #include <map>
 #include "../client_api/client_api.h"
 #include "../utils/ranges.hpp"
+#include "../utils/bytes.hpp"
 
 #include "../utils/env.hpp"
 #ifdef SENC_WINDOWS
@@ -14,6 +15,10 @@
 
 namespace senc::cli_client
 {
+	using utils::bytes_from_base64;
+	using utils::bytes_to_base64;
+	using utils::BytesView;
+	using utils::Buffer;
 	using std::vector;
 	using std::string;
 	using std::endl;
@@ -550,7 +555,49 @@ namespace senc::cli_client
 	ConnStatus encrypt(const SENC_Handle& hClient)
 	{
 		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+
+		string usersetID = input("Enter ID of userset to encrypt under: ");
+		cout << endl;
+		
+		enum class PlaintextOption { Text = 1, Binary };
+
+		// let user choose text message or binary message
+		cout << (int)PlaintextOption::Text << ". Encrypt text message" << endl;
+		cout << (int)PlaintextOption::Binary << ". Encrypt binary message" << endl;
+		cout << endl;
+		PlaintextOption choice = (PlaintextOption)input_num<int>("Enter your choice: ");
+		while (PlaintextOption::Text != choice && PlaintextOption::Binary != choice)
+			choice = (PlaintextOption)input_num<int>("Invalid input, try again: ");
+		cout << endl;
+
+		Buffer plaintext;
+		if (PlaintextOption::Text == choice)
+		{
+			string msg = input("Enter message to encrypt (text): ");
+			plaintext = Buffer(msg.begin(), msg.end());
+		}
+		else plaintext = bytes_from_base64(input("Enter message to encrypt (base64): "));
+		cout << endl;
+
+		SENC_Handle hCiphertext = SENC_Encrypt(
+			hClient,
+			usersetID.c_str(),
+			plaintext.data(),
+			static_cast<uint64_t>(plaintext.size())
+		);
+		if (SENC_HasError(hCiphertext))
+			throw std::runtime_error(SENC_GetError(hCiphertext));
+
+		SENC_Handle hC1 = SENC_GetCiphertextC1(hCiphertext);
+		SENC_Handle hC2 = SENC_GetCiphertextC1(hCiphertext);
+		SENC_Handle hC3 = SENC_GetCiphertextC1(hCiphertext);
+		cout << "Encrypted message (ciphertext): "
+			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC1), SENC_GetBytesLen(hC1))) << endl
+			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC2), SENC_GetBytesLen(hC2))) << endl
+			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC3), SENC_GetBytesLen(hC3))) << endl
+			 << endl;
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus decrypt(const SENC_Handle& hClient)
