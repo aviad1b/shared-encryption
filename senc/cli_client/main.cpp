@@ -589,12 +589,14 @@ namespace senc::cli_client
 			throw std::runtime_error(SENC_GetError(hCiphertext));
 
 		SENC_Handle hC1 = SENC_GetCiphertextC1(hCiphertext);
-		SENC_Handle hC2 = SENC_GetCiphertextC1(hCiphertext);
-		SENC_Handle hC3 = SENC_GetCiphertextC1(hCiphertext);
+		SENC_Handle hC2 = SENC_GetCiphertextC2(hCiphertext);
+		SENC_Handle hC3a = SENC_GetCiphertextC3a(hCiphertext);
+		SENC_Handle hC3b = SENC_GetCiphertextC3b(hCiphertext);
 		cout << "Encrypted message (ciphertext): "
 			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC1), SENC_GetBytesLen(hC1))) << endl
 			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC2), SENC_GetBytesLen(hC2))) << endl
-			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC3), SENC_GetBytesLen(hC3))) << endl
+			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC3a), SENC_GetBytesLen(hC3a))) << endl
+			 << bytes_to_base64(BytesView(SENC_GetBytesValue(hC3b), SENC_GetBytesLen(hC3b))) << endl
 			 << endl;
 
 		return ConnStatus::Connected;
