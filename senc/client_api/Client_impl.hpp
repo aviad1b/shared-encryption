@@ -195,10 +195,6 @@ namespace senc::clientapi
 												const Ciphertext& ciphertext,
 												utils::ranges::StringViewRange&& dstUsers)
 	{
-		const std::lock_guard lock(_mtxStorage);
-		if (!_storage)
-			throw ClientException("Failed to get user data", "Not logged in");
-
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
 			usersetID, ciphertext, utils::to_vector<std::string>(dstUsers)
 		});
