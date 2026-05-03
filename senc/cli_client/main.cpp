@@ -340,8 +340,27 @@ namespace senc::cli_client
 
 	ConnStatus signup(const SENC_Handle& hClient)
 	{
-		(void)hClient;
-		return ConnStatus::NoChange; // TODO: Implement
+		string username = input("Enter username: ");
+		cout << endl;
+
+		string password = input_password("Enter password: ");
+		cout << endl;
+
+		string confirmPassword = input_password("Confirm password: ");
+		cout << endl;
+
+		if (password != confirmPassword)
+		{
+			cout << "Password confirm does not match password input." << endl;
+			return ConnStatus::NoChange;
+		}
+
+		SENC_Handle hRes = SENC_SignUp(
+			hClient, PROFILE_BASE_DIR,
+			username.c_str(), password.c_str()
+		);
+
+		return ConnStatus::Connected;
 	}
 
 	ConnStatus login(const SENC_Handle& hClient)
