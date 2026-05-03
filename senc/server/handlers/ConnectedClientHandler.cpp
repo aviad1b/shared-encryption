@@ -54,7 +54,6 @@ namespace senc::server::handlers
 		member_count_t ownersThreshold,
 		member_count_t regMembersThreshold)
 	{
-		(void)name;
 		pkt::MakeUserSetResponse res{};
 
 		auto allOwners = utils::views::join(owners, std::views::single(creator));
@@ -62,7 +61,7 @@ namespace senc::server::handlers
 			utils::ranges::strings(allOwners),
 			utils::ranges::strings(regMembers),
 			ownersThreshold, regMembersThreshold,
-			std::nullopt
+			name
 		);
 
 		// sample seed for future evolutions
