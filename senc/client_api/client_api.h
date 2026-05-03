@@ -372,6 +372,23 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
 											  uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
+ * @brief Queues a message decryption (& send) under a userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param usersetID ID of userset to decrypt under.
+ * @param ciphertext Encrypted message to decrypt.
+ * @param dstUsersCount Amount of users to send decryption to.
+ * @param dstUsers Usernames of users to send decryption to.
+ * @return Decryption operation ID (string handle), or error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_DecryptSend(uintptr_t hClient,
+												  const char* usersetID,
+												  uintptr_t hCiphertext,
+												  uint64_t dstUsersCount,
+												  const char** dstUsers) SENC_NOTHROW;
+
+/**
  * @brief Forces client update.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
