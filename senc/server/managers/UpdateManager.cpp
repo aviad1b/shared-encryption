@@ -93,11 +93,13 @@ namespace senc::server::managers
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		for (const auto& dstUser: dstUsers | std::views::take(dstUsers.size() - 1))
 			_updates[dstUser].finished_decryptions.emplace_back(
-				opid, initiator, regLayerParts, ownerLayerParts,
+				opid, initiator, UserSetID{}, Ciphertext{},
+				regLayerParts, ownerLayerParts,
 				regLayerShardsIDs, ownerLayerShardsIDs
 			);
 		_updates[dstUsers.back()].finished_decryptions.emplace_back(
-			opid, initiator, std::move(regLayerParts), std::move(ownerLayerParts),
+			opid, initiator, UserSetID{}, Ciphertext{},
+			std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
 	}

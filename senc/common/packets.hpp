@@ -532,6 +532,12 @@ namespace senc::pkt
 			/// User who initiated decryption.
 			std::string initiator;
 
+			/// ID of userset under which decryption was performed.
+			UserSetID user_set_id;
+
+			/// Ciphertext being decrypted.
+			Ciphertext ciphertext;
+
 			/// Decryption parts for non-owner layer.
 			std::vector<DecryptionPart> reg_layer_parts;
 
