@@ -197,6 +197,7 @@ namespace senc::server::handlers
 		_updateManager.register_finished_decrpytion(
 			opCollRecord.dst_users,
 			opid, opCollRecord.requester,
+			UserSetID{}, Ciphertext{},
 			std::move(opCollRecord.reg_layer_parts),
 			std::move(opCollRecord.owner_layer_parts),
 			std::move(opCollRecord.reg_layer_shards_ids),

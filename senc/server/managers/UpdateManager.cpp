@@ -81,6 +81,8 @@ namespace senc::server::managers
 	void UpdateManager::register_finished_decrpytion(const std::vector<std::string>& dstUsers,
 													 const OperationID& opid,
 													 const std::string& initiator,
+													 UserSetID&& usersetID,
+													 Ciphertext&& ciphertext,
 													 std::vector<DecryptionPart>&& regLayerParts,
 													 std::vector<DecryptionPart>&& ownerLayerParts,
 													 std::vector<PrivKeyShardID>&& regLayerShardsIDs,
@@ -93,12 +95,12 @@ namespace senc::server::managers
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		for (const auto& dstUser: dstUsers | std::views::take(dstUsers.size() - 1))
 			_updates[dstUser].finished_decryptions.emplace_back(
-				opid, initiator, UserSetID{}, Ciphertext{},
+				opid, initiator, usersetID, ciphertext,
 				regLayerParts, ownerLayerParts,
 				regLayerShardsIDs, ownerLayerShardsIDs
 			);
 		_updates[dstUsers.back()].finished_decryptions.emplace_back(
-			opid, initiator, UserSetID{}, Ciphertext{},
+			opid, initiator, std::move(usersetID), std::move(ciphertext),
 			std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
