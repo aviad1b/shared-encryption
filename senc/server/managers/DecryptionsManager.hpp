@@ -39,6 +39,7 @@ namespace senc::server::managers
 			std::vector<std::string> dst_users;
 			std::string requester;
 			UserSetID userset_id;
+			Ciphertext ciphertext;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
 			std::vector<DecryptionPart> reg_layer_parts;
@@ -49,11 +50,13 @@ namespace senc::server::managers
 			CollectedRecord(std::vector<std::string>&& dstUsers,
 							const std::string& requester,
 							const UserSetID& usersetID,
+							Ciphertext&& ciphertext,
 							member_count_t requiredOwners,
 							member_count_t requiredRegMembers)
 				: dst_users(std::move(dstUsers)),
 				  requester(requester),
 				  userset_id(usersetID),
+				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 

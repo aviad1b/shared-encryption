@@ -94,6 +94,7 @@ namespace senc::server::managers
 				std::move(it->second.dst_users), // OK to move cus erase right after
 				it->second.requester,
 				it->second.userset_id,
+				std::move(it->second.ciphertext),
 				it->second.required_owners,
 				it->second.required_reg_members
 			});
