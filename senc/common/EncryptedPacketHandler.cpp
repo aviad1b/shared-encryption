@@ -1010,6 +1010,8 @@ namespace senc
 		utils::write_bytes(out, static_cast<member_count_t>(record.owner_layer_parts.size()));
 		utils::write_bytes(out, record.op_id);
 		utils::write_bytes(out, record.initiator);
+		utils::write_bytes(out, record.user_set_id);
+		write_ciphertext(out, record.ciphertext);
 		for (const auto& part : record.reg_layer_parts)
 			write_decryption_part(out, part);
 		for (const auto& part : record.owner_layer_parts)
@@ -1034,6 +1036,8 @@ namespace senc
 		// read other (non-parts) data
 		it = utils::read_bytes(out.op_id, it, end);
 		it = utils::read_bytes(out.initiator, it, end);
+		it = utils::read_bytes(out.user_set_id, it, end);
+		it = read_ciphertext(out.ciphertext, it, end);
 
 		// read parts
 		out.reg_layer_parts.resize(regLayerPartsCount);
