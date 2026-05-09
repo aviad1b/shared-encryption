@@ -44,7 +44,10 @@ namespace senc::clientapi
 	inline Client<IP>::~Client()
 	{
 		if (this->_packetHandler) // if still connected (packet handler not null)
-			logout();
+		{
+			try { logout(); }
+			catch (...) { } // a destructor shouldn't throw
+		}
 	}
 
 	template <utils::IPType IP>
