@@ -1030,6 +1030,8 @@ namespace senc
 		member_count_t regLayerPartsCount{}, ownerLayerPartsCount{};
 		it = utils::read_bytes(regLayerPartsCount, it, end);
 		it = utils::read_bytes(ownerLayerPartsCount, it, end);
+
+		// read other (non-parts) data
 		it = utils::read_bytes(out.op_id, it, end);
 		it = utils::read_bytes(out.initiator, it, end);
 
