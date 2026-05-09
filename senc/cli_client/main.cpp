@@ -666,7 +666,7 @@ namespace senc::cli_client
 
 		for (const auto& finishedDec : finishedDecs)
 		{
-			cout << "Finished decryption " << finishedDec.opid << ":";
+			cout << "Finished decryption " << finishedDec.opid << ": ";
 			string ynIn = input("Show as text? (y/n): ");
 			if ("y" == ynIn || "Y" == ynIn)
 				cout << std::string(finishedDec.msg.begin(), finishedDec.msg.end()) << endl;
