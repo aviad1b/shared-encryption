@@ -440,8 +440,7 @@ namespace senc::cli_client
 	ConnStatus logout(const SENC_Handle& hClient)
 	{
 		SENC_Handle hRes = SENC_LogOut(hClient);
-		if (SENC_HasError(hRes))
-			throw std::runtime_error(SENC_GetError(hRes));
+		(void)hRes; // not checking for errors - we want to exit either ways
 
 		cout << "Goodbye!" << endl;
 		return ConnStatus::Disconnected;
