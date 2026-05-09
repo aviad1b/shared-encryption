@@ -670,6 +670,8 @@ namespace senc
 		// recv sizes
 		auto regLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
 		auto ownerLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
+
+		// recv other (non-parts) data
 		_sock.recv_connected_value(out.op_id);
 		_sock.recv_connected_value(out.initiator);
 
