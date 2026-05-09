@@ -96,6 +96,8 @@ namespace senc::server::managers
 		 * @param dstUsers Usernames of users that should get decryption parts.
 		 * @param opid Operation ID.
 		 * @param initiator Username of user who initiated the operation.
+		 * @param usersetID ID of userset under which decryption was performed (moved).
+		 * @param ciphertext Ciphertext being decrypted (moved).
 		 * @param regLayerParts Decryption parts for non-owner layer (moved).
 		 * @param ownerLayerParts Decryption parts for owner layer (moved).
 		 * @param regLayerShardsIDs Shards IDs used in non-owner layer (moved).
@@ -104,6 +106,8 @@ namespace senc::server::managers
 		void register_finished_decrpytion(const std::vector<std::string>& dstUsers,
 										  const OperationID& opid,
 										  const std::string& initiator,
+										  UserSetID&& usersetID,
+										  Ciphertext&& ciphertext,
 										  std::vector<DecryptionPart>&& regLayerParts,
 										  std::vector<DecryptionPart>&& ownerLayerParts,
 										  std::vector<PrivKeyShardID>&& regLayerShardsIDs,

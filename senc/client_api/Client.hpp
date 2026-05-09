@@ -81,6 +81,10 @@ namespace senc::clientapi
 		Ciphertext encrypt(const UserSetID& usersetID, const utils::Buffer& msg) override;
 
 		OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) override;
+		
+		OperationID decrypt_send(const UserSetID& usersetID,
+								 const Ciphertext& ciphertext,
+								 utils::ranges::StringViewRange&& dstUsers) override;
 
 		void force_update() override;
 
@@ -99,9 +103,6 @@ namespace senc::clientapi
 		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
-
-		// maps decryption operation ID to userset ID and ciphertext
-		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
 
 		// maps decryption operation ID to userset ID and participance type (owner/reg)
 		utils::HashMap<OperationID, std::pair<UserSetID, bool>> _pendingParticipances;

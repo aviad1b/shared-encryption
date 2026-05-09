@@ -94,7 +94,6 @@ namespace senc::clientapi
 		this->_packetHandler.reset();
 		this->_sock.close();
 		this->unload_profile();
-		this->_pendingDecryptions.clear();
 	}
 
 	template <utils::IPType IP>
@@ -180,13 +179,18 @@ namespace senc::clientapi
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 
+		auto rng = std::ranges::single_view(_storage->username());
+		return decrypt_send(usersetID, ciphertext, utils::ranges::strings(rng));
+	}
+
+	template <utils::IPType IP>
+	inline OperationID Client<IP>::decrypt_send(const UserSetID& usersetID,
+												const Ciphertext& ciphertext,
+												utils::ranges::StringViewRange&& dstUsers)
+	{
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
-			usersetID, ciphertext, { _storage->username() }
+			usersetID, ciphertext, utils::to_vector<std::string>(dstUsers)
 		});
-		_pendingDecryptions.insert(std::make_pair(
-			resp.op_id,
-			std::make_pair(usersetID, std::move(ciphertext))
-		));
 		return resp.op_id;
 	}
 
@@ -401,11 +405,8 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
 	{
-		// pop entry from pending decryptions map
-		auto node = _pendingDecryptions.extract(data.op_id);
-		if (node.empty())
-			return; // TODO: Inform unexpected operation ID?
-		const auto& [usersetID, ciphertext] = node.mapped();
+		const auto& usersetID = data.user_set_id;
+		const auto& ciphertext = data.ciphertext;
 
 		// locate fitting record in local storage
 		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);

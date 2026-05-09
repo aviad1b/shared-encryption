@@ -404,6 +404,22 @@ uintptr_t SENC_Decrypt(uintptr_t hClient, const char* usersetID, uintptr_t hCiph
 	})->as_nint();
 }
 
+uintptr_t SENC_DecryptSend(uintptr_t hClient, const char* usersetID, uintptr_t hCiphertext,
+						   uint64_t dstUsersCount, const char** dstUsers) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
+	return api::Value<std::string>::ret_new([&client, usersetID, &ciphertext, dstUsersCount, dstUsers]()
+	{
+		std::span dstUsersSpan(dstUsers, dstUsersCount);
+		return client.decrypt_send(
+			usersetID,
+			ciphertext,
+			utils::ranges::strings(dstUsersSpan)
+		).to_string();
+	})->as_nint();
+}
+
 uintptr_t SENC_ForceUpdate(uintptr_t hClient) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());

@@ -130,7 +130,7 @@ namespace senc::server::handlers
 			// in this case, finish operation and return.
 			finish_operation(opid, managers::DecryptionsManager::CollectedRecord(
 				std::move(dstUsers),
-				_username, usersetID,
+				_username, usersetID, std::move(ciphertext),
 				info.owners_threshold, info.reg_members_threshold
 			));
 			return opid;
@@ -197,6 +197,8 @@ namespace senc::server::handlers
 		_updateManager.register_finished_decrpytion(
 			opCollRecord.dst_users,
 			opid, opCollRecord.requester,
+			std::move(opCollRecord.userset_id),
+			std::move(opCollRecord.ciphertext),
 			std::move(opCollRecord.reg_layer_parts),
 			std::move(opCollRecord.owner_layer_parts),
 			std::move(opCollRecord.reg_layer_shards_ids),

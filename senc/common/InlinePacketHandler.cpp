@@ -653,6 +653,8 @@ namespace senc
 		_sock.send_connected_value(static_cast<member_count_t>(record.owner_layer_parts.size()));
 		_sock.send_connected_value(record.op_id);
 		_sock.send_connected_value(record.initiator);
+		_sock.send_connected_value(record.user_set_id);
+		send_ciphertext(record.ciphertext);
 		for (const auto& part : record.reg_layer_parts)
 			send_decryption_part(part);
 		for (const auto& part : record.owner_layer_parts)
@@ -670,8 +672,12 @@ namespace senc
 		// recv sizes
 		auto regLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
 		auto ownerLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
+
+		// recv other (non-parts) data
 		_sock.recv_connected_value(out.op_id);
 		_sock.recv_connected_value(out.initiator);
+		_sock.recv_connected_value(out.user_set_id);
+		recv_ciphertext(out.ciphertext);
 
 		// recv parts
 		out.reg_layer_parts.resize(regLayerPartsCount);

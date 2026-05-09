@@ -331,6 +331,15 @@ static void update_cycle(PacketsTest& test)
 			{
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
 				"user1",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+				{
+					ECGroup::generator().pow(435),
+					ECGroup::generator().pow(256),
+					{
+						CryptoPP::SecByteBlock{},
+						{ 5, 6, 7, 8, 9 }
+					}
+				},
 				{ ECGroup::generator().pow(3), ECGroup::generator().pow(4) },
 				{ ECGroup::generator().pow(5), ECGroup::generator().pow(6) },
 				{ 1, 2, 100 },
@@ -339,6 +348,15 @@ static void update_cycle(PacketsTest& test)
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
 				"user2",
+				"c7379469-4294-40b4-850c-fe665717d1ba",
+				{
+					ECGroup::generator().pow(435),
+					ECGroup::generator().pow(256),
+					{
+						CryptoPP::SecByteBlock{},
+						{ 5, 6, 7, 8, 9 }
+					}
+				},
 				{ ECGroup::generator().pow(8) },
 				{ },
 				{ 5, 100 },

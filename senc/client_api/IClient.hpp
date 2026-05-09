@@ -108,6 +108,18 @@ namespace senc::clientapi
 		virtual OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) = 0;
 
 		/**
+		 * @brief Queues a message decryption under a userset.
+		 * @note Requires user to be logged in.
+		 * @param usersetID ID of userset to decrypt under.
+		 * @param ciphertext Encrypted message to decrypt.
+		 * @param dstUsers Usernames of users to send decryption to.
+		 * @return Decryption operation ID.
+		 */
+		virtual OperationID decrypt_send(const UserSetID& usersetID,
+										 const Ciphertext& ciphertext,
+										 utils::ranges::StringViewRange&& dstUsers) = 0;
+
+		/**
 		 * @brief Forces client update.
 		 */
 		virtual void force_update() = 0;
