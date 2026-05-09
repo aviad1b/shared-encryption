@@ -79,7 +79,8 @@ namespace senc::cli_client
 	void run_client(const SENC_Handle& hClient);
 	bool login_menu(const SENC_Handle& hClient);
 	void main_menu(const SENC_Handle& hClient);
-	void finished_dec_callback(const char* opid, const uint8_t* msg, uint64_t msgLen, uintptr_t ctx);
+	void finished_dec_callback(const char* opid, const char* initiator,
+							   const uint8_t* msg, uint64_t msgLen, uintptr_t ctx);
 	ConnStatus signup(const SENC_Handle& hClient);
 	ConnStatus login(const SENC_Handle& hClient);
 	ConnStatus logout(const SENC_Handle& hClient);
@@ -379,13 +380,16 @@ namespace senc::cli_client
 	 * @brief Callback function for finished decryptions.
 	 * @details Adds finished decryption to vector.
 	 * @param opid Operation ID.
+	 * @param initiator Decryption initiator.
 	 * @param msg Decrypted message.
 	 * @param msgLen Length of decrypted message.
 	 * @param cts Context arg (unused).
 	 */
-	void finished_dec_callback(const char* opid, const uint8_t* msg, uint64_t msgLen, uintptr_t ctx)
+	void finished_dec_callback(const char* opid, const char* initiator,
+							   const uint8_t* msg, uint64_t msgLen, uintptr_t ctx)
 	{
 		(void)ctx;
+		(void)initiator;
 		const std::lock_guard lock(mtxFinishedDecs);
 		finishedDecs.emplace_back(opid, Buffer(msg, msg + msgLen));
 	}

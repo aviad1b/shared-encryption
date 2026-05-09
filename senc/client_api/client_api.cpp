@@ -126,7 +126,11 @@ uintptr_t SENC_GetCiphertextC3b(uintptr_t hCiphertext) noexcept
 }
 
 uintptr_t SENC_Connect(const char* serverIP, uint16_t serverPort,
-					   void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t, uintptr_t),
+					   void(*decryptFinishedCallback)(const char*,
+													  const char*,
+													  const uint8_t*,
+													  uint64_t,
+													  uintptr_t),
 					   uintptr_t decryptFinishedContext) noexcept
 {
 	return api::Value<std::unique_ptr<api::IClient>>::ret_new(
@@ -142,21 +146,26 @@ uintptr_t SENC_Connect(const char* serverIP, uint16_t serverPort,
 					using IP = std::remove_cvref_t<decltype(ipInstance)>;
 
 					// if `decryptFinishedCallback` isn't null, wrap it for logic; otherwise, use empty lambda
-					std::function<void(const senc::OperationID&, const utils::Buffer&)> outerCallback;
+					std::function<void(const senc::OperationID&,
+									   const std::string&,
+									   const utils::Buffer&)
+								 > outerCallback;
 					if (decryptFinishedCallback)
 						outerCallback =
 							[decryptFinishedCallback, decryptFinishedContext]
-							(const senc::OperationID& opid, const utils::Buffer& plaintext)
+							(const senc::OperationID& opid, const std::string& initiator, const utils::Buffer& plaintext)
 							{
 								decryptFinishedCallback(
 									opid.to_string().c_str(),
+									initiator.c_str(),
 									plaintext.data(),
 									static_cast<std::uint64_t>(plaintext.size()),
 									decryptFinishedContext
 								);
 							};
 					else
-						outerCallback = [](const senc::OperationID&, const utils::Buffer&) { };
+						outerCallback = 
+							[](const senc::OperationID&, const std::string&, const utils::Buffer&) { };
 
 					return std::make_unique<api::Client<IP>>(
 						ipInstance, serverPort,
