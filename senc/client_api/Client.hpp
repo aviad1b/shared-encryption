@@ -104,9 +104,6 @@ namespace senc::clientapi
 		Schema _schema;
 		Socket _sock;
 
-		// maps decryption operation ID to userset ID and ciphertext
-		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
-
 		// maps decryption operation ID to userset ID and participance type (owner/reg)
 		utils::HashMap<OperationID, std::pair<UserSetID, bool>> _pendingParticipances;
 
