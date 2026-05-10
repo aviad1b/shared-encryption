@@ -42,7 +42,10 @@ namespace senc::clientapi
 		Client(const IP& serverIP, utils::Port serverPort,
 			   std::function<Schema()> schemaFactory,
 			   ClientPacketHandlerFactory packetHandlerFactory,
-			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
+			   std::function<void(const OperationID&,
+								  const std::string&,
+								  const utils::Buffer&)
+							> decryptFinishedCallback);
 
 		/**
 		 * @brief Move constructor of client.
@@ -96,7 +99,10 @@ namespace senc::clientapi
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;
-		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
+		std::function<void(const OperationID&,
+						   const std::string&,
+						   const utils::Buffer&)
+					 > _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
 		std::mutex _mtxStorage;

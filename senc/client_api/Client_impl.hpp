@@ -19,7 +19,10 @@ namespace senc::clientapi
 	inline Client<IP>::Client(const IP& serverIP, utils::Port serverPort,
 							  std::function<Schema()> schemaFactory,
 							  ClientPacketHandlerFactory packetHandlerFactory,
-							  std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback)
+							  std::function<void(const OperationID&,
+											const std::string&,
+											const utils::Buffer&)
+										   > decryptFinishedCallback)
 		: _serverIP(serverIP), _serverPort(serverPort),
 		  _decryptFinishedCallback(decryptFinishedCallback),
 		  _packetHandlerFactory(packetHandlerFactory),
@@ -432,7 +435,7 @@ namespace senc::clientapi
 		utils::Buffer decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts);
 
 		// call callback on decrypted message
-		_decryptFinishedCallback(data.op_id, decrypted);
+		_decryptFinishedCallback(data.op_id, data.initiator, decrypted);
 	}
 
 	template <utils::IPType IP>

@@ -86,8 +86,10 @@ struct DecsMap
 	}
 };
 
-static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, uintptr_t context)
+static void append_decs(const char* opid, const char* initiator,
+						const uint8_t* bytes, uint64_t len, uintptr_t context)
 {
+	(void)initiator;
 	auto* pDecsMap = reinterpret_cast<DecsMap*>(context);
 	const std::lock_guard<std::mutex> lock(pDecsMap->mtx);
 	pDecsMap->map[opid].emplace_back(bytes, bytes + len);
