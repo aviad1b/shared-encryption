@@ -376,28 +376,42 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::reg(
-			std::move(data.user_set_id),
-			std::move(data.seed),
-			std::move(data.reg_pub_key),
-			std::move(data.owner_pub_key),
-			std::move(data.reg_external_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::reg(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle non-owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::owner(
-			std::move(data.user_set_id),
-			std::move(data.seed),
-			std::move(data.reg_pub_key),
-			std::move(data.owner_pub_key),
-			std::move(data.reg_external_priv_key_shard),
-			std::move(data.reg_internal_priv_key_shard),
-			std::move(data.owner_external_priv_key_shard),
-			std::move(data.owner_internal_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::owner(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard),
+				std::move(data.reg_internal_priv_key_shard),
+				std::move(data.owner_external_priv_key_shard),
+				std::move(data.owner_internal_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
@@ -455,7 +469,12 @@ namespace senc::clientapi
 		));
 
 		// join all decryption parts
-		utils::Buffer decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts);
+		utils::Buffer decrypted{};
+		try { decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts); }
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to decrypt", e.what());
+		}
 
 		// call callback on decrypted message
 		_decryptFinishedCallback(data.op_id, data.initiator, decrypted);
@@ -481,7 +500,14 @@ namespace senc::clientapi
 	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
-		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
+
+		pkt::DecryptParticipateResponse resp{};
+		try { resp = this->post<pkt::DecryptParticipateResponse>(req); }
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
+
 		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)
 			return;
 		_pendingParticipances.insert(std::make_pair(
@@ -507,22 +533,36 @@ namespace senc::clientapi
 		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
 
 		DecryptionPart part{};
-		if (isOwner)
-			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
-				ciphertext,
-				record.owner_external_priv_key_shard(),
-				shardsIDs
-			);
-		else
-			part = Shamir::decrypt_get_2l<REG_LAYER>(
-				ciphertext,
-				record.reg_external_priv_key_shard(),
-				shardsIDs
-			);
+		try
+		{
+			if (isOwner)
+				part = Shamir::decrypt_get_2l<OWNER_LAYER>(
+					ciphertext,
+					record.owner_external_priv_key_shard(),
+					shardsIDs
+				);
+			else
+				part = Shamir::decrypt_get_2l<REG_LAYER>(
+					ciphertext,
+					record.reg_external_priv_key_shard(),
+					shardsIDs
+				);
+		}
+		catch (const std::exception&)
+		{
+			// Note: We ignore failed background participations for now.
+		}
 
-		this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
-			std::move(opid),
-			std::move(part)
-		});
+		try
+		{
+			this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
+				std::move(opid),
+				std::move(part)
+			});
+		}
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
 	}
 }
