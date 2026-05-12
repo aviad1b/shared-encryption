@@ -500,7 +500,14 @@ namespace senc::clientapi
 	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
-		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
+
+		pkt::DecryptParticipateResponse resp{};
+		try { resp = this->post<pkt::DecryptParticipateResponse>(req); }
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
+
 		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)
 			return;
 		_pendingParticipances.insert(std::make_pair(
@@ -539,9 +546,16 @@ namespace senc::clientapi
 				shardsIDs
 			);
 
-		this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
-			std::move(opid),
-			std::move(part)
-		});
+		try
+		{
+			this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
+				std::move(opid),
+				std::move(part)
+			});
+		}
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
 	}
 }
