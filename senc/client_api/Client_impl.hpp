@@ -469,7 +469,12 @@ namespace senc::clientapi
 		));
 
 		// join all decryption parts
-		utils::Buffer decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts);
+		utils::Buffer decrypted{};
+		try { decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts); }
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to decrypt", e.what());
+		}
 
 		// call callback on decrypted message
 		_decryptFinishedCallback(data.op_id, data.initiator, decrypted);
