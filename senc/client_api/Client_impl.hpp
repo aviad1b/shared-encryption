@@ -533,18 +533,25 @@ namespace senc::clientapi
 		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
 
 		DecryptionPart part{};
-		if (isOwner)
-			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
-				ciphertext,
-				record.owner_external_priv_key_shard(),
-				shardsIDs
-			);
-		else
-			part = Shamir::decrypt_get_2l<REG_LAYER>(
-				ciphertext,
-				record.reg_external_priv_key_shard(),
-				shardsIDs
-			);
+		try
+		{
+			if (isOwner)
+				part = Shamir::decrypt_get_2l<OWNER_LAYER>(
+					ciphertext,
+					record.owner_external_priv_key_shard(),
+					shardsIDs
+				);
+			else
+				part = Shamir::decrypt_get_2l<REG_LAYER>(
+					ciphertext,
+					record.reg_external_priv_key_shard(),
+					shardsIDs
+				);
+		}
+		catch (const std::exception&)
+		{
+			// Note: We ignore failed background participations for now.
+		}
 
 		try
 		{
