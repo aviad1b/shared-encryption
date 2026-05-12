@@ -376,28 +376,42 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::reg(
-			std::move(data.user_set_id),
-			std::move(data.seed),
-			std::move(data.reg_pub_key),
-			std::move(data.owner_pub_key),
-			std::move(data.reg_external_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::reg(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle non-owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::owner(
-			std::move(data.user_set_id),
-			std::move(data.seed),
-			std::move(data.reg_pub_key),
-			std::move(data.owner_pub_key),
-			std::move(data.reg_external_priv_key_shard),
-			std::move(data.reg_internal_priv_key_shard),
-			std::move(data.owner_external_priv_key_shard),
-			std::move(data.owner_internal_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::owner(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard),
+				std::move(data.reg_internal_priv_key_shard),
+				std::move(data.owner_external_priv_key_shard),
+				std::move(data.owner_internal_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
