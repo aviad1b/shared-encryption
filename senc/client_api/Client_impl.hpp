@@ -270,25 +270,46 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::update_callback(PacketHandler& packetHandler)
 	{
-		try
+		// Note: We silently ignore background update errors for now.
+
+		pkt::UpdateResponse resp{};
+		try { resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{}); }
+		catch (const ClientException&) { }
+
+		for (auto& record : resp.added_as_reg_member)
 		{
-			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-			for (auto& record : resp.added_as_reg_member)
-				this->handle_added_as_reg_member(std::move(record));
-			for (auto& record : resp.added_as_owner)
-				this->handle_added_as_owner(std::move(record));
-			for (auto& record : resp.on_lookup)
-				this->handle_on_lookup(std::move(record));
-			for (auto& record : resp.to_decrypt)
-				this->handle_to_decrypt(std::move(record));
-			for (auto& record : resp.finished_decryptions)
-				this->handle_finished_decryption(std::move(record));
-			for (auto& record : resp.to_evolve)
-				this->handle_to_evolve(std::move(record));
+			try { this->handle_added_as_reg_member(std::move(record)); }
+			catch (const ClientException&) { }
 		}
-		catch (const std::exception&)
+
+		for (auto& record : resp.added_as_owner)
 		{
-			// silently ignore background update errors for now
+			try { this->handle_added_as_owner(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.on_lookup)
+		{
+			try { this->handle_on_lookup(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.to_decrypt)
+		{
+			try { this->handle_to_decrypt(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.finished_decryptions)
+		{
+			try { this->handle_finished_decryption(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.to_evolve)
+		{
+			try { this->handle_to_evolve(std::move(record)); }
+			catch (const ClientException&) { }
 		}
 	}
 
