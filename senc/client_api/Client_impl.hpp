@@ -416,6 +416,8 @@ namespace senc::clientapi
 
 		// locate fitting record in local storage
 		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
+		if (!record.is_owner())
+			throw ClientException("Failed to decrypt", "Not owner of userset");
 
 		// compute missing decryption parts and store with existing parts
 		std::vector<DecryptionPart> ownerParts = std::move(data.owner_layer_parts);
