@@ -6,6 +6,7 @@
 - Modified encrypted protocol to encrypt message codes as well.
 - Added official client API (not backwards-compatible with the Beta API).
 - Added CLI client.
+- Added key evolution.
 - Added ability to search users by a part of their username.
 - Added ability to send decryptions to other users.
 - Added userset names.
