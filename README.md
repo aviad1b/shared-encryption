@@ -266,7 +266,9 @@ After the evolution is performed, the seed is modified using a pseudo-random gen
 
 ### Client Storage
 
-<!-- TODO: Update client storage information -->
+The client API (and CLI client) use (binary) `.senc` profile files to store userset information (public keys, private key shards, evolution seeds). The file itself is encrypted using AES, with the encryption key being derived from the user's username and password using PBKDF2 (the username's ending characters are used as salt).
+
+Each 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
