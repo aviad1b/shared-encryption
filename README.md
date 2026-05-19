@@ -607,7 +607,6 @@ This project is protected under the GPL-3.0 License. See `LICENSE` for more info
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- TODO: Update client screenshots (for both clients) -->
 [license-shield]: https://img.shields.io/github/license/aviad1b/shared-encryption.svg?style=for-the-badge
 [license-url]: https://github.com/aviad1b/shared-encryption/blob/master/LICENSE
 [server-screenshot]: images/server_screenshot.png
