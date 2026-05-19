@@ -611,8 +611,8 @@ This project is protected under the GPL-3.0 License. See `LICENSE` for more info
 [license-shield]: https://img.shields.io/github/license/aviad1b/shared-encryption.svg?style=for-the-badge
 [license-url]: https://github.com/aviad1b/shared-encryption/blob/master/LICENSE
 [server-screenshot]: images/server_screenshot.png
-[cli-client-login-screenshot]: images/client_login_screenshot.png
-[cli-client-menu-screenshot]: images/client_menu_screenshot.png
-[debug-client-login-screenshot]: images/client_login_screenshot.png
-[debug-client-menu-screenshot]: images/client_menu_screenshot.png
+[cli-client-login-screenshot]: images/cli_client_login_screenshot.png
+[cli-client-menu-screenshot]: images/cli_client_menu_screenshot.png
+[debug-client-login-screenshot]: images/debug_client_login_screenshot.png
+[debug-client-menu-screenshot]: images/debug_client_menu_screenshot.png
 [decryption-flow-diagram]: images/decryption_flow_diagram.svg
