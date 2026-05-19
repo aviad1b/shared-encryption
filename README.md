@@ -35,7 +35,8 @@
 		<a href="#usage">Usage</a>
 		<ul>
 			<li><a href="#server">Server</a></li>
-			<li><a href="#client">Client</a></li>
+			<li><a href="#cli-client">CLI Client</a></li>
+			<li><a href="#debug-client">Debug Client</a></li>
 			<li><a href="#client-api">Client API</a></li>
 		</ul>
 	</li>
@@ -43,6 +44,8 @@
 		<a href="#technical-details">Technical details</a>
 		<ul>
 			<li><a href="#communication-flow">Communication Flow</a></li>
+			<li><a href="#key-evolution">Key Evolution</a></li>
+			<li><a href="#client-storage">Client Storage</a></li>
 			<li><a href="#protocol">Protocol</a></li>
 		</ul>
 	</li>
@@ -147,13 +150,12 @@ For now, all commands are ignored except for `stop`, which stops the server.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Client
-
-To run the client, first change your working directory to the one of the client's executable (`senc_client.exe`).
+### CLI Client
+To run the command-line client, first change your working directory to the one of the CLI client's executable (`senc_cli_client.exe`). Ensure the client API library (`senc_client_api.dll` for Windows, `senc_client_api.so` for other systems) is present where the executable can locate it (e.g., directly in its directory).
 Then, running the client is done with the command:
 
 ```
-senc_client <IP> [port]
+senc_cli_client <IP> [port]
 ```
 
 With `IP` being the IP address on which the server is listening, and `port` being its TCP listen port.  
@@ -161,14 +163,39 @@ With `IP` being the IP address on which the server is listening, and `port` bein
 If not provided, `port` defaults to `4435`.  
 As a first stage, user has to either login or signup:
 
-![Client Login Screen Shot][client-login-screenshot]  
+![CLI Client Login Screen Shot][cli-client-login-screenshot]  
 
 After that, the user is presented with a menu of options:
 
-![Client Menu Screen Shot][client-menu-screenshot]  
+![CLI Client Menu Screen Shot][cli-client-menu-screenshot]  
 
-The client as of now is fairly primitive, contains no automatic storage and expects user to constantly copy-paste previously-provided data;
-that is to be changed in the near future.
+The CLI client features automatic background updates &amp; storage, as detailed below (see <a href="#client-storage">Client Storage</a>).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Debug Client
+
+The debug client (known simply as "the client" prior to version v1.2.0) provides a more primitive, raw-protocol functionality of the client functionality.
+
+To run the debug client, first change your working directory to the one of the debug client's executable (`senc_debug_client.exe`).
+Then, running the client is done with the command:
+
+```
+senc_debug_client <IP> [port]
+```
+
+With `IP` being the IP address on which the server is listening, and `port` being its TCP listen port.  
+`IP` can be either an IPv4 or an IPv6 address (detected automatically).  
+If not provided, `port` defaults to `4435`.  
+As a first stage, user has to either login or signup:
+
+![Debug Client Login Screen Shot][debug-client-login-screenshot]  
+
+After that, the user is presented with a menu of options:
+
+![Debug Client Menu Screen Shot][debug-client-menu-screenshot]  
+
+The debug client is fairly primitive, contains no automatic storage and expects user to constantly copy-paste previously-provided data.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -178,9 +205,9 @@ The provided shared library `senc_client_api` provides an ABI-based client API w
 
 Documentation of the API functions can be found in [client_api.h](senc/client_api/client_api.h).
 
-Unlike the current client, the client API provides automatic storage in the form of user profile files (`.sencp`).
+This API is used by the CLI client.
 
-The client API as of now is in Beta version, with known existing bugs (which require protocol changes to fix).
+The CLI client features automatic background updates, and provides automatic storage in the form of user profile files (see <a href="#client-storage">Client Storage</a>).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -195,7 +222,7 @@ Each connected client communicates with the server using the classic request-res
 
 - Clients are expected to periodically send update requests and recieve updates in response.
   Each update contains:
-  - **(a)** New usersets that the requester was added to (and requester's key shard).
+  - **(a)** New usersets that the requester was added to (and requester's key shards).
   - **(b)** Decryptions that are being prepared and may need requester to compute parts of them.
   - **(c)** Pending decryptions that require a decryption part from requester.
   - **(d)** Parts of decryptions that requester has requested (if enough were gathered).
@@ -217,6 +244,31 @@ Each connected client communicates with the server using the classic request-res
 Below is a diagram illustrating the entire communication flow in the process of decryption:
 
 ![Decryption Flow Diagram][decryption-flow-diagram]
+
+- Note: Starting at version v1.2.0, each client holds two key shards for each key: one for external use (generating decryption parts for other users) and one for internal use (generating the final decryption part before joining into the original plaintext).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Key Evolution
+
+Starting at version v1.2.0, a userset's owner may request a key evolution for their userset. For this purpose, a random evolution seed is synchronized between each userset's owners at its creation. Upon receiving a key evolution request, the server notifies all userset's owners (in the next update cycle) that a key evolution is in effect for this userset. All owners of said userset are then expected to evolve their keys &amp; key shards as follows:
+
+- For each public key, apply the group operation with the group generator raised to the power of the current seed.
+- For each private key shard, add the current seed.
+
+After the evolution is performed, the seed is modified using a pseudo-random generator.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Client Storage
+
+The client API (and CLI client) use (binary) `.senc` profile files to store userset information (public keys, private key shards, evolution seeds). The file itself is encrypted using AES, with the encryption key being derived from the user's username and password using PBKDF2 (the username's ending characters are used as salt).
+
+Each 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -241,11 +293,11 @@ Client requests to signup with a given username and password.
 Server response with signup status.  
 
 - Request:
-  - username
-  - password
+  - username.
+  - password.
   
 - Response:
-  - status (success / username taken)
+  - status (success / username taken).
 
 
 
@@ -261,11 +313,11 @@ Client requests to login with a given username and password.
 Server responds with login status.
 
 - Request:
-  - username
-  - password
+  - username.
+  - password.
 
 - Response:
-  - status (success / bad login)
+  - status (success / bad login).
 
 
 
@@ -301,15 +353,16 @@ Client requests to make a new user set with given parameters.
 Server responds with userset ID, public keys and private key shards.
 
 - Request:
-  - non-owners (usernames)
-  - owners (usernames, apart form requester)
-  - regular members threshold (`rt`, amount of members required for decryption of the regular-member encryption layer)
+  - non-owners (usernames).
+  - owners (usernames, apart form requester).
+  - regular members threshold (`rt`, amount of members required for decryption of the regular-member encryption layer).
   - owners threshold (`ot`, amount of owners required for decrytion of the owner encryption layer).
+  - userset name.
 
 - Response:
-  - userset ID
-  - public key for each encryption layer
-  - private key shard for each encryption layer
+  - userset ID.
+  - public key for each encryption layer.
+  - internal &amp; external private key shards for each encryption layer.
 
 
 
@@ -328,7 +381,7 @@ Server responds with IDs of all usersets in which requester is an owner.
   - This packet has no data.
 
 - Response:
-  - IDs of owned usersets
+  - ID and name of each owned userset.
 
 
 
@@ -344,11 +397,11 @@ Client requests to get all members of a userset with a given ID.
 Server responds with IDs of all non-owners in userset, and IDs of all owners in userset.
 
 - Request:
-  - userset ID
+  - userset ID.
 
 - Response:
-  - usernames of userset regular members (non-owners)
-  - usernames of userset owners
+  - usernames of userset regular members (non-owners).
+  - usernames of userset owners.
 
 
 
@@ -364,11 +417,12 @@ Client requests to decrypt a given ciphertext under a userset with a given ID.
 Server responds with operation ID which can be used to retrieve decryption result later.
 
 - Request:
-  - userset ID
-  - ciphertext
+  - userset ID.
+  - ciphertext.
+  - usernames of users to send decryption parts to.
 
 - Response:
-  - operation ID (opid)
+  - operation ID (opid).
 
 
 
@@ -388,16 +442,25 @@ Server responds with update information.
 
 - Response:
   - Two lists of userset addition records (`added_as_owner`, `added_as_reg_member`):
-    - userset ID
-	- public key for each encryption layer
-	- private key shard for non-owner layer
-	- For `added_as_owner` only: private key shard for owner layer
-  - IDs of operations looking for user of this client to participate in
+    - userset ID.
+	- public key for each encryption layer.
+	- internal private key shard for non-owner layer.
+	- For `added_as_owner` only:
+  		- external private key shard for non-owner layer.
+    	- internal &amp; external private key shard for owner layer.
+     	- seed value used for key evolution.
+  - operation ID and userset ID of each operation looking for user of this client to participate in.
   - List of decryption operations to perform:
-    - operation ID
-	- ciphertext
-	- shard ID of participants (in relevant layer)
-  - operation IDs of finished decryptions initiated by client's user
+    - operation ID.
+	- ciphertext.
+	- shard ID of participants (in relevant layer).
+  - Finished decryptions initiated by client's user:
+  	- operation ID.
+   	- username of decryption initiator.
+    - ID of userset under which decryption was performed.
+    - original ciphertext.
+    - result decryption parts &amp; IDs of shards used to generate them.
+  - IDs of usersets which require key evolution.
 
 
 
@@ -414,10 +477,10 @@ Server responds with status (layer to send part of if wants client to participat
 "not required" if no longer needs client for this operation).
 
 - Request:
-  - operation ID
+  - operation ID.
 
 - Response:
-  - status (send non-owner layer part / send owner layer part / not required)
+  - status (send non-owner layer part / send owner layer part / not required).
 
 
 
@@ -433,8 +496,46 @@ Client sends decryption part previouslt requested by server (in an update iterat
 Server responds.
 
 - Request:
-  - operation ID
-  - decryption part
+  - operation ID.
+  - decryption part.
+
+- Response:
+  - This packet has no data.
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+#### User Search
+
+Looks up a user by a part of their username.
+
+Client sends a search query (part of username).  
+Server responds with list of usernames containing username part.
+
+- Request:
+  - search query (part of username).
+
+- Response:
+  - existing usernames matching query.
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+#### Key Evolution.
+
+Initiation of key evolution cycle for a specific userset.
+
+Client requests to evolve keys of a userset with given ID.  
+Server responds.
+
+- Request:
+  - ID of userset to evolve its key in a near future update.
 
 - Response:
   - This packet has no data.
@@ -459,10 +560,13 @@ Server responds.
 - [x] Version 1.1.1
 	- [x] Server long term storage.
  	- [x] Beta version of client API.
-- [ ] Version 1.2.0
-	- [ ] Standarization of protocol.
-	- [ ] Improved client with long term &amp; automatic memory and periodic background updates.
-	- [ ] Key evolution.
+- [x] Version 1.2.0
+	- [x] Standarization of protocol.
+	- [x] Improved client with long term &amp; automatic memory and periodic background updates.
+	- [x] Key evolution.
+- [ ] Version 1.2.1
+	- [ ] Chat client (GUI).
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -470,8 +574,7 @@ Server responds.
 
 ## Known Issues
 
-- Client API failure to identify userset ID with low probability when participating in a decryption during a background update.
-- Force-disconnection crashes hyper-specific to Windows GCC.
+- Force-disconnection crashes on server-side, hyper-specific to Windows GCC.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -507,6 +610,8 @@ This project is protected under the GPL-3.0 License. See `LICENSE` for more info
 [license-shield]: https://img.shields.io/github/license/aviad1b/shared-encryption.svg?style=for-the-badge
 [license-url]: https://github.com/aviad1b/shared-encryption/blob/master/LICENSE
 [server-screenshot]: images/server_screenshot.png
-[client-login-screenshot]: images/client_login_screenshot.png
-[client-menu-screenshot]: images/client_menu_screenshot.png
+[cli-client-login-screenshot]: images/cli_client_login_screenshot.png
+[cli-client-menu-screenshot]: images/cli_client_menu_screenshot.png
+[debug-client-login-screenshot]: images/debug_client_login_screenshot.png
+[debug-client-menu-screenshot]: images/debug_client_menu_screenshot.png
 [decryption-flow-diagram]: images/decryption_flow_diagram.svg
