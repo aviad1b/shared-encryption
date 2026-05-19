@@ -4,6 +4,7 @@
 
 ### Added or Changed
 - Modified encrypted protocol to encrypt message codes as well.
+- Modified protocol to use standard binary representation of elliptic-curve roup elements.
 - Added official client API (not backwards-compatible with the Beta API).
 - Added CLI client.
 - Added key evolution.
