@@ -564,8 +564,9 @@ Server responds.
 	- [x] Standarization of protocol.
 	- [x] Improved client with long term &amp; automatic memory and periodic background updates.
 	- [x] Key evolution.
+- [ ] Version 1.2.1
+	- [ ] Chat client (GUI).
 
-<!-- TODO: Add plans for version v1.2.1 -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
