@@ -27,15 +27,21 @@ namespace senc::clientapi
 		 * @brief Signs up as a new username (and stays logged in).
 		 * @param username Username to signup with.
 		 * @param password Password to signup with.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		virtual void signup(const std::string& username, const std::string& password) = 0;
+		virtual void signup(const std::string& username,
+							const std::string& password,
+							const std::string& profileBaseDir) = 0;
 
 		/**
 		 * @brief Logs in to server (and stays logged in).
 		 * @param username Username to login with.
 		 * @param password Password to login with.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		virtual void login(const std::string& username, const std::string& password) = 0;
+		virtual void login(const std::string& username,
+						   const std::string& password,
+						   const std::string& profileBaseDir) = 0;
 
 		/**
 		 * @brief Logs out of server.
@@ -56,19 +62,21 @@ namespace senc::clientapi
 		 * @param regMembers Usernames of userset's non-owner members.
 		 * @param ownersThreshold Minimum amount of owners required for decryption.
 		 * @param regMembersThreshold Minimum amount of non-owners required for decryption.
+		 * @param name Userset name (moved).
 		 * @return Userset's ID.
 		 */
 		virtual UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 									   utils::ranges::StringViewRange&& regMembers,
 									   member_count_t ownersThreshold,
-									   member_count_t regMembersThreshold) = 0;
+									   member_count_t regMembersThreshold,
+									   std::string&& name) = 0;
 
 		/**
 		 * @brief Gets all usersets owned by user.
 		 * @note Requires user to be logged in.
-		 * @param callback Callback function to call on the ID of each userset owned by user.
+		 * @param callback Callback function to call on ID and name of each userset owned by user.
 		 */
-		virtual void get_usersets(std::function<void(const UserSetID&)> callback) = 0;
+		virtual void get_usersets(std::function<void(const UserSetID&, const std::string&)> callback) = 0;
 
 		/**
 		 * @brief Gets all members of a specific userset.
@@ -100,8 +108,34 @@ namespace senc::clientapi
 		virtual OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) = 0;
 
 		/**
+		 * @brief Queues a message decryption under a userset.
+		 * @note Requires user to be logged in.
+		 * @param usersetID ID of userset to decrypt under.
+		 * @param ciphertext Encrypted message to decrypt.
+		 * @param dstUsers Usernames of users to send decryption to.
+		 * @return Decryption operation ID.
+		 */
+		virtual OperationID decrypt_send(const UserSetID& usersetID,
+										 const Ciphertext& ciphertext,
+										 utils::ranges::StringViewRange&& dstUsers) = 0;
+
+		/**
 		 * @brief Forces client update.
 		 */
 		virtual void force_update() = 0;
+
+		/**
+		 * @brief Searches for a user.
+		 * @param query Search query (part of username).
+		 * @param callback Callback to call on each username found.
+		 */
+		virtual void user_search(const std::string& query,
+								 std::function<void(const std::string&)> callback) = 0;
+
+		/**
+		 * @brief Requests key evolution for a specific userset.
+		 * @param usersetID ID of userset to request evolution for.
+		 */
+		virtual void evolve_userset(const UserSetID& usersetID) = 0;
 	};
 }

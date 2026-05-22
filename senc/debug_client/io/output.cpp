@@ -14,7 +14,7 @@
 using std::cout;
 using std::endl;
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	void print_pub_keys(const PubKey& regLayerPubKey, const PubKey& ownerLayerPubKey)
 	{
@@ -23,22 +23,36 @@ namespace senc::client::io
 			 << utils::bytes_to_base64(pub_key_to_bytes(ownerLayerPubKey)) << endl;
 	}
 
+	void print_priv_key_shard(const PrivKeyShard& shard)
+	{
+		cout << utils::bytes_to_base64(priv_key_shard_to_bytes(shard)) << endl;
+	}
+
 	// helper function, not accessed by main
 	static void print_priv_key_any_shard(const char* label, const PrivKeyShard& shard)
 	{
-		cout << label << " decryption key shard: "
-			 << utils::bytes_to_base64(priv_key_shard_to_bytes(shard))
-			 << endl;
+		cout << label << " decryption key shard: ";
+		print_priv_key_shard(shard);
 	}
 
-	void print_reg_layer_priv_key_shard(const PrivKeyShard& shard)
+	void print_reg_external_priv_key_shard(const PrivKeyShard& shard)
 	{
-		print_priv_key_any_shard("Non-owner", shard);
+		print_priv_key_any_shard("Non-owner external", shard);
 	}
 
-	void print_owner_layer_priv_key_shard(const PrivKeyShard& shard)
+	void print_reg_internal_priv_key_shard(const PrivKeyShard& shard)
 	{
-		print_priv_key_any_shard("Owner", shard);
+		print_priv_key_any_shard("Non-owner internal", shard);
+	}
+
+	void print_owner_external_priv_key_shard(const PrivKeyShard& shard)
+	{
+		print_priv_key_any_shard("Owner external", shard);
+	}
+
+	void print_owner_internal_priv_key_shard(const PrivKeyShard& shard)
+	{
+		print_priv_key_any_shard("Owner internal", shard);
 	}
 
 	void print_ciphertext(const Ciphertext& ciphertext)
@@ -46,14 +60,14 @@ namespace senc::client::io
 		const auto& [c1, c2, c3] = ciphertext;
 		const auto& [c3a, c3b] = c3;
 
-		cout << utils::bytes_to_base64(c1.encode()) << endl
-			 << utils::bytes_to_base64(c2.encode()) << endl
+		cout << utils::bytes_to_base64(utils::to_bytes(c1)) << endl
+			 << utils::bytes_to_base64(utils::to_bytes(c2)) << endl
 			 << utils::bytes_to_base64(c3a) << endl
 			 << utils::bytes_to_base64(c3b) << endl;
 	}
 
 	void print_decryption_part(const DecryptionPart& decryptionPart)
 	{
-		cout << utils::bytes_to_base64(decryptionPart.encode()) << endl;
+		cout << utils::bytes_to_base64(utils::to_bytes(decryptionPart)) << endl;
 	}
 }

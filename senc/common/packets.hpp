@@ -19,9 +19,10 @@ namespace senc::pkt
 {
 	// protocol versions:
 	// 1 : v1.0.0-v1.0.1
-	// 2 : v1.1.0+
+	// 2 : v1.1.0-v1.1.1
+	// 3 : v1.2.0+
 	using protocol_version_t = std::uint8_t;
-	constexpr protocol_version_t PROTOCOL_VERSION = 2; // v1.1.0+
+	constexpr protocol_version_t PROTOCOL_VERSION = 3; // v1.2.0+
 
 	/**
 	 * @enum Code
@@ -59,7 +60,13 @@ namespace senc::pkt
 		DecryptParticipateResponse,
 
 		SendDecryptionPartRequest,
-		SendDecryptionPartResponse
+		SendDecryptionPartResponse,
+
+		UserSearchRequest,
+		UserSearchResponse,
+
+		EvolveRequest,
+		EvolveResponse
 	};
 
 
@@ -225,6 +232,9 @@ namespace senc::pkt
 
 		/// Threshold for number of owners required for decryption.
 		member_count_t owners_threshold;
+
+		/// Name for userset (for display).
+		std::string name;
 	};
 
 	/**
@@ -240,16 +250,25 @@ namespace senc::pkt
 		UserSetID user_set_id;
 
 		/// Public key for encryption on non-owner layer.
-		PubKey reg_layer_pub_key;
+		PubKey reg_pub_key;
 
 		/// Public key for encryption on owner layer.
-		PubKey owner_layer_pub_key;
+		PubKey owner_pub_key;
 
-		/// Private key shard for non-owner layer.
-		PrivKeyShard reg_layer_priv_key_shard;
+		/// Private key shard for non-owner layer for external use (decryptions for others).
+		PrivKeyShard reg_external_priv_key_shard;
 
-		/// Private key shard for owner layer.
-		PrivKeyShard owner_layer_priv_key_shard;
+		/// Private key shard for non-owner layer for internal use (decryptions for self).
+		PrivKeyShard reg_internal_priv_key_shard;
+
+		/// Private key shard for owner layer for external use (decryptions for others).
+		PrivKeyShard owner_external_priv_key_shard;
+
+		/// Private key shard for owner layer for internal use (decryptions for self).
+		PrivKeyShard owner_internal_priv_key_shard;
+
+		/// Userset seed (for evolution).
+		Seed seed;
 	};
 
 
@@ -278,8 +297,8 @@ namespace senc::pkt
 		static constexpr auto CODE = Code::GetUserSetsResponse;
 		bool operator==(const GetUserSetsResponse&) const = default;
 
-		/// IDs of user sets the requester owns.
-		std::vector<UserSetID> user_sets_ids;
+		/// IDs and names of user sets the requester owns.
+		std::vector<std::pair<UserSetID, std::string>> user_sets;
 	};
 
 
@@ -343,16 +362,15 @@ namespace senc::pkt
 		/// Ciphertext to decrypt.
 		Ciphertext ciphertext;
 
-		DecryptRequest() : user_set_id(), ciphertext() { }
-		DecryptRequest(const UserSetID& userSetID, const Ciphertext& ciphertext)
-			: user_set_id(userSetID), ciphertext(ciphertext) { }
-		DecryptRequest(const UserSetID& userSetID, Ciphertext&& ciphertext)
-			: user_set_id(userSetID), ciphertext(std::move(ciphertext)) { }
-		DecryptRequest(UserSetID&& userSetID, const Ciphertext& ciphertext)
-			: user_set_id(std::move(userSetID)), ciphertext(ciphertext) { }
-		DecryptRequest(UserSetID&& userSetID, Ciphertext&& ciphertext)
+		/// Usernames of users that should get decryption parts.
+		std::vector<std::string> dst_users;
+
+		DecryptRequest() : user_set_id(), ciphertext(), dst_users() { }
+
+		DecryptRequest(UserSetID userSetID, Ciphertext ciphertext, std::vector<std::string> dstUsers)
 			: user_set_id(std::move(userSetID)),
-			  ciphertext(std::move(ciphertext)) { }
+			  ciphertext(std::move(ciphertext)),
+			  dst_users(std::move(dstUsers)) { }
 	};
 
 	/**
@@ -406,14 +424,17 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
+			/// Seed (for evolution).
+			Seed seed;
+
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
 			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			PrivKeyShard reg_external_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as non-owner.
@@ -431,25 +452,48 @@ namespace senc::pkt
 			/// User set ID.
 			UserSetID user_set_id;
 
+			/// Seed (for evolution).
+			Seed seed;
+
 			/// Public key of the set for non-owner layer encryption.
-			PubKey reg_layer_pub_key;
+			PubKey reg_pub_key;
 
 			/// Public key of the set for owner layer encryption.
-			PubKey owner_layer_pub_key;
+			PubKey owner_pub_key;
 
-			/// Private key shard for non-owner layer decryption.
-			PrivKeyShard reg_layer_priv_key_shard;
+			/// Private key shard for non-owner layer for external use (decryption for others).
+			PrivKeyShard reg_external_priv_key_shard;
 
-			/// Private key shard for owner layer decryption.
-			PrivKeyShard owner_layer_priv_key_shard;
+			/// Private key shard for non-owner layer for internal use (decryption for self).
+			PrivKeyShard reg_internal_priv_key_shard;
+
+			/// Private key shard for owner layer for external use (decryptions for others).
+			PrivKeyShard owner_external_priv_key_shard;
+
+			/// Private key shard for owner layer for internal use (decryptions for self).
+			PrivKeyShard owner_internal_priv_key_shard;
 		};
 
 		/// List of usersets the user was added to as owner.
 		std::vector<AddedAsOwnerRecord> added_as_owner;
 
+		/**
+		 * @struct OnLookupRecord
+		 * @brief Record indicating server wants requester to participate in an operation.
+		 */
+		struct OnLookupRecord
+		{
+			bool operator==(const OnLookupRecord&) const = default;
 
-		/// IDs of decryption operations under which server wants requester to participate.
-		std::vector<OperationID> on_lookup;
+			/// ID of operation server wants requester to participate in.
+			OperationID opid;
+
+			/// ID of userset under which operation is being performed.
+			UserSetID user_set_id;
+		};
+		
+		/// List of decryption operations under which server wants requester to participate.
+		std::vector<OnLookupRecord> on_lookup;
 
 
 		/**
@@ -485,6 +529,15 @@ namespace senc::pkt
 			/// Decryption operation ID.
 			OperationID op_id;
 
+			/// User who initiated decryption.
+			std::string initiator;
+
+			/// ID of userset under which decryption was performed.
+			UserSetID user_set_id;
+
+			/// Ciphertext being decrypted.
+			Ciphertext ciphertext;
+
 			/// Decryption parts for non-owner layer.
 			std::vector<DecryptionPart> reg_layer_parts;
 
@@ -500,6 +553,21 @@ namespace senc::pkt
 
 		/// Finished decryptions requested by this client.
 		std::vector<FinishedDecryptionsRecord> finished_decryptions;
+
+		/**
+		 * @struct ToEvolveRecord
+		 * @brief Record for usersets to evolve their keys.
+		 */
+		struct ToEvolveRecord
+		{
+			bool operator==(const ToEvolveRecord&) const = default;
+
+			/// ID of userset to evolve its keys.
+			UserSetID user_set_id;
+		};
+
+		/// Usersets to evolve their keys (may have duplicates to evolve multiple times).
+		std::vector<ToEvolveRecord> to_evolve;
 	};
 
 
@@ -583,5 +651,68 @@ namespace senc::pkt
 	{
 		static constexpr auto CODE = Code::SendDecryptionPartResponse;
 		bool operator==(const SendDecryptionPartResponse&) const = default;
+	};
+
+
+	// =================================================================
+	// UserSearch cycle
+	// Client sends a search query (part of username).
+	// Server responds with list of usernames containing username part.
+	// =================================================================
+
+	/**
+	 * @struct UserSearchRequest
+	 * @brief Request containing a username search query.
+	 */
+	struct UserSearchRequest
+	{
+		static constexpr auto CODE = Code::UserSearchRequest;
+		bool operator==(const UserSearchRequest&) const = default;
+
+		/// Search query (username part to use for search).
+		std::string query;
+	};
+
+	/**
+	 * @struct UserSearchResponse
+	 * @brief Response containing list of usernames matching search.
+	 */
+	struct UserSearchResponse
+	{
+		static constexpr auto CODE = Code::UserSearchResponse;
+		bool operator==(const UserSearchResponse&) const = default;
+
+		/// List of usernames matching search.
+		std::vector<std::string> users;
+	};
+
+
+	// =================================================================
+	// Evolve cycle
+	// Client requests to evolve keys of a userset with given ID.
+	// Server responds.
+	// =================================================================
+
+	/**
+	 * @struct EvolveRequest
+	 * @brief Request containing ID of userset to evolve its keys.
+	 */
+	struct EvolveRequest
+	{
+		static constexpr auto CODE = Code::EvolveRequest;
+		bool operator==(const EvolveRequest&) const = default;
+
+		/// ID of userset to evolve its keys.
+		UserSetID user_set_id;
+	};
+
+	/**
+	 * @struct EvolveResponse
+	 * @brief Acknowledgement of key evolution.
+	 */
+	struct EvolveResponse
+	{
+		static constexpr auto CODE = Code::EvolveResponse;
+		bool operator==(const EvolveResponse&) const = default;
 	};
 }

@@ -36,8 +36,10 @@ namespace senc::server::managers
 		 */
 		struct CollectedRecord
 		{
+			std::vector<std::string> dst_users;
 			std::string requester;
 			UserSetID userset_id;
+			Ciphertext ciphertext;
 			member_count_t required_owners;
 			member_count_t required_reg_members;
 			std::vector<DecryptionPart> reg_layer_parts;
@@ -45,12 +47,16 @@ namespace senc::server::managers
 			std::vector<DecryptionPart> owner_layer_parts;
 			std::vector<PrivKeyShardID> owner_layer_shards_ids;
 
-			CollectedRecord(const std::string& requester,
+			CollectedRecord(std::vector<std::string>&& dstUsers,
+							const std::string& requester,
 							const UserSetID& usersetID,
+							Ciphertext&& ciphertext,
 							member_count_t requiredOwners,
 							member_count_t requiredRegMembers)
-				: requester(requester),
+				: dst_users(std::move(dstUsers)),
+				  requester(requester),
 				  userset_id(usersetID),
+				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
 				  required_reg_members(requiredRegMembers) { }
 
@@ -62,6 +68,7 @@ namespace senc::server::managers
 		 */
 		struct PrepareRecord
 		{
+			std::vector<std::string> dst_users;
 			std::string requester;
 			UserSetID userset_id;
 			Ciphertext ciphertext;
@@ -70,12 +77,14 @@ namespace senc::server::managers
 			utils::HashSet<std::string> owners_found;
 			utils::HashSet<std::string> reg_members_found;
 
-			PrepareRecord(const std::string& requester,
+			PrepareRecord(std::vector<std::string>&& dstUsers,
+						  const std::string& requester,
 						  const UserSetID& usersetID,
 						  Ciphertext&& ciphertext,
 						  member_count_t requiredOwners,
 						  member_count_t requiredRegMembers)
-				: requester(requester),
+				: dst_users(std::move(dstUsers)),
+				  requester(requester),
 				  userset_id(usersetID),
 				  ciphertext(std::move(ciphertext)),
 				  required_owners(requiredOwners),
@@ -92,6 +101,7 @@ namespace senc::server::managers
 
 		/**
 		 * @brief Prepares a decryption operation.
+		 * @param dstUsers Usernames of users that should get decryption parts (moved).
 		 * @param opid Operation ID.
 		 * @param requester Username of requesting user.
 		 * @param usersetID ID of userset under which decryption is performed.
@@ -99,7 +109,8 @@ namespace senc::server::managers
 		 * @param requiredOwners Amount of owners required for performing the decryption.
 		 * @param requiredRegMembers Amount of non-owner members required for performing the decryption.
 		 */
-		void prepare_operation(const OperationID& opid,
+		void prepare_operation(std::vector<std::string>&& dstUsers,
+							   const OperationID& opid,
 							   const std::string& requester,
 							   const UserSetID& usersetID,
 							   Ciphertext&& ciphertext,

@@ -8,10 +8,15 @@
 
 #include "ClientUtils.hpp"
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace senc::clientapi
 {
-	std::string ClientUtils::locate_user_profile_file(const std::string& username)
+	std::string ClientUtils::locate_user_profile_file(const std::string& username,
+													  const std::string& profileBaseDir)
 	{
-		return username + ".sencp";
+		return (fs::path(profileBaseDir) / (username + ".sencp")).string();
 	}
 }

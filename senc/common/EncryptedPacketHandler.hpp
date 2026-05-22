@@ -17,6 +17,13 @@
 
 namespace senc
 {
+	/**
+	 * @class senc::EncryptedPacketHandler
+	 * @brief Encrypted implementation of `senc::PacketHandler`.
+	 * @note For encryption efficiency, this class heavily relies on the assumption that 
+	 *       `recv_code` is always and only called before `recv_request_data`/`recv_response_data`, and
+	 *       `recv_request_data`/`recv_response_data` is always and only called after `recv_code`.
+	 */
 	class EncryptedPacketHandler : public PacketHandler
 	{
 	public:
@@ -45,74 +52,90 @@ namespace senc
 
 		const IPacketHandlerSyncData& get_sync_data() const override;
 
-		void send_response_data(const pkt::ErrorResponse& packet) override;
+		pkt::Code recv_code() override;
+
+		void send_response(const pkt::ErrorResponse& packet) override;
 		void recv_response_data(pkt::ErrorResponse& out) override;
 
-		void send_request_data(const pkt::SignupRequest& packet) override;
+		void send_request(const pkt::SignupRequest& packet) override;
 		void recv_request_data(pkt::SignupRequest& out) override;
 
-		void send_response_data(const pkt::SignupResponse& packet) override;
+		void send_response(const pkt::SignupResponse& packet) override;
 		void recv_response_data(pkt::SignupResponse& out) override;
 
-		void send_request_data(const pkt::LoginRequest& packet) override;
+		void send_request(const pkt::LoginRequest& packet) override;
 		void recv_request_data(pkt::LoginRequest& out) override;
 
-		void send_response_data(const pkt::LoginResponse& packet) override;
+		void send_response(const pkt::LoginResponse& packet) override;
 		void recv_response_data(pkt::LoginResponse& out) override;
 
-		void send_request_data(const pkt::LogoutRequest& packet) override;
+		void send_request(const pkt::LogoutRequest& packet) override;
 		void recv_request_data(pkt::LogoutRequest& out) override;
 
-		void send_response_data(const pkt::LogoutResponse& packet) override;
+		void send_response(const pkt::LogoutResponse& packet) override;
 		void recv_response_data(pkt::LogoutResponse& out) override;
 
-		void send_request_data(const pkt::MakeUserSetRequest& packet) override;
+		void send_request(const pkt::MakeUserSetRequest& packet) override;
 		void recv_request_data(pkt::MakeUserSetRequest& out) override;
 
-		void send_response_data(const pkt::MakeUserSetResponse& packet) override;
+		void send_response(const pkt::MakeUserSetResponse& packet) override;
 		void recv_response_data(pkt::MakeUserSetResponse& out) override;
 
-		void send_request_data(const pkt::GetUserSetsRequest& packet) override;
+		void send_request(const pkt::GetUserSetsRequest& packet) override;
 		void recv_request_data(pkt::GetUserSetsRequest& out) override;
 
-		void send_response_data(const pkt::GetUserSetsResponse& packet) override;
+		void send_response(const pkt::GetUserSetsResponse& packet) override;
 		void recv_response_data(pkt::GetUserSetsResponse& out) override;
 
-		void send_request_data(const pkt::GetMembersRequest& packet) override;
+		void send_request(const pkt::GetMembersRequest& packet) override;
 		void recv_request_data(pkt::GetMembersRequest& out) override;
 
-		void send_response_data(const pkt::GetMembersResponse& packet) override;
+		void send_response(const pkt::GetMembersResponse& packet) override;
 		void recv_response_data(pkt::GetMembersResponse& out) override;
 
-		void send_request_data(const pkt::DecryptRequest& packet) override;
+		void send_request(const pkt::DecryptRequest& packet) override;
 		void recv_request_data(pkt::DecryptRequest& out) override;
 
-		void send_response_data(const pkt::DecryptResponse& packet) override;
+		void send_response(const pkt::DecryptResponse& packet) override;
 		void recv_response_data(pkt::DecryptResponse& out) override;
 
-		void send_request_data(const pkt::UpdateRequest& packet) override;
+		void send_request(const pkt::UpdateRequest& packet) override;
 		void recv_request_data(pkt::UpdateRequest& out) override;
 
-		void send_response_data(const pkt::UpdateResponse& packet) override;
+		void send_response(const pkt::UpdateResponse& packet) override;
 		void recv_response_data(pkt::UpdateResponse& out) override;
 
-		void send_request_data(const pkt::DecryptParticipateRequest& packet) override;
+		void send_request(const pkt::DecryptParticipateRequest& packet) override;
 		void recv_request_data(pkt::DecryptParticipateRequest& out) override;
 
-		void send_response_data(const pkt::DecryptParticipateResponse& packet) override;
+		void send_response(const pkt::DecryptParticipateResponse& packet) override;
 		void recv_response_data(pkt::DecryptParticipateResponse& out) override;
 
-		void send_request_data(const pkt::SendDecryptionPartRequest& packet) override;
+		void send_request(const pkt::SendDecryptionPartRequest& packet) override;
 		void recv_request_data(pkt::SendDecryptionPartRequest& out) override;
 
-		void send_response_data(const pkt::SendDecryptionPartResponse& packet) override;
+		void send_response(const pkt::SendDecryptionPartResponse& packet) override;
 		void recv_response_data(pkt::SendDecryptionPartResponse& out) override;
+
+		void send_request(const pkt::UserSearchRequest& packet) override;
+		void recv_request_data(pkt::UserSearchRequest& out) override;
+
+		void send_response(const pkt::UserSearchResponse& packet) override;
+		void recv_response_data(pkt::UserSearchResponse& out) override;
+
+		void send_request(const pkt::EvolveRequest& packet) override;
+		void recv_request_data(pkt::EvolveRequest& out) override;
+
+		void send_response(const pkt::EvolveResponse& packet) override;
+		void recv_response_data(pkt::EvolveResponse& out) override;
 
 	protected:
 		EncryptedPacketHandler(utils::Socket& sock);
 
 	private:
 		KeyedPacketHandlerSyncData<Key> _syncData;
+		utils::BytesView _buffView;
+		utils::Buffer _buff;
 		Schema _schema;
 		KDF _kdf;
 
@@ -137,51 +160,59 @@ namespace senc
 
 		void send_encrypted_data(const utils::Buffer& data);
 		
-		void recv_encrypted_data(utils::Buffer& out);
+		void recv_encrypted_data(); // receives into `buff`.
 
 		void write_big_int(utils::Buffer& out, const std::optional<utils::BigInt>& value);
-		utils::Buffer::const_iterator read_big_int(std::optional<utils::BigInt>& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_big_int(std::optional<utils::BigInt>& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_ecgroup_elem(utils::Buffer& out, const utils::ECGroup& elem);
-		utils::Buffer::const_iterator read_ecgroup_elem(utils::ECGroup& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_ecgroup_elem(utils::ECGroup& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_pub_key(utils::Buffer& out, const PubKey& pubKey);
-		utils::Buffer::const_iterator read_pub_key(PubKey& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_pub_key(PubKey& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_priv_key_shard_id(utils::Buffer& out, const PrivKeyShardID& shardID);
-		utils::Buffer::const_iterator read_priv_key_shard_id(PrivKeyShardID& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_priv_key_shard_id(PrivKeyShardID& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_priv_key_shard(utils::Buffer& out, const PrivKeyShard& shard);
-		utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_priv_key_shard(PrivKeyShard& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_ciphertext(utils::Buffer& out, const Ciphertext& ciphertext);
-		utils::Buffer::const_iterator read_ciphertext(Ciphertext& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_ciphertext(Ciphertext& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_decryption_part(utils::Buffer& out, const DecryptionPart& part);
-		utils::Buffer::const_iterator read_decryption_part(DecryptionPart& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_decryption_part(DecryptionPart& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsOwnerRecord& record);
-		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::AddedAsMemberRecord& record);
-		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
+
+		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::OnLookupRecord& record);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::OnLookupRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToDecryptRecord& record);
-		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::ToDecryptRecord& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::ToDecryptRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 
 		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::FinishedDecryptionsRecord& record);
-		utils::Buffer::const_iterator read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out,
-			utils::Buffer::const_iterator it, utils::Buffer::const_iterator end);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::FinishedDecryptionsRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
+
+		void write_update_record(utils::Buffer& out, const pkt::UpdateResponse::ToEvolveRecord& record);
+		utils::BytesView::iterator read_update_record(pkt::UpdateResponse::ToEvolveRecord& out,
+			utils::BytesView::iterator it, utils::BytesView::iterator end);
 	};
 
 	static_assert(PacketHandlerImpl<EncryptedPacketHandler>);

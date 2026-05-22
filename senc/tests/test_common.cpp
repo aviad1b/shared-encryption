@@ -170,7 +170,8 @@ static void make_user_set_cycle(PacketsTest& test)
 		{ "a", "b", "c" },
 		{ "o1", "o2", },
 		2,
-		1
+		1,
+		"some_name"
 	};
 
 	pkt::MakeUserSetResponse resp{
@@ -178,7 +179,10 @@ static void make_user_set_cycle(PacketsTest& test)
 		ECGroup::generator().pow(435),
 		ECGroup::generator().pow(256),
 		senc::PrivKeyShard{ 1, 435 },
-		senc::PrivKeyShard{ 2, 256 }
+		senc::PrivKeyShard{ 2, 256 },
+		senc::PrivKeyShard{ 3, 257 },
+		senc::PrivKeyShard{ 4, 258 },
+		435
 	};
 
 	test.cycle_flow(req, resp);
@@ -194,9 +198,9 @@ static void get_user_sets_cycle(PacketsTest& test)
 	pkt::GetUserSetsRequest req{};
 	pkt::GetUserSetsResponse resp{
 		{
-			"51657d81-1d4b-41ca-9749-cd6ee61cc325",
-			"c7379469-4294-40b4-850c-fe665717d1ba",
-			"57641e16-e02a-473b-8204-a809a9c435df"
+			{ "51657d81-1d4b-41ca-9749-cd6ee61cc325", "some name" },
+			{ "c7379469-4294-40b4-850c-fe665717d1ba", "another name" },
+			{ "57641e16-e02a-473b-8204-a809a9c435df", "and another" }
 		}
 	};
 	test.cycle_flow(req, resp);
@@ -233,7 +237,8 @@ static void decrypt_cycle(PacketsTest& test)
 				CryptoPP::SecByteBlock{},
 				{ 5, 6, 7, 8, 9 }
 			}
-		}
+		},
+		{ "user1", "user2", "user3" }
 	};
 	pkt::DecryptResponse resp{ "71f8fdcb-4dbb-4883-a0c2-f99d70b70c34" };
 	test.cycle_flow(req, resp);
@@ -251,12 +256,14 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+				435,
 				ECGroup::generator().pow(435),
 				ECGroup::generator().pow(256),
 				senc::PrivKeyShard{ 1, 435 }
 			},
 			{
 				"c7379469-4294-40b4-850c-fe665717d1ba",
+				333,
 				ECGroup::generator().pow(534),
 				ECGroup::generator().pow(652),
 				senc::PrivKeyShard{ 2, 256 }
@@ -265,22 +272,34 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"57641e16-e02a-473b-8204-a809a9c435df",
+				123456,
 				ECGroup::generator().pow(111),
 				ECGroup::generator().pow(222),
 				senc::PrivKeyShard{ 3, 333 },
-				senc::PrivKeyShard{ 13, 131313 }
+				senc::PrivKeyShard{ 4, 334 },
+				senc::PrivKeyShard{ 13, 131313 },
+				senc::PrivKeyShard{ 14, 131314 }
 			},
 			{
 				"55b27150-1668-446f-aa50-35d9358eac19",
+				43544,
 				ECGroup::generator().pow(444),
 				ECGroup::generator().pow(555),
 				senc::PrivKeyShard{ 4, 666 },
-				senc::PrivKeyShard{ 14, 161616 }
+				senc::PrivKeyShard{ 5, 667 },
+				senc::PrivKeyShard{ 14, 161616 },
+				senc::PrivKeyShard{ 15, 161617 }
 			}
 		},
 		{
-			"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
-			"0db2e378-9fdb-4f2a-8ea6-df3e1e9a9d2c"
+			{
+				"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325"
+			},
+			{
+				"0db2e378-9fdb-4f2a-8ea6-df3e1e9a9d2c",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325"
+			}
 		},
 		{
 			{
@@ -311,6 +330,16 @@ static void update_cycle(PacketsTest& test)
 		{
 			{
 				"07c039b6-5a7c-4a3c-9a7a-85ff31710f2f",
+				"user1",
+				"51657d81-1d4b-41ca-9749-cd6ee61cc325",
+				{
+					ECGroup::generator().pow(435),
+					ECGroup::generator().pow(256),
+					{
+						CryptoPP::SecByteBlock{},
+						{ 5, 6, 7, 8, 9 }
+					}
+				},
 				{ ECGroup::generator().pow(3), ECGroup::generator().pow(4) },
 				{ ECGroup::generator().pow(5), ECGroup::generator().pow(6) },
 				{ 1, 2, 100 },
@@ -318,11 +347,25 @@ static void update_cycle(PacketsTest& test)
 			},
 			{
 				"d26af60a-0971-4916-898d-54cb02097333",
+				"user2",
+				"c7379469-4294-40b4-850c-fe665717d1ba",
+				{
+					ECGroup::generator().pow(435),
+					ECGroup::generator().pow(256),
+					{
+						CryptoPP::SecByteBlock{},
+						{ 5, 6, 7, 8, 9 }
+					}
+				},
 				{ ECGroup::generator().pow(8) },
 				{ },
 				{ 5, 100 },
 				{ 100 }
 			}
+		},
+		{
+			{ "d26af60a-0971-4916-898d-54cb02097333" },
+			{ "07c039b6-5a7c-4a3c-9a7a-85ff31710f2f" }
 		}
 	};
 	test.cycle_flow(req, resp);
@@ -358,6 +401,36 @@ static void send_decryption_part_cycle(PacketsTest& test)
 TEST_P(PacketsTest, SendDecryptionPartCycleTest)
 {
 	send_decryption_part_cycle(*this);
+}
+
+static void user_search_cycle(PacketsTest& test)
+{
+	pkt::UserSearchRequest req{
+		"435"
+	};
+	pkt::UserSearchResponse resp{
+		{ "abc435", "def435", "a435z" }
+	};
+	test.cycle_flow(req, resp);
+}
+
+TEST_P(PacketsTest, UserSearchCycleTest)
+{
+	user_search_cycle(*this);
+}
+
+static void evolve_cycle(PacketsTest& test)
+{
+	pkt::EvolveRequest req{
+		"71f8fdcb-4dbb-4883-a0c2-f99d70b70c34"
+	};
+	pkt::EvolveResponse resp{};
+	test.cycle_flow(req, resp);
+}
+
+TEST_P(PacketsTest, EvolveCycleTest)
+{
+	evolve_cycle(*this);
 }
 
 TEST_P(PacketsTest, AllProtocolCyclesInSequence)

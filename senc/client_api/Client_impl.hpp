@@ -8,6 +8,7 @@
 
 #include "Client.hpp"
 
+#include "../common/KeyEvolver.hpp"
 #include "ClientException.hpp"
 #include "ClientUtils.hpp"
 #include <algorithm>
@@ -18,7 +19,10 @@ namespace senc::clientapi
 	inline Client<IP>::Client(const IP& serverIP, utils::Port serverPort,
 							  std::function<Schema()> schemaFactory,
 							  ClientPacketHandlerFactory packetHandlerFactory,
-							  std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback)
+							  std::function<void(const OperationID&,
+											const std::string&,
+											const utils::Buffer&)
+										   > decryptFinishedCallback)
 		: _serverIP(serverIP), _serverPort(serverPort),
 		  _decryptFinishedCallback(decryptFinishedCallback),
 		  _packetHandlerFactory(packetHandlerFactory),
@@ -43,11 +47,16 @@ namespace senc::clientapi
 	inline Client<IP>::~Client()
 	{
 		if (this->_packetHandler) // if still connected (packet handler not null)
-			logout();
+		{
+			try { logout(); }
+			catch (...) { } // a destructor shouldn't throw
+		}
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::signup(const std::string& username, const std::string& password)
+	inline void Client<IP>::signup(const std::string& username,
+								   const std::string& password,
+								   const std::string& profileBaseDir)
 	{
 		ensure_connected();
 
@@ -60,11 +69,14 @@ namespace senc::clientapi
 		if (resp.status != pkt::SignupResponse::Status::Success)
 			throw ClientException("Signup failed", "Unknown error");
 
-		this->load_profile(username, password);
+		(void)profileBaseDir;
+		this->load_profile(username, password, profileBaseDir);
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::login(const std::string& username, const std::string& password)
+	inline void Client<IP>::login(const std::string& username,
+								  const std::string& password,
+								  const std::string& profileBaseDir)
 	{
 		ensure_connected();
 
@@ -77,7 +89,8 @@ namespace senc::clientapi
 		if (resp.status != pkt::LoginResponse::Status::Success)
 			throw ClientException("Login failed", "Unknown error");
 
-		this->load_profile(username, password);
+		(void)profileBaseDir;
+		this->load_profile(username, password, profileBaseDir);
 	}
 
 	template <utils::IPType IP>
@@ -87,12 +100,12 @@ namespace senc::clientapi
 		this->_packetHandler.reset();
 		this->_sock.close();
 		this->unload_profile();
-		this->_pendingDecryptions.clear();
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::iter_profile(std::function<bool(const storage::ProfileRecord&)> callback)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
@@ -105,32 +118,38 @@ namespace senc::clientapi
 	inline UserSetID Client<IP>::make_userset(utils::ranges::StringViewRange&& owners,
 											  utils::ranges::StringViewRange&& regMembers,
 											  member_count_t ownersThreshold,
-											  member_count_t regMembersThreshold)
+											  member_count_t regMembersThreshold,
+											  std::string&& name)
 	{
 		pkt::MakeUserSetResponse resp = this->post<pkt::MakeUserSetResponse>(pkt::MakeUserSetRequest{
 			.reg_members = utils::to_vector<std::string>(regMembers),
 			.owners = utils::to_vector<std::string>(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
+		const std::lock_guard lock(_mtxStorage);
 		this->_storage->add_profile_data(storage::ProfileRecord::owner(
 			UserSetID(resp.user_set_id),
-			std::move(resp.reg_layer_pub_key),
-			std::move(resp.owner_layer_pub_key),
-			std::move(resp.reg_layer_priv_key_shard),
-			std::move(resp.owner_layer_priv_key_shard)
+			std::move(resp.seed),
+			std::move(resp.reg_pub_key),
+			std::move(resp.owner_pub_key),
+			std::move(resp.reg_external_priv_key_shard),
+			std::move(resp.reg_internal_priv_key_shard),
+			std::move(resp.owner_external_priv_key_shard),
+			std::move(resp.owner_internal_priv_key_shard)
 		));
 
 		return resp.user_set_id;
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&)> callback)
+	inline void Client<IP>::get_usersets(std::function<void(const UserSetID&, const std::string&)> callback)
 	{
 		pkt::GetUserSetsResponse resp = this->post<pkt::GetUserSetsResponse>(pkt::GetUserSetsRequest{});
-		for (const UserSetID& id : resp.user_sets_ids)
-			callback(id);
+		for (const auto& [id, name] : resp.user_sets)
+			callback(id, name);
 	}
 
 	template <utils::IPType IP>
@@ -154,21 +173,30 @@ namespace senc::clientapi
 
 		return _schema.encrypt(
 			msg,
-			record.reg_layer_pub_key(),
-			record.owner_layer_pub_key()
+			record.reg_pub_key(),
+			record.owner_pub_key()
 		); 
 	}
 
 	template <utils::IPType IP>
 	inline OperationID Client<IP>::decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext)
 	{
+		const std::lock_guard lock(_mtxStorage);
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+
+		auto rng = std::ranges::single_view(_storage->username());
+		return decrypt_send(usersetID, ciphertext, utils::ranges::strings(rng));
+	}
+
+	template <utils::IPType IP>
+	inline OperationID Client<IP>::decrypt_send(const UserSetID& usersetID,
+												const Ciphertext& ciphertext,
+												utils::ranges::StringViewRange&& dstUsers)
+	{
 		pkt::DecryptResponse resp = this->post<pkt::DecryptResponse>(pkt::DecryptRequest{
-			usersetID, ciphertext
+			usersetID, ciphertext, utils::to_vector<std::string>(dstUsers)
 		});
-		_pendingDecryptions.insert(std::make_pair(
-			resp.op_id,
-			std::make_pair(usersetID, std::move(ciphertext))
-		));
 		return resp.op_id;
 	}
 
@@ -178,6 +206,24 @@ namespace senc::clientapi
 		if (!_packetHandler)
 			throw ClientException("Failed to send request", "Not logged in");
 		this->update_callback(*_packetHandler);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::user_search(const std::string& query, std::function<void(const std::string&)> callback)
+	{
+		pkt::UserSearchResponse resp = this->post<pkt::UserSearchResponse>(pkt::UserSearchRequest{
+			query
+		});
+		for (const auto& username : resp.users)
+			callback(username);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::evolve_userset(const UserSetID& usersetID)
+	{
+		this->post<pkt::EvolveResponse>(pkt::EvolveRequest{
+			usersetID
+		});
 	}
 
 	template <utils::IPType IP>
@@ -203,10 +249,13 @@ namespace senc::clientapi
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::load_profile(const std::string& username, const std::string& password)
+	inline void Client<IP>::load_profile(const std::string& username,
+										 const std::string& password,
+										 const std::string& profileBaseDir)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.emplace(
-			ClientUtils::locate_user_profile_file(username),
+			ClientUtils::locate_user_profile_file(username, profileBaseDir),
 			username, password
 		);
 	}
@@ -214,56 +263,89 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::unload_profile()
 	{
+		const std::lock_guard lock(_mtxStorage);
 		_storage.reset();
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::update_callback(PacketHandler& packetHandler)
 	{
-		try
+		// Note: We silently ignore background update errors for now.
+
+		pkt::UpdateResponse resp{};
+		try { resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{}); }
+		catch (const ClientException&) { }
+
+		for (auto& record : resp.added_as_reg_member)
 		{
-			pkt::UpdateResponse resp = Self::post_on<pkt::UpdateResponse>(packetHandler, pkt::UpdateRequest{});
-			for (auto& record : resp.added_as_reg_member)
-				this->handle_added_as_reg_member(std::move(record));
-			for (auto& record : resp.added_as_owner)
-				this->handle_added_as_owner(std::move(record));
-			for (auto& opid : resp.on_lookup)
-				this->handle_on_lookup(std::move(opid));
-			for (auto& record : resp.to_decrypt)
-				this->handle_to_decrypt(std::move(record));
-			for (auto& record : resp.finished_decryptions)
-				this->handle_finished_decryption(std::move(record));
+			try { this->handle_added_as_reg_member(std::move(record)); }
+			catch (const ClientException&) { }
 		}
-		catch (const ClientException&)
+
+		for (auto& record : resp.added_as_owner)
 		{
-			// silently ignore background update errors for now
+			try { this->handle_added_as_owner(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.on_lookup)
+		{
+			try { this->handle_on_lookup(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.to_decrypt)
+		{
+			try { this->handle_to_decrypt(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.finished_decryptions)
+		{
+			try { this->handle_finished_decryption(std::move(record)); }
+			catch (const ClientException&) { }
+		}
+
+		for (auto& record : resp.to_evolve)
+		{
+			try { this->handle_to_evolve(std::move(record)); }
+			catch (const ClientException&) { }
 		}
 	}
 
 	template <utils::IPType IP>
 	inline storage::ProfileRecord Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
-			profileData.begin(), profileData.end(),
+		auto it = find_profile_record_by_userset_id(usersetID, profileData);
+		return *it;
+	}
+
+	template <utils::IPType IP>
+	inline typename storage::ProfileDataRange::iterator Client<IP>::find_profile_record_by_userset_id(const UserSetID& usersetID, storage::ProfileDataRange& range)
+	{
+		auto it = std::find_if(
+			range.begin(), range.end(),
 			[&usersetID](const storage::ProfileRecord& record)
 			{
 				return record.userset_id() == usersetID;
 			}
 		);
-		if (it == profileData.end())
+		if (it == range.end())
 			throw ClientException(
 				"Local storage error",
 				"Failed to locate userset " + usersetID.to_string()
 			);
-		return *it;
+		return it;
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::add_profile_record(const storage::ProfileRecord& record)
 	{
+		const std::lock_guard lock(_mtxStorage);
 		if (!_storage)
 			throw ClientException("Failed to get user data", "Not logged in");
 		_storage->add_profile_data(record);
@@ -294,32 +376,55 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_reg_member(pkt::UpdateResponse::AddedAsMemberRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::reg(
-			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::reg(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle non-owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_added_as_owner(pkt::UpdateResponse::AddedAsOwnerRecord&& data)
 	{
-		add_profile_record(storage::ProfileRecord::owner(
-			std::move(data.user_set_id),
-			std::move(data.reg_layer_pub_key),
-			std::move(data.owner_layer_pub_key),
-			std::move(data.reg_layer_priv_key_shard),
-			std::move(data.owner_layer_priv_key_shard)
-		));
+		try
+		{
+			add_profile_record(storage::ProfileRecord::owner(
+				std::move(data.user_set_id),
+				std::move(data.seed),
+				std::move(data.reg_pub_key),
+				std::move(data.owner_pub_key),
+				std::move(data.reg_external_priv_key_shard),
+				std::move(data.reg_internal_priv_key_shard),
+				std::move(data.owner_external_priv_key_shard),
+				std::move(data.owner_internal_priv_key_shard)
+			));
+		}
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to handle owned userset update", e.what());
+		}
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::handle_on_lookup(OperationID&& opid)
+	inline void Client<IP>::handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data)
 	{
 		// request to join operation on a non-blocking thread
 		// (packet handler is currently used by update, so can't use it here directly)
-		std::thread t(&Self::request_participance, this, std::move(opid));
+		std::thread t(
+			&Self::request_participance,
+			this,
+			std::move(data.opid),
+			std::move(data.user_set_id)
+		);
 		t.detach();
 	}
 
@@ -341,98 +446,123 @@ namespace senc::clientapi
 	template <utils::IPType IP>
 	inline void Client<IP>::handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data)
 	{
-		// pop entry from pending decryptions map
-		auto node = _pendingDecryptions.extract(data.op_id);
-		if (node.empty())
-			return; // TODO: Inform unexpected operation ID?
-		const auto& [usersetID, ciphertext] = node.mapped();
+		const auto& usersetID = data.user_set_id;
+		const auto& ciphertext = data.ciphertext;
 
 		// locate fitting record in local storage
 		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
+		if (!record.is_owner())
+			throw ClientException("Failed to decrypt", "Not owner of userset");
 
 		// compute missing decryption parts and store with existing parts
 		std::vector<DecryptionPart> ownerParts = std::move(data.owner_layer_parts);
 		ownerParts.push_back(Shamir::decrypt_get_2l<OWNER_LAYER>(
 			ciphertext,
-			record.owner_layer_priv_key_shard(),
+			record.owner_internal_priv_key_shard(),
 			data.owner_layer_shards_ids
 		));
 		std::vector<DecryptionPart> regParts = std::move(data.reg_layer_parts);
 		regParts.push_back(Shamir::decrypt_get_2l<REG_LAYER>(
 			ciphertext,
-			record.reg_layer_priv_key_shard(),
+			record.reg_internal_priv_key_shard(),
 			data.reg_layer_shards_ids
 		));
 
 		// join all decryption parts
-		utils::Buffer decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts);
+		utils::Buffer decrypted{};
+		try { decrypted = Shamir::decrypt_join_2l(ciphertext, regParts, ownerParts); }
+		catch (const std::exception& e)
+		{
+			throw ClientException("Failed to decrypt", e.what());
+		}
 
 		// call callback on decrypted message
-		_decryptFinishedCallback(data.op_id, decrypted);
+		_decryptFinishedCallback(data.op_id, data.initiator, decrypted);
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::request_participance(OperationID&& opid)
+	inline void Client<IP>::handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data)
+	{
+		const std::lock_guard lock(_mtxStorage);
+
+		// locate fitting record in local storage
+		if (!_storage)
+			throw ClientException("Failed to get user data", "Not logged in");
+		auto profileData = _storage->iter_profile_data();
+		auto it = find_profile_record_by_userset_id(data.user_set_id, profileData);
+
+		// apply evolution on located record
+		KeyEvolver evolve(it->next_evolution_offset());
+		*it = it->transform_evolve(evolve);
+	}
+
+	template <utils::IPType IP>
+	inline void Client<IP>::request_participance(OperationID opid, UserSetID usersetID)
 	{
 		pkt::DecryptParticipateRequest req{ std::move(opid) };
-		pkt::DecryptParticipateResponse resp = this->post<pkt::DecryptParticipateResponse>(req);
+
+		pkt::DecryptParticipateResponse resp{};
+		try { resp = this->post<pkt::DecryptParticipateResponse>(req); }
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
+
 		if (pkt::DecryptParticipateResponse::Status::NotRequired == resp.status)
 			return;
 		_pendingParticipances.insert(std::make_pair(
 			std::move(req.op_id),
-			pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			std::make_pair(
+				std::move(usersetID),
+				pkt::DecryptParticipateResponse::Status::SendOwnerLayerPart == resp.status
+			)
 		));
 	}
 
 	template <utils::IPType IP>
-	inline void Client<IP>::participate(OperationID&& opid,
-										Ciphertext&& ciphertext,
-										std::vector<PrivKeyShardID>&& shardsIDs)
+	inline void Client<IP>::participate(OperationID opid,
+										Ciphertext ciphertext,
+										std::vector<PrivKeyShardID> shardsIDs)
 	{
 		// pop entry from pending participances map
 		auto node = _pendingParticipances.extract(opid);
 		if (node.empty())
 			return; // TODO: Inform unexpected operation ID?
-		const bool isOwner = node.mapped();
+		const auto& [usersetID, isOwner] = node.mapped();
 
-		// locate fitting record in local storage
-		// TODO: since the protocol was poorly designed on this part,
-		//       the best thing possible to do here is look for a record where
-		//       the user'd shard ID exists.
-		//       REFACTOR AS SOON AS POSSIBLE
-		if (!_storage)
-			return; // TODO: Inform bad participance?
-		auto profileData = _storage->iter_profile_data();
-		const auto it = std::find_if(
-			profileData.begin(), profileData.end(),
-			[&shardsIDs](const storage::ProfileRecord& record)
-			{
-				return shardsIDs.end() != std::find(
-					shardsIDs.begin(), shardsIDs.end(),
-					record.reg_layer_priv_key_shard().first
-				);
-			}
-		);
-		if (it == profileData.end())
-			return; // TODO: Inform bad participance?
+		const storage::ProfileRecord record = find_profile_record_by_userset_id(usersetID);
 
 		DecryptionPart part{};
-		if (isOwner)
-			part = Shamir::decrypt_get_2l<OWNER_LAYER>(
-				ciphertext,
-				it->owner_layer_priv_key_shard(),
-				shardsIDs
-			);
-		else
-			part = Shamir::decrypt_get_2l<REG_LAYER>(
-				ciphertext,
-				it->reg_layer_priv_key_shard(),
-				shardsIDs
-			);
+		try
+		{
+			if (isOwner)
+				part = Shamir::decrypt_get_2l<OWNER_LAYER>(
+					ciphertext,
+					record.owner_external_priv_key_shard(),
+					shardsIDs
+				);
+			else
+				part = Shamir::decrypt_get_2l<REG_LAYER>(
+					ciphertext,
+					record.reg_external_priv_key_shard(),
+					shardsIDs
+				);
+		}
+		catch (const std::exception&)
+		{
+			// Note: We ignore failed background participations for now.
+		}
 
-		this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
-			std::move(opid),
-			std::move(part)
-		});
+		try
+		{
+			this->post<pkt::SendDecryptionPartResponse>(pkt::SendDecryptionPartRequest{
+				std::move(opid),
+				std::move(part)
+			});
+		}
+		catch (const ClientException&)
+		{
+			// Note: We ignore failed background posts for now.
+		}
 	}
 }

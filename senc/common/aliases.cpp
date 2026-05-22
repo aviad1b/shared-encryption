@@ -10,17 +10,17 @@
 
 namespace senc
 {
-	utils::Buffer::const_iterator read_pub_key(PubKey& out,
-											   utils::Buffer::const_iterator it,
-											   utils::Buffer::const_iterator end)
+	utils::BytesView::iterator read_pub_key(PubKey& out,
+											utils::BytesView::iterator it,
+											utils::BytesView::iterator end)
 	{
 		static thread_local utils::Buffer pubKeyBuff(PubKey::ENCODED_SIZE);
 		it = utils::read_bytes(pubKeyBuff, it, end);
-		out = PubKey::decode(pubKeyBuff);
+		out = utils::from_bytes<PubKey>(pubKeyBuff);
 		return it;
 	}
 
-	PubKey pub_key_from_bytes(const utils::Buffer& bytes)
+	PubKey pub_key_from_bytes(utils::BytesView bytes)
 	{
 		PubKey res{};
 		read_pub_key(res, bytes.begin(), bytes.end());
@@ -29,7 +29,7 @@ namespace senc
 
 	void write_pub_key(utils::Buffer& out, const PubKey& pubKey)
 	{
-		utils::write_bytes(out, pubKey.encode());
+		utils::write_bytes(out, utils::to_bytes(pubKey));
 	}
 
 	utils::Buffer pub_key_to_bytes(const PubKey& pubKey)
@@ -39,9 +39,9 @@ namespace senc
 		return res;
 	}
 
-	utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
-													  utils::Buffer::const_iterator it,
-													  utils::Buffer::const_iterator end)
+	utils::BytesView::iterator read_priv_key_shard(PrivKeyShard& out,
+												   utils::BytesView::iterator it,
+												   utils::BytesView::iterator end)
 	{
 		static thread_local utils::Buffer shardIdBuff(SHARD_ID_MAX_SIZE);
 		static thread_local utils::Buffer shardValBuff(SHARD_VALUE_MAX_SIZE);
@@ -54,7 +54,7 @@ namespace senc
 		return it;
 	}
 
-	PrivKeyShard priv_key_shard_from_bytes(const utils::Buffer& bytes)
+	PrivKeyShard priv_key_shard_from_bytes(utils::BytesView bytes)
 	{
 		PrivKeyShard res{};
 		read_priv_key_shard(res, bytes.begin(), bytes.end());
@@ -78,5 +78,75 @@ namespace senc
 		utils::Buffer res{};
 		write_priv_key_shard(res, shard);
 		return res;
+	}
+
+	Seed sample_seed()
+	{
+		static thread_local auto dist =
+			utils::Random<utils::BigInt>::get_dist_below(PubKey::order());
+
+		return dist();
+	}
+
+	std::size_t get_seed_encoded_size()
+	{
+		return PubKey::order().MinEncodedSize();
+	}
+
+	utils::BytesView::iterator read_seed(Seed& out,
+										 utils::BytesView::iterator it,
+										 utils::BytesView::iterator end)
+	{
+		const auto size = std::min(
+			PubKey::order().MinEncodedSize(),
+			static_cast<std::size_t>(end - it)
+		);
+
+		out.Decode(std::to_address(it), size);
+		return it + size;
+	}
+
+	Seed seed_from_bytes(utils::BytesView bytes)
+	{
+		Seed res{};
+		read_seed(res, bytes.begin(), bytes.end());
+		return res;
+	}
+
+	void write_seed(utils::Buffer& out, const Seed& seed)
+	{
+		const auto oldOutSize = out.size();
+		const auto seedSize = PubKey::order().MinEncodedSize();
+		out.resize(out.size() + seedSize);
+		seed.Encode(out.data() + oldOutSize, seedSize);
+	}
+
+	utils::Buffer seed_to_bytes(const Seed& seed)
+	{
+		utils::Buffer res{};
+		write_seed(res, seed);
+		return res;
+	}
+
+	utils::BytesView::iterator read_evolution_offset(utils::BigInt& out,
+		utils::BytesView::iterator it,
+		utils::BytesView::iterator end)
+	{
+		return read_seed(out, it, end);
+	}
+
+	utils::BigInt evolution_offset_from_bytes(utils::BytesView bytes)
+	{
+		return seed_from_bytes(bytes);
+	}
+
+	void write_evolution_offset(utils::Buffer& out, const utils::BigInt& offset)
+	{
+		return write_seed(out, offset);
+	}
+
+	utils::Buffer evolution_offset_to_bytes(const utils::BigInt& offset)
+	{
+		return seed_to_bytes(offset);
 	}
 }

@@ -2,11 +2,12 @@
 #include <iostream>
 #include <map>
 #include "../common/EncryptedPacketHandler.hpp"
+#include "../common/KeyEvolver.hpp"
 #include "../utils/Socket.hpp"
 #include "io/output.hpp"
 #include "io/input.hpp"
 
-namespace senc::client
+namespace senc::debug_client
 {
 	using AddedAsMemberRecord = pkt::UpdateResponse::AddedAsMemberRecord;
 	using AddedAsOwnerRecord = pkt::UpdateResponse::AddedAsOwnerRecord;
@@ -48,6 +49,10 @@ namespace senc::client
 		CompPart,
 		SendPart,
 		JoinParts,
+		UserSearch,
+		RequestEvolve,
+		EvolvePubKey,
+		EvolveShards,
 		Exit
 	};
 
@@ -79,6 +84,10 @@ namespace senc::client
 	ConnStatus comp_part(PacketHandler& packetHandler);
 	ConnStatus send_part(PacketHandler& packetHandler);
 	ConnStatus join_parts(PacketHandler& packetHandler);
+	ConnStatus user_search(PacketHandler& packetHandler);
+	ConnStatus request_evolve(PacketHandler& packetHandler);
+	ConnStatus evolve_pub_key(PacketHandler& packetHandler);
+	ConnStatus evolve_shards(PacketHandler& packetHandler);
 	void print_userset_data(size_t idx,
 							const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data);
 	void print_to_decrypt_data(size_t idx, const ToDecryptRecord& data);
@@ -93,17 +102,21 @@ namespace senc::client
 
 	// maps main menu option to description and function
 	const std::map<MainMenuOption, OptionRecord> MAIN_OPTS{
-		{ MainMenuOption::MakeUserSet, { "Create a new userset"       , make_userset } },
-		{ MainMenuOption::GetUserSets, { "Show my usersets"           , get_usersets } },
-		{ MainMenuOption::GetMembers , { "Show userset's members"     , get_members  } },
-		{ MainMenuOption::Encrypt    , { "Encrypt a message"          , encrypt      } },
-		{ MainMenuOption::Decrypt    , { "Decrypt a message"          , decrypt      } },
-		{ MainMenuOption::Update     , { "Run an update cycle"        , update       } },
-		{ MainMenuOption::Participate, { "Participate in decryption"  , participate  } },
-		{ MainMenuOption::CompPart   , { "Compute part for decryption", comp_part    } },
-		{ MainMenuOption::SendPart   , { "Send part for decryption"   , send_part    } },
-		{ MainMenuOption::JoinParts  , { "Join decryption parts"      , join_parts   } },
-		{ MainMenuOption::Exit       , { "Exit"                       , logout       } },
+		{ MainMenuOption::MakeUserSet  , { "Create a new userset"           , make_userset   } },
+		{ MainMenuOption::GetUserSets  , { "Show my usersets"               , get_usersets   } },
+		{ MainMenuOption::GetMembers   , { "Show userset's members"         , get_members    } },
+		{ MainMenuOption::Encrypt      , { "Encrypt a message"              , encrypt        } },
+		{ MainMenuOption::Decrypt      , { "Decrypt a message"              , decrypt        } },
+		{ MainMenuOption::Update       , { "Run an update cycle"            , update         } },
+		{ MainMenuOption::Participate  , { "Participate in decryption"      , participate    } },
+		{ MainMenuOption::CompPart     , { "Compute part for decryption"    , comp_part      } },
+		{ MainMenuOption::SendPart     , { "Send part for decryption"       , send_part      } },
+		{ MainMenuOption::JoinParts    , { "Join decryption parts"          , join_parts     } },
+		{ MainMenuOption::UserSearch   , { "User search"                    , user_search    } },
+		{ MainMenuOption::RequestEvolve, { "Request key evolution"          , request_evolve } },
+		{ MainMenuOption::EvolvePubKey , { "Evolve encryption key (locally)", evolve_pub_key } },
+		{ MainMenuOption::EvolveShards  , { "Evolve key shards (locally)"   , evolve_shards  } },
+		{ MainMenuOption::Exit         , { "Exit"                           , logout         } },
 	};
 
 	int main(int argc, char** argv)
@@ -363,6 +376,9 @@ namespace senc::client
 
 	ConnStatus make_userset(PacketHandler& packetHandler)
 	{
+		std::string name = io::input("Enter userset name: ");
+		cout << endl;
+
 		vector<string> owners = io::input_usernames(
 			"Enter owners (usernames, each in new line, ending with empty line): "
 		);
@@ -380,20 +396,24 @@ namespace senc::client
 			.reg_members = std::move(regMembers),
 			.owners = std::move(owners),
 			.reg_members_threshold = regMembersThreshold,
-			.owners_threshold = ownersThreshold
+			.owners_threshold = ownersThreshold,
+			.name = std::move(name)
 		});
 
 		cout << "Userset created successfully:" << endl << endl;
 
 		cout << "ID: " << resp.user_set_id << endl << endl;
 
-		io::print_pub_keys(resp.reg_layer_pub_key, resp.owner_layer_pub_key);
+		io::print_pub_keys(resp.reg_pub_key, resp.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(resp.reg_layer_priv_key_shard);
+		io::print_reg_external_priv_key_shard(resp.reg_external_priv_key_shard);
 		cout << endl;
 		
-		io::print_owner_layer_priv_key_shard(resp.owner_layer_priv_key_shard);
+		io::print_owner_external_priv_key_shard(resp.owner_external_priv_key_shard);
+		cout << endl;
+
+		io::print_owner_internal_priv_key_shard(resp.owner_internal_priv_key_shard);
 		cout << endl;
 
 		return ConnStatus::Connected;
@@ -403,13 +423,16 @@ namespace senc::client
 	{
 		auto resp = post<pkt::GetUserSetsResponse>(packetHandler, pkt::GetUserSetsRequest{});
 
-		if (resp.user_sets_ids.empty())
+		if (resp.user_sets.empty())
 			cout << "You do not own any usersets." << endl;
 		else
 		{
 			cout << "IDs of owned usersets:" << endl;
-			for (const auto& [i, id] : resp.user_sets_ids | utils::views::enumerate)
-				cout << (i + 1) << ".\t" << id << endl;
+			for (const auto& [i, idAndName] : resp.user_sets | utils::views::enumerate)
+			{
+				const auto& [id, name] = idAndName;
+				cout << (i + 1) << ".\t" << id << "\t(" << name << ")" << endl;
+			}
 		}
 		cout << endl;
 
@@ -479,10 +502,15 @@ namespace senc::client
 		cout << endl;
 
 		Ciphertext ciphertext = io::input_ciphertext("Enter ciphertext: ");
+		cout << endl;
+
+		std::vector<std::string> usernames = io::input_usernames(
+			"Enter usernames to send decryption to (including yourself, if so you wish):\n"
+		);
 		cout << endl << endl;
 
 		auto resp = post<pkt::DecryptResponse>(packetHandler, pkt::DecryptRequest{
-			usersetID, std::move(ciphertext)
+			usersetID, std::move(ciphertext), std::move(usernames)
 		});
 
 		cout << "Decryption request submitted successfully." << endl;
@@ -516,8 +544,8 @@ namespace senc::client
 		{
 			hadUpdates = true;
 			cout << "IDs of operations looking for you:" << endl;
-			for (const auto& [i, opid] : resp.on_lookup | utils::views::enumerate)
-				cout << (i + 1) << ".\t" << opid << endl;
+			for (const auto& [i, data] : resp.on_lookup | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << data.opid << endl;
 		}
 
 		if (!resp.to_decrypt.empty())
@@ -534,6 +562,14 @@ namespace senc::client
 			cout << "Finished decryption operations:" << endl;
 			for (const auto& [i, data] : resp.finished_decryptions | utils::views::enumerate)
 				print_finished_data(i, data);
+		}
+
+		if (!resp.to_evolve.empty())
+		{
+			hadUpdates = true;
+			cout << "Usersets to evolve their keys (and shards):" << endl;
+			for (const auto& [i, data] : resp.to_evolve | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << data.user_set_id << endl;
 		}
 
 		if (!hadUpdates)
@@ -636,6 +672,90 @@ namespace senc::client
 		return ConnStatus::Connected;
 	}
 
+	ConnStatus user_search(PacketHandler& packetHandler)
+	{
+		std::string query = io::input("Enter part of username: ");
+		cout << endl;
+
+		auto resp = post<pkt::UserSearchResponse>(packetHandler, pkt::UserSearchRequest{
+			query
+		});
+
+		if (resp.users.empty())
+			cout << "No users found." << endl;
+		else
+		{
+			cout << "Found " << resp.users.size() << " users:" << endl;
+			for (const auto& [i, username] : resp.users | utils::views::enumerate)
+				cout << (i + 1) << ".\t" << username << endl;
+		}
+		cout << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus request_evolve(PacketHandler& packetHandler)
+	{
+		auto usersetID = io::input_userset_id("Enter ID of userset to request evolution for: ");
+		cout << endl;
+
+		post<pkt::EvolveResponse>(packetHandler, pkt::EvolveRequest{
+			std::move(usersetID)
+		});
+
+		cout << "Key evolution successfully requested for userset " << usersetID << endl << endl;
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus evolve_pub_key(PacketHandler& packetHandler)
+	{
+		(void)packetHandler;
+
+		auto [pkReg, pkOwner] = io::input_pub_keys("Enter encryption key: ");
+		cout << endl;
+
+		auto offset = io::input_offset("Enter evolution offset (userset seed for first evolution): ");
+		cout << endl;
+
+		KeyEvolver evolve(std::move(offset));
+
+		evolve(pkReg, pkOwner);
+
+		cout << "New encryption key:";
+		io::print_pub_keys(pkReg, pkOwner);
+		cout << endl;
+
+		cout << "Offset for next evolution of this key: " << evolve.offset() << endl << endl;
+
+		return ConnStatus::Connected;
+	}
+
+	ConnStatus evolve_shards(PacketHandler& packetHandler)
+	{
+		(void)packetHandler;
+
+		auto shards = io::input_priv_key_shards("Enter key shards (each in new line): ");
+		cout << endl;
+
+		auto offset = io::input_offset("Enter evolution offset (userset seed for first evolution): ");
+		cout << endl;
+
+		KeyEvolver evolve(std::move(offset));
+		evolve(shards);
+
+		cout << "Evolved shards: ";
+		for (const auto& shard : shards)
+		{
+			io::print_priv_key_shard(shard);
+			cout << endl;
+		}
+		cout << endl;
+
+		cout << "Offset for next evolution of these shards: " << evolve.offset() << endl << endl;
+
+		return ConnStatus::Connected;
+	}
+
 	inline void print_userset_data(size_t idx,
 								   const utils::OneOf<AddedAsOwnerRecord, AddedAsMemberRecord> auto& data)
 	{
@@ -646,15 +766,22 @@ namespace senc::client
 
 		cout << "ID: " << data.user_set_id << endl << endl;
 
-		io::print_pub_keys(data.reg_layer_pub_key, data.owner_layer_pub_key);
+		io::print_pub_keys(data.reg_pub_key, data.owner_pub_key);
 		cout << endl;
 
-		io::print_reg_layer_priv_key_shard(data.reg_layer_priv_key_shard);
+		io::print_reg_external_priv_key_shard(data.reg_external_priv_key_shard);
+		cout << endl;
 
 		if constexpr (std::same_as<Data, AddedAsOwnerRecord>)
 		{
+			io::print_reg_internal_priv_key_shard(data.reg_internal_priv_key_shard);
 			cout << endl;
-			io::print_owner_layer_priv_key_shard(data.owner_layer_priv_key_shard);
+
+			io::print_owner_external_priv_key_shard(data.owner_external_priv_key_shard);
+			cout << endl;
+
+			io::print_owner_internal_priv_key_shard(data.owner_internal_priv_key_shard);
+			cout << endl;
 		}
 
 		cout << "==============================" << endl << endl << endl;
@@ -729,5 +856,5 @@ namespace senc::client
 
 int main(int argc, char** argv)
 {
-	return senc::client::main(argc, argv);
+	return senc::debug_client::main(argc, argv);
 }

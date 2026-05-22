@@ -135,6 +135,24 @@ namespace senc::utils::sqlite
 		constexpr TableUtils(Schema) { }
 
 		/**
+		 * @brief Updates potentially existing table schema to match backwards compatible columns.
+		 * @details A column marked with BackwardsCompatible is one that does not exist in
+		 *          older versions of the DB, but does exist in the current one. This function 
+		 *          ensures its existance.
+		 * @param db Database handle pointer.
+		 */
+		static void apply_backwards_compatibility(sqlite3* db);
+
+		/**
+		 * @brief Utility function of `apply_backwards_compatibility`.
+		 * @details Creates backwards compatible columns if non-existant.
+		 * @tparam is Index sequence for columns.
+		 * @param db Database handle pointer.
+		 */
+		template <std::size_t... is>
+		static void apply_backwards_compatibility_util(std::index_sequence<is...>, sqlite3* db);
+
+		/**
 		 * @brief Executes a statement with a given callback function on a table.
 		 * @param db Database handle pointer.
 		 * @param sql SQL statement to run.

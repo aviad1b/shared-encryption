@@ -15,6 +15,7 @@
 #include "../utils/hash.hpp"
 #include "IClient.hpp"
 #include <optional>
+#include <mutex>
 
 namespace senc::clientapi
 {
@@ -41,7 +42,10 @@ namespace senc::clientapi
 		Client(const IP& serverIP, utils::Port serverPort,
 			   std::function<Schema()> schemaFactory,
 			   ClientPacketHandlerFactory packetHandlerFactory,
-			   std::function<void(const OperationID&, const utils::Buffer&)> decryptFinishedCallback);
+			   std::function<void(const OperationID&,
+								  const std::string&,
+								  const utils::Buffer&)
+							> decryptFinishedCallback);
 
 		/**
 		 * @brief Move constructor of client.
@@ -53,9 +57,13 @@ namespace senc::clientapi
 		 */
 		~Client();
 
-		void signup(const std::string& username, const std::string& password) override;
+		void signup(const std::string& username,
+					const std::string& password,
+					const std::string& profileBaseDir) override;
 
-		void login(const std::string& username, const std::string& password) override;
+		void login(const std::string& username,
+				   const std::string& password,
+				   const std::string& profileBaseDir) override;
 
 		void logout() override;
 
@@ -64,9 +72,10 @@ namespace senc::clientapi
 		UserSetID make_userset(utils::ranges::StringViewRange&& owners,
 							   utils::ranges::StringViewRange&& regMembers,
 							   member_count_t ownersThreshold,
-							   member_count_t regMembersThreshold) override;
+							   member_count_t regMembersThreshold,
+							   std::string&& name) override;
 
-		void get_usersets(std::function<void(const UserSetID&)> callback) override;
+		void get_usersets(std::function<void(const UserSetID&, const std::string&)> callback) override;
 
 		void get_userset_members(const UserSetID& usersetID,
 								 std::function<void(const std::string&)> ownersCallback,
@@ -75,24 +84,34 @@ namespace senc::clientapi
 		Ciphertext encrypt(const UserSetID& usersetID, const utils::Buffer& msg) override;
 
 		OperationID decrypt(const UserSetID& usersetID, const Ciphertext& ciphertext) override;
+		
+		OperationID decrypt_send(const UserSetID& usersetID,
+								 const Ciphertext& ciphertext,
+								 utils::ranges::StringViewRange&& dstUsers) override;
 
 		void force_update() override;
+
+		void user_search(const std::string& query,
+						 std::function<void(const std::string&)> callback) override;
+
+		void evolve_userset(const UserSetID& usersetID) override;
 
 	private:
 		IP _serverIP;
 		utils::Port _serverPort;
-		std::function<void(const OperationID&, const utils::Buffer&)> _decryptFinishedCallback;
+		std::function<void(const OperationID&,
+						   const std::string&,
+						   const utils::Buffer&)
+					 > _decryptFinishedCallback;
 		ClientPacketHandlerFactory _packetHandlerFactory;
 		std::optional<storage::ProfileStorage> _storage;
+		std::mutex _mtxStorage;
 		std::optional<QueuedPacketHandler> _packetHandler;
 		Schema _schema;
 		Socket _sock;
 
-		// maps decryption operation ID to userset ID and ciphertext
-		utils::HashMap<OperationID, std::pair<UserSetID, Ciphertext>> _pendingDecryptions;
-
-		// maps decryption operation ID to participance type (owner/reg)
-		utils::HashMap<OperationID, bool> _pendingParticipances;
+		// maps decryption operation ID to userset ID and participance type (owner/reg)
+		utils::HashMap<OperationID, std::pair<UserSetID, bool>> _pendingParticipances;
 
 		/**
 		 * @brief Makes sure client is connected to server.
@@ -108,8 +127,11 @@ namespace senc::clientapi
 		 * @brief Loads user's profile from memory.
 		 * @param username Username of user to load its profile.
 		 * @param password Password of user to load its profile.
+		 * @param profileBaseDir Base directory where local profile data should be stored.
 		 */
-		void load_profile(const std::string& username, const std::string& password);
+		void load_profile(const std::string& username,
+						  const std::string& password,
+						  const std::string& profileBaseDir);
 
 		/**
 		 * @brief Unloads loaded user's profile.
@@ -130,6 +152,16 @@ namespace senc::clientapi
 		 * @throw ClientException If not found or user not logged in.
 		 */
 		storage::ProfileRecord find_profile_record_by_userset_id(const UserSetID& usersetID);
+
+		/**
+		 * @brief Locates a profile record from userset ID.
+		 * @param usersetID Userset ID.
+		 * @param range Profile data range.
+		 * @return Iterator to located profile record.
+		 * @throw ClientException If not found or user not logged in.
+		 */
+		typename storage::ProfileDataRange::iterator find_profile_record_by_userset_id(
+			const UserSetID& usersetID, storage::ProfileDataRange& range);
 
 		/**
 		 * @brief Adds profile record to user storage.
@@ -174,9 +206,9 @@ namespace senc::clientapi
 
 		/**
 		 * @brief Handles "on lookup" update.
-		 * @param opid Operation ID (moved).
+		 * @param data Update data (moved).
 		 */
-		void handle_on_lookup(OperationID&& opid);
+		void handle_on_lookup(pkt::UpdateResponse::OnLookupRecord&& data);
 
 		/**
 		 * @brief Handles "to decrypt" update.
@@ -191,20 +223,27 @@ namespace senc::clientapi
 		void handle_finished_decryption(pkt::UpdateResponse::FinishedDecryptionsRecord&& data);
 
 		/**
+		 * @brief Handles "to evolve" update.
+		 * @param data Update data (moved).
+		 */
+		void handle_to_evolve(pkt::UpdateResponse::ToEvolveRecord&& data);
+
+		/**
 		 * @brief Attemps to participate in decryption operation.
 		 * @param opid Operation ID (moved).
+		 * @param usersetID ID of userset under which operation is being perfomed (moved).
 		 */
-		void request_participance(OperationID&& opid);
+		void request_participance(OperationID opid, UserSetID usersetID);
 
 		/**
 		 * @brief Participates in a decryption operation.
 		 * @param opid Operation ID (moved).
 		 * @param ciphertext Ciphertext being decrypted (moved).
-		 * @param shardsIDs IDs of shards involved in decryption.
+		 * @param shardsIDs IDs of shards involved in decryption (moved).
 		 */
-		void participate(OperationID&& opid,
-						 Ciphertext&& ciphertext,
-						 std::vector<PrivKeyShardID>&& shardsIDs);
+		void participate(OperationID opid,
+						 Ciphertext ciphertext,
+						 std::vector<PrivKeyShardID> shardsIDs);
 	};
 }
 

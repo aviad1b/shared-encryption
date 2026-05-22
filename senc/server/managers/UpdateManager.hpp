@@ -37,12 +37,14 @@ namespace senc::server::managers
 		 * @brief Registers that a user was added to a userset as non-owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
+		 * @param seed Userset evolution seed.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
 		 * @param privKeyShard User's private key shard in userset.
 		 */
 		void register_reg_member(const std::string& username,
 								 const UserSetID& usersetID,
+								 const Seed& seed,
 								 const PubKey& regLayerPubKey,
 								 const PubKey& ownerLayerPubKey,
 								 PrivKeyShard&& privKeyShard);
@@ -51,24 +53,31 @@ namespace senc::server::managers
 		 * @brief Registers that a user was added to a userset as owner.
 		 * @param username Username of user that was added to userset.
 		 * @param usersetID ID of userset to which user was added.
+		 * @param seed Userset evolution seed.
 		 * @param regLayerPubKey Non-owner layer public key used in this user userset for encryption.
 		 * @param ownerLayerPubKey Owner layer public key used in this user userset for encryption.
-		 * @param regLayerPrivKeyShard User's private key shard in userset for non-owner layer (moved).
-		 * @param ownerLayerPrivKeyShard User's private key shard in userset for owner layer (moved).
+		 * @param regExternalPrivKeyShard User's external key shard in userset for non-owner layer (moved).
+		 * @param regInternalPrivKeyShard User's internal key shard in userset for non-owner layer.
+		 * @param ownerExternalPrivKeyShard User's external key shard in userset for owner layer (moved).
+		 * @param ownerInternalPrivKeyShard User's internal key shard in userset for owner layer.
 		 */
 		void register_owner(const std::string& username,
 							const UserSetID& usersetID,
+							const Seed& seed,
 							const PubKey& regLayerPubKey,
 							const PubKey& ownerLayerPubKey,
-							PrivKeyShard&& regLayerPrivKeyShard,
-							PrivKeyShard&& ownerLayerPrivKeyShard);
+							PrivKeyShard&& regExternalPrivKeyShard,
+							const PrivKeyShard& regInternalPrivKeyShard,
+							PrivKeyShard&& ownerExternalPrivKeyShard,
+							const PrivKeyShard& ownerInternalPrivKeyShard);
 
 		/**
 		 * @brief Registers user to look for in order to perform a decryption operation.
 		 * @param username Username of user to include in lookup for operation.
 		 * @param opid Operation ID.
+		 * @param usersetID ID of userset under which operation is being performed.
 		 */
-		void register_lookup(const std::string& username, const OperationID& opid);
+		void register_lookup(const std::string& username, const OperationID& opid, const UserSetID& usersetID);
 
 		/**
 		 * @brief Registers a user's participance in a decryption operation.
@@ -84,19 +93,32 @@ namespace senc::server::managers
 
 		/**
 		 * @brief Registers a finished decryption operation.
-		 * @param username Username of user who initiated the operation.
+		 * @param dstUsers Usernames of users that should get decryption parts.
 		 * @param opid Operation ID.
+		 * @param initiator Username of user who initiated the operation.
+		 * @param usersetID ID of userset under which decryption was performed (moved).
+		 * @param ciphertext Ciphertext being decrypted (moved).
 		 * @param regLayerParts Decryption parts for non-owner layer (moved).
 		 * @param ownerLayerParts Decryption parts for owner layer (moved).
 		 * @param regLayerShardsIDs Shards IDs used in non-owner layer (moved).
 		 * @param ownerLayerShardsIDs Shards IDs used in owner layer (moved).
 		 */
-		void register_finished_decrpytion(const std::string& username,
+		void register_finished_decrpytion(const std::vector<std::string>& dstUsers,
 										  const OperationID& opid,
+										  const std::string& initiator,
+										  UserSetID&& usersetID,
+										  Ciphertext&& ciphertext,
 										  std::vector<DecryptionPart>&& regLayerParts,
 										  std::vector<DecryptionPart>&& ownerLayerParts,
 										  std::vector<PrivKeyShardID>&& regLayerShardsIDs,
 										  std::vector<PrivKeyShardID>&& ownerLayerShardsIDs);
+
+		/**
+		 * @brief Registers key evolution update for a specific user.
+		 * @param user Username of user to register key evolution update for.
+		 * @param usersetID ID of userset to evolve its keys.
+		 */
+		void register_key_evolution(const std::string& user, const UserSetID& usersetID);
 
 	private:
 		// maps username to updates prepared so far

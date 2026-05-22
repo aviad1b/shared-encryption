@@ -8,6 +8,7 @@
 
 #include "ProfileStorage.hpp"
 
+#include "../ClientException.hpp"
 #include "../../utils/swap.hpp"
 
 namespace senc::clientapi::storage
@@ -49,12 +50,16 @@ namespace senc::clientapi::storage
 		return parse_profile_record(profileBytes);
 	}
 
-	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
-														   const ProfileEncKey& key,
-														   const ProfileRecord& record)
+	ProfileEncCiphertext ProfileUtils::encrypt_profile_record(const ProfileRecord& record,
+															  const ProfileEncKey& key)
 	{
 		auto profileBytes = serialize_profile_record(record);
-		const auto enc = schema().encrypt(profileBytes, key);
+		return schema().encrypt(profileBytes, key);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														   const ProfileEncCiphertext& enc)
+	{
 		auto sizes = [&enc]<std::size_t... is>(std::index_sequence<is...>) -> profile_record_enc_sizes_t
 		{
 			return profile_record_enc_sizes_t(
@@ -74,6 +79,47 @@ namespace senc::clientapi::storage
 		}, enc);
 	}
 
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileInputFile& file, utils::file_pos_t pos, const ProfileEncCiphertext& enc)
+	{
+		auto sizes = [&enc]<std::size_t... is>(std::index_sequence<is...>) -> profile_record_enc_sizes_t
+		{
+			return profile_record_enc_sizes_t(
+				static_cast<std::tuple_element_t<is, profile_record_enc_sizes_t>>(
+					std::get<is>(enc).size()
+					)...
+			);
+		}(std::make_index_sequence<std::tuple_size_v<profile_record_enc_sizes_t>>{});
+
+		file.set_pos(pos);
+
+		// write sizes to file
+		file.write(sizes);
+
+		// append enc parts to file
+		std::apply([&file](const auto&... parts)
+		{
+			(file.write(parts.data(), parts.size()), ...);
+		}, enc);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileOutputFile& file,
+														   const ProfileEncKey& key,
+														   const ProfileRecord& record)
+	{
+		write_profile_record_with_enc_sizes(
+			file,
+			encrypt_profile_record(record, key)
+		);
+	}
+
+	void ProfileUtils::write_profile_record_with_enc_sizes(ProfileInputFile& file, utils::file_pos_t pos, const ProfileEncKey& key, const ProfileRecord& record)
+	{
+		write_profile_record_with_enc_sizes(
+			file, pos,
+			encrypt_profile_record(record, key)
+		);
+	}
+
 	ProfileEncSchema& ProfileUtils::schema()
 	{
 		static thread_local ProfileEncSchema schema;
@@ -82,8 +128,9 @@ namespace senc::clientapi::storage
 
 	ProfileRecord ProfileUtils::parse_profile_record(const utils::Buffer& data)
 	{
-		const auto end = data.cend();
-		auto it = data.cbegin();
+		utils::BytesView view(data.data(), data.size());
+		const auto end = view.end();
+		auto it = view.begin();
 
 		utils::byte flagsByte = 0;
 		it = utils::read_bytes(flagsByte, it, end);
@@ -92,29 +139,37 @@ namespace senc::clientapi::storage
 		UserSetID usersetID{};
 		it = utils::read_bytes(usersetID, it, end);
 
+		utils::BigInt nextEvolutionOffset{};
+		it = read_evolution_offset(nextEvolutionOffset, it, end);
+
 		PubKey regLayerPubKey{}, ownerLayerPubKey{};
 		it = read_pub_key(regLayerPubKey, it, end);
 		it = read_pub_key(ownerLayerPubKey, it, end);
 
-		PrivKeyShard regLayerPrivKeyShard{};
-		it = read_priv_key_shard(regLayerPrivKeyShard, it, end);
+		PrivKeyShard regExternalPrivKeyShard{};
+		it = read_priv_key_shard(regExternalPrivKeyShard, it, end);
 
 		// if non-owner record, stop here - no more data to read
 		if (!flags.is_owner)
 			return ProfileRecord::reg(
 				std::move(usersetID),
+				std::move(nextEvolutionOffset),
 				std::move(regLayerPubKey), std::move(ownerLayerPubKey),
-				std::move(regLayerPrivKeyShard)
+				std::move(regExternalPrivKeyShard)
 			);
 
-		// otherwise, read remaining data (owner shard) then return
-		PrivKeyShard ownerLayerPrivKeyShard{};
-		it = read_priv_key_shard(ownerLayerPrivKeyShard, it, end);
+		// otherwise, read remaining data (owner shards) then return
+		PrivKeyShard regInternalPrivKeyShard, ownerExternalPrivKeyShard{}, ownerInternalPrivKeyShard{};
+		it = read_priv_key_shard(regInternalPrivKeyShard, it, end);
+		it = read_priv_key_shard(ownerExternalPrivKeyShard, it, end);
+		it = read_priv_key_shard(ownerInternalPrivKeyShard, it, end);
 
 		return ProfileRecord::owner(
 			std::move(usersetID),
+			std::move(nextEvolutionOffset),
 			std::move(regLayerPubKey), std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
+			std::move(regExternalPrivKeyShard), std::move(regInternalPrivKeyShard),
+			std::move(ownerExternalPrivKeyShard), std::move(ownerInternalPrivKeyShard)
 		);
 	}
 
@@ -130,27 +185,80 @@ namespace senc::clientapi::storage
 
 		utils::write_bytes(res, record.userset_id());
 
-		write_pub_key(res, record.reg_layer_pub_key());
-		write_pub_key(res, record.owner_layer_pub_key());
+		write_evolution_offset(res, record.next_evolution_offset());
 
-		write_priv_key_shard(res, record.reg_layer_priv_key_shard());
+		write_pub_key(res, record.reg_pub_key());
+		write_pub_key(res, record.owner_pub_key());
+
+		write_priv_key_shard(res, record.reg_external_priv_key_shard());
 
 		// if owner, no more data to write
 		if (!record.is_owner())
 			return res;
 
-		// else, write remaining data (owner shard)
-		write_priv_key_shard(res, record.owner_layer_priv_key_shard());
+		// else, write remaining data (owner shards)
+		write_priv_key_shard(res, record.reg_internal_priv_key_shard());
+		write_priv_key_shard(res, record.owner_external_priv_key_shard());
+		write_priv_key_shard(res, record.owner_internal_priv_key_shard());
 
 		return res;
 	}
 
+	ProfileHolder::ProfileHolder(const ProfileEncKey& key,
+								 ProfileInputFile& file,
+								 std::mutex& mtxFile,
+								 utils::file_pos_t pos,
+								 profile_record_enc_sizes_t& recordEncSizes,
+								 ProfileRecord& record)
+		: _key(key), _file(file), _mtxFile(mtxFile), _pos(pos),
+		  _recordEncSizes(recordEncSizes), _record(record) { }
+
+	ProfileHolder::operator const ProfileRecord&() const noexcept
+	{
+		return _record;
+	}
+
+	ProfileRecord* ProfileHolder::operator&() noexcept
+	{
+		return &_record;
+	}
+
+	const ProfileRecord* ProfileHolder::operator&() const noexcept
+	{
+		return &_record;
+	}
+
+	ProfileHolder::Self& ProfileHolder::operator=(ProfileRecord record)
+	{
+		// encrypt new record and check for same size
+		// (for now, changing size is not supported)
+		auto sum = [](auto&&... args) { return (args + ...); };
+		auto sizeSum = [](auto&&... args) { return (args.size() + ...); };
+		const auto enc = ProfileUtils::encrypt_profile_record(record, _key);
+		const auto oldTotalSize = static_cast<std::size_t>(std::apply(sum, _recordEncSizes));
+		const auto newTotalSize = static_cast<std::size_t>(std::apply(sizeSum, enc));
+		if (newTotalSize != oldTotalSize)
+			throw ClientException("Client storage attempted to change size - not supported yet");
+
+		// re-write profile to file and assign locally
+		this->_record = std::move(record);
+		const std::lock_guard lock(_mtxFile);
+		ProfileUtils::write_profile_record_with_enc_sizes(_file, _pos, enc);
+
+		return *this;
+	}
+
 	ProfileDataIterator::ProfileDataIterator(const ProfileEncKey& key,
-											 ProfileInputFile& file,
-											 utils::file_pos_t pos)
-		: _key(key), _file(file), _pos(pos),
-		  _recordEncSizes(ProfileUtils::read_profile_record_enc_sizes(_file)),
-		  _record(ProfileUtils::read_profile_record(_file, _key, _recordEncSizes)) { }
+		ProfileInputFile& file,
+		std::mutex& mtxFile,
+		utils::file_pos_t pos)
+		: _key(key), _file(file), _mtxFile(mtxFile), _pos(pos)
+	{
+		const std::lock_guard lock(_mtxFile.get());
+		_file.get().set_pos(pos);
+		_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
+		_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSizes);
+	}
 
 	bool ProfileDataIterator::operator==(const Self& other) const
 	{
@@ -159,26 +267,28 @@ namespace senc::clientapi::storage
 
 	ProfileDataIterator::Self& ProfileDataIterator::operator++()
 	{
+		const std::lock_guard lock(_mtxFile.get());
 		this->_pos = next_pos();
 		this->_file.get().set_pos(this->_pos);
 		this->_recordEncSizes = ProfileUtils::read_profile_record_enc_sizes(_file);
 		this->_record = ProfileUtils::read_profile_record(_file, _key, _recordEncSizes);
+
 		return *this;
 	}
 
 	ProfileDataIterator::Self ProfileDataIterator::operator++(int)
 	{
-		return Self(_key, _file, next_pos());
+		return Self(_key, _file, _mtxFile, next_pos());
 	}
 
-	ProfileDataIterator::reference ProfileDataIterator::operator*() const
+	ProfileDataIterator::reference ProfileDataIterator::operator*()
 	{
-		return *_record;
+		return { _key, _file, _mtxFile, _pos, _recordEncSizes, *_record };
 	}
 
-	ProfileDataIterator::pointer ProfileDataIterator::operator->() const
+	ProfileDataIterator::pointer ProfileDataIterator::operator->()
 	{
-		return std::to_address(_record);
+		return &(**this);
 	}
 
 	utils::file_pos_t ProfileDataIterator::next_pos() const
@@ -190,11 +300,13 @@ namespace senc::clientapi::storage
 			std::apply([](auto&&... args) { return (args + ...); }, _recordEncSizes);
 	}
 
-	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key)
-		: _file(path), _key(key) { }
+	ProfileDataRange::ProfileDataRange(const std::string& path, const ProfileEncKey& key, std::mutex& mtxFile)
+		: _file(path), _key(key), _mtxFile(mtxFile) { }
 
 	ProfileDataRange::ProfileDataRange(Self&& other) noexcept
-		: _file(std::move(other._file)), _key(std::move(other._key)) { }
+		: _file(std::move(other._file)),
+		  _key(std::move(other._key)),
+		  _mtxFile(std::move(other._mtxFile)) { }
 
 	ProfileDataRange::Self& ProfileDataRange::operator=(Self other)
 	{
@@ -210,12 +322,12 @@ namespace senc::clientapi::storage
 
 	ProfileDataRange::iterator ProfileDataRange::begin()
 	{
-		return iterator(_key, _file);
+		return iterator(_key, _file, _mtxFile);
 	}
 
 	ProfileDataRange::iterator ProfileDataRange::end()
 	{
-		return iterator(_key, _file, _file.size());
+		return iterator(_key, _file, _mtxFile, _file.size());
 	}
 
 	ProfileStorage::ProfileStorage(const std::string& path,
@@ -226,15 +338,26 @@ namespace senc::clientapi::storage
 	ProfileStorage::ProfileStorage(std::string&& path,
 								   const std::string& username,
 								   const std::string& password)
-		: _path(std::move(path)), _key(derive_key(username, password)) { }
-
-	ProfileDataRange ProfileStorage::iter_profile_data() const
+		: _username(username), _path(std::move(path)), _key(derive_key(username, password))
 	{
-		return ProfileDataRange(_path, _key);
+		// create file if doesn't exist
+		utils::BinFile<utils::AccessFlags::Read | utils::AccessFlags::Append> f(_path);
+	}
+
+	const std::string& ProfileStorage::username() const
+	{
+		return this->_username;
+	}
+
+	ProfileDataRange ProfileStorage::iter_profile_data()
+	{
+		const std::lock_guard lock(_mtxFile);
+		return ProfileDataRange(_path, _key, _mtxFile);
 	}
 
 	void ProfileStorage::add_profile_data(const ProfileRecord& record)
 	{
+		const std::lock_guard lock(_mtxFile);
 		ProfileOutputFile file(_path);
 		ProfileUtils::write_profile_record_with_enc_sizes(file, _key, record);
 	}

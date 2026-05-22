@@ -85,7 +85,14 @@ namespace senc::utils
 	class BinFile
 	{
 	public:
-		using Self = BinFile<accessFlags>;
+		using Self = BinFile<accessFlags, endianess>;
+
+		/**
+		 * @brief Opens file.
+		 * @param path File path (moved).
+		 * @throw FileException If failed.
+		 */
+		BinFile(std::string&& path);
 
 		/**
 		 * @brief Opens file.
@@ -118,6 +125,12 @@ namespace senc::utils
 		 * @brief Swaps with another instance.
 		 */
 		void swap(Self& other);
+
+		/**
+		 * @brief Checks if file is empty.
+		 * @return `true` if file is empty, otherwise `false`.
+		 */
+		bool empty() const;
 
 		/**
 		 * @brief Gets the file's size.
@@ -247,6 +260,7 @@ namespace senc::utils
 		std::FILE* _file;
 		file_pos_t _pos, _size;
 		UnderlyingOperation _prevUnderlyingOperation;
+		std::string _path;
 
 		/**
 		 * @brief Refreshes file cursor (re-sets to same position).

@@ -48,8 +48,10 @@ namespace senc
 		return _syncData;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::ErrorResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::ErrorResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.msg);
 	}
 
@@ -58,8 +60,10 @@ namespace senc
 		_sock.recv_connected_value(out.msg);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::SignupRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::SignupRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.username);
 		_sock.send_connected_value(packet.password);
 	}
@@ -70,8 +74,10 @@ namespace senc
 		_sock.recv_connected_value(out.password);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::SignupResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::SignupResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -80,8 +86,10 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::LoginRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::LoginRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.username);
 		_sock.send_connected_value(packet.password);
 	}
@@ -92,8 +100,10 @@ namespace senc
 		_sock.recv_connected_value(out.password);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::LoginResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::LoginResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -102,9 +112,9 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::LogoutRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::LogoutRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::LogoutRequest& out)
@@ -112,9 +122,9 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::LogoutResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::LogoutResponse& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::LogoutResponse& out)
@@ -122,8 +132,10 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::MakeUserSetRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::MakeUserSetRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.owners_threshold);
 		_sock.send_connected_value(packet.reg_members_threshold);
 		_sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
@@ -132,6 +144,7 @@ namespace senc
 			_sock.send_connected_value(owner);
 		for (const auto& regMember : packet.reg_members)
 			_sock.send_connected_value(regMember);
+		_sock.send_connected_value(packet.name);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::MakeUserSetRequest& out)
@@ -150,29 +163,41 @@ namespace senc
 
 		for (auto& regMember : out.reg_members)
 			_sock.recv_connected_value(regMember);
+
+		_sock.recv_connected_value(out.name);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::MakeUserSetResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::MakeUserSetResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
-		send_pub_key(packet.reg_layer_pub_key);
-		send_pub_key(packet.owner_layer_pub_key);
-		send_priv_key_shard(packet.reg_layer_priv_key_shard);
-		send_priv_key_shard(packet.owner_layer_priv_key_shard);
+		send_pub_key(packet.reg_pub_key);
+		send_pub_key(packet.owner_pub_key);
+		send_priv_key_shard(packet.reg_external_priv_key_shard);
+		send_priv_key_shard(packet.reg_internal_priv_key_shard);
+		send_priv_key_shard(packet.owner_external_priv_key_shard);
+		send_priv_key_shard(packet.owner_internal_priv_key_shard);
+		
+		_sock.send_connected(seed_to_bytes(packet.seed));
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::MakeUserSetResponse& out)
 	{
 		_sock.recv_connected_value(out.user_set_id);
-		recv_pub_key(out.reg_layer_pub_key);
-		recv_pub_key(out.owner_layer_pub_key);
-		recv_priv_key_shard(out.reg_layer_priv_key_shard);
-		recv_priv_key_shard(out.owner_layer_priv_key_shard);
+		recv_pub_key(out.reg_pub_key);
+		recv_pub_key(out.owner_pub_key);
+		recv_priv_key_shard(out.reg_external_priv_key_shard);
+		recv_priv_key_shard(out.reg_internal_priv_key_shard);
+		recv_priv_key_shard(out.owner_external_priv_key_shard);
+		recv_priv_key_shard(out.owner_internal_priv_key_shard);
+		
+		out.seed = seed_from_bytes(_sock.recv_connected_exact(get_seed_encoded_size()));
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::GetUserSetsRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::GetUserSetsRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::GetUserSetsRequest& out)
@@ -180,23 +205,33 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::GetUserSetsResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::GetUserSetsResponse& packet)
 	{
-		_sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets_ids.size()));
-		for (const auto& userSetID : packet.user_sets_ids)
-			_sock.send_connected_value(userSetID);
+		_sock.send_connected_value(packet.CODE);
+
+		_sock.send_connected_value(static_cast<userset_count_t>(packet.user_sets.size()));
+		for (const auto& [usersetID, usersetName] : packet.user_sets)
+		{
+			_sock.send_connected_value(usersetID);
+			_sock.send_connected_value(usersetName);
+		}
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::GetUserSetsResponse& out)
 	{
 		auto usersetsCount = _sock.recv_connected_primitive<userset_count_t>();
-		out.user_sets_ids.resize(usersetsCount);
-		for (auto& userSetID : out.user_sets_ids)
-			_sock.recv_connected_value(userSetID);
+		out.user_sets.resize(usersetsCount);
+		for (auto& [usersetID, usersetName] : out.user_sets)
+		{
+			_sock.recv_connected_value(usersetID);
+			_sock.recv_connected_value(usersetName);
+		}
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::GetMembersRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::GetMembersRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
 	}
 
@@ -205,8 +240,10 @@ namespace senc
 		_sock.recv_connected_value(out.user_set_id);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::GetMembersResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::GetMembersResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(static_cast<member_count_t>(packet.owners.size()));
 		_sock.send_connected_value(static_cast<member_count_t>(packet.reg_members.size()));
 		for (const auto& owner : packet.owners)
@@ -227,20 +264,35 @@ namespace senc
 			_sock.recv_connected_value(regMember);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::DecryptRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::DecryptRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.user_set_id);
+
 		send_ciphertext(packet.ciphertext);
+
+		_sock.send_connected_value(static_cast<member_count_t>(packet.dst_users.size()));
+		for (const auto& dstUser : packet.dst_users)
+			_sock.send_connected_value(dstUser);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::DecryptRequest& out)
 	{
 		_sock.recv_connected_value(out.user_set_id);
+
 		recv_ciphertext(out.ciphertext);
+
+		auto dstUsersCount = _sock.recv_connected_primitive<member_count_t>();
+		out.dst_users.resize(dstUsersCount);
+		for (auto& dstUser : out.dst_users)
+			_sock.recv_connected_value(dstUser);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::DecryptResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::DecryptResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 	}
 
@@ -249,9 +301,9 @@ namespace senc
 		_sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::UpdateRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::UpdateRequest& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_request_data(pkt::UpdateRequest& out)
@@ -259,14 +311,17 @@ namespace senc
 		(void)out;
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::UpdateResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::UpdateResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		// send vector lengths
 		_sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_owner.size()));
 		_sock.send_connected_value(static_cast<userset_count_t>(packet.added_as_reg_member.size()));
 		_sock.send_connected_value(static_cast<lookup_count_t>(packet.on_lookup.size()));
 		_sock.send_connected_value(static_cast<pending_count_t>(packet.to_decrypt.size()));
 		_sock.send_connected_value(static_cast<res_count_t>(packet.finished_decryptions.size()));
+		_sock.send_connected_value(static_cast<evolve_count_t>(packet.to_evolve.size()));
 
 		// send added_as_owner records
 		for (const auto& record : packet.added_as_owner)
@@ -278,7 +333,7 @@ namespace senc
 		
 		// send on_lookup records
 		for (const auto& record : packet.on_lookup)
-			_sock.send_connected_value(record);
+			send_update_record(record);
 
 		// send to_decrypt records
 		for (const auto& record : packet.to_decrypt)
@@ -286,6 +341,10 @@ namespace senc
 
 		// send finished_decryptions records
 		for (const auto& record : packet.finished_decryptions)
+			send_update_record(record);
+
+		// send to_evolve records
+		for (const auto& record : packet.to_evolve)
 			send_update_record(record);
 	}
 
@@ -297,6 +356,7 @@ namespace senc
 		auto onLookupCount = _sock.recv_connected_primitive<lookup_count_t>();
 		auto toDecryptCount = _sock.recv_connected_primitive<pending_count_t>();
 		auto finishedDecryptionsCount = _sock.recv_connected_primitive<res_count_t>();
+		auto toEvolveCount = _sock.recv_connected_primitive<evolve_count_t>();
 
 		// recv added_as_owner records
 		out.added_as_owner.resize(addedAsOwnerCount);
@@ -311,7 +371,7 @@ namespace senc
 		// recv on_lookup records
 		out.on_lookup.resize(onLookupCount);
 		for (auto& record : out.on_lookup)
-			_sock.recv_connected_value(record);
+			recv_update_record(record);
 
 		// recv to_decrypt records
 		out.to_decrypt.resize(toDecryptCount);
@@ -322,10 +382,17 @@ namespace senc
 		out.finished_decryptions.resize(finishedDecryptionsCount);
 		for (auto& record : out.finished_decryptions)
 			recv_update_record(record);
+
+		// recv to_evolve records
+		out.to_evolve.resize(toEvolveCount);
+		for (auto& record : out.to_evolve)
+			recv_update_record(record);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::DecryptParticipateRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::DecryptParticipateRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 	}
 
@@ -334,8 +401,10 @@ namespace senc
 		_sock.recv_connected_value(out.op_id);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::DecryptParticipateResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::DecryptParticipateResponse& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.status);
 	}
 
@@ -344,8 +413,10 @@ namespace senc
 		_sock.recv_connected_value(out.status);
 	}
 
-	void InlinePacketHandler::send_request_data(const pkt::SendDecryptionPartRequest& packet)
+	void InlinePacketHandler::send_request(const pkt::SendDecryptionPartRequest& packet)
 	{
+		_sock.send_connected_value(packet.CODE);
+
 		_sock.send_connected_value(packet.op_id);
 		send_decryption_part(packet.decryption_part);
 	}
@@ -356,12 +427,68 @@ namespace senc
 		recv_decryption_part(out.decryption_part);
 	}
 
-	void InlinePacketHandler::send_response_data(const pkt::SendDecryptionPartResponse& packet)
+	void InlinePacketHandler::send_response(const pkt::SendDecryptionPartResponse& packet)
 	{
-		(void)packet;
+		_sock.send_connected_value(packet.CODE);
 	}
 
 	void InlinePacketHandler::recv_response_data(pkt::SendDecryptionPartResponse& out)
+	{
+		(void)out;
+	}
+
+	void InlinePacketHandler::send_request(const pkt::UserSearchRequest& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		_sock.send_connected_value(packet.query);
+	}
+
+	void InlinePacketHandler::recv_request_data(pkt::UserSearchRequest& out)
+	{
+		_sock.recv_connected_value(out.query);
+	}
+
+	void InlinePacketHandler::send_response(const pkt::UserSearchResponse& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		const auto count = static_cast<search_result_count_t>(
+			std::min(packet.users.size(), MAX_SEARCH_RESULT_COUNT)
+		);
+		_sock.send_connected_value(count);
+
+		for (const auto& username : packet.users | std::views::take(count))
+			_sock.send_connected_value(username);
+	}
+
+	void InlinePacketHandler::recv_response_data(pkt::UserSearchResponse& out)
+	{
+		auto count = _sock.recv_connected_primitive<search_result_count_t>();
+		out.users.resize(count);
+
+		for (auto& username : out.users)
+			_sock.recv_connected_value(username);
+	}
+
+	void InlinePacketHandler::send_request(const pkt::EvolveRequest& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+
+		_sock.send_connected_value(packet.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_request_data(pkt::EvolveRequest& out)
+	{
+		_sock.recv_connected_value(out.user_set_id);
+	}
+
+	void InlinePacketHandler::send_response(const pkt::EvolveResponse& packet)
+	{
+		_sock.send_connected_value(packet.CODE);
+	}
+
+	void InlinePacketHandler::recv_response_data(pkt::EvolveResponse& out)
 	{
 		(void)out;
 	}
@@ -450,7 +577,9 @@ namespace senc
 		send_update_record(
 			reinterpret_cast<const pkt::UpdateResponse::AddedAsMemberRecord&>(record)
 		);
-		send_priv_key_shard(record.owner_layer_priv_key_shard);
+		send_priv_key_shard(record.reg_internal_priv_key_shard);
+		send_priv_key_shard(record.owner_external_priv_key_shard);
+		send_priv_key_shard(record.owner_internal_priv_key_shard);
 	}
 
 	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::AddedAsOwnerRecord& out)
@@ -458,23 +587,43 @@ namespace senc
 		recv_update_record(
 			reinterpret_cast<pkt::UpdateResponse::AddedAsMemberRecord&>(out)
 		);
-		recv_priv_key_shard(out.owner_layer_priv_key_shard);
+		recv_priv_key_shard(out.reg_internal_priv_key_shard);
+		recv_priv_key_shard(out.owner_external_priv_key_shard);
+		recv_priv_key_shard(out.owner_internal_priv_key_shard);
 	}
 
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::AddedAsMemberRecord& record)
 	{
 		_sock.send_connected_value(record.user_set_id);
-		send_pub_key(record.reg_layer_pub_key);
-		send_pub_key(record.owner_layer_pub_key);
-		send_priv_key_shard(record.reg_layer_priv_key_shard);
+
+		_sock.send_connected(seed_to_bytes(record.seed));
+
+		send_pub_key(record.reg_pub_key);
+		send_pub_key(record.owner_pub_key);
+		send_priv_key_shard(record.reg_external_priv_key_shard);
 	}
 
 	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::AddedAsMemberRecord& out)
 	{
 		_sock.recv_connected_value(out.user_set_id);
-		recv_pub_key(out.reg_layer_pub_key);
-		recv_pub_key(out.owner_layer_pub_key);
-		recv_priv_key_shard(out.reg_layer_priv_key_shard);
+
+		out.seed = seed_from_bytes(_sock.recv_connected_exact(get_seed_encoded_size()));
+
+		recv_pub_key(out.reg_pub_key);
+		recv_pub_key(out.owner_pub_key);
+		recv_priv_key_shard(out.reg_external_priv_key_shard);
+	}
+
+	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::OnLookupRecord& record)
+	{
+		_sock.send_connected_value(record.opid);
+		_sock.send_connected_value(record.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::OnLookupRecord& out)
+	{
+		_sock.recv_connected_value(out.opid);
+		_sock.recv_connected_value(out.user_set_id);
 	}
 
 	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::ToDecryptRecord& record)
@@ -503,6 +652,9 @@ namespace senc
 		_sock.send_connected_value(static_cast<member_count_t>(record.reg_layer_parts.size()));
 		_sock.send_connected_value(static_cast<member_count_t>(record.owner_layer_parts.size()));
 		_sock.send_connected_value(record.op_id);
+		_sock.send_connected_value(record.initiator);
+		_sock.send_connected_value(record.user_set_id);
+		send_ciphertext(record.ciphertext);
 		for (const auto& part : record.reg_layer_parts)
 			send_decryption_part(part);
 		for (const auto& part : record.owner_layer_parts)
@@ -520,7 +672,12 @@ namespace senc
 		// recv sizes
 		auto regLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
 		auto ownerLayerPartsCount = _sock.recv_connected_primitive<member_count_t>();
+
+		// recv other (non-parts) data
 		_sock.recv_connected_value(out.op_id);
+		_sock.recv_connected_value(out.initiator);
+		_sock.recv_connected_value(out.user_set_id);
+		recv_ciphertext(out.ciphertext);
 
 		// recv parts
 		out.reg_layer_parts.resize(regLayerPartsCount);
@@ -537,5 +694,15 @@ namespace senc
 		out.owner_layer_shards_ids.resize(ownerLayerPartsCount + 1);
 		for (auto& shardID : out.owner_layer_shards_ids)
 			recv_priv_key_shard_id(shardID);
+	}
+
+	void InlinePacketHandler::send_update_record(const pkt::UpdateResponse::ToEvolveRecord& record)
+	{
+		_sock.send_connected_value(record.user_set_id);
+	}
+
+	void InlinePacketHandler::recv_update_record(pkt::UpdateResponse::ToEvolveRecord& out)
+	{
+		_sock.recv_connected_value(out.user_set_id);
 	}
 }

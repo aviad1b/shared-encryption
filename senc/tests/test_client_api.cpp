@@ -23,6 +23,7 @@ using senc::EncryptedPacketHandler;
 using senc::server::IServer;
 using senc::server::Server;
 using senc::utils::HashMap;
+using senc::utils::HashSet;
 using senc::utils::Buffer;
 using senc::utils::Port;
 using senc::utils::IPv4;
@@ -38,10 +39,12 @@ protected:
 	DecryptionsManager decryptionsManager;
 	std::unique_ptr<IServerStorage> serverStorage;
 	std::unique_ptr<IServer> server;
+	std::string profileBaseDir;
 	const char* ip;
 
 	void SetUp() override
 	{
+		profileBaseDir = temp_dir_path();
 		serverStorage = std::make_unique<ShortTermServerStorage>();
 		server = new_server<IPv4>(
 			serverSchema,
@@ -75,19 +78,34 @@ struct DecsMap
 		const std::lock_guard<std::mutex> lock(mtx);
 		return map.empty();
 	}
+
+	void clear()
+	{
+		const std::lock_guard<std::mutex> lock(mtx);
+		map.clear();
+	}
 };
 
-static void append_decs(const char* opid, const uint8_t* bytes, uint64_t len, uintptr_t context)
+static void append_decs(const char* opid, const char* initiator,
+						const uint8_t* bytes, uint64_t len, uintptr_t context)
 {
+	(void)initiator;
 	auto* pDecsMap = reinterpret_cast<DecsMap*>(context);
 	const std::lock_guard<std::mutex> lock(pDecsMap->mtx);
 	pDecsMap->map[opid].emplace_back(bytes, bytes + len);
 }
 
-static void test_ctx_streq(const char* str, uintptr_t context)
+static void add_str_to_hash_set(const char* str, uintptr_t context)
 {
-	const char* other = reinterpret_cast<const char*>(context);
-	ASSERT_EQ(std::strcmp(str, other), 0);
+	auto* hashSet = reinterpret_cast<HashSet<std::string>*>(context);
+	hashSet->insert(str);
+}
+
+static void test_userset_id_eq(const char* id, const char* name, uintptr_t context)
+{
+	(void)name;
+	const char* otherID = reinterpret_cast<const char*>(context);
+	ASSERT_EQ(std::strcmp(id, otherID), 0);
 }
 
 struct test_userset_members_param_t
@@ -137,7 +155,8 @@ static void test_ctx_regs(const char* username, uintptr_t context)
 
 void ASSERT_NO_ERROR(const SENC_Handle& handle)
 {
-	ASSERT_FALSE(SENC_HasError(handle));
+	if (SENC_HasError(handle))
+		throw std::runtime_error(SENC_GetError(handle));
 }
 
 TEST_F(ClientApiTest, SignupLoginLogout)
@@ -147,15 +166,64 @@ TEST_F(ClientApiTest, SignupLoginLogout)
 	const char* username = "user";
 	const char* password = "pass123";
 
-	ASSERT_NO_ERROR(SENC_SignUp(hClient, username, password));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient, profileBaseDir.c_str(), username, password));
 
 	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
-	ASSERT_NO_ERROR(SENC_LogIn(hClient, username, password));
+	ASSERT_NO_ERROR(SENC_LogIn(hClient, profileBaseDir.c_str(), username, password));
 
 	ASSERT_NO_ERROR(SENC_LogOut(hClient));
 
 	SENC_Disconnect(hClient);
+}
+
+TEST_F(ClientApiTest, UserSearch)
+{
+	std::vector<std::pair<std::string, std::string>> users = {
+		{ "aviad", "pass123" },
+		{ "batya", "sadfg" },
+		{ "avihay", "hdgsfa" },
+		{ "gal", "2134" },
+		{ "aviel123", "ASKDFHU6*$" },
+		{ "dan", "ads" },
+		{ "miavi", "gfsa" },
+		{ "miavi2serethahemshech", "hdgs" }
+	};
+
+	// connect & signup each user
+	std::vector<SENC_Handle> hClients;
+	for (const auto& [username, password] : users)
+	{
+		hClients.emplace_back(SENC_Connect(ip, port, nullptr, 0));
+		ASSERT_NO_ERROR(hClients.back());
+		ASSERT_NO_ERROR(SENC_SignUp(
+			hClients.back(), profileBaseDir.c_str(),
+			username.c_str(), password.c_str()
+		));
+	}
+
+	// try search as each user
+	for (auto& hClient : hClients)
+	{
+		HashSet<std::string> usersFound;
+		SENC_UserSearch(
+			hClient, "avi", add_str_to_hash_set,
+			reinterpret_cast<uintptr_t>(&usersFound)
+		);
+		EXPECT_EQ(usersFound.size(), 5);
+		EXPECT_TRUE(usersFound.contains("aviad"));
+		EXPECT_TRUE(usersFound.contains("avihay"));
+		EXPECT_TRUE(usersFound.contains("aviel123"));
+		EXPECT_TRUE(usersFound.contains("miavi"));
+		EXPECT_TRUE(usersFound.contains("miavi2serethahemshech"));
+	}
+
+	// logout and disconnect all users
+	for (auto& hClient : hClients)
+	{
+		ASSERT_NO_ERROR(SENC_LogOut(hClient));
+		SENC_Disconnect(hClient);
+	}
 }
 
 TEST_F(ClientApiTest, RoundTripFlow)
@@ -173,10 +241,10 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	SENC_Handle hClient4 = SENC_Connect(ip, port, nullptr, 0);
 
 	// signup 4 users
-	ASSERT_NO_ERROR(SENC_SignUp(hClient1, "aaa", "AAA"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient2, "bbb", "BBB"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient3, "ccc", "CCC"));
-	ASSERT_NO_ERROR(SENC_SignUp(hClient4, "ddd", "DDD"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient1, profileBaseDir.c_str(), "aaa", "AAA"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient2, profileBaseDir.c_str(), "bbb", "BBB"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient3, profileBaseDir.c_str(), "ccc", "CCC"));
+	ASSERT_NO_ERROR(SENC_SignUp(hClient4, profileBaseDir.c_str(), "ddd", "DDD"));
 
 	// create userset where aaa,bbb are owners and ccc,ddd are non-owners
 	std::vector<const char*> owners{ "bbb" };
@@ -186,14 +254,15 @@ TEST_F(ClientApiTest, RoundTripFlow)
 		hClient1,
 		owners.size(), regs.size(),
 		owners.data(), regs.data(),
-		1, 1
+		1, 1,
+		"some_name"
 	);
 	ASSERT_NO_ERROR(hUserSetID);
 	const char* usersetID = SENC_GetStringValue(hUserSetID);
 
 	// try getting usersets and check only have this new userset
-	ASSERT_NO_ERROR(SENC_GetUserSets(hClient1, test_ctx_streq, reinterpret_cast<uintptr_t>(usersetID)));
-	ASSERT_NO_ERROR(SENC_GetUserSets(hClient2, test_ctx_streq, reinterpret_cast<uintptr_t>(usersetID)));
+	ASSERT_NO_ERROR(SENC_GetUserSets(hClient1, test_userset_id_eq, reinterpret_cast<uintptr_t>(usersetID)));
+	ASSERT_NO_ERROR(SENC_GetUserSets(hClient2, test_userset_id_eq, reinterpret_cast<uintptr_t>(usersetID)));
 
 	// try getting userset members and check equals
 	test_userset_members_param_t testMembersParam(allOwners, regs);
@@ -203,33 +272,51 @@ TEST_F(ClientApiTest, RoundTripFlow)
 	));
 	testMembersParam.test();
 
-	// encrypt message
-	const std::string msg = "hello there";
-	SENC_Handle hCiphertext = SENC_Encrypt(
-		hClient1, usersetID,
-		reinterpret_cast<const uint8_t*>(msg.c_str()),
-		msg.length()
-	);
-	ASSERT_NO_ERROR(hCiphertext);
-
-	// queue message decrypt
-	SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
-	ASSERT_NO_ERROR(hOPID);
-	OperationID opid = SENC_GetStringValue(hOPID);
-
-	// wait until decryption was added to decs
-	while (decs.empty())
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	// check got decryption which is same as `msg`
+	// do ten iterations of round trip, evolve key after every second iteration
+	for (std::size_t i = 0; i < 4; ++i)
 	{
-		const std::lock_guard<std::mutex> lock(decs.mtx);
-		EXPECT_EQ(decs.map.size(), 1);
-		auto& decsVec = decs.map.at(opid);
-		EXPECT_EQ(decsVec.size(), 1);
-		auto& result = decsVec.front();
+		// encrypt message
+		const Buffer msg = senc::utils::random_bytes(256);
+		SENC_Handle hCiphertext = SENC_Encrypt(
+			hClient1, usersetID,
+			reinterpret_cast<const uint8_t*>(msg.data()),
+			msg.size()
+		);
+		ASSERT_NO_ERROR(hCiphertext);
 
-		EXPECT_EQ(std::string(result.begin(), result.end()), msg);
+		// queue message decrypt
+		SENC_Handle hOPID = SENC_Decrypt(hClient1, usersetID, hCiphertext);
+		ASSERT_NO_ERROR(hOPID);
+		OperationID opid = SENC_GetStringValue(hOPID);
+
+		// wait until decryption was added to decs
+		while (decs.empty())
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		// check got decryption which is same as `msg`
+		{
+			const std::lock_guard<std::mutex> lock(decs.mtx);
+			EXPECT_EQ(decs.map.size(), 1);
+			auto it = decs.map.find(opid);
+			ASSERT_NE(it, decs.map.end());
+			auto& decsVec = it->second;
+			EXPECT_EQ(decsVec.size(), 1);
+			auto& result = decsVec.front();
+
+			EXPECT_EQ(result, msg);
+		}
+
+		// if iteration is odd, evolve key
+		if (i % 2)
+		{
+			ASSERT_NO_ERROR(SENC_EvolveUserSet(hClient2, usersetID));
+
+			// give server enough time to refresh key
+			std::this_thread::sleep_for(std::chrono::seconds(3));
+		}
+
+		// clear map for next iteration
+		decs.clear();
 	}
 
 	// logout all users

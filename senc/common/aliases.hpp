@@ -59,16 +59,16 @@ namespace senc
 	 * @param end Iterator to read untill.
 	 * @return Iterator pointing to the end of read bytes.
 	 */
-	utils::Buffer::const_iterator read_pub_key(PubKey& out,
-											   utils::Buffer::const_iterator it,
-											   utils::Buffer::const_iterator end);
+	utils::BytesView::iterator read_pub_key(PubKey& out,
+											utils::BytesView::iterator it,
+											utils::BytesView::iterator end);
 
 	/**
 	 * @brief Reads a public key from a buffer of bytes.
 	 * @param bytes Bytes to read key from.
 	 * @return Read key.
 	 */
-	PubKey pub_key_from_bytes(const utils::Buffer& bytes);
+	PubKey pub_key_from_bytes(utils::BytesView bytes);
 
 	/**
 	 * @brief Writes a public key into a buffer.
@@ -117,9 +117,10 @@ namespace senc
 	 */
 	using PrivKeyShardValue = typename Shamir::ShardValue;
 
-	// this constant is true as shard IDs are currently sampled from [1,MAX_MEMBER_COUNT]
+	// this constant is true as external shard IDs are currently sampled from [1,MAX_MEMBER_COUNT],
+	// and extra ID values are used for internal shards.
 	// TODO: Make shard sampling use a constant from here for range
-	constexpr std::size_t SHARD_ID_MAX_SIZE = sizeof(member_count_t);
+	constexpr std::size_t SHARD_ID_MAX_SIZE = 2 * sizeof(member_count_t);
 
 	// this constant is true as shard values are always < modulus
 	static const std::size_t SHARD_VALUE_MAX_SIZE = (PrivKeyShardValue::modulus() - 1).MinEncodedSize();
@@ -131,16 +132,16 @@ namespace senc
 	 * @param end Iterator to read untill.
 	 * @return Iterator pointing to the end of read bytes.
 	 */
-	utils::Buffer::const_iterator read_priv_key_shard(PrivKeyShard& out,
-													  utils::Buffer::const_iterator it,
-													  utils::Buffer::const_iterator end);
+	utils::BytesView::iterator read_priv_key_shard(PrivKeyShard& out,
+													  utils::BytesView::iterator it,
+													  utils::BytesView::iterator end);
 
 	/**
 	 * @brief Reads a private key shard from a buffer of bytes.
 	 * @param bytes Bytes to read key from.
 	 * @return Read key shard.
 	 */
-	PrivKeyShard priv_key_shard_from_bytes(const utils::Buffer& bytes);
+	PrivKeyShard priv_key_shard_from_bytes(utils::BytesView bytes);
 
 	/**
 	 * @brief Writes a private key shard into a buffer.
@@ -173,4 +174,85 @@ namespace senc
 	 * @brief ID of decryption operation.
 	 */
 	using OperationID = utils::UUID;
+
+	/**
+	 * @typedef senc::Seed
+	 * @brief Type of seed used for key evolution.
+	 */
+	using Seed = utils::BigInt;
+
+	/**
+	 * @brief Samples seed for key evolver.
+	 * @return Sampled seed.
+	 */
+	Seed sample_seed();
+
+	/**
+	 * @brief Gets size of encoded seed (in bytes).
+	 */
+	std::size_t get_seed_encoded_size();
+
+	/**
+	 * @brief Reads an evolution seed from bytes.
+	 * @param out Variable to store read seedto.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::BytesView::iterator read_seed(Seed& out,
+										 utils::BytesView::iterator it,
+										 utils::BytesView::iterator end);
+
+	/**
+	 * @brief Reads an evolution seed from a buffer of bytes.
+	 * @param bytes Bytes to read seed from.
+	 * @return Read seed.
+	 */
+	Seed seed_from_bytes(utils::BytesView bytes);
+
+	/**
+	 * @brief Writes an evolution seed into a buffer.
+	 * @param out Buffer to write seed into.
+	 * @param seed Seed value to write.
+	 */
+	void write_seed(utils::Buffer& out, const Seed& seed);
+
+	/**
+	 * @brief Serializes an evolution seed into bytes.
+	 * @param seed Seed value serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer seed_to_bytes(const Seed& seed);
+
+	/**
+	 * @brief Reads an evolution offset from bytes.
+	 * @param out Variable to store read evolution offset to.
+	 * @param it Iterator to read from.
+	 * @param end Iterator to read untill.
+	 * @return Iterator pointing to the end of read bytes.
+	 */
+	utils::BytesView::iterator read_evolution_offset(utils::BigInt& out,
+		utils::BytesView::iterator it,
+		utils::BytesView::iterator end);
+
+	/**
+	 * @brief Reads an evolution offset from a buffer of bytes.
+	 * @param bytes Bytes to read evolution offset from.
+	 * @return Read evolution offset.
+	 */
+	utils::BigInt evolution_offset_from_bytes(utils::BytesView bytes);
+
+	/**
+	 * @brief Writes an evolution offset into a buffer.
+	 * @param out Buffer to write evolution offset into.
+	 * @param offset Evolution offset to write.
+	 */
+	void write_evolution_offset(utils::Buffer& out, const utils::BigInt& offset);
+
+	/**
+	 * @brief Serializes an evolution offset into bytes.
+	 * @param offset Evolution offset to serialize.
+	 * @return Buffer of bytes.
+	 */
+	utils::Buffer evolution_offset_to_bytes(const utils::BigInt& offset);
 }

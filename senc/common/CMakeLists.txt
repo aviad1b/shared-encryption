@@ -19,6 +19,8 @@ add_library(senc_common
 	"EncryptedPacketHandler.cpp"
 	"QueuedPacketHandler.hpp"
 	"QueuedPacketHandler.cpp"
+	"KeyEvolver.hpp"
+	"KeyEvolver.cpp"
 )
 
 set_property(TARGET senc_common PROPERTY CXX_STANDARD 20)

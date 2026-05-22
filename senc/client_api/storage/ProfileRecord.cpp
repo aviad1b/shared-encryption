@@ -11,37 +11,47 @@
 namespace senc::clientapi::storage
 {
 	ProfileRecord::Self ProfileRecord::owner(UserSetID&& usersetID,
-											 PubKey&& regLayerPubKey,
-											 PubKey&& ownerLayerPubKey,
-											 PrivKeyShard&& regLayerPrivKeyShard,
-											 PrivKeyShard&& ownerLayerPrivKeyShard)
+											 utils::BigInt&& nextEvolutionOffset,
+											 PubKey&& regPubKey,
+											 PubKey&& ownerPubKey,
+											 PrivKeyShard&& regExternalPrivKeyShard,
+											 PrivKeyShard&& regInternalPrivKeyShard,
+											 PrivKeyShard&& ownerExternalPrivKeyShard,
+											 PrivKeyShard&& ownerInternalPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
-			std::move(regLayerPubKey),
-			std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard),
-			std::move(ownerLayerPrivKeyShard)
+			std::move(nextEvolutionOffset),
+			std::move(regPubKey),
+			std::move(ownerPubKey),
+			std::move(regExternalPrivKeyShard),
+			OwnerPrivKeyShards{
+				std::move(regInternalPrivKeyShard),
+				std::move(ownerExternalPrivKeyShard),
+				std::move(ownerInternalPrivKeyShard)
+			}
 		);
 	}
 
 	ProfileRecord::Self ProfileRecord::reg(UserSetID&& usersetID,
-										   PubKey&& regLayerPubKey,
-										   PubKey&& ownerLayerPubKey,
-										   PrivKeyShard&& regLayerPrivKeyShard)
+										   utils::BigInt&& nextEvolutionOffset,
+										   PubKey&& regPubKey,
+										   PubKey&& ownerPubKey,
+										   PrivKeyShard&& regPrivKeyShard)
 	{
 		return Self(
 			std::move(usersetID),
-			std::move(regLayerPubKey),
-			std::move(ownerLayerPubKey),
-			std::move(regLayerPrivKeyShard),
+			std::move(nextEvolutionOffset),
+			std::move(regPubKey),
+			std::move(ownerPubKey),
+			std::move(regPrivKeyShard),
 			std::nullopt
 		);
 	}
 
 	bool ProfileRecord::is_owner() const noexcept
 	{
-		return _ownerLayerPrivKeyShard.has_value();
+		return _ownerPrivKeyShards.has_value();
 	}
 
 	const UserSetID& ProfileRecord::userset_id() const noexcept
@@ -49,34 +59,74 @@ namespace senc::clientapi::storage
 		return _usersetID;
 	}
 
-	const PubKey& ProfileRecord::reg_layer_pub_key() const noexcept
+	const utils::BigInt& ProfileRecord::next_evolution_offset() const noexcept
 	{
-		return _regLayerPubKey;
+		return _nextEvolutionOffset;
 	}
 
-	const PubKey& ProfileRecord::owner_layer_pub_key() const noexcept
+	const PubKey& ProfileRecord::reg_pub_key() const noexcept
 	{
-		return _ownerLayerPubKey;
+		return _regPubKey;
 	}
 
-	const PrivKeyShard& ProfileRecord::reg_layer_priv_key_shard() const noexcept
+	const PubKey& ProfileRecord::owner_pub_key() const noexcept
 	{
-		return _regLayerPrivKeyShard;
+		return _ownerPubKey;
 	}
 
-	const PrivKeyShard& ProfileRecord::owner_layer_priv_key_shard() const noexcept
+	const PrivKeyShard& ProfileRecord::reg_external_priv_key_shard() const noexcept
 	{
-		return *_ownerLayerPrivKeyShard;
+		return _regExternalPrivKeyShard;
+	}
+
+	const PrivKeyShard& ProfileRecord::reg_internal_priv_key_shard() const noexcept
+	{
+		return _ownerPrivKeyShards->regInternal;
+	}
+
+	const PrivKeyShard& ProfileRecord::owner_external_priv_key_shard() const noexcept
+	{
+		return _ownerPrivKeyShards->ownerExternal;
+	}
+
+	const PrivKeyShard& ProfileRecord::owner_internal_priv_key_shard() const noexcept
+	{
+		return _ownerPrivKeyShards->ownerInternal;
+	}
+
+	ProfileRecord::Self ProfileRecord::transform_next_evolution_offset(utils::BigInt&& offset)
+	{
+		Self res = std::move(*this);
+		res._nextEvolutionOffset = std::move(offset);
+		return res;
+	}
+
+	ProfileRecord::Self ProfileRecord::transform_evolve(KeyEvolver& evolve)
+	{
+		Self res = std::move(*this);
+		if (res.is_owner())
+			evolve(
+				res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard,
+				res._ownerPrivKeyShards->regInternal,
+				res._ownerPrivKeyShards->ownerExternal,
+				res._ownerPrivKeyShards->ownerInternal
+			);
+		else
+			evolve(res._regPubKey, res._ownerPubKey, res._regExternalPrivKeyShard);
+		res._nextEvolutionOffset = evolve.offset();
+		return res;
 	}
 
 	ProfileRecord::ProfileRecord(UserSetID&& usersetID,
-								 PubKey&& regLayerPubKey,
-								 PubKey&& ownerLayerPubKey,
-								 PrivKeyShard&& regLayerPrivKeyShard,
-								 std::optional<PrivKeyShard>&& ownerLayerPrivKeyShard)
+								 utils::BigInt&& nextEvolutionOffset,
+								 PubKey&& regPubKey,
+								 PubKey&& ownerPubKey,
+								 PrivKeyShard&& regExternalPrivKeyShard,
+								 std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards)
 		: _usersetID(std::move(usersetID)),
-		  _regLayerPubKey(std::move(regLayerPubKey)),
-		  _ownerLayerPubKey(std::move(ownerLayerPubKey)),
-		  _regLayerPrivKeyShard(std::move(regLayerPrivKeyShard)),
-		  _ownerLayerPrivKeyShard(std::move(ownerLayerPrivKeyShard)) { }
+		  _nextEvolutionOffset(nextEvolutionOffset),
+		  _regPubKey(std::move(regPubKey)),
+		  _ownerPubKey(std::move(ownerPubKey)),
+		  _regExternalPrivKeyShard(std::move(regExternalPrivKeyShard)),
+		  _ownerPrivKeyShards(std::move(ownerPrivKeyShards)) { }
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.0
+
+### Added or Changed
+- Modified encrypted protocol to encrypt message codes as well.
+- Modified protocol to use standard binary representation of elliptic-curve roup elements.
+- Added official client API (not backwards-compatible with the Beta API).
+- Added CLI client.
+- Added key evolution.
+- Added ability to search users by a part of their username.
+- Added ability to send decryptions to other users.
+- Added userset names.
+
 ## v1.1.1
 
 ### Added or Changed

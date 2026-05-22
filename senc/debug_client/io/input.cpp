@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-namespace senc::client::io
+namespace senc::debug_client::io
 {
 	std::string input()
 	{
@@ -188,21 +188,21 @@ namespace senc::client::io
 		return input_priv_key_shard_ids();
 	}
 
-	PrivKeyShard input_priv_key_shard()
+	std::vector<PrivKeyShard> input_priv_key_shards()
 	{
-		return priv_key_shard_from_bytes(utils::bytes_from_base64(input()));
+		return input_vec<PrivKeyShard, input_priv_key_shard<true>>();
 	}
 
-	PrivKeyShard input_priv_key_shard(const std::string& msg)
+	std::vector<PrivKeyShard> input_priv_key_shards(const std::string& msg)
 	{
 		std::cout << msg;
-		return input_priv_key_shard();
+		return input_priv_key_shards();
 	}
 
 	Ciphertext input_ciphertext()
 	{
-		auto c1 = utils::ECGroup::decode(utils::bytes_from_base64(input()));
-		auto c2 = utils::ECGroup::decode(utils::bytes_from_base64(input()));
+		auto c1 = utils::from_bytes<std::tuple_element_t<0, Ciphertext>>(utils::bytes_from_base64(input()));
+		auto c2 = utils::from_bytes<std::tuple_element_t<1, Ciphertext>>(utils::bytes_from_base64(input()));
 		auto c3aBuffer = utils::bytes_from_base64(input());
 		auto c3b = utils::bytes_from_base64(input());
 
@@ -227,5 +227,17 @@ namespace senc::client::io
 	{
 		std::cout << msg;
 		return input_decryption_parts();
+	}
+
+	utils::BigInt input_offset()
+	{
+		const auto strInput = input();
+		return utils::BigInt(strInput.c_str());
+	}
+
+	utils::BigInt input_offset(const std::string& msg)
+	{
+		std::cout << msg;
+		return input_offset();
 	}
 }

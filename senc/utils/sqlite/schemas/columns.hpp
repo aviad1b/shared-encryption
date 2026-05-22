@@ -42,6 +42,35 @@ namespace senc::utils::sqlite::schemas
 	};
 
 	/**
+	 * @struct senc::utils::sqlite::schemas::BackwardsCompatible
+	 * @brief Schema of backwards-compatible table column (non-existant in older DB version).
+	 * @tparam name Column name.
+	 * @tparam V Column value type.
+	 */
+	template <FixedString name, Value V>
+	struct BackwardsCompatible
+	{
+		static constexpr FixedString NAME = name;
+		using Type = Nullable<V>;
+	};
+
+	/**
+	 * @struct senc::utils::sqlite::schemas::OwnedBackwardsCompatible
+	 * @brief Schema of backwards-compatible table column (non-existant in older DB version),
+	 *        which knows the table's name.
+	 * @tparam owner Table name.
+	 * @tparam name Column name.
+	 * @tparam V Column value type.
+	 */
+	template <FixedString owner, FixedString name, Value V>
+	struct OwnedBackwardsCompatible
+	{
+		static constexpr FixedString OWNER = owner;
+		static constexpr FixedString NAME = name;
+		using Type = Nullable<V>;
+	};
+
+	/**
 	 * @struct senc::utils::sqlite::schemas::PrimaryKey
 	 * @brief Schema for table column which serves as a primary key.
 	 * @tparam name Column name.
@@ -118,6 +147,12 @@ namespace senc::utils::sqlite::schemas
 		struct some_col<OwnedCol<owner, name, V>> : std::true_type { };
 
 		template <FixedString name, Value V>
+		struct some_col<BackwardsCompatible<name, V>> : std::true_type { };
+
+		template <FixedString owner, FixedString name, Value V>
+		struct some_col<OwnedBackwardsCompatible<owner, name, V>> : std::true_type { };
+
+		template <FixedString name, Value V>
 		struct some_col<PrimaryKey<name, V>> : std::true_type { };
 
 		template <FixedString owner, FixedString name, Value V>
@@ -137,10 +172,23 @@ namespace senc::utils::sqlite::schemas
 		struct some_owned_col<OwnedCol<owner, name, V>> : std::true_type { };
 
 		template <FixedString owner, FixedString name, Value V>
+		struct some_owned_col<OwnedBackwardsCompatible<owner, name, V>> : std::true_type { };
+
+		template <FixedString owner, FixedString name, Value V>
 		struct some_owned_col<OwnedPrimaryKey<owner, name, V>> : std::true_type { };
 
 		template <FixedString owner, FixedString name, Value V, FixedString refTable, FixedString refCol>
 		struct some_owned_col<OwnedForeignKey<owner, name, V, refTable, refCol>> : std::true_type { };
+
+		// used for detecting packwards compatible column schema
+		template <typename T>
+		struct some_backwards_compatible : std::false_type { };
+
+		template <FixedString name, Value V>
+		struct some_backwards_compatible<BackwardsCompatible<name, V>> : std::true_type { };
+
+		template <FixedString owner, FixedString name, Value V>
+		struct some_backwards_compatible<OwnedBackwardsCompatible<owner, name, V>> : std::true_type { };
 
 		// used for detecting a primary key column schema
 		template <typename T>
@@ -192,6 +240,14 @@ namespace senc::utils::sqlite::schemas
 	 */
 	template <typename Self>
 	concept SomeOwnedCol = sfinae::some_owned_col<Self>::value;
+
+	/**
+	 * @concept senc::utils::sqlite::schemas::SomeBackwardsCompatible
+	 * @brief Looks for any instantation of a backwards compatible column schema.
+	 * @tparam Self Examined typename.
+	 */
+	template <typename Self>
+	concept SomeBackwardsCompatible = sfinae::some_backwards_compatible<Self>::value;
 
 	/**
 	 * @concept senc::utils::sqlite::schemas::SomePrimaryKey

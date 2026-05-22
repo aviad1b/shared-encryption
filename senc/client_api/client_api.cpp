@@ -78,8 +78,8 @@ uintptr_t SENC_NewCiphertext(const uint8_t* c1Bytes, uint64_t c1Len,
 			auto& [c1, c2, c3] = res;
 			auto& [c3a, c3b] = c3;
 
-			c1 = utils::ECGroup::decode({ c1Bytes, c1Len });
-			c2 = utils::ECGroup::decode({ c2Bytes, c2Len });
+			c1 = senc::utils::from_bytes<std::tuple_element_t<0, senc::Ciphertext>>({ c1Bytes, c1Len });
+			c2 = senc::utils::from_bytes<std::tuple_element_t<1, senc::Ciphertext>>({ c2Bytes, c2Len });
 			c3a.Assign(c3aBytes, c3aLen);
 			c3b.assign(c3bBytes, c3bBytes + c3bLen);
 
@@ -93,7 +93,7 @@ uintptr_t SENC_GetCiphertextC1(uintptr_t hCiphertext) noexcept
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
 	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
 	{
-		return std::get<0>(ciphertext).encode();
+		return senc::utils::to_bytes(std::get<0>(ciphertext));
 	})->as_nint();
 }
 
@@ -102,7 +102,7 @@ uintptr_t SENC_GetCiphertextC2(uintptr_t hCiphertext) noexcept
 	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
 	return api::Value<utils::Buffer>::ret_new([&ciphertext]()
 	{
-		return std::get<1>(ciphertext).encode();
+		return senc::utils::to_bytes(std::get<1>(ciphertext));
 	})->as_nint();
 }
 
@@ -126,7 +126,11 @@ uintptr_t SENC_GetCiphertextC3b(uintptr_t hCiphertext) noexcept
 }
 
 uintptr_t SENC_Connect(const char* serverIP, uint16_t serverPort,
-					   void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t, uintptr_t),
+					   void(*decryptFinishedCallback)(const char*,
+													  const char*,
+													  const uint8_t*,
+													  uint64_t,
+													  uintptr_t),
 					   uintptr_t decryptFinishedContext) noexcept
 {
 	return api::Value<std::unique_ptr<api::IClient>>::ret_new(
@@ -142,21 +146,26 @@ uintptr_t SENC_Connect(const char* serverIP, uint16_t serverPort,
 					using IP = std::remove_cvref_t<decltype(ipInstance)>;
 
 					// if `decryptFinishedCallback` isn't null, wrap it for logic; otherwise, use empty lambda
-					std::function<void(const senc::OperationID&, const utils::Buffer&)> outerCallback;
+					std::function<void(const senc::OperationID&,
+									   const std::string&,
+									   const utils::Buffer&)
+								 > outerCallback;
 					if (decryptFinishedCallback)
 						outerCallback =
 							[decryptFinishedCallback, decryptFinishedContext]
-							(const senc::OperationID& opid, const utils::Buffer& plaintext)
+							(const senc::OperationID& opid, const std::string& initiator, const utils::Buffer& plaintext)
 							{
 								decryptFinishedCallback(
 									opid.to_string().c_str(),
+									initiator.c_str(),
 									plaintext.data(),
 									static_cast<std::uint64_t>(plaintext.size()),
 									decryptFinishedContext
 								);
 							};
 					else
-						outerCallback = [](const senc::OperationID&, const utils::Buffer&) { };
+						outerCallback = 
+							[](const senc::OperationID&, const std::string&, const utils::Buffer&) { };
 
 					return std::make_unique<api::Client<IP>>(
 						ipInstance, serverPort,
@@ -177,21 +186,23 @@ void SENC_Disconnect(uintptr_t hClient) noexcept
 	spClient.reset();
 }
 
-uintptr_t SENC_SignUp(uintptr_t hClient, const char* username, const char* password) noexcept
+uintptr_t SENC_SignUp(uintptr_t hClient, const char* profileBaseDir,
+					  const char* username, const char* password) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, username, password]()
+	return api::Error::ret_null_or_err([&client, profileBaseDir, username, password]()
 	{
-		client.signup(username, password);
+		client.signup(username, password, profileBaseDir);
 	})->as_nint();
 }
 
-uintptr_t SENC_LogIn(uintptr_t hClient, const char* username, const char* password) noexcept
+uintptr_t SENC_LogIn(uintptr_t hClient, const char* profileBaseDir,
+					 const char* username, const char* password) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
-	return api::Error::ret_null_or_err([&client, username, password]()
+	return api::Error::ret_null_or_err([&client, profileBaseDir, username, password]()
 	{
-		client.login(username, password);
+		client.login(username, password, profileBaseDir);
 	})->as_nint();
 }
 
@@ -236,7 +247,7 @@ uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecord) noexcept
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-		return senc::pub_key_to_bytes(rpRecord->reg_layer_pub_key());
+		return senc::pub_key_to_bytes(rpRecord->reg_pub_key());
 	})->as_nint();
 }
 
@@ -245,37 +256,61 @@ uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRecord) noexcept
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-		return senc::pub_key_to_bytes(rpRecord->owner_layer_pub_key());
+		return senc::pub_key_to_bytes(rpRecord->owner_pub_key());
 	})->as_nint();
 }
 
-uintptr_t SENC_GetProfileRecordRegShard(uintptr_t pRecord) noexcept
+uintptr_t SENC_GetProfileRecordRegExternalShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
-			return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+		return senc::priv_key_shard_to_bytes(rpRecord->reg_external_priv_key_shard());
 	})->as_nint();
 }
 
-uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pRecord) noexcept
+uintptr_t SENC_GetProfileRecordRegInternalShard(uintptr_t pRecord) noexcept
 {
 	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
 	return api::Value<utils::Buffer>::ret_new([rpRecord]()
 	{
 		if (!rpRecord->is_owner())
-			throw api::ClientException("Non-owner record has no owner-layer shard");
-		return senc::priv_key_shard_to_bytes(rpRecord->reg_layer_priv_key_shard());
+			throw api::ClientException("Non-owner record has no external reg-layer shard");
+		return senc::priv_key_shard_to_bytes(rpRecord->reg_internal_priv_key_shard());
+	})->as_nint();
+}
+
+uintptr_t SENC_GetProfileRecordOwnerExternalShard(uintptr_t pRecord) noexcept
+{
+	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		if (!rpRecord->is_owner())
+			throw api::ClientException("Non-owner record has no owner-layer shards");
+		return senc::priv_key_shard_to_bytes(rpRecord->owner_external_priv_key_shard());
+	})->as_nint();
+}
+
+uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) noexcept
+{
+	auto* rpRecord = reinterpret_cast<api::storage::ProfileRecord*>(pRecord);
+	return api::Value<utils::Buffer>::ret_new([rpRecord]()
+	{
+		if (!rpRecord->is_owner())
+			throw api::ClientException("Non-owner record has no owner-layer shards");
+		return senc::priv_key_shard_to_bytes(rpRecord->owner_internal_priv_key_shard());
 	})->as_nint();
 }
 
 uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t regMembersCount,
 						   const char** owners, const char** regMembers,
-						   uint64_t ownersThreshold, uint64_t regMembersThreshold) noexcept
+						   uint64_t ownersThreshold, uint64_t regMembersThreshold,
+						   const char* name) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Value<std::string>::ret_new(
-		[&client, ownersCount, regMembersCount, owners, regMembers, ownersThreshold, regMembersThreshold]()
+		[&client, ownersCount, regMembersCount, owners, regMembers,
+		 ownersThreshold, regMembersThreshold, name]()
 		{
 			if (ownersCount + regMembersCount > senc::MAX_MEMBERS)
 				throw api::ClientException(
@@ -298,28 +333,29 @@ uintptr_t SENC_MakeUserSet(uintptr_t hClient, uint64_t ownersCount, uint64_t reg
 				utils::ranges::strings(ownersSpan),
 				utils::ranges::strings(regMembersSpan),
 				static_cast<senc::member_count_t>(ownersThreshold),
-				static_cast<senc::member_count_t>(regMembersThreshold)
+				static_cast<senc::member_count_t>(regMembersThreshold),
+				name
 			).to_string();
 		}
 	)->as_nint();
 }
 
 uintptr_t SENC_GetUserSets(uintptr_t hClient,
-						   void(*callback)(const char*, uintptr_t),
+						   void(*callback)(const char*, const char*, uintptr_t),
 						   uintptr_t context) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client, callback, context]()
 	{
 		// if `callback` isn't null, wrap it for logic; otherwise, use empty lambda
-		std::function<void(const senc::UserSetID&)> outerCallback;
+		std::function<void(const senc::UserSetID&, const std::string&)> outerCallback;
 		if (callback)
-			outerCallback = [callback, context](const senc::UserSetID& usersetID)
+			outerCallback = [callback, context](const senc::UserSetID& id, const std::string& name)
 			{
-				callback(usersetID.to_string().c_str(), context);
+				callback(id.to_string().c_str(), name.c_str(), context);
 			};
 		else
-			outerCallback = [](const senc::UserSetID&) { };
+			outerCallback = [](const senc::UserSetID&, const std::string&) { };
 
 		client.get_usersets(outerCallback);
 	})->as_nint();
@@ -377,11 +413,56 @@ uintptr_t SENC_Decrypt(uintptr_t hClient, const char* usersetID, uintptr_t hCiph
 	})->as_nint();
 }
 
+uintptr_t SENC_DecryptSend(uintptr_t hClient, const char* usersetID, uintptr_t hCiphertext,
+						   uint64_t dstUsersCount, const char** dstUsers) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	auto& ciphertext = api::Value<senc::Ciphertext>::from_nint(hCiphertext)->get();
+	return api::Value<std::string>::ret_new([&client, usersetID, &ciphertext, dstUsersCount, dstUsers]()
+	{
+		std::span dstUsersSpan(dstUsers, dstUsersCount);
+		return client.decrypt_send(
+			usersetID,
+			ciphertext,
+			utils::ranges::strings(dstUsersSpan)
+		).to_string();
+	})->as_nint();
+}
+
 uintptr_t SENC_ForceUpdate(uintptr_t hClient) noexcept
 {
 	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
 	return api::Error::ret_null_or_err([&client]()
 	{
 		client.force_update();
+	})->as_nint();
+}
+
+uintptr_t SENC_UserSearch(uintptr_t hClient,
+						  const char* query,
+						  void(*callback)(const char*, uintptr_t),
+						  uintptr_t context) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, query, callback, context]
+	{
+		std::function<void(const std::string&)> outerCallback;
+		if (callback)
+			outerCallback = [callback, context](const std::string& username)
+			{
+				callback(username.c_str(), context);
+			};
+		else
+			outerCallback = [](const std::string&) { };
+		return client.user_search(query, outerCallback);
+	})->as_nint();
+}
+
+uintptr_t SENC_EvolveUserSet(uintptr_t hClient, const char* usersetID) noexcept
+{
+	auto& client = *(api::Value<std::unique_ptr<api::IClient>>::from_nint(hClient)->get());
+	return api::Error::ret_null_or_err([&client, usersetID]()
+	{
+		return client.evolve_userset(usersetID);
 	})->as_nint();
 }

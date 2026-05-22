@@ -30,7 +30,9 @@ namespace senc::server::handlers
 			pkt::DecryptRequest,
 			pkt::UpdateRequest,
 			pkt::DecryptParticipateRequest,
-			pkt::SendDecryptionPartRequest
+			pkt::SendDecryptionPartRequest,
+			pkt::UserSearchRequest,
+			pkt::EvolveRequest
 		>();
 
 		if (req.has_value())
@@ -45,6 +47,7 @@ namespace senc::server::handlers
 	}
 
 	pkt::MakeUserSetResponse ConnectedClientHandler::make_userset(
+		const std::string& name,
 		const std::string& creator,
 		const std::vector<std::string>& owners,
 		const std::vector<std::string>& regMembers,
@@ -57,13 +60,17 @@ namespace senc::server::handlers
 		res.user_set_id = _storage.new_userset(
 			utils::ranges::strings(allOwners),
 			utils::ranges::strings(regMembers),
-			ownersThreshold, regMembersThreshold
+			ownersThreshold, regMembersThreshold,
+			name
 		);
+
+		// sample seed for future evolutions
+		res.seed = sample_seed();
 
 		// generate keys, and shards for each member
 		PrivKey regLayerPrivKey{}, ownerLayerPrivKey{};
-		std::tie(res.reg_layer_pub_key, regLayerPrivKey) = _schema.keygen();
-		std::tie(res.owner_layer_pub_key, ownerLayerPrivKey) = _schema.keygen();
+		std::tie(res.reg_pub_key, regLayerPrivKey) = _schema.keygen();
+		std::tie(res.owner_pub_key, ownerLayerPrivKey) = _schema.keygen();
 
 		auto regLayerPoly = Shamir::sample_poly(regLayerPrivKey, regMembersThreshold);
 		auto ownerLayerPoly = Shamir::sample_poly(ownerLayerPrivKey, ownersThreshold);
@@ -77,32 +84,40 @@ namespace senc::server::handlers
 		auto ownersShardsIDs = owners | std::views::transform(getShardID);
 		auto regMembersShardsIDs = regMembers | std::views::transform(getShardID);
 
-		// make private key shards for all members
-		res.reg_layer_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
-		res.owner_layer_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
+		// make private key shards for all members (shard ID for internal shard is max plus one)
+		auto internalShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		res.reg_external_priv_key_shard = Shamir::make_shard(regLayerPoly, creatorShardID);
+		res.reg_internal_priv_key_shard = Shamir::make_shard(regLayerPoly, internalShardID);
+		res.owner_external_priv_key_shard = Shamir::make_shard(ownerLayerPoly, creatorShardID);
+		res.owner_internal_priv_key_shard = Shamir::make_shard(ownerLayerPoly, internalShardID);
 		auto regLayerOwnersShards = Shamir::make_shards(regLayerPoly, ownersShardsIDs);
 		auto ownerLayerOwnersShards = Shamir::make_shards(ownerLayerPoly, ownersShardsIDs);
 		auto regMembersShards = Shamir::make_shards(regLayerPoly, regMembersShardsIDs);
 
 		// for all non-creator members, register update for userset
 		// (note that the zip view provides all elements by reference wrapper)
-		for (auto [owner, regLayerShard, ownerLayerShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
+		for (auto [owner, regExternalShard, ownerExternalShard] : utils::views::zip(owners, regLayerOwnersShards, ownerLayerOwnersShards))
 			_updateManager.register_owner(
-				owner, res.user_set_id,
-				res.reg_layer_pub_key, res.owner_layer_pub_key,
-				std::move(regLayerShard), std::move(ownerLayerShard)
+				owner, res.user_set_id, res.seed,
+				res.reg_pub_key, res.owner_pub_key,
+				std::move(regExternalShard),
+				res.reg_internal_priv_key_shard, // same internal shard as creator
+				std::move(ownerExternalShard),
+				res.owner_internal_priv_key_shard // same internal shard as creator
 			);
 		for (auto [regMember, shard] : utils::views::zip(regMembers, regMembersShards))
 			_updateManager.register_reg_member(
-				regMember, res.user_set_id,
-				res.reg_layer_pub_key, res.owner_layer_pub_key,
+				regMember, res.user_set_id, res.seed,
+				res.reg_pub_key, res.owner_pub_key,
 				std::move(shard)
 			);
 
 		return res;
 	}
 
-	OperationID ConnectedClientHandler::initiate_decryption(const UserSetID& usersetID, Ciphertext&& ciphertext)
+	OperationID ConnectedClientHandler::initiate_decryption(std::vector<std::string>&& dstUsers,
+															const UserSetID& usersetID,
+															Ciphertext&& ciphertext)
 	{
 		auto info = _storage.get_userset_info(usersetID);
 
@@ -114,7 +129,8 @@ namespace senc::server::handlers
 		{
 			// in this case, finish operation and return.
 			finish_operation(opid, managers::DecryptionsManager::CollectedRecord(
-				_username, usersetID,
+				std::move(dstUsers),
+				_username, usersetID, std::move(ciphertext),
 				info.owners_threshold, info.reg_members_threshold
 			));
 			return opid;
@@ -122,7 +138,7 @@ namespace senc::server::handlers
 
 		// prepare decryption operation
 		_decryptionsManager.prepare_operation(
-			opid,
+			std::move(dstUsers), opid,
 			_username, usersetID,
 			std::move(ciphertext),
 			info.owners_threshold,
@@ -133,7 +149,7 @@ namespace senc::server::handlers
 		auto members = utils::views::join(info.owners, info.reg_members) |
 			std::views::filter([this](const std::string& s) { return s != _username; });
 		for (const auto& member : members)
-			_updateManager.register_lookup(member, opid);
+			_updateManager.register_lookup(member, opid, usersetID);
 
 		return opid;
 	}
@@ -142,9 +158,13 @@ namespace senc::server::handlers
 													const managers::DecryptionsManager::PrepareRecord& opPrepRecord)
 	{
 		// get shards IDs of all participants (including requester)
-		const auto requesterShardID = _storage.get_shard_id(opPrepRecord.requester, opPrepRecord.userset_id);
-		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterShardID };
-		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterShardID };
+
+		const auto requesterRegShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		const auto requesterOwnerShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		// initiator uses internal shard, whose ID is max plus one
+
+		std::vector<PrivKeyShardID> ownersShardsIDs{ requesterOwnerShardID };
+		std::vector<PrivKeyShardID> regMembersShardsIDs{ requesterRegShardID };
 		for (const auto& owner : opPrepRecord.owners_found)
 			ownersShardsIDs.push_back(_storage.get_shard_id(owner, opPrepRecord.userset_id));
 		for (const auto& regMember : opPrepRecord.reg_members_found)
@@ -168,11 +188,17 @@ namespace senc::server::handlers
 	void ConnectedClientHandler::finish_operation(const OperationID& opid,
 												  managers::DecryptionsManager::CollectedRecord&& opCollRecord)
 	{
-		const auto requesterShardID = _storage.get_shard_id(opCollRecord.requester, opCollRecord.userset_id);
-		opCollRecord.reg_layer_shards_ids.push_back(requesterShardID);
-		opCollRecord.owner_layer_shards_ids.push_back(requesterShardID);
+		const auto requesterRegShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		const auto requesterOwnerShardID = static_cast<int>(MAX_MEMBERS) + 1;
+		// initiator uses internal shard, whose ID is max plus one
+		
+		opCollRecord.reg_layer_shards_ids.push_back(requesterRegShardID);
+		opCollRecord.owner_layer_shards_ids.push_back(requesterOwnerShardID);
 		_updateManager.register_finished_decrpytion(
-			opCollRecord.requester, opid,
+			opCollRecord.dst_users,
+			opid, opCollRecord.requester,
+			std::move(opCollRecord.userset_id),
+			std::move(opCollRecord.ciphertext),
 			std::move(opCollRecord.reg_layer_parts),
 			std::move(opCollRecord.owner_layer_parts),
 			std::move(opCollRecord.reg_layer_shards_ids),
@@ -193,7 +219,7 @@ namespace senc::server::handlers
 		try
 		{
 			response = make_userset(
-				_username,
+				request.name, _username,
 				request.owners, request.reg_members,
 				request.owners_threshold, request.reg_members_threshold
 			);
@@ -214,8 +240,11 @@ namespace senc::server::handlers
 	{
 		(void)request;
 
-		std::vector<UserSetID> usersets;
-		try { usersets = _storage.get_usersets(_username); }
+		std::vector<std::pair<UserSetID, std::string>> usersets;
+		try
+		{
+			usersets = utils::to_vector<std::pair<UserSetID, std::string>>(_storage.get_usersets(_username));
+		}
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{
@@ -255,7 +284,14 @@ namespace senc::server::handlers
 	{
 		OperationID opid{};
 
-		try { opid = initiate_decryption(request.user_set_id, std::move(request.ciphertext)); }
+		try
+		{
+			opid = initiate_decryption(
+				std::move(request.dst_users),
+				request.user_set_id,
+				std::move(request.ciphertext)
+			);
+		}
 		catch (const ServerException& e)
 		{
 			_packetHandler.send_response(pkt::ErrorResponse{
@@ -370,6 +406,39 @@ namespace senc::server::handlers
 
 		// finally, send ack
 		_packetHandler.send_response(pkt::SendDecryptionPartResponse{});
+
+		return Status::Connected;
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::UserSearchRequest& request)
+	{
+		std::vector<std::string> users;
+		try
+		{
+			users = _storage.user_search(request.query);
+		}
+		catch (const ServerException& e)
+		{
+			_packetHandler.send_response(pkt::ErrorResponse{
+				std::string("Failed to fetch users: ") + e.what()
+			});
+			return Status::Connected;
+		}
+
+		_packetHandler.send_response(pkt::UserSearchResponse{
+			std::move(users)
+		});
+
+		return Status::Connected;
+	}
+
+	ConnectedClientHandler::Status ConnectedClientHandler::handle_request(pkt::EvolveRequest& request)
+	{
+		const auto info = _storage.get_userset_info(request.user_set_id);
+		for (const auto& user : utils::views::join(info.owners, info.reg_members))
+			_updateManager.register_key_evolution(user, request.user_set_id);
+
+		_packetHandler.send_response(pkt::EvolveResponse{});
 
 		return Status::Connected;
 	}

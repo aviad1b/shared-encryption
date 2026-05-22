@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../../common/KeyEvolver.hpp"
 #include "../../common/aliases.hpp"
 #include <optional>
 
@@ -16,6 +17,8 @@ namespace senc::clientapi::storage
 	/**
 	 * @class senc::clientapi::storage::ProfileRecord
 	 * @brief Represents a stored client record (info about a userset).
+	 * @note For compatibility with storage reference wrappers, should not
+	 *       implement any setters (these are replaced with transformation methods).
 	 */
 	class ProfileRecord
 	{
@@ -35,30 +38,38 @@ namespace senc::clientapi::storage
 		/**
 		 * @brief Constructs a new owner profile record.
 		 * @param usersetID Userset ID (moved).
-		 * @param regLayerPubKey Public key of non-owner layer (moved).
-		 * @param ownerLayerPubKey Public key of owner layer (moved).
-		 * @param regLayerPrivKeyShard Private key shard of non-owner layer (moved).
-		 * @param ownerLayerPrivKeyShard Private key shard of owner layer (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
+		 * @param regPubKey Public key of non-owner layer (moved).
+		 * @param ownerPubKey Public key of owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
+		 * @param regInternalPrivKeyShard Internal private key shard of non-owner layer (moved).
+		 * @param ownerExternalPrivKeyShard External private key shard of owner layer (moved).
+		 * @param ownerInternalPrivKeyShard Internal private key shard of owner layer (moved).
 		 * @return Constructed profile record.
 		 */
 		static Self owner(UserSetID&& usersetID,
-						  PubKey&& regLayerPubKey,
-						  PubKey&& ownerLayerPubKey,
-						  PrivKeyShard&& regLayerPrivKeyShard,
-						  PrivKeyShard&& ownerLayerPrivKeyShard);
+						  utils::BigInt&& nextEvolutionOffset,
+						  PubKey&& regPubKey,
+						  PubKey&& ownerPubKey,
+						  PrivKeyShard&& regExternalPrivKeyShard,
+						  PrivKeyShard&& regInternalPrivKeyShard,
+						  PrivKeyShard&& ownerExternalPrivKeyShard,
+						  PrivKeyShard&& ownerInternalPrivKeyShard);
 
 		/**
 		 * @brief Constructs a new non-owner profile record.
 		 * @param usersetID Userset ID (moved).
-		 * @param regLayerPubKey Public key of non-owner layer (moved).
-		 * @param ownerLayerPubKey Public key of owner layer (moved).
-		 * @param regLayerPrivKeyShard Private key shard of non-owner layer (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
+		 * @param regPubKey Public key of non-owner layer (moved).
+		 * @param ownerPubKey Public key of owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner layer (moved).
 		 * @return Constructed profile record.
 		 */
 		static Self reg(UserSetID&& usersetID,
-						PubKey&& regLayerPubKey,
-						PubKey&& ownerLayerPubKey,
-						PrivKeyShard&& regLayerPrivKeyShard);
+						utils::BigInt&& nextEvolutionOffset,
+						PubKey&& regPubKey,
+						PubKey&& ownerPubKey,
+						PrivKeyShard&& regExternalPrivKeyShard);
 
 		/**
 		 * @brief Checks if this is an owner profile record.
@@ -73,50 +84,90 @@ namespace senc::clientapi::storage
 		const UserSetID& userset_id() const noexcept;
 
 		/**
+		 * @brief Gets offset for next key evolution.
+		 * @return Offset for next key evolution.
+		 */
+		const utils::BigInt& next_evolution_offset() const noexcept;
+
+		/**
 		 * @brief Gets public key of non-owner layer.
 		 * @return Public key of non-owner layer.
 		 */
-		const PubKey& reg_layer_pub_key() const noexcept;
+		const PubKey& reg_pub_key() const noexcept;
 
 		/**
 		 * @brief Gets public key of owner layer.
 		 * @return Public key of owner layer.
 		 */
-		const PubKey& owner_layer_pub_key() const noexcept;
+		const PubKey& owner_pub_key() const noexcept;
 
 		/**
-		 * @brief Gets private key shard of non-owner layer.
+		 * @brief Gets external private key shard of non-owner layer.
 		 * @return Private key shard of non-owner layer.
 		 */
-		const PrivKeyShard& reg_layer_priv_key_shard() const noexcept;
-		
+		const PrivKeyShard& reg_external_priv_key_shard() const noexcept;
+
 		/**
-		 * @brief Gets private key shard of owner layer.
+		 * @brief Gets internal private key shard of non-owner layer.
 		 * @note Requires the profile record to be an owner profile record.
 		 *		 Calling this method on a non-owner record is considered undefined behaviour.
-		 * @return Private key shard of owner layer.
+		 * @return Internal private key shard of owner layer.
 		 */
-		const PrivKeyShard& owner_layer_priv_key_shard() const noexcept;
+		const PrivKeyShard& reg_internal_priv_key_shard() const noexcept;
+		
+		/**
+		 * @brief Gets external private key shard of owner layer.
+		 * @note Requires the profile record to be an owner profile record.
+		 *		 Calling this method on a non-owner record is considered undefined behaviour.
+		 * @return External private key shard of owner layer.
+		 */
+		const PrivKeyShard& owner_external_priv_key_shard() const noexcept;
+
+		/**
+		 * @brief Gets internal private key shard of owner layer.
+		 * @note Requires the profile record to be an owner profile record.
+		 *		 Calling this method on a non-owner record is considered undefined behaviour.
+		 * @return Internal private key shard of owner layer.
+		 */
+		const PrivKeyShard& owner_internal_priv_key_shard() const noexcept;
+
+		/**
+		 * @brief Moves profile record into new instance with different next evolution offset.
+		 * @param offset New offset value (moved).
+		 * @return New profile record instance.
+		 */
+		Self transform_next_evolution_offset(utils::BigInt&& offset);
+
+		/**
+		 * @brief Applies key evolution on profile record and moves into new instance.
+		 * @param evolve Key evolver to use for evolution.
+		 * @return New profile record instance.
+		 */
+		Self transform_evolve(KeyEvolver& evolve);
 
 	private:
+		struct OwnerPrivKeyShards { PrivKeyShard regInternal, ownerExternal, ownerInternal; };
 		UserSetID _usersetID;
-		PubKey _regLayerPubKey;
-		PubKey _ownerLayerPubKey;
-		PrivKeyShard _regLayerPrivKeyShard;
-		std::optional<PrivKeyShard> _ownerLayerPrivKeyShard;
+		utils::BigInt _nextEvolutionOffset;
+		PubKey _regPubKey;
+		PubKey _ownerPubKey;
+		PrivKeyShard _regExternalPrivKeyShard;
+		std::optional<OwnerPrivKeyShards> _ownerPrivKeyShards;
 
 		/**
 		 * @brief Constructs a client profile record from moved fields.
 		 * @param usersetID Userset ID (moved).
-		 * @param regLayerPubKey Public key of non-owner layer (moved).
-		 * @param ownerLayerPubKey Public key of owner layer (moved).
-		 * @param regLayerPrivKeyShard Private key shard of non-owner layer (moved).
-		 * @param ownerLayerPrivKeyShard Optional private key shard of owner layer (moved).
+		 * @param nextEvolutionOffset Offset for next key evolution (moved).
+		 * @param regPubKey Public key of non-owner layer (moved).
+		 * @param ownerPubKey Public key of owner layer (moved).
+		 * @param regExternalPrivKeyShard External private key shard of non-owner (moved).
+		 * @param ownerPrivKeyShards Optional private key shards of owner (moved).
 		 */
 		ProfileRecord(UserSetID&& usersetID,
-					  PubKey&& regLayerPubKey,
-					  PubKey&& ownerLayerPubKey,
-					  PrivKeyShard&& regLayerPrivKeyShard,
-					  std::optional<PrivKeyShard>&& ownerLayerPrivKeyShard);
+					  utils::BigInt&& nextEvolutionOffset,
+					  PubKey&& regPubKey,
+					  PubKey&& ownerPubKey,
+					  PrivKeyShard&& regExternalPrivKeyShard,
+					  std::optional<OwnerPrivKeyShards>&& ownerPrivKeyShards);
 	};
 }

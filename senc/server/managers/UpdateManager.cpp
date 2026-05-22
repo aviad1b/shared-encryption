@@ -21,6 +21,7 @@ namespace senc::server::managers
 
 	void UpdateManager::register_reg_member(const std::string& username,
 											const UserSetID& usersetID,
+											const Seed& seed,
 											const PubKey& regLayerPubKey,
 											const PubKey& ownerLayerPubKey,
 											PrivKeyShard&& privKeyShard)
@@ -28,6 +29,7 @@ namespace senc::server::managers
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_reg_member.emplace_back(
 			usersetID,
+			seed,
 			regLayerPubKey, ownerLayerPubKey,
 			std::move(privKeyShard)
 		);
@@ -35,23 +37,34 @@ namespace senc::server::managers
 
 	void UpdateManager::register_owner(const std::string& username,
 									   const UserSetID& usersetID,
+									   const Seed& seed,
 									   const PubKey& regLayerPubKey,
 									   const PubKey& ownerLayerPubKey,
-									   PrivKeyShard&& regLayerPrivKeyShard,
-									   PrivKeyShard&& ownerLayerPrivKeyShard)
+									   PrivKeyShard&& regExternalPrivKeyShard,
+									   const PrivKeyShard& regInternalPrivKeyShard,
+									   PrivKeyShard&& ownerExternalPrivKeyShard,
+									   const PrivKeyShard& ownerInternalPrivKeyShard)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
 		_updates[username].added_as_owner.emplace_back(
 			usersetID,
+			seed,
 			regLayerPubKey, ownerLayerPubKey,
-			std::move(regLayerPrivKeyShard), std::move(ownerLayerPrivKeyShard)
+			std::move(regExternalPrivKeyShard),
+			regInternalPrivKeyShard,
+			std::move(ownerExternalPrivKeyShard),
+			ownerInternalPrivKeyShard
 		);
 	}
 
-	void UpdateManager::register_lookup(const std::string& username, const OperationID& opid)
+	void UpdateManager::register_lookup(const std::string& username,
+										const OperationID& opid,
+										const UserSetID& usersetID)
 	{
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		_updates[username].on_lookup.push_back(opid);
+		_updates[username].on_lookup.push_back(pkt::UpdateResponse::OnLookupRecord{
+			opid, usersetID
+		});
 	}
 
 	void UpdateManager::register_decryption_participating(const std::string& username,
@@ -65,17 +78,37 @@ namespace senc::server::managers
 		);
 	}
 
-	void UpdateManager::register_finished_decrpytion(const std::string& username,
+	void UpdateManager::register_finished_decrpytion(const std::vector<std::string>& dstUsers,
 													 const OperationID& opid,
+													 const std::string& initiator,
+													 UserSetID&& usersetID,
+													 Ciphertext&& ciphertext,
 													 std::vector<DecryptionPart>&& regLayerParts,
 													 std::vector<DecryptionPart>&& ownerLayerParts,
 													 std::vector<PrivKeyShardID>&& regLayerShardsIDs,
 													 std::vector<PrivKeyShardID>&& ownerLayerShardsIDs)
 	{
+		if (dstUsers.empty())
+			return; // nobody to send to
+
+		// for all dst users, copy; for last - move
 		const std::lock_guard<std::mutex> lock(_mtxUpdates);
-		_updates[username].finished_decryptions.emplace_back(
-			opid, std::move(regLayerParts), std::move(ownerLayerParts),
+		for (const auto& dstUser: dstUsers | std::views::take(dstUsers.size() - 1))
+			_updates[dstUser].finished_decryptions.emplace_back(
+				opid, initiator, usersetID, ciphertext,
+				regLayerParts, ownerLayerParts,
+				regLayerShardsIDs, ownerLayerShardsIDs
+			);
+		_updates[dstUsers.back()].finished_decryptions.emplace_back(
+			opid, initiator, std::move(usersetID), std::move(ciphertext),
+			std::move(regLayerParts), std::move(ownerLayerParts),
 			std::move(regLayerShardsIDs), std::move(ownerLayerShardsIDs)
 		);
+	}
+
+	void UpdateManager::register_key_evolution(const std::string& user, const UserSetID& usersetID)
+	{
+		const std::lock_guard<std::mutex> lock(_mtxUpdates);
+		_updates[user].to_evolve.push_back({ usersetID });
 	}
 }

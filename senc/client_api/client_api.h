@@ -169,13 +169,13 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetCiphertextC3b(uintptr_t hCiphertext) SE
  * @param serverIP Server IP in string form (either IPv4 or IPv6).
  * @param serverPort Server's listen port.
  * @param decryptFinishedCallback Callback function to invoke on decrypt finish
- *								  (accepts opid chars, plaintext bytes, plaintext len, context).
+ *								  (accepts opid chars, initiator chars, plaintext bytes, plaintext len, context).
  * @param decryptFinishedContext Context to pass `decryptFinishedCallback`.
  * @return New client handle, or error if failed.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_Connect(
 	const char* serverIP, uint16_t serverPort,
-	void(*decryptFinishedCallback)(const char*, const uint8_t*, uint64_t, uintptr_t),
+	void(*decryptFinishedCallback)(const char*, const char*, const uint8_t*, uint64_t, uintptr_t),
 	uintptr_t decryptFinishedContext
 ) SENC_NOTHROW;
 
@@ -189,23 +189,28 @@ SENC_CLIENT_API_PUBLIC void SENC_Disconnect(uintptr_t hClient) SENC_NOTHROW;
 /**
  * @brief Signs up as a new username (and stays logged in).
  * @param hClient Client handle.
+ * @param profileBaseDir Base directory where local profile data should be stored.
  * @param username Username to signup with.
  * @param password Password to signup with.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_SignUp(uintptr_t hClient,
+											 const char* profileBaseDir,
 											 const char* username,
 											 const char* password) SENC_NOTHROW;
 
 /**
  * @brief Logs in to server (and stays logged in).
+ * @param hClient Client handle.
+ * @param profileBaseDir Base directory where local profile data should be stored.
  * @param username Username to login with.
  * @param password Password to login with.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_LogIn(uintptr_t hClient,
+											const char* profileBaseDir,
 											const char* username,
 											const char* password) SENC_NOTHROW;
 
@@ -256,21 +261,36 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegPubKey(uintptr_t pRecor
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerPubKey(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
- * @brief Gets reg layer private key shard from profile record pointer.
+ * @brief Gets reg layer external private key shard from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing reg layer private key shard, or error if failed.
+ * @return Handle to bytes buffer representing key shard, or error if failed.
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegShard(uintptr_t pRecord) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegExternalShard(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
- * @brief Gets owner layer private key shard from profile record pointer.
+ * @brief Gets reg layer internal private key shard from profile record pointer.
  * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
- * @return Handle to bytes buffer representing owner layer private key shard,
- *		   or error if not an owner record (or failed).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
  * @note Calling this function on a non-profile-record pointer is undefined behaviour.
  */
-SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pRecord) SENC_NOTHROW;
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordRegInternalShard(uintptr_t pRecord) SENC_NOTHROW;
+
+/**
+ * @brief Gets owner layer external private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerExternalShard(uintptr_t pRecord) SENC_NOTHROW;
+
+/**
+ * @brief Gets owner layer internal private key shard from profile record pointer.
+ * @param pRecord Profile record pointer (as provided by `IterUserProfile`).
+ * @return Handle to bytes buffer representing key shard, or error if not an owner record (or failed).
+ * @note Calling this function on a non-profile-record pointer is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerInternalShard(uintptr_t pRecord) SENC_NOTHROW;
 
 /**
  * @brief Creates a new userset.
@@ -280,6 +300,7 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetProfileRecordOwnerShard(uintptr_t pReco
  * @param regMembers Usernames of userset's non-owner members.
  * @param ownersThreshold Minimum amount of owners required for decryption.
  * @param regMembersThreshold Minimum amount of non-owners required for decryption.
+ * @param name Userset name (for display).
  * @return Userset's ID (string handle), or error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
@@ -289,19 +310,21 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_MakeUserSet(uintptr_t hClient,
 												  const char** owners,
 												  const char** regMembers,
 												  uint64_t ownersThreshold,
-												  uint64_t regMembersThreshold) SENC_NOTHROW;
+												  uint64_t regMembersThreshold,
+												  const char* name) SENC_NOTHROW;
 
 /**
  * @brief Gets all usersets owned by user.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
- * @param callback Callback function accepting ID of each userset owned by user (string chars) and context.
+ * @param callback Callback function accepting ID and name of each userset owned by user (string chars) and
+ *                 context.
  * @param context Context to pass `callback`.
  * @return Null on success, error if failed.
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_GetUserSets(uintptr_t hClient,
-												  void(*callback)(const char*, uintptr_t),
+												  void(*callback)(const char*, const char*, uintptr_t),
 												  uintptr_t context) SENC_NOTHROW;
 
 /**
@@ -349,6 +372,23 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
 											  uintptr_t hCiphertext) SENC_NOTHROW;
 
 /**
+ * @brief Queues a message decryption (& send) under a userset.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param usersetID ID of userset to decrypt under.
+ * @param ciphertext Encrypted message to decrypt.
+ * @param dstUsersCount Amount of users to send decryption to.
+ * @param dstUsers Usernames of users to send decryption to.
+ * @return Decryption operation ID (string handle), or error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_DecryptSend(uintptr_t hClient,
+												  const char* usersetID,
+												  uintptr_t hCiphertext,
+												  uint64_t dstUsersCount,
+												  const char** dstUsers) SENC_NOTHROW;
+
+/**
  * @brief Forces client update.
  * @note Requires user to be logged in.
  * @param hClient Client handle.
@@ -356,6 +396,31 @@ SENC_CLIENT_API_PUBLIC uintptr_t SENC_Decrypt(uintptr_t hClient,
  * @note Calling this function on a non-client handle is undefined behaviour.
  */
 SENC_CLIENT_API_PUBLIC uintptr_t SENC_ForceUpdate(uintptr_t hClient) SENC_NOTHROW;
+
+/**
+ * @brief Searches for a user.
+ * @note Requires user to be logged in.
+ * @param hClient Client handle.
+ * @param query Search query (part of username).
+ * @param callback Callback to call on each username found.
+ * @param conetxt Context to pass `callback`.
+ * @return Null on success, error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_UserSearch(uintptr_t hClient,
+												 const char* query,
+												 void(*callback)(const char*, uintptr_t),
+												 uintptr_t context) SENC_NOTHROW;
+
+/**
+ * @brief Requests key evolution for a specific userset.
+ * @note Requires user to be logged in.
+ * @param usersetID ID of userset to request evolution for.
+ * @return Null on success, error if failed.
+ * @note Calling this function on a non-client handle is undefined behaviour.
+ */
+SENC_CLIENT_API_PUBLIC uintptr_t SENC_EvolveUserSet(uintptr_t hClient,
+													const char* usersetID) SENC_NOTHROW;
 
 
 #ifdef __cplusplus

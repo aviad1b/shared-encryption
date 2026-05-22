@@ -13,14 +13,19 @@
 namespace senc::utils
 {
 	template <AccessFlags accessFlags, std::endian endianess>
-	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
+	inline BinFile<accessFlags, endianess>::BinFile(std::string&& path)
 		: _file(std::fopen(path.c_str(), access_flags_to_binary_mode<accessFlags>().c_str())),
-		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None)
+		  _pos(0), _size(0), _prevUnderlyingOperation(UnderlyingOperation::None),
+		  _path(std::move(path))
 	{
 		if (!_file)
-			throw FileException("Failed to open file");
+			throw FileException("Failed to open file", this->_path);
 		update_internal_pos_and_size();
 	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	inline BinFile<accessFlags, endianess>::BinFile(const std::string& path)
+		: Self(std::string(path)) { }
 
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::~BinFile()
@@ -35,7 +40,8 @@ namespace senc::utils
 	template <AccessFlags accessFlags, std::endian endianess>
 	inline BinFile<accessFlags, endianess>::BinFile(Self&& other) noexcept
 		: _file(other._file), _pos(other._pos), _size(other._size),
-		  _prevUnderlyingOperation(other._prevUnderlyingOperation)
+		  _prevUnderlyingOperation(other._prevUnderlyingOperation),
+		  _path(std::move(other._path))
 	{
 		other._file = nullptr;
 		other._pos = 0;
@@ -58,6 +64,12 @@ namespace senc::utils
 		utils::swap(this->_pos, other._pos);
 		utils::swap(this->_size, other._size);
 		utils::swap(this->_prevUnderlyingOperation, other._prevUnderlyingOperation);
+	}
+
+	template <AccessFlags accessFlags, std::endian endianess>
+	inline bool BinFile<accessFlags, endianess>::empty() const
+	{
+		return (0 == this->size());
 	}
 
 	template <AccessFlags accessFlags, std::endian endianess>
@@ -202,7 +214,7 @@ namespace senc::utils
 	inline void BinFile<accessFlags, endianess>::underlying_seek(file_pos_t pos, int origin)
 	{
 		if (0 != std::fseek(_file, pos, origin))
-			throw FileException("Failed to set file position");
+			throw FileException("Failed to set file position", this->_path);
 		_prevUnderlyingOperation = UnderlyingOperation::None;
 	}
 
@@ -211,7 +223,7 @@ namespace senc::utils
 	{
 		file_pos_t pos = ftell(_file);
 		if (pos < 0)
-			throw FileException("Failed to locate file cursor");
+			throw FileException("Failed to locate file cursor", this->_path);
 		return pos;
 	}
 
@@ -227,7 +239,14 @@ namespace senc::utils
 			refresh_cursor();
 
 		if (0 == std::fread(buffer, sizeof(T), count, _file))
-			throw FileException("Failed to read from file");
+		{
+			if (feof(_file))
+				throw FileException("Failed to read from file " + this->_path, "EOF");
+			else if (ferror(_file))
+				throw FileException("Failed to read from file " + this->_path, strerror(errno));
+			else
+				throw FileException("Failed to read from file " + this->_path);
+		}
 
 		// reverse endianess if needs to
 		if constexpr (std::endian::native != endianess && sizeof(T) > 1)
@@ -250,14 +269,14 @@ namespace senc::utils
 		if constexpr (std::endian::native == endianess || sizeof(T) <= 1)
 		{
 			if (0 == std::fwrite(buffer, sizeof(T), count, _file))
-				throw FileException("Failed to write to file");
+				throw FileException("Failed to write to file", this->_path);
 		}
 		else
 		{
 			std::vector<T> tempBuff(buffer, buffer + count);
 			reverse_elems_endianess(tempBuff.data(), count);
 			if (0 == std::fwrite(tempBuff.data(), sizeof(T), count, _file))
-				throw FileException("Failed to write to file");
+				throw FileException("Failed to write to file", this->_path);
 		}
 		update_internal_pos_and_size();
 		_prevUnderlyingOperation = UnderlyingOperation::Write;

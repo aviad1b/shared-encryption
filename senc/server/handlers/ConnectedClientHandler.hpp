@@ -60,6 +60,7 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Creates a new userset.
+		 * @param name Name for userset.
 		 * @param creator Creator's username.
 		 * @param owners Usernames of userset's owners (besides `creator`).
 		 * @param regMembers Usernames of userset's non-owner members.
@@ -68,7 +69,8 @@ namespace senc::server::handlers
 		 * @return MakeUsersetResponse containing information about created userset (to return to creator).
 		 * @throw ServerException In case of error.
 		 */
-		pkt::MakeUserSetResponse make_userset(const std::string& creator,
+		pkt::MakeUserSetResponse make_userset(const std::string& name,
+											  const std::string& creator,
 											  const std::vector<std::string>& owners,
 											  const std::vector<std::string>& regMembers,
 											  member_count_t ownersThreshold,
@@ -76,11 +78,13 @@ namespace senc::server::handlers
 
 		/**
 		 * @brief Initiates a decryption operation.
+		 * @param dstUsers Usernames of users that should get decryption parts (moved).
 		 * @param usersetID ID of userset under which decryption should be computed.
 		 * @param ciphertext Ciphertext to decrypt.
 		 * @return Operation ID of initiated decryption operation.
 		 */
-		OperationID initiate_decryption(const UserSetID& usersetID,
+		OperationID initiate_decryption(std::vector<std::string>&& dstUsers,
+										const UserSetID& usersetID,
 										Ciphertext&& ciphertext);
 
 		/**
@@ -117,5 +121,9 @@ namespace senc::server::handlers
 		Status handle_request(pkt::DecryptParticipateRequest& request);
 
 		Status handle_request(pkt::SendDecryptionPartRequest& request);
+
+		Status handle_request(pkt::UserSearchRequest& request);
+
+		Status handle_request(pkt::EvolveRequest& request);
 	};
 }
