@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37216.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedEncryptionChat", "SharedEncryptionChat\SharedEncryptionChat.csproj", "{E5C7B091-4B5F-8147-6E48-2A91AAFF6562}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedEncryptionChat.Desktop", "SharedEncryptionChat.Desktop\SharedEncryptionChat.Desktop.csproj", "{A1DB5055-28FE-CBE4-EE58-6FEE9E6B5788}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5C7B091-4B5F-8147-6E48-2A91AAFF6562}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5C7B091-4B5F-8147-6E48-2A91AAFF6562}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5C7B091-4B5F-8147-6E48-2A91AAFF6562}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5C7B091-4B5F-8147-6E48-2A91AAFF6562}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1DB5055-28FE-CBE4-EE58-6FEE9E6B5788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1DB5055-28FE-CBE4-EE58-6FEE9E6B5788}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1DB5055-28FE-CBE4-EE58-6FEE9E6B5788}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1DB5055-28FE-CBE4-EE58-6FEE9E6B5788}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {71485D1C-5E0F-41C6-945C-2A82D7B8042D}
+	EndGlobalSection
+EndGlobal
