@@ -23,7 +23,6 @@
     <Folder Include="BackEnd\" />
     <Folder Include="Behaviors\" />
     <Folder Include="Controls\" />
-    <Folder Include="Converters\" />
     <Folder Include="Services\" />
     <Folder Include="Styles\" />
   </ItemGroup>
