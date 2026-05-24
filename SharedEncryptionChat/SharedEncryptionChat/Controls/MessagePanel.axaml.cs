@@ -12,7 +12,7 @@ namespace SharedEncryptionChat.Controls;
 public class MessagePanel : TemplatedControl
 {
     /// <summary>
-    /// MessageSide StyledProperty definition
+    /// MessageSide StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<MessageSide> MessageSideProperty =
         AvaloniaProperty.Register<MessagePanel, MessageSide>(nameof(MessageSide), MessageSide.Sent);
@@ -28,7 +28,7 @@ public class MessagePanel : TemplatedControl
     }
 
     /// <summary>
-    /// BubbleBrush StyledProperty definition
+    /// BubbleBrush StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<IBrush?> BubbleBrushProperty =
         AvaloniaProperty.Register<MessagePanel, IBrush?>(nameof(BubbleBrush), null);
@@ -60,7 +60,7 @@ public class MessagePanel : TemplatedControl
     }
 
     /// <summary>
-    /// TailSize StyledProperty definition
+    /// TailSize StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<double> TailSizeProperty =
         AvaloniaProperty.Register<MessagePanel, double>(nameof(TailSize), 5);
