@@ -70,13 +70,19 @@
 
           <Path Grid.Column="0"
                 Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
-                Data="{TemplateBinding TailSize,
-                       Converter={StaticResource TailSizeToGeometryConverter},
-                       ConverterParameter={TemplateBinding MessageSide}}"
                 Fill="{TemplateBinding BubbleBrush}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Margin="0,4,0,0"/>
+                Margin="0,4,0,0">
+            <Path.Data>
+              <MultiBinding Converter="{StaticResource TailSizeToGeometryConverter}">
+                <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                         Path="TailSize"/>
+                <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                         Path="MessageSide"/>
+              </MultiBinding>
+            </Path.Data>
+          </Path>
 
         </Grid>
 

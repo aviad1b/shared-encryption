@@ -2,6 +2,7 @@
 using Avalonia.Media;
 using SharedEncryptionChat.Models;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace SharedEncryptionChat.Converters;
@@ -9,17 +10,15 @@ namespace SharedEncryptionChat.Converters;
 /// <summary>
 /// Converts message control tail size to geometry object.
 /// </summary>
-public class TailSizeToGeometryConverter : IValueConverter
+public class TailSizeToGeometryConverter : IMultiValueConverter
 {
     /// <inheritdoc/>
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        // expecting tail size value
-        if (value is not double tailSize)
-            return null;
-
-        // expecting message side parameter
-        if (parameter is not MessageSide messageSide)
+        // expecting tail size value and message side value
+        if (2 != values.Count ||
+                values[0] is not double tailSize ||
+                values[1] is not MessageSide messageSide)
             return null;
 
         if (MessageSide.Sent != messageSide)
@@ -29,12 +28,5 @@ public class TailSizeToGeometryConverter : IValueConverter
         return Geometry.Parse(
             $"M {2 * tailSize} 0 L 0 {tailSize} L {2 * tailSize} {2 * tailSize} Z"
         );
-    }
-
-    /// <inheritdoc/>
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        // not supported
-        throw new NotSupportedException();
     }
 }
