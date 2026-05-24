@@ -22,21 +22,6 @@
                            TailSize="6"/>
     </StackPanel>
   </Design.PreviewWith>
-
-  <!-- Theme definition -->
-  <ResourceDictionary.ThemeDictionaries>
-
-    <ResourceDictionary x:Key="Light">
-      <SolidColorBrush x:Key="SentMessageBrush"
-                       Color="#90EE90"/>
-    </ResourceDictionary>
-
-    <ResourceDictionary x:Key="Dark">
-      <SolidColorBrush x:Key="SentMessageBrush"
-                       Color="#1F6B3A"/>
-    </ResourceDictionary>
-    
-  </ResourceDictionary.ThemeDictionaries>
   
   <!-- Control definition -->
   <ControlTheme x:Key="{x:Type cc:SentMessagePanel}"

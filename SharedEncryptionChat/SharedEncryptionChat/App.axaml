@@ -7,6 +7,7 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Resources/Themes.axaml"/>
         <ResourceInclude Source="/Controls/SentMessagePanel.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
