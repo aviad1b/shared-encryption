@@ -26,8 +26,6 @@ public class MessagePanel : TemplatedControl
         set => SetValue(BubbleBrushProperty, value);
     }
 
-
-
     /// <summary>
     /// ShowTail StyledProperty definition.
     /// </summary>
@@ -43,7 +41,6 @@ public class MessagePanel : TemplatedControl
         get => GetValue(ShowTailProperty);
         set => SetValue(ShowTailProperty, value);
     }
-
 
     /// <summary>
     /// TailSize StyledProperty definition
