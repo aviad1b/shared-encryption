@@ -1,5 +1,6 @@
 ﻿using Avalonia.Data.Converters;
 using Avalonia.Media;
+using SharedEncryptionChat.Models;
 using System;
 using System.Globalization;
 
@@ -16,6 +17,13 @@ public class TailSizeToGeometryConverter : IValueConverter
         // expecting tail size value
         if (value is not double tailSize)
             return null;
+
+        // expecting message side parameter
+        if (parameter is not MessageSide messageSide)
+            return null;
+
+        if (MessageSide.Sent != messageSide)
+            throw new NotSupportedException(); // TODO: implement received tail
 
         // return tail geometry proportional to `tailSize`
         return Geometry.Parse(

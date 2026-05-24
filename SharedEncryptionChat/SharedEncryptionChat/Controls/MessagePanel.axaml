@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:cc="using:SharedEncryptionChat.Controls"
                     xmlns:conv="using:SharedEncryptionChat.Converters"
+                    xmlns:m="using:SharedEncryptionChat.Models"
                     xmlns:pr="using:AvaloniaProgressRing">
 
   <Design.PreviewWith>
@@ -70,7 +71,9 @@
 
           <Path Grid.Column="0"
                 Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
-                Data="{TemplateBinding TailSize, Converter={StaticResource TailSizeToGeometryConverter}}"
+                Data="{TemplateBinding TailSize,
+                       Converter={StaticResource TailSizeToGeometryConverter},
+                       ConverterParameter={x:Static m:MessageSide.Sent}}"
                 Fill="{TemplateBinding BubbleBrush}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
