@@ -21,12 +21,10 @@ public class MessageTailGeometryConverter : IMultiValueConverter
                 values[1] is not MessageSide messageSide)
             return null;
 
-        if (MessageSide.Sent != messageSide)
-            throw new NotSupportedException(); // TODO: implement received tail
-
-        // return tail geometry proportional to `tailSize`
-        return Geometry.Parse(
+        // return tail geometry proportional to `tailSize`, facing correct direction
+        string geometry = MessageSide.Sent == messageSide ?
             $"M {2 * tailSize} 0 L 0 {tailSize} L {2 * tailSize} {2 * tailSize} Z"
-        );
+            : $"M 0 0 L {2 * tailSize} {tailSize} L 0 {2 * tailSize} Z";
+        return Geometry.Parse(geometry);
     }
 }
