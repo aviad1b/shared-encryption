@@ -25,6 +25,23 @@ public class SentMessagePanel : TemplatedControl
         set => SetValue(ShowTailProperty, value);
     }
 
+
+    /// <summary>
+    /// TailSize StyledProperty definition
+    /// </summary>
+    public static readonly StyledProperty<double> TailSizeProperty =
+        AvaloniaProperty.Register<SentMessagePanel, double>(nameof(TailSize), 5);
+
+    /// <summary>
+    /// Gets or sets the TailSize property. This StyledProperty 
+    /// indicates the size of the speech bubble's tail (if shown).
+    /// </summary>
+    public double TailSize
+    {
+        get => GetValue(TailSizeProperty);
+        set => SetValue(TailSizeProperty, value);
+    }
+
     /// <summary>
     /// Content StyledProperty definition.
     /// </summary>

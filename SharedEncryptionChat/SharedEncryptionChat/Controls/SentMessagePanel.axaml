@@ -6,17 +6,20 @@
   
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="1">
-      <cc:SentMessagePanel ShowTail="True">
+      <cc:SentMessagePanel ShowTail="True"
+                           TailSize="6">
         <cc:SentMessagePanel.Content>
           <TextBlock Text="Some Text"/>
         </cc:SentMessagePanel.Content>
       </cc:SentMessagePanel>
-      <cc:SentMessagePanel ShowTail="False">
+      <cc:SentMessagePanel ShowTail="False"
+                           TailSize="6">
         <cc:SentMessagePanel.Content>
           <TextBlock Text="More Text"/>
         </cc:SentMessagePanel.Content>
       </cc:SentMessagePanel>
-      <cc:SentMessagePanel ShowTail="False"/>
+      <cc:SentMessagePanel ShowTail="False"
+                           TailSize="6"/>
     </StackPanel>
   </Design.PreviewWith>
 
@@ -46,6 +49,8 @@
       <conv:NotNullConverter x:Key="NotNullConverter"/>
       
       <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
+      
+      <conv:TailSizeToGeometryConverter x:Key="TailSizeToGeometryConverter"/>
       
     </ControlTheme.Resources>
     
@@ -77,7 +82,7 @@
 
           <Path Grid.Column="0"
                 Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
-                Data="M 10 0 L 0 5 L 10 10 Z"
+                Data="{TemplateBinding TailSize, Converter={StaticResource TailSizeToGeometryConverter}}"
                 Fill="{DynamicResource SentMessageBrush}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
