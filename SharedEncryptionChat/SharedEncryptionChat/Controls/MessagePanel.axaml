@@ -39,6 +39,10 @@
       <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
 
       <conv:MessageTailGeometryConverter x:Key="MessageTailGeometryConverter"/>
+      
+      <conv:MessageSideToBubbleColumnConverter x:Key="MessageSideToBubbleColumnConverter"/>
+      
+      <conv:MessageSideToTailColumnConverter x:Key="MessageSideToTailColumnConverter"/>
 
     </ControlTheme.Resources>
 
@@ -50,7 +54,8 @@
 
         <Grid ColumnDefinitions="*,*">
 
-          <Border Grid.Column="1"
+          <Border Grid.Column="{TemplateBinding MessageSide,
+                                Converter={StaticResource MessageSideToBubbleColumnConverter}}"
                   Background="{TemplateBinding BubbleBrush}"
                   Padding="10"
                   CornerRadius="5">
@@ -68,7 +73,8 @@
 
           </Border>
 
-          <Path Grid.Column="0"
+          <Path Grid.Column="{TemplateBinding MessageSide,
+                              Converter={StaticResource MessageSideToTailColumnConverter}}"
                 Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
                 Fill="{TemplateBinding BubbleBrush}"
                 HorizontalAlignment="Left"
