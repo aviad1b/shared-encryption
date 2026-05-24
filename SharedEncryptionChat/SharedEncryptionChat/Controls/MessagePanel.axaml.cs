@@ -10,7 +10,6 @@ namespace SharedEncryptionChat.Controls;
 /// </summary>
 public class MessagePanel : TemplatedControl
 {
-
     /// <summary>
     /// BubbleBrush StyledProperty definition
     /// </summary>
