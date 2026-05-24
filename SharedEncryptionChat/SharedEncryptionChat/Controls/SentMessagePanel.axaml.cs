@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 
 namespace SharedEncryptionChat.Controls;
 
@@ -9,6 +10,25 @@ namespace SharedEncryptionChat.Controls;
 /// </summary>
 public class SentMessagePanel : TemplatedControl
 {
+
+    /// <summary>
+    /// BubbleBrush StyledProperty definition
+    /// </summary>
+    public static readonly StyledProperty<IBrush?> BubbleBrushProperty =
+        AvaloniaProperty.Register<SentMessagePanel, IBrush?>(nameof(BubbleBrush), null);
+
+    /// <summary>
+    /// Gets or sets the BubbleBrush property. This StyledProperty 
+    /// indicates the brush used to draw the message bubble.
+    /// </summary>
+    public IBrush? BubbleBrush
+    {
+        get => this.GetValue(BubbleBrushProperty);
+        set => SetValue(BubbleBrushProperty, value);
+    }
+
+
+
     /// <summary>
     /// ShowTail StyledProperty definition.
     /// </summary>

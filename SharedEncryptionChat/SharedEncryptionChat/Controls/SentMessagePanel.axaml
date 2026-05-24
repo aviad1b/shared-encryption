@@ -7,19 +7,22 @@
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="1">
       <cc:SentMessagePanel ShowTail="True"
-                           TailSize="6">
+                           TailSize="6"
+                           BubbleBrush="{DynamicResource SentMessageBrush}">
         <cc:SentMessagePanel.Content>
           <TextBlock Text="Some Text"/>
         </cc:SentMessagePanel.Content>
       </cc:SentMessagePanel>
       <cc:SentMessagePanel ShowTail="False"
-                           TailSize="6">
+                           TailSize="6"
+                           BubbleBrush="{DynamicResource SentMessageBrush}">
         <cc:SentMessagePanel.Content>
           <TextBlock Text="More Text"/>
         </cc:SentMessagePanel.Content>
       </cc:SentMessagePanel>
       <cc:SentMessagePanel ShowTail="False"
-                           TailSize="6"/>
+                           TailSize="6"
+                           BubbleBrush="{DynamicResource SentMessageBrush}"/>
     </StackPanel>
   </Design.PreviewWith>
   
@@ -48,7 +51,7 @@
         <Grid ColumnDefinitions="*,*">
 
           <Border Grid.Column="1"
-                  Background="{DynamicResource SentMessageBrush}"
+                  Background="{TemplateBinding BubbleBrush}"
                   Padding="10"
                   CornerRadius="5">
 
@@ -68,7 +71,7 @@
           <Path Grid.Column="0"
                 Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
                 Data="{TemplateBinding TailSize, Converter={StaticResource TailSizeToGeometryConverter}}"
-                Fill="{DynamicResource SentMessageBrush}"
+                Fill="{TemplateBinding BubbleBrush}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Margin="0,4,0,0"/>
