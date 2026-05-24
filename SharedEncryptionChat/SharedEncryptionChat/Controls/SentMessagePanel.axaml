@@ -81,7 +81,7 @@
                 Fill="{DynamicResource SentMessageBrush}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Margin="-4,4,0,0"/>
+                Margin="0,4,0,0"/>
 
         </Grid>
         
