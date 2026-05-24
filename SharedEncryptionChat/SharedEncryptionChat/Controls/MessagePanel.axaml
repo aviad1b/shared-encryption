@@ -8,21 +8,27 @@
     <StackPanel Width="400" Spacing="1">
       <cc:MessagePanel ShowTail="True"
                        TailSize="6"
-                       BubbleBrush="{DynamicResource SentMessageBrush}">
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent">
         <cc:MessagePanel.Content>
           <TextBlock Text="Some Text"/>
         </cc:MessagePanel.Content>
       </cc:MessagePanel>
       <cc:MessagePanel ShowTail="False"
                        TailSize="6"
-                       BubbleBrush="{DynamicResource SentMessageBrush}">
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent">
         <cc:MessagePanel.Content>
           <TextBlock Text="More Text"/>
         </cc:MessagePanel.Content>
       </cc:MessagePanel>
       <cc:MessagePanel ShowTail="False"
                        TailSize="6"
-                       BubbleBrush="{DynamicResource SentMessageBrush}"/>
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent"/>
+      <cc:MessagePanel ShowTail="True"
+                       TailSize="6"
+                       MessageSide="Received"/>
     </StackPanel>
   </Design.PreviewWith>
 
