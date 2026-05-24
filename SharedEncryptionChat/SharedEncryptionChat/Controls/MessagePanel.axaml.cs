@@ -8,14 +8,14 @@ namespace SharedEncryptionChat.Controls;
 /// <summary>
 /// Custom Control: Panel for displaying a sent chat message.
 /// </summary>
-public class SentMessagePanel : TemplatedControl
+public class MessagePanel : TemplatedControl
 {
 
     /// <summary>
     /// BubbleBrush StyledProperty definition
     /// </summary>
     public static readonly StyledProperty<IBrush?> BubbleBrushProperty =
-        AvaloniaProperty.Register<SentMessagePanel, IBrush?>(nameof(BubbleBrush), null);
+        AvaloniaProperty.Register<MessagePanel, IBrush?>(nameof(BubbleBrush), null);
 
     /// <summary>
     /// Gets or sets the BubbleBrush property. This StyledProperty 
@@ -33,7 +33,7 @@ public class SentMessagePanel : TemplatedControl
     /// ShowTail StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<bool> ShowTailProperty =
-        AvaloniaProperty.Register<SentMessagePanel, bool>(nameof(ShowTail), true);
+        AvaloniaProperty.Register<MessagePanel, bool>(nameof(ShowTail), true);
 
     /// <summary>
     /// Gets or sets the ShowTail property. This StyledProperty 
@@ -50,7 +50,7 @@ public class SentMessagePanel : TemplatedControl
     /// TailSize StyledProperty definition
     /// </summary>
     public static readonly StyledProperty<double> TailSizeProperty =
-        AvaloniaProperty.Register<SentMessagePanel, double>(nameof(TailSize), 5);
+        AvaloniaProperty.Register<MessagePanel, double>(nameof(TailSize), 5);
 
     /// <summary>
     /// Gets or sets the TailSize property. This StyledProperty 
@@ -66,7 +66,7 @@ public class SentMessagePanel : TemplatedControl
     /// Content StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<Control?> ContentProperty =
-        AvaloniaProperty.Register<SentMessagePanel, Control?>(nameof(Content), null);
+        AvaloniaProperty.Register<MessagePanel, Control?>(nameof(Content), null);
 
     /// <summary>
     /// Gets or sets the Content property. This StyledProperty 

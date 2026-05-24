@@ -3,48 +3,48 @@
                     xmlns:cc="using:SharedEncryptionChat.Controls"
                     xmlns:conv="using:SharedEncryptionChat.Converters"
                     xmlns:pr="using:AvaloniaProgressRing">
-  
+
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="1">
-      <cc:SentMessagePanel ShowTail="True"
-                           TailSize="6"
-                           BubbleBrush="{DynamicResource SentMessageBrush}">
-        <cc:SentMessagePanel.Content>
+      <cc:MessagePanel ShowTail="True"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}">
+        <cc:MessagePanel.Content>
           <TextBlock Text="Some Text"/>
-        </cc:SentMessagePanel.Content>
-      </cc:SentMessagePanel>
-      <cc:SentMessagePanel ShowTail="False"
-                           TailSize="6"
-                           BubbleBrush="{DynamicResource SentMessageBrush}">
-        <cc:SentMessagePanel.Content>
+        </cc:MessagePanel.Content>
+      </cc:MessagePanel>
+      <cc:MessagePanel ShowTail="False"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}">
+        <cc:MessagePanel.Content>
           <TextBlock Text="More Text"/>
-        </cc:SentMessagePanel.Content>
-      </cc:SentMessagePanel>
-      <cc:SentMessagePanel ShowTail="False"
-                           TailSize="6"
-                           BubbleBrush="{DynamicResource SentMessageBrush}"/>
+        </cc:MessagePanel.Content>
+      </cc:MessagePanel>
+      <cc:MessagePanel ShowTail="False"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}"/>
     </StackPanel>
   </Design.PreviewWith>
-  
+
   <!-- Control definition -->
-  <ControlTheme x:Key="{x:Type cc:SentMessagePanel}"
-                TargetType="cc:SentMessagePanel">
+  <ControlTheme x:Key="{x:Type cc:MessagePanel}"
+                TargetType="cc:MessagePanel">
 
     <ControlTheme.Resources>
-      
+
       <conv:IsNullConverter x:Key="IsNullConverter"/>
-      
+
       <conv:NotNullConverter x:Key="NotNullConverter"/>
-      
+
       <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
-      
+
       <conv:TailSizeToGeometryConverter x:Key="TailSizeToGeometryConverter"/>
-      
+
     </ControlTheme.Resources>
-    
+
     <!-- Control properties -->
     <Setter Property="HorizontalAlignment" Value="Left"/>
-    
+
     <Setter Property="Template">
       <ControlTemplate>
 
@@ -77,10 +77,10 @@
                 Margin="0,4,0,0"/>
 
         </Grid>
-        
+
       </ControlTemplate>
     </Setter>
-    
+
   </ControlTheme>
-  
+
 </ResourceDictionary>
