@@ -9,7 +9,7 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="/Controls/SentMessagePanel.axaml"/>
       </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>        
+    </ResourceDictionary>
   </Application.Resources>
   
   <Application.Styles>
