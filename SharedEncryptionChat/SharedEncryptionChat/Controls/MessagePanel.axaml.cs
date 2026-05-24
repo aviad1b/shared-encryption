@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using SharedEncryptionChat.Models;
 
 namespace SharedEncryptionChat.Controls;
 
@@ -10,6 +11,22 @@ namespace SharedEncryptionChat.Controls;
 /// </summary>
 public class MessagePanel : TemplatedControl
 {
+    /// <summary>
+    /// MessageSide StyledProperty definition
+    /// </summary>
+    public static readonly StyledProperty<MessageSide> MessageSideProperty =
+        AvaloniaProperty.Register<MessagePanel, MessageSide>(nameof(MessageSide), MessageSide.Sent);
+
+    /// <summary>
+    /// Gets or sets the MessageSide property. This StyledProperty 
+    /// indicates the side of the displayed message (sent/received).
+    /// </summary>
+    public MessageSide MessageSide
+    {
+        get => GetValue(MessageSideProperty);
+        set => SetValue(MessageSideProperty, value);
+    }
+
     /// <summary>
     /// BubbleBrush StyledProperty definition
     /// </summary>
