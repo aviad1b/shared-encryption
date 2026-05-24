@@ -38,7 +38,7 @@
 
       <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
 
-      <conv:TailSizeToGeometryConverter x:Key="TailSizeToGeometryConverter"/>
+      <conv:MessageTailGeometryConverter x:Key="MessageTailGeometryConverter"/>
 
     </ControlTheme.Resources>
 
@@ -75,7 +75,7 @@
                 VerticalAlignment="Top"
                 Margin="0,4,0,0">
             <Path.Data>
-              <MultiBinding Converter="{StaticResource TailSizeToGeometryConverter}">
+              <MultiBinding Converter="{StaticResource MessageTailGeometryConverter}">
                 <Binding RelativeSource="{RelativeSource TemplatedParent}"
                          Path="TailSize"/>
                 <Binding RelativeSource="{RelativeSource TemplatedParent}"

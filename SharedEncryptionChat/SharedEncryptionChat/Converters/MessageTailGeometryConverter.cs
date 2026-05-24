@@ -10,7 +10,7 @@ namespace SharedEncryptionChat.Converters;
 /// <summary>
 /// Converts message control tail size to geometry object.
 /// </summary>
-public class TailSizeToGeometryConverter : IMultiValueConverter
+public class MessageTailGeometryConverter : IMultiValueConverter
 {
     /// <inheritdoc/>
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
