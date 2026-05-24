@@ -1,0 +1,93 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cc="using:SharedEncryptionChat.Controls"
+                    xmlns:conv="using:SharedEncryptionChat.Converters"
+                    xmlns:pr="using:AvaloniaProgressRing">
+  
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="1">
+      <cc:SentMessagePanel ShowTail="True">
+        <cc:SentMessagePanel.Content>
+          <TextBlock Text="Some Text"/>
+        </cc:SentMessagePanel.Content>
+      </cc:SentMessagePanel>
+      <cc:SentMessagePanel ShowTail="False">
+        <cc:SentMessagePanel.Content>
+          <TextBlock Text="More Text"/>
+        </cc:SentMessagePanel.Content>
+      </cc:SentMessagePanel>
+      <cc:SentMessagePanel ShowTail="False"/>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <!-- Theme definition -->
+  <ResourceDictionary.ThemeDictionaries>
+
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="SentMessageBrush"
+                       Color="#90EE90"/>
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="SentMessageBrush"
+                       Color="#1F6B3A"/>
+    </ResourceDictionary>
+    
+  </ResourceDictionary.ThemeDictionaries>
+  
+  <!-- Control definition -->
+  <ControlTheme x:Key="{x:Type cc:SentMessagePanel}"
+                TargetType="cc:SentMessagePanel">
+
+    <ControlTheme.Resources>
+      
+      <conv:IsNullConverter x:Key="IsNullConverter"/>
+      
+      <conv:NotNullConverter x:Key="NotNullConverter"/>
+      
+      <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
+      
+    </ControlTheme.Resources>
+    
+    <!-- Control properties -->
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    
+    <Setter Property="Template">
+      <ControlTemplate>
+
+        <Grid ColumnDefinitions="*,*">
+
+          <Border Grid.Column="1"
+                  Background="{DynamicResource SentMessageBrush}"
+                  Padding="10"
+                  CornerRadius="5">
+
+            <Panel>
+
+              <ContentPresenter IsVisible="{TemplateBinding Content, Converter={StaticResource NotNullConverter}}"
+                                Content="{TemplateBinding Content}"/>
+
+              <pr:ProgressRing IsVisible="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                               IsActive="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                               Width="50" Height="50"/>
+
+            </Panel>
+
+          </Border>
+
+          <Path Grid.Column="0"
+                Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
+                Data="M 10 0 L 0 5 L 10 10 Z"
+                Fill="{DynamicResource SentMessageBrush}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="-4,4,0,0"/>
+
+        </Grid>
+        
+      </ControlTemplate>
+    </Setter>
+    
+  </ControlTheme>
+  
+</ResourceDictionary>

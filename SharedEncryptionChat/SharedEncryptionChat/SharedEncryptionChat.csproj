@@ -23,9 +23,8 @@
   <ItemGroup>
     <Folder Include="BackEnd\" />
     <Folder Include="Behaviors\" />
-    <Folder Include="Controls\" />
-    <Folder Include="Services\" />
     <Folder Include="Styles\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
