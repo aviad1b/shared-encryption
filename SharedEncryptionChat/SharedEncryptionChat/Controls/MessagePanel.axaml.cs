@@ -94,14 +94,14 @@ public class MessagePanel : TemplatedControl
     /// <summary>
     /// TitleFontSize StyledProperty definition.
     /// </summary>
-    public static readonly StyledProperty<int> TitleFontSizeProperty =
-        AvaloniaProperty.Register<MessagePanel, int>(nameof(TitleFontSize), 8);
+    public static readonly StyledProperty<double> TitleFontSizeProperty =
+        AvaloniaProperty.Register<MessagePanel, double>(nameof(TitleFontSize), 8);
 
     /// <summary>
     /// Gets or sets the TitleFontSize property. This StyledProperty 
     /// indicates font size for message title (if displayed).
     /// </summary>
-    public int TitleFontSize
+    public double TitleFontSize
     {
         get => GetValue(TitleFontSizeProperty);
         set => SetValue(TitleFontSizeProperty, value);
