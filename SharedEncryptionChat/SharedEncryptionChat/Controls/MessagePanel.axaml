@@ -5,7 +5,7 @@
                     xmlns:pr="using:AvaloniaProgressRing">
 
   <Design.PreviewWith>
-    <StackPanel Width="400" Spacing="1">
+    <StackPanel Width="200" Spacing="1">
       <cc:MessagePanel ShowTail="True"
                        TailSize="6"
                        BubbleBrush="{DynamicResource SentMessageBrush}"
