@@ -29,7 +29,8 @@
       <cc:MessagePanel ShowTail="True"
                        TailSize="6"
                        BubbleBrush="{DynamicResource ReceivedMessageBrush}"
-                       MessageSide="Received"/>
+                       MessageSide="Received"
+                       Title="Person"/>
     </StackPanel>
   </Design.PreviewWith>
 
@@ -66,19 +67,29 @@
           <Border Grid.Column="{TemplateBinding MessageSide,
                                 Converter={StaticResource MessageSideToBubbleColumnConverter}}"
                   Background="{TemplateBinding BubbleBrush}"
-                  Padding="10"
                   CornerRadius="5">
 
-            <Panel>
+            <Grid RowDefinitions="*,*">
 
-              <ContentPresenter IsVisible="{TemplateBinding Content, Converter={StaticResource NotNullConverter}}"
-                                Content="{TemplateBinding Content}"/>
+              <TextBlock Grid.Row="0"
+                         IsVisible="{TemplateBinding Title,
+                                     Converter={StaticResource NotNullConverter}}"
+                         Text="{TemplateBinding Title}"
+                         FontSize="8"
+                         Padding="3"/>
+              
+              <Panel Grid.Row="1" Margin="10">
 
-              <pr:ProgressRing IsVisible="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
-                               IsActive="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
-                               Width="50" Height="50"/>
+                <ContentPresenter IsVisible="{TemplateBinding Content, Converter={StaticResource NotNullConverter}}"
+                                  Content="{TemplateBinding Content}"/>
 
-            </Panel>
+                <pr:ProgressRing IsVisible="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                                 IsActive="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                                 Width="50" Height="50"/>
+
+              </Panel>
+
+            </Grid>
 
           </Border>
 

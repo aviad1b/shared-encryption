@@ -76,6 +76,22 @@ public class MessagePanel : TemplatedControl
     }
 
     /// <summary>
+    /// Title StyledProperty definition.
+    /// </summary>
+    public static readonly StyledProperty<string?> TitleProperty =
+        AvaloniaProperty.Register<MessagePanel, string?>(nameof(Title), null);
+
+    /// <summary>
+    /// Gets or sets the Title property. This StyledProperty 
+    /// indicates a title displayed above the message.
+    /// </summary>
+    public string? Title
+    {
+        get => GetValue(TitleProperty);
+        set => SetValue(TitleProperty, value);
+    }
+
+    /// <summary>
     /// Content StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<Control?> ContentProperty =
