@@ -9,7 +9,7 @@
                        Color="#90EE90"/>
       
       <SolidColorBrush x:Key="ReceivedMessageBrush"
-                       Color="#E9E9EB"/>
+                       Color="#E6EEF7"/>
       
     </ResourceDictionary>
 
@@ -19,7 +19,7 @@
                        Color="#1F6B3A"/>
       
       <SolidColorBrush x:Key="ReceivedMessageBrush"
-                       Color="#2B2B2F"/>
+                       Color="#243447"/>
       
     </ResourceDictionary>
 
