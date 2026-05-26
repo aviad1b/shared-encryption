@@ -28,6 +28,7 @@
                        MessageSide="Sent"/>
       <cc:MessagePanel ShowTail="True"
                        TailSize="6"
+                       BubbleBrush="{DynamicResource ReceivedMessageBrush}"
                        MessageSide="Received"/>
     </StackPanel>
   </Design.PreviewWith>
@@ -49,16 +50,18 @@
       <conv:MessageSideToBubbleColumnConverter x:Key="MessageSideToBubbleColumnConverter"/>
       
       <conv:MessageSideToTailColumnConverter x:Key="MessageSideToTailColumnConverter"/>
+      
+      <conv:MessageSideToHorizontalAlignmentConverter x:Key="MessageSideToHorizontalAlignmentConverter"/>
 
     </ControlTheme.Resources>
 
     <!-- Control properties -->
-    <Setter Property="HorizontalAlignment" Value="Left"/>
-
     <Setter Property="Template">
       <ControlTemplate>
 
-        <Grid ColumnDefinitions="*,*">
+        <Grid ColumnDefinitions="*,*"
+              HorizontalAlignment="{TemplateBinding MessageSide,
+                                    Converter={StaticResource MessageSideToHorizontalAlignmentConverter}}">
 
           <Border Grid.Column="{TemplateBinding MessageSide,
                                 Converter={StaticResource MessageSideToBubbleColumnConverter}}"
