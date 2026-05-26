@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using SharedEncryptionChat.Models;
@@ -92,6 +93,22 @@ public class MessagePanel : TemplatedControl
     }
 
     /// <summary>
+    /// TitleFontFamily StyledProperty definition.
+    /// </summary>
+    public static readonly StyledProperty<FontFamily> TitleFontFamilyProperty =
+        TextElement.FontFamilyProperty.AddOwner<MessagePanel>();
+
+    /// <summary>
+    /// Gets or sets the TitleFontFamily property. This StyledProperty 
+    /// indicates font family for message title (if displayed).
+    /// </summary>
+    public FontFamily TitleFontFamily
+    {
+        get => GetValue(TitleFontFamilyProperty);
+        set => SetValue(TitleFontFamilyProperty, value);
+    }
+
+    /// <summary>
     /// TitleFontSize StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<double> TitleFontSizeProperty =
@@ -105,6 +122,38 @@ public class MessagePanel : TemplatedControl
     {
         get => GetValue(TitleFontSizeProperty);
         set => SetValue(TitleFontSizeProperty, value);
+    }
+
+    /// <summary>
+    /// TitleFontStyle StyledProperty definition.
+    /// </summary>
+    public static readonly StyledProperty<FontStyle> TitleFontStyleProperty =
+        AvaloniaProperty.Register<MessagePanel, FontStyle>(nameof(TitleFontStyle), FontStyle.Normal);
+
+    /// <summary>
+    /// Gets or sets the TitleFontStyle property. This StyledProperty 
+    /// indicates font style for message title (if displayed).
+    /// </summary>
+    public FontStyle TitleFontStyle
+    {
+        get => GetValue(TitleFontStyleProperty);
+        set => SetValue(TitleFontStyleProperty, value);
+    }
+
+    /// <summary>
+    /// TitleFontWeight StyledProperty definition.
+    /// </summary>
+    public static readonly StyledProperty<FontWeight> TitleFontWeightProperty =
+        AvaloniaProperty.Register<MessagePanel, FontWeight>(nameof(TitleFontWeight), FontWeight.Normal);
+
+    /// <summary>
+    /// Gets or sets the TitleFontWeight property. This StyledProperty 
+    /// indicates font weight for message title (if displayed).
+    /// </summary>
+    public FontWeight TitleFontWeight
+    {
+        get => GetValue(TitleFontWeightProperty);
+        set => SetValue(TitleFontWeightProperty, value);
     }
 
     /// <summary>

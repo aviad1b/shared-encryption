@@ -75,7 +75,10 @@
                          IsVisible="{TemplateBinding Title,
                                      Converter={StaticResource NotNullConverter}}"
                          Text="{TemplateBinding Title}"
+                         FontFamily="{TemplateBinding FontFamily}"
                          FontSize="{TemplateBinding TitleFontSize}"
+                         FontStyle="{TemplateBinding TitleFontStyle}"
+                         FontWeight="{TemplateBinding TitleFontWeight}"
                          Padding="3"/>
               
               <Panel Grid.Row="1" Margin="10">
