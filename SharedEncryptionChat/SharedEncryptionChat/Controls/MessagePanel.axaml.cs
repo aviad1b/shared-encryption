@@ -96,7 +96,7 @@ public class MessagePanel : TemplatedControl
     /// TitleFontFamily StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<FontFamily> TitleFontFamilyProperty =
-        TextElement.FontFamilyProperty.AddOwner<MessagePanel>();
+        AvaloniaProperty.Register<MessagePanel, FontFamily>(nameof(TitleFontFamily), FontFamily.Default);
 
     /// <summary>
     /// Gets or sets the TitleFontFamily property. This StyledProperty 
@@ -160,7 +160,10 @@ public class MessagePanel : TemplatedControl
     /// TitleForeground StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<IBrush?> TitleForegroundProperty =
-        TextElement.ForegroundProperty.AddOwner<MessagePanel>();
+        AvaloniaProperty.Register<MessagePanel, IBrush?>(
+            nameof(Title),
+            TextElement.ForegroundProperty.GetDefaultValue(typeof(TextBlock))
+        );
 
     /// <summary>
     /// Gets or sets the TitleForeground property. This StyledProperty 
