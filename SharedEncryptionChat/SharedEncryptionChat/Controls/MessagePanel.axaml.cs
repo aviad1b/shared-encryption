@@ -157,6 +157,22 @@ public class MessagePanel : TemplatedControl
     }
 
     /// <summary>
+    /// TitleForeground StyledProperty definition.
+    /// </summary>
+    public static readonly StyledProperty<IBrush?> TitleForegroundProperty =
+        TextElement.ForegroundProperty.AddOwner<MessagePanel>();
+
+    /// <summary>
+    /// Gets or sets the TitleForeground property. This StyledProperty 
+    /// indicates text color for message title (if displayed).
+    /// </summary>
+    public IBrush? TitleForeground
+    {
+        get => GetValue(TitleForegroundProperty);
+        set => SetValue(TitleForegroundProperty, value);
+    }
+
+    /// <summary>
     /// Content StyledProperty definition.
     /// </summary>
     public static readonly StyledProperty<Control?> ContentProperty =

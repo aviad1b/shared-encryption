@@ -30,7 +30,8 @@
                        TailSize="6"
                        BubbleBrush="{DynamicResource ReceivedMessageBrush}"
                        MessageSide="Received"
-                       Title="Person"/>
+                       Title="Person"
+                       TitleForeground="Purple"/>
     </StackPanel>
   </Design.PreviewWith>
 
@@ -79,6 +80,7 @@
                          FontSize="{TemplateBinding TitleFontSize}"
                          FontStyle="{TemplateBinding TitleFontStyle}"
                          FontWeight="{TemplateBinding TitleFontWeight}"
+                         Foreground="{TemplateBinding TitleForeground}"
                          Padding="3"/>
               
               <Panel Grid.Row="1" Margin="10">
