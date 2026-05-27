@@ -1,0 +1,125 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cc="using:SharedEncryptionChat.Controls"
+                    xmlns:conv="using:SharedEncryptionChat.Converters"
+                    xmlns:pr="using:AvaloniaProgressRing">
+
+  <Design.PreviewWith>
+    <StackPanel Width="200" Spacing="1">
+      <cc:MessagePanel ShowTail="True"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent">
+        <cc:MessagePanel.Content>
+          <TextBlock Text="Some Text"/>
+        </cc:MessagePanel.Content>
+      </cc:MessagePanel>
+      <cc:MessagePanel ShowTail="False"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent">
+        <cc:MessagePanel.Content>
+          <TextBlock Text="More Text"/>
+        </cc:MessagePanel.Content>
+      </cc:MessagePanel>
+      <cc:MessagePanel ShowTail="False"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource SentMessageBrush}"
+                       MessageSide="Sent"/>
+      <cc:MessagePanel ShowTail="True"
+                       TailSize="6"
+                       BubbleBrush="{DynamicResource ReceivedMessageBrush}"
+                       MessageSide="Received"
+                       Title="Person"
+                       TitleForeground="Purple"/>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <!-- Control definition -->
+  <ControlTheme x:Key="{x:Type cc:MessagePanel}"
+                TargetType="cc:MessagePanel">
+
+    <ControlTheme.Resources>
+
+      <conv:IsNullConverter x:Key="IsNullConverter"/>
+
+      <conv:NotNullConverter x:Key="NotNullConverter"/>
+
+      <conv:VisibilityToOpacityConverter x:Key="VisibilityToOpacityConverter"/>
+
+      <conv:MessageTailGeometryConverter x:Key="MessageTailGeometryConverter"/>
+      
+      <conv:MessageSideToBubbleColumnConverter x:Key="MessageSideToBubbleColumnConverter"/>
+      
+      <conv:MessageSideToTailColumnConverter x:Key="MessageSideToTailColumnConverter"/>
+      
+      <conv:MessageSideToHorizontalAlignmentConverter x:Key="MessageSideToHorizontalAlignmentConverter"/>
+
+    </ControlTheme.Resources>
+
+    <!-- Control properties -->
+    <Setter Property="Template">
+      <ControlTemplate>
+
+        <Grid ColumnDefinitions="*,*"
+              HorizontalAlignment="{TemplateBinding MessageSide,
+                                    Converter={StaticResource MessageSideToHorizontalAlignmentConverter}}">
+
+          <Border Grid.Column="{TemplateBinding MessageSide,
+                                Converter={StaticResource MessageSideToBubbleColumnConverter}}"
+                  Background="{TemplateBinding BubbleBrush}"
+                  CornerRadius="5">
+
+            <Grid RowDefinitions="*,*">
+
+              <TextBlock Grid.Row="0"
+                         IsVisible="{TemplateBinding Title,
+                                     Converter={StaticResource NotNullConverter}}"
+                         Text="{TemplateBinding Title}"
+                         FontFamily="{TemplateBinding FontFamily}"
+                         FontSize="{TemplateBinding TitleFontSize}"
+                         FontStyle="{TemplateBinding TitleFontStyle}"
+                         FontWeight="{TemplateBinding TitleFontWeight}"
+                         Foreground="{TemplateBinding TitleForeground}"
+                         Padding="3"/>
+              
+              <Panel Grid.Row="1" Margin="10">
+
+                <ContentPresenter IsVisible="{TemplateBinding Content, Converter={StaticResource NotNullConverter}}"
+                                  Content="{TemplateBinding Content}"/>
+
+                <pr:ProgressRing IsVisible="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                                 IsActive="{TemplateBinding Content, Converter={StaticResource IsNullConverter}}"
+                                 Width="50" Height="50"/>
+
+              </Panel>
+
+            </Grid>
+
+          </Border>
+
+          <Path Grid.Column="{TemplateBinding MessageSide,
+                              Converter={StaticResource MessageSideToTailColumnConverter}}"
+                Opacity="{TemplateBinding ShowTail, Converter={StaticResource VisibilityToOpacityConverter}}"
+                Fill="{TemplateBinding BubbleBrush}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="0,4,0,0">
+            <Path.Data>
+              <MultiBinding Converter="{StaticResource MessageTailGeometryConverter}">
+                <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                         Path="TailSize"/>
+                <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                         Path="MessageSide"/>
+              </MultiBinding>
+            </Path.Data>
+          </Path>
+
+        </Grid>
+
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+</ResourceDictionary>

@@ -4,7 +4,18 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Resources/Themes.axaml"/>
+        <ResourceInclude Source="/Controls/MessagePanel.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+  
+  <Application.Styles>
+    <FluentTheme/>
+    <StyleInclude Source="avares://AvaloniaProgressRing/Styles/ProgressRing.xaml"/>
+  </Application.Styles>
+  
 </Application>
