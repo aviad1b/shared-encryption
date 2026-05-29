@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System.Collections.Generic">
 
   <ResourceDictionary.ThemeDictionaries>
 
@@ -10,6 +11,32 @@
       
       <SolidColorBrush x:Key="ReceivedMessageBrush"
                        Color="#E6EEF7"/>
+
+      <sys:List x:Key="SenderForegrounds"
+                x:TypeArguments="SolidColorBrush">
+        
+        <!-- red -->
+        <SolidColorBrush Color="#ED1C24"/>
+
+        <!-- orange -->
+        <SolidColorBrush Color="#FF7F27"/>
+        
+        <!-- yellow -->
+        <SolidColorBrush Color="#EEB900"/>
+        
+        <!-- green -->
+        <SolidColorBrush Color="#22B14C"/>
+        
+        <!-- light blue -->
+        <SolidColorBrush Color="#00A2E8"/>
+        
+        <!-- dark blue -->
+        <SolidColorBrush Color="#3F48CC"/>
+        
+        <!-- purple -->
+        <SolidColorBrush Color="#A349A4"/>
+        
+      </sys:List>
       
     </ResourceDictionary>
 
@@ -20,6 +47,32 @@
       
       <SolidColorBrush x:Key="ReceivedMessageBrush"
                        Color="#243447"/>
+
+      <sys:List x:Key="SenderForegrounds"
+                x:TypeArguments="SolidColorBrush">
+
+        <!-- red -->
+        <SolidColorBrush Color="#F14E56"/>
+        
+        <!-- orange -->
+        <SolidColorBrush Color="#FF8040"/>
+
+        <!-- yellow -->
+        <SolidColorBrush Color="#FFF200"/>
+
+        <!-- green -->
+        <SolidColorBrush Color="#B5E61D"/>
+
+        <!-- light blue -->
+        <SolidColorBrush Color="#99D9EA"/>
+
+        <!-- dark blue -->
+        <SolidColorBrush Color="#839FC7"/>
+
+        <!-- purple -->
+        <SolidColorBrush Color="#C8BFE7"/>
+
+      </sys:List>
       
     </ResourceDictionary>
 
