@@ -15,7 +15,7 @@ public abstract class Message
     /// <summary>
     /// Message sender (<see langword="null"/> for self).
     /// </summary>
-    public required string? Sender { get; set; }
+    public string? Sender { get; set; } = null;
 
     /// <summary>
     /// Gets view instance to display message.
