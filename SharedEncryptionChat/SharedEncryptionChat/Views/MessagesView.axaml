@@ -4,8 +4,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:conv="using:SharedEncryptionChat.Converters"
+             xmlns:cc="using:SharedEncryptionChat.Controls"
              xmlns:vm="using:SharedEncryptionChat.ViewModels"
              xmlns:dvm="using:SharedEncryptionChat.ViewModels.Dummy"
+             xmlns:m="using:SharedEncryptionChat.Models"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SharedEncryptionChat.Views.MessagesView"
              x:DataType="vm:MessagesViewModel">
@@ -14,13 +17,42 @@
     <dvm:DummyMessagesViewModel/>
   </Design.DataContext>
 
-  <ItemsControl>
+  <UserControl.Styles>
+
+    <Style Selector="cc|MessagePanel[MessageSide=Sent]">
+      <Setter Property="BubbleBrush"
+              Value="{DynamicResource SentMessageBrush}"/>
+    </Style>
+
+    <Style Selector="cc|MessagePanel[MessageSide=Received]">
+      <Setter Property="BubbleBrush"
+              Value="{DynamicResource ReceivedMessageBrush}"/>
+    </Style>
+    
+  </UserControl.Styles>
+
+  <UserControl.Resources>
+    
+    <conv:MessageToViewConverter x:Key="MessageToViewConverter"/>
+    
+  </UserControl.Resources>
+
+  <ItemsControl ItemsSource="{Binding Messages}">
 
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
-        <DockPanel LastChildFill="False"/>
+        <StackPanel Spacing="5"/>
       </ItemsPanelTemplate>
     </ItemsControl.ItemsPanel>
+
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="m:Message">
+        <cc:MessagePanel MessageSide="{Binding Side}"
+                         Title="{Binding Sender}"
+                         Content="{Binding .,
+                                   Converter={StaticResource MessageToViewConverter}}"/>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
     
   </ItemsControl>
   
