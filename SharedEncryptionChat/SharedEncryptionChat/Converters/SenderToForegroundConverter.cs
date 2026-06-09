@@ -14,14 +14,14 @@ public class SenderToForegroundConverter : IMultiValueConverter
     /// <inheritdoc/>
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        // expecting sender value and array of possible senders value
-        if (2 != values.Count ||
+        // expecting:
+        // - sender value
+        // - array of possible senders value
+        // - brushes list value
+        if (3 != values.Count ||
                 values[0] is not string sender ||
-                values[1] is not string[] possibleSenders)
-            return null;
-
-        // expecting brushes list parameter
-        if (parameter is not List<IBrush> foregrounds)
+                values[1] is not string[] possibleSenders ||
+                values[2] is not List<IBrush> foregrounds)
             return null;
 
         // find index of `sender` in `possibleSenders`

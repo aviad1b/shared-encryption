@@ -54,10 +54,10 @@
                          Content="{Binding .,
                                    Converter={StaticResource MessageToViewConverter}}">
           <cc:MessagePanel.TitleForeground>
-            <MultiBinding Converter="{StaticResource SenderToForegroundConverter}"
-                          ConverterParameter="{DynamicResource SenderForegrounds}">
+            <MultiBinding Converter="{StaticResource SenderToForegroundConverter}">
               <Binding Path="Sender"/>
               <Binding Path="$parent[UserControl].((vm:MessagesViewModel)DataContext).Senders"/>
+              <DynamicResource ResourceKey="SenderForegrounds"/>
             </MultiBinding>
           </cc:MessagePanel.TitleForeground>
         </cc:MessagePanel>
