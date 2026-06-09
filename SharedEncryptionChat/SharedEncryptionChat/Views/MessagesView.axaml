@@ -35,6 +35,8 @@
     
     <conv:MessageToViewConverter x:Key="MessageToViewConverter"/>
     
+    <conv:SenderToForegroundConverter x:Key="SenderToForegroundConverter"/>
+    
   </UserControl.Resources>
 
   <ItemsControl ItemsSource="{Binding Messages}">
@@ -50,7 +52,14 @@
         <cc:MessagePanel MessageSide="{Binding Side}"
                          Title="{Binding Sender}"
                          Content="{Binding .,
-                                   Converter={StaticResource MessageToViewConverter}}"/>
+                                   Converter={StaticResource MessageToViewConverter}}">
+          <cc:MessagePanel.TitleForeground>
+            <MultiBinding Converter="{StaticResource SenderToForegroundConverter}">
+              <Binding Path="Sender"/>
+              <Binding Path="$parent[UserControl].((vm:MessagesViewModel)DataContext).Senders"/>
+            </MultiBinding>
+          </cc:MessagePanel.TitleForeground>
+        </cc:MessagePanel>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
     
