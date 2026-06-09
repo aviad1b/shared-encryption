@@ -13,7 +13,7 @@
                        Color="#E6EEF7"/>
 
       <sys:List x:Key="SenderForegrounds"
-                x:TypeArguments="SolidColorBrush">
+                x:TypeArguments="IBrush">
         
         <!-- red -->
         <SolidColorBrush Color="#ED1C24"/>
@@ -49,7 +49,7 @@
                        Color="#243447"/>
 
       <sys:List x:Key="SenderForegrounds"
-                x:TypeArguments="SolidColorBrush">
+                x:TypeArguments="IBrush">
 
         <!-- red -->
         <SolidColorBrush Color="#F14E56"/>
